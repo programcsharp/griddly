@@ -1,0 +1,53 @@
+<!-- http://www.jeremyskinner.co.uk/2011/01/12/automating-nuget-package-creation-with-msbuild-and-powershell/ -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0" DefaultTargets="default">
+  <PropertyGroup>
+    <BaseDir>$(MSBuildProjectDirectory)\..</BaseDir>
+    <Configuration Condition="'$(Configuration)'==''" >Release</Configuration>
+    <BuildDir>$(BaseDir)\Build</BuildDir>
+    <PackageDir>$(BuildDir)\Packages</PackageDir>
+    <SolutionFile>$(BaseDir)\Griddly.sln</SolutionFile>
+    <MSBuildExtensions>$(BaseDir)\.build\MSBuild.Community.Tasks.dll</MSBuildExtensions>
+  </PropertyGroup>
+ 
+  <UsingTask AssemblyFile="$(MSBuildExtensions)" TaskName="MSBuild.Community.Tasks.XmlUpdate" />
+ 
+  <Target Name="default" DependsOnTargets="Compile; Package" />
+ 
+  <Target Name="Compile">
+    <MSBuild Projects="$(SolutionFile)" Properties="Configuration=$(Configuration)"  />
+  </Target>
+ 
+  <Target Name="Package">
+    <ItemGroup>
+      <Libs Include="$(BaseDir)\Griddly.Mvc\bin\$(Configuration)\Griddly.Mvc.dll" />
+      <Content Include="$(BaseDir)\Griddly\**\griddly.js" />
+      <Content Include="$(BaseDir)\Griddly\**\griddly.css" />
+      <Content Include="$(BaseDir)\Griddly\**\Griddly\*.*" />
+    </ItemGroup>
+ 
+	<Exec Command="rd $(PackageDir) /s /q" />
+	<RemoveDir Directories="$(PackageDir)" />
+
+    <!-- First copy the nuspec template files to the package dir -->
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\Griddly.nuspec" DestinationFolder="$(PackageDir)" />
+ 
+    <!-- Copy the source files to the package dir -->
+    <Copy SourceFiles="@(Libs)" DestinationFolder="$(PackageDir)\lib\net45\%(RecursiveDir)" />
+    <Copy SourceFiles="@(Content)" DestinationFolder="$(PackageDir)\content\%(RecursiveDir)" />
+ 
+    <!-- Get the version number of the main FV assembly to insert into the nuspec files -->
+    <GetAssemblyIdentity AssemblyFiles="$(PackageDir)\lib\net45\Griddly.Mvc.dll">
+      <Output TaskParameter="Assemblies" ItemName="AsmInfo" />
+    </GetAssemblyIdentity>
+
+    <!-- insert the version number into the nuspec files -->
+    <XmlUpdate
+      Namespace="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"
+      XmlFileName="$(PackageDir)\Griddly.nuspec"
+      XPath="/package/metadata/version"
+      Value="%(AsmInfo.Version)" />
+
+    <Exec WorkingDirectory="$(PackageDir)" 
+          Command="$(BaseDir)\.nuget\nuget.exe pack $(PackageDir)\Griddly.nuspec" />
+  </Target>
+</Project>

@@ -1,0 +1,11 @@
+﻿
+@{
+    ViewBag.Title = "TestGrid";
+}
+
+@Html.Griddly(new GriddlySettings<TestGridItem>()
+    {        
+    }
+    .Column(x => x.Field1, "Field 1")
+    .Column(x => x.Field2, "Field 2")
+)

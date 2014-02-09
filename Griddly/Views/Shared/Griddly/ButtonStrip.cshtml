@@ -1,0 +1,22 @@
+﻿@model IList<GriddlyButton>
+
+@if (Model.Any())
+{
+<div class="btn-toolbar @ViewBag.ClassName">
+    <div class="btn-group">
+        @foreach (GriddlyButton button in Model)
+        {
+            if (button.IsSeparator)
+            { 
+                @:</div>
+                @:<div class="btn-group">
+
+            }
+            else
+            { 
+                @Html.Partial(GriddlySettings.ButtonTemplate, button);
+            }
+        }
+    </div>
+</div>
+}
