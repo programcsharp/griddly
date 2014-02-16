@@ -1,4 +1,14 @@
-﻿!function ($)
+﻿@*
+ * Griddly script
+ * http://griddly.com
+ * Copyright 2013-2014 Chris Hynes and Data Research Group, Inc.
+ * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
+ *
+ * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
+ *
+ *@
+
+!function ($)
 {
     "use strict"; // jshint ;_;
 
