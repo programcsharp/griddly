@@ -7,13 +7,19 @@
 
     bool simple = ViewBag.isSimpleGriddly == true;
     bool isFirstRender = ViewContext.Controller.ControllerContext.IsChildAction || simple;
+    if (GriddlySettings.BeforeRender != null)
+    {
+        GriddlySettings.BeforeRender(settings);
+    }
 }
+
+
 @if (isFirstRender)
 {
     string[] sortDefaults = settings.Columns.Where(x => !string.IsNullOrWhiteSpace(x.DefaultSort)).Select(x => x.SortField + " " + x.DefaultSort).ToArray();
 
 @:<div class="griddly @settings.ClassName" data-role="griddly"
-@:     data-griddly-url="@Url.Current()"
+@:     @Html.AttributeNullable("data-griddly-url", !simple ? Url.Current() : null)
 @:     data-griddly-count="@Model.Total"
 @:     data-griddly-pagesize="@(settings.PageSize ?? Model.PageSize)"
 @:     @Html.AttributeNullable("data-griddly-onrefresh", settings.OnClientRefresh)
@@ -24,7 +30,7 @@
     <div class="buttons">
         @Html.Partial(GriddlySettings.ButtonListTemplate, new ViewDataDictionary(settings.Buttons)
             {
-                { "ResolveContext", ViewContext.ParentActionViewContext.ViewData.Model }  
+                { "ResolveContext", ViewContext.ParentActionViewContext != null ? ViewContext.ParentActionViewContext.ViewData.Model : null }  
             })
     </div>
     }
@@ -32,30 +38,36 @@
     {
         @settings.BeforeTemplate(null)
     }
-@:<table class="@settings.ClassName">
+@:<div class="griddly-scrollable-container">
+@:<table class="@settings.TableClassName">
+    <colgroup>
+        @foreach (GriddlyColumn column in settings.Columns)
+        {
+            <col @Html.AttributeIf("style",column.Width!=null,"width:"+column.Width) />
+        }
+    </colgroup>
     <thead>
         @if (!string.IsNullOrWhiteSpace(settings.Title))
         {
         <tr class="header">
-            <td colspan="@settings.Columns.Count">
-                @settings.Title
-            </td>
+            <td colspan="@settings.Columns.Count">@settings.Title</td>
         </tr>
         }
-        @if (settings.HasFilterTemplate && !settings.FilterInline)
-        {
-        <tr class="filters">
+        <tr class="filters" style="@(settings.FilterTemplate == null || !settings.ShowFilterInitially ? "display:none" : null)">
             <td colspan="@settings.Columns.Count">
                 <form class="filterForm novalidate">
-                    @settings.RenderFilterTemplate(null)
+                    @if (settings.FilterTemplate != null)
+                    {
+                        @settings.FilterTemplate(null)
+                    }
                     <div class="errors"></div>
                     <div class="buttons">
+                        <input type="hidden" name="query" value="true" />
                         <input type="submit" value="Search"> <a class="grid_searchreset" href="javascript:void(0);">Reset</a>
                     </div>
                 </form>
             </td>
         </tr> 
-        }
         <tr class="columnHeaders">
             @foreach (GriddlyColumn column in settings.Columns)
             {
@@ -72,18 +84,19 @@
                 </th>
             }
         </tr>
-        @if (settings.HasFilterTemplate && settings.FilterInline)
+        @if (settings.InlineFilterTemplate != null)
         {
-        <tr class="filters inline">
-            @settings.RenderFilterTemplate(null)
-        </tr> 
+        <tr class="filters inline">@settings.InlineFilterTemplate(null)</tr> 
         }
     </thead>
 }
     <tbody class="data">
         @foreach (object row in Model.Data)
         { 
-            <tr @Html.AttributeIf("data-griddly-url", settings.HasRowClickUrl, @<text>@settings.RenderRowClickUrl(row)</text>) @Html.AttributeIf("class", settings.HasRowClass, @<text>@settings.RenderRowClass(row)</text>)>
+            <tr @Html.AttributeIf("data-griddly-url", settings.HasRowClickUrl, @<text>@settings.RenderRowClickUrl(row)</text>)
+                @Html.AttributeIf("class", settings.HasRowClass, @<text>@settings.RenderRowClass(row)</text>)
+                @Html.AttributeIf("data-id", TryEval(row,settings.IdProperty)!=null, TryEval(row,settings.IdProperty))
+                >
             @foreach (GriddlyColumn column in settings.Columns)
             {
                 string currentSort = Model.SortFields != null ? Model.SortFields.FirstOrDefault(x => x == column.SortField || x.StartsWith(column.SortField + " ")) : null;
@@ -94,15 +107,15 @@
     </tbody>
 @if (isFirstRender)
 {
-    <tfoot>
-        <tr>
-            <td colspan="@settings.Columns.Count" class="last">
+@:</table>
+@:</div>
+            <div class="griddly-footer">
             @if (settings.FooterTemplate == null || simple)
             {
                 <span class="griddly-summary">Records @(Model.PageNumber * Model.PageSize + (Model.Total > 0 ? 1 : 0)) through @(Model.PageNumber * Model.PageSize + Model.Count) of @Model.Total</span>
                 <span class="griddly-pager" style="@(Model.Total <= Model.PageSize ? "display:none" : null)">
                     <a class="prev" href="javascript:void(0)" style="@(Model.PageNumber == 0 ? "display:none" : null)">&lt;&lt; Previous</a>Page
-                    <input type="text" class="pageNumber" value="@(Model.PageNumber + 1)"> of <span class="pageCount">@(Model.Total / Model.PageSize + 1)</span>
+                    <input type="text" class="pageNumber" value="@(Model.Total > 0 ? (Model.PageNumber + 1) : 0)"> of <span class="pageCount">@(Model.Total > 0 ? (Model.Total / Model.PageSize + 1) : 0)</span>
                     <a class="next" style="@(Model.Total < Model.PageSize ? "display:none" : null)" href="javascript:void(0)">Next &gt;&gt;</a>
                 </span>
             }
@@ -110,13 +123,22 @@
             {
                 @settings.FooterTemplate(Model) 
             }
-            </td>
-        </tr>
-    </tfoot>    
-@:</table>
+            </div>
+
     if (settings.AfterTemplate != null)
     {
         @settings.AfterTemplate(null)
     }
 @:</div>    
+}
+@functions
+{
+    object TryEval(object obj, string prop)
+    {
+        try
+        {
+            return DataBinder.Eval(obj, prop);
+        }
+        catch { return null; }
+    }
 }

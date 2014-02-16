@@ -23,5 +23,10 @@ namespace Griddly.Mvc
 
             return new HtmlString(input.ToString(TagRenderMode.SelfClosing));
         }
+
+        public override object RenderCellValue(object row)
+        {
+            return null;
+        }
     }
 }

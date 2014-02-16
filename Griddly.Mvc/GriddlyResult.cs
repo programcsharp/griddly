@@ -46,10 +46,13 @@ namespace Griddly.Mvc
                 exportFormat = exportFormatValue;
             else
                 exportFormat = null;
+            
+
+            GriddlySettings settings = null;
 
             if (context.IsChildAction)
             {
-                GriddlySettings settings = GriddlySettingsResult.GetSettings(context, ViewName);
+                settings = GriddlySettingsResult.GetSettings(context, ViewName);    
 
                 if (sortFields == null)
                 {
@@ -64,6 +67,9 @@ namespace Griddly.Mvc
                     if (sortFieldList.Count > 0)
                         sortFields = sortFieldList.ToArray();
                 }
+
+                if (settings.PageSize > settings.MaxPageSize)
+                    settings.PageSize = settings.MaxPageSize;
 
                 if (settings.PageSize != null)
                     pageSize = settings.PageSize.Value;
@@ -80,7 +86,8 @@ namespace Griddly.Mvc
                     PageNumber = pageNumber,
                     Total = GetCount(),
                     PageSize = pageSize,
-                    SortFields = sortFields
+                    SortFields = sortFields,
+                    Settings = settings
                 };
 
                 context.RequestContext.HttpContext.Response.Headers["X-Griddly-Count"] = result.Total.ToString();
@@ -105,26 +112,40 @@ namespace Griddly.Mvc
             }
             else
             {
-                GriddlySettings settings = GriddlySettingsResult.GetSettings(context, ViewName);
+                settings = GriddlySettingsResult.GetSettings(context, ViewName);
 
                 settings.Columns.RemoveAll(x => x is GriddlySelectColumn);
 
                 ActionResult result;
+ 
+                string fileName = settings.Title;
+                foreach (char c in System.IO.Path.GetInvalidFileNameChars())
+                    fileName = fileName.Replace(c, '_');
 
-                if (exportFormat == GriddlyExportFormat.Xlsx)
-                    result = new GriddlyExcelResult<T>(GetAll(sortFields), settings, context.Controller.ControllerContext.RouteData.Values["controller"].ToString());
-                else// if (exportFormat == GriddlyExportFormat.Csv || exportFormat == GriddlyExportFormat.Tsv)
-                    result = new GriddlyCsvResult<T>(GetAll(sortFields), settings, context.Controller.ControllerContext.RouteData.Values["controller"].ToString(), exportFormat.Value);
+                var records = GetAll(sortFields);
+                if (exportFormat == GriddlyExportFormat.Custom)
+                {
+                    string report = items["reportType"];
+                    result = GriddlySettings.HandleCustomReport(report, records);
+                }
+                else if (exportFormat == GriddlyExportFormat.Xlsx)
+                {
+                    result = new GriddlyExcelResult<T>(records, settings, fileName);
+                }
+                else // if (exportFormat == GriddlyExportFormat.Csv || exportFormat == GriddlyExportFormat.Tsv)
+                {
+                    result = new GriddlyCsvResult<T>(records, settings, fileName, exportFormat.Value);
+                }
 
                 result.ExecuteResult(context);
             }
         }
 
-        protected virtual IList<T> GetAll(string[] sortFields)
+        protected virtual IEnumerable<T> GetAll(string[] sortFields)
         {
             IQueryable<T> sortedQuery = ApplySortFields(_result, sortFields);
 
-            return sortedQuery.ToList();
+            return sortedQuery;
         }
 
         protected virtual IList<T> GetPage(int pageNumber, int pageSize, string[] sortFields)
@@ -233,6 +254,7 @@ namespace Griddly.Mvc
     {
         Xlsx,
         Csv,
-        Tsv
+        Tsv,
+        Custom
     }
 }

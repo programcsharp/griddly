@@ -1,22 +1,48 @@
 ﻿@model IList<GriddlyButton>
 
+@{
+    var leftButtons = Model.Where(x => !x.AlignRight);
+    var rightButtons = Model.Where(x => x.AlignRight);
+}
+
 @if (Model.Any())
 {
-<div class="btn-toolbar @ViewBag.ClassName">
-    <div class="btn-group">
-        @foreach (GriddlyButton button in Model)
-        {
-            if (button.IsSeparator)
-            { 
-                @:</div>
-                @:<div class="btn-group">
-
-            }
-            else
-            { 
-                @Html.Partial(GriddlySettings.ButtonTemplate, button);
-            }
-        }
-    </div>
-</div>
+    if (rightButtons.Any())
+    {
+        <div class="btn-toolbar @ViewBag.ClassName pull-right">
+            <div class="btn-group">
+                @foreach (GriddlyButton button in rightButtons.Reverse())
+                {
+                    if (button.IsSeparator)
+                    {
+                        @:</div>
+                        @:<div class="btn-group">
+                    }
+                    else
+                    {
+                        @Html.Partial(GriddlySettings.ButtonTemplate, button);
+                    }
+                }
+            </div>
+        </div>
+    }
+    if (leftButtons.Any())
+    {
+        <div class="btn-toolbar @ViewBag.ClassName">
+            <div class="btn-group">
+                @foreach (GriddlyButton button in leftButtons)
+                {
+                    if (button.IsSeparator)
+                    {
+                        @:</div>
+                        @:<div class="btn-group">
+                    }
+                    else
+                    {
+                        @Html.Partial(GriddlySettings.ButtonTemplate, button);
+                    }
+                }
+            </div>
+        </div>
+    }
 }

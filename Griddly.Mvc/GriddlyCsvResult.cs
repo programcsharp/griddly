@@ -10,12 +10,12 @@ namespace Griddly.Mvc
 {
     public class GriddlyCsvResult<T> : ActionResult
     {
-        IList<T> _data;
+        IEnumerable<T> _data;
         GriddlySettings _settings;
         string _name;
         GriddlyExportFormat _format;
 
-        public GriddlyCsvResult(IList<T> data, GriddlySettings settings, string name, GriddlyExportFormat format = GriddlyExportFormat.Csv)
+        public GriddlyCsvResult(IEnumerable<T> data, GriddlySettings settings, string name, GriddlyExportFormat format = GriddlyExportFormat.Csv)
         {
             _data = data;
             _settings = settings;
@@ -39,27 +39,23 @@ namespace Griddly.Mvc
 
                 w.NextRecord();
 
-                for (int y = 0; y < _data.Count; y++)
-                {
-                    T row = _data[y];
+                int y = 0;
 
+                foreach (T row in _data)
+                {
                     for (int x = 0; x < _settings.Columns.Count; x++)
                     {
-                        object renderedValue = _settings.Columns[x].RenderCell(row, false);
+                        object renderedValue = _settings.Columns[x].RenderCellValue(row);
 
-                        string value;
+                        if (renderedValue is string)
+                            renderedValue = _htmlMatch.Replace((string)renderedValue, "").Trim().Replace("  ", " ");
 
-                        if (renderedValue != null)
-                            value = renderedValue.ToString();
-                        else
-                            value = "";
-
-                        value = _htmlMatch.Replace(value, "").Trim().Replace("  ", " ");
-
-                        w.WriteField(value);
+                        w.WriteField(renderedValue);
                     }
 
                     w.NextRecord();
+
+                    y++;
                 }
             }
         }

@@ -1,2 +1,91 @@
-﻿body {
+﻿.griddly
+{
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
+
+    .griddly-scrollable-container
+    {
+        overflow-x:auto;
+    }
+
+    .griddly table
+    {
+        border-collapse: collapse;
+        margin-bottom: 0;
+    }
+
+        .griddly table tbody tr td
+        {
+            cursor: pointer;
+            white-space:nowrap;
+        }
+
+    .griddly th
+    {
+        background-color: #c8c8c8;
+        white-space: nowrap;
+        border-width: 1px !important;
+        color: #333;
+    }
+
+        .griddly th.sortable
+        {
+            cursor: pointer;
+        }
+
+            .griddly th.sortable span.icon
+            {
+                width: 0;
+                height: 0;
+                vertical-align: top;
+                border-right: 4px solid transparent;
+                border-left: 4px solid transparent;
+                content: "";
+                margin-top: 7px;
+                display: none;
+            }
+
+        .griddly th.sorted_a span.icon
+        {
+            display: inline-block;
+            border-bottom: 4px solid #000000;
+        }
+
+        .griddly th.sorted_d span.icon
+        {
+            display: inline-block;
+            border-top: 4px solid #000000;
+        }
+
+        .griddly th.sorted_a,
+        .griddly th.sorted_d
+        {
+            background-color: #aeaeae;
+            color: #000;
+        }
+
+    .griddly td.sorted_a,
+    .griddly td.sorted_d
+    {
+        background-color: #f0f0f0;
+    }
+
+    .griddly .griddly-footer
+    {
+        background-color: #f0f0f0;
+    }
+
+.griddly-scrollable-container::-webkit-scrollbar {  
+    width: 8px;  
+    height:8px;
+}  
+.griddly-scrollable-container::-webkit-scrollbar-track {  
+    background: #fafafa;
+}  
+.griddly-scrollable-container::-webkit-scrollbar-thumb {  
+    background: #888;
+}  
+.griddly-scrollable-container::-webkit-scrollbar-thumb:hover {  
+    background-color: #aaa;  
+} 

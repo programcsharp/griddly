@@ -1,5 +1,4 @@
-﻿using System.Web;
-using System.Web.Optimization;
+﻿using System.Web.Optimization;
 
 namespace Griddly
 {
@@ -22,6 +21,7 @@ namespace Griddly
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
+                      "~/Content/griddly.css",
                       "~/Content/site.css"));
         }
     }

@@ -5,23 +5,33 @@
         Model.Argument = Model.ArgumentTemplate(ViewData["ResolveContext"]).ToString();
     }
 }
-@if (!Model.Buttons.Any())
+@if (Model is GriddlyHtmlButton)
+{
+    @(((GriddlyHtmlButton)Model).HtmlTemplate(Model))
+}
+else if (!Model.Buttons.Any())
 {
     @RenderLink(Model, false, false)
 }
 else
 {
-    <div class="btn-group">
+    <div class="btn-group @(Model.AlignRight ? "pull-right" : null)">
         @RenderLink(Model, true, false)
-        <ul class="dropdown-menu">
+        @if (Model.IsSplitDropdown)
+        {
+            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
+                <span class="caret"></span>
+            </button>
+        }
+        <ul class="dropdown-menu @(Model.AlignRight ? "pull-right" : "")">
             @foreach (GriddlyButton button in Model.Buttons)
             {
                 if (!button.IsSeparator)
                 {
-                <li>@RenderLink(button, false, true)</li>
+                    <li>@RenderLink(button, false, true)</li>
                 }
                 else
-                { 
+                {
                     <li class="divider"></li>
                 }
             }
@@ -31,24 +41,27 @@ else
 
 @helper RenderLink(GriddlyButton button, bool isDropdown, bool isMenuItem)
 {
-    <a class="@(!isMenuItem ? "btn" : null) @(isDropdown ? "dropdown-toggle" : null) @(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null) @button.ClassName" onclick="@(button.Action == GriddlyButtonAction.Javascript ? button.Argument : null)"
-   @Html.AttributeIf("data-toggle", button.Action != GriddlyButtonAction.Navigate && button.Action != GriddlyButtonAction.Javascript, button.Action.ToString().ToLower())
-   @Html.AttributeIf("data-toggle", isDropdown, "dropdown")
-   @Html.AttributeIf("data-url", button.Action == GriddlyButtonAction.Ajax || button.Action == GriddlyButtonAction.AjaxBulk || button.Action == GriddlyButtonAction.Post, button.Argument)
-   @Html.AttributeIf("href", button.Action != GriddlyButtonAction.Modal && button.Action != GriddlyButtonAction.Report && (button.Action != GriddlyButtonAction.Navigate || isDropdown), "javascript:void(0)")
-   @Html.AttributeIf("href", (button.Action == GriddlyButtonAction.Navigate && !isDropdown) || button.Action == GriddlyButtonAction.Report || (button.Action == GriddlyButtonAction.Modal && !string.IsNullOrWhiteSpace(button.Target)), button.Argument)
-   @Html.AttributeIf("href", button.Action == GriddlyButtonAction.Modal && string.IsNullOrWhiteSpace(button.Target), "#" + button.Argument)
-   @Html.AttributeIf("target", button.Action == GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
-   @Html.AttributeIf("data-target", button.Action == GriddlyButtonAction.Modal && !string.IsNullOrWhiteSpace(button.Target), button.Target)
-   @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection != null, button.EnableOnSelection.ToString().ToLower())>
-    @if (!string.IsNullOrWhiteSpace(Model.Icon) && GriddlySettings.IconTemplate != null)
-    {
-        @GriddlySettings.IconTemplate(button)
-    }
-    @button.Text
-    @if (isDropdown)
-    {
-        <span class="caret"></span>
-    }
-</a>
+    <a class="@(!isMenuItem ? "btn" : null) @(isDropdown && !button.IsSplitDropdown ? "dropdown-toggle" : null) @(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null) @button.ClassName @(!string.IsNullOrWhiteSpace(Model.Icon) ? "btn-with-icon" : null)" onclick="@(button.Action == GriddlyButtonAction.Javascript ? button.Argument : null)"
+       @Html.AttributeIf("data-toggle", button.Action != GriddlyButtonAction.Navigate && button.Action != GriddlyButtonAction.Javascript, button.Action.ToString().ToLower())
+       @Html.AttributeIf("data-toggle", isDropdown && !button.IsSplitDropdown, "dropdown")
+       @Html.AttributeIf("data-url", button.Action == GriddlyButtonAction.Ajax || button.Action == GriddlyButtonAction.AjaxBulk || button.Action == GriddlyButtonAction.Post || button.Action == GriddlyButtonAction.PostCriteria, button.Argument)
+       @Html.AttributeIf("href", button.Action != GriddlyButtonAction.Modal && button.Action != GriddlyButtonAction.Report && (button.Action != GriddlyButtonAction.Navigate || (isDropdown && !button.IsSplitDropdown)), "javascript:void(0)")
+       @Html.AttributeIf("href", (button.Action == GriddlyButtonAction.Navigate && (!isDropdown || button.IsSplitDropdown)) || button.Action == GriddlyButtonAction.Report || (button.Action == GriddlyButtonAction.Modal && !string.IsNullOrWhiteSpace(button.Target)), button.Argument)
+       @Html.AttributeIf("href", button.Action == GriddlyButtonAction.Modal && string.IsNullOrWhiteSpace(button.Target), "#" + button.Argument)
+       @Html.AttributeIf("target", button.Action == GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
+       @Html.AttributeIf("data-target", button.Action != GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
+       @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Icon) && GriddlySettings.IconTemplate != null)
+        {
+            @GriddlySettings.IconTemplate(button)
+        }
+
+        @button.Text
+
+        @if (isDropdown && !button.IsSplitDropdown)
+        {
+            <span class="caret"></span>
+        }
+    </a>
 }

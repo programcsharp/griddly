@@ -14,6 +14,8 @@ namespace Griddly.Mvc
         public long Total { get; set; }
 
         public int PageSize { get; set; }
+
+        public GriddlySettings Settings { get; set; }
     }
 
     public class GriddlyResultPage<T> : GriddlyResultPage

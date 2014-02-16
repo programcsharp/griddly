@@ -37,6 +37,9 @@ namespace Griddly.Mvc
 
         Type GetExpectedReturnType(ActionExecutingContext filterContext)
         {
+            if (filterContext.ActionDescriptor is ReflectedActionDescriptor)
+                return ((ReflectedActionDescriptor)filterContext.ActionDescriptor).MethodInfo.ReturnType;
+
             // Find out what type is expected to be returned
             string actionName = filterContext.ActionDescriptor.ActionName;
             Type controllerType = filterContext.Controller.GetType();

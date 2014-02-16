@@ -10,26 +10,16 @@ namespace Griddly.Mvc
         public Func<object, object> ArgumentTemplate { get; set; }
 
         public bool Enabled { get; set; }
-        public bool? EnableOnSelection { get; set; }
+        public bool EnableOnSelection { get; set; }
         public bool IsSeparator { get; set; }
+        public bool IsSplitDropdown { get; set; }
         public string Text { get; set; }
         public string Icon { get; set; }
         public string ClassName { get; set; }
         public string Target { get; set; }
+        public bool AlignRight { get; set; }
 
-        GriddlyButtonAction _action;
-
-        public GriddlyButtonAction Action
-        {
-            get { return _action; }
-            set
-            {
-                if ((value == GriddlyButtonAction.Ajax || value == GriddlyButtonAction.AjaxBulk || value == GriddlyButtonAction.Post) && EnableOnSelection == null)
-                    EnableOnSelection = true;
-
-                _action = value;
-            }
-        }
+        public GriddlyButtonAction Action { get; set; }
 
         public List<GriddlyButton> Buttons { get; private set; }
 
@@ -39,6 +29,12 @@ namespace Griddly.Mvc
 
             Enabled = true;
             Action = GriddlyButtonAction.Navigate;
+        }
+
+        public GriddlyButton Add(GriddlyButton item)
+        {
+            Buttons.Add(item);
+            return this;
         }
 
         public HttpVerbs Verb
@@ -51,6 +47,7 @@ namespace Griddly.Mvc
                     case GriddlyButtonAction.Report:
                         return HttpVerbs.Get;
                     case GriddlyButtonAction.Post:
+                    case GriddlyButtonAction.PostCriteria:
                     case GriddlyButtonAction.Ajax:
                     case GriddlyButtonAction.AjaxBulk:
                         return HttpVerbs.Post;
@@ -70,6 +67,7 @@ namespace Griddly.Mvc
         AjaxBulk,
         Post,
         Modal,
-        Report
+        Report,
+        PostCriteria
     }
 }

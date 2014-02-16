@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Web.Mvc;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 
 namespace Griddly.Mvc
 {
     public class GriddlyExcelResult<T> : ActionResult
     {
-        IList<T> _data;
+        IEnumerable<T> _data;
         GriddlySettings _settings;
         string _name;
 
-        public GriddlyExcelResult(IList<T> data, GriddlySettings settings, string name)
+        public GriddlyExcelResult(IEnumerable<T> data, GriddlySettings settings, string name)
         {
             _data = data;
             _settings = settings;
@@ -34,41 +35,43 @@ namespace Griddly.Mvc
                     ws.Cells[1, i + 1].Style.Font.Bold = true;
                 }
 
-                for (int y = 0; y < _data.Count; y++)
-                {
-                    T row = _data[y];
+                int y = 0;
 
+                foreach (T row in _data)
+                {
                     for (int x = 0; x < _settings.Columns.Count; x++)
                     {
-                        object renderedValue = _settings.Columns[x].RenderCell(row, false);
+                        object renderedValue = _settings.Columns[x].RenderCellValue(row);
 
-                        string value;
+                        if (renderedValue is string)
+                            renderedValue = _htmlMatch.Replace((string)renderedValue, "").Trim().Replace("  ", " ");
 
-                        if (renderedValue != null)
-                            value = renderedValue.ToString();
-                        else
-                            value = "";
+                        ExcelRange cell = ws.Cells[y + 2, x + 1];
+                                        
+                        cell.Value = renderedValue;
 
-                        if (value.StartsWith("<a"))
+                        if (renderedValue as DateTime? != null)
                         {
-                            Match match = _aMatch.Match(value);
-
-                            value = match.Groups[2].Value;
-
-                            ws.Cells[y + 2, x + 1].Hyperlink = new Uri(context.HttpContext.Request.Url, match.Groups[1].Value);
+                            cell.Style.Numberformat.Format = "mm/dd/yyyy";
+                            cell.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                         }
-                        else
+                        else if (_settings.Columns[x].Format == "c")
                         {
-                            value = _htmlMatch.Replace(value, "").Trim().Replace("  ", " ");
+                            cell.Style.Numberformat.Format = "\"$\"#,##0.00_);(\"$\"#,##0.00)";
+                            cell.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                         }
-
-                        ws.Cells[y + 2, x + 1].Value = value;
                     }
+
+                    y++;
                 }
+
+                for (int i = 0; i < _settings.Columns.Count; i++)
+                    ws.Column(i + 1).AutoFit();
 
                 context.HttpContext.Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                 context.HttpContext.Response.AddHeader("content-disposition", "attachment;  filename=" + _name + ".xlsx");
-                context.HttpContext.Response.BinaryWrite(p.GetAsByteArray());
+
+                p.SaveAs(context.HttpContext.Response.OutputStream);
             }
         }
     }
