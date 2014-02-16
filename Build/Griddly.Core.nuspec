@@ -2,19 +2,21 @@
 <!-- http://www.jeremyskinner.co.uk/2011/01/12/automating-nuget-package-creation-with-msbuild-and-powershell/ -->
 <package>
   <metadata>
-    <id>Griddly</id>
+    <id>Griddly.Core</id>
     <version></version>
     <authors>Chris Hynes</authors>
     <!--<licenseUrl></licenseUrl>-->
     <projectUrl>https://github.com/programcsharp/griddly</projectUrl>
     <!--<iconUrl></iconUrl>-->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Pagable sortable MVC enabled grid</description>
+    <description>Pagable sortable MVC enabled grid (core files only)</description>
     <!--<summary></summary>-->
     <language>en-US</language>
     <dependencies> 
       <group>
-        <dependency id="Griddly.Core" version="" />
+        <dependency id="CsvHelper" version="2.4.0" />
+        <dependency id="Dapper" version="1.13.0" />
+        <dependency id="EPPlus" version="3.1.3.3" />
       </group>
     </dependencies>
   </metadata>

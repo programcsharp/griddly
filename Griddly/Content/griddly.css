@@ -7,6 +7,7 @@
     .griddly-scrollable-container
     {
         overflow-x:auto;
+        clear:both;
     }
 
     .griddly table

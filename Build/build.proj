@@ -22,32 +22,54 @@
       <Libs Include="$(BaseDir)\Griddly.Mvc\bin\$(Configuration)\Griddly.Mvc.dll" />
       <Content Include="$(BaseDir)\Griddly\**\griddly.js" />
       <Content Include="$(BaseDir)\Griddly\**\griddly.css" />
-      <Content Include="$(BaseDir)\Griddly\**\Griddly\*.*" />
+      <Content Include="$(BaseDir)\Griddly\**\Griddly\*.*" />      
     </ItemGroup>
  
     <Exec Command="rd $(PackageDir) /s /q" />
     <RemoveDir Directories="$(PackageDir)" />
 
+    <MakeDir Directories="$(PackageDir)\Griddly;$(PackageDir)\Griddly.Core" />
+    
     <!-- First copy the nuspec template files to the package dir -->
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\Griddly.nuspec" DestinationFolder="$(PackageDir)" />
- 
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\Griddly.nuspec" DestinationFolder="$(PackageDir)\Griddly" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\Griddly.Core.nuspec" DestinationFolder="$(PackageDir)\Griddly.Core" />
+
     <!-- Copy the source files to the package dir -->
-    <Copy SourceFiles="@(Libs)" DestinationFolder="$(PackageDir)\lib\net45\%(RecursiveDir)" />
-    <Copy SourceFiles="@(Content)" DestinationFolder="$(PackageDir)\content\%(RecursiveDir)" />
- 
+    <Copy SourceFiles="@(Content)" DestinationFolder="$(PackageDir)\Griddly\content\%(RecursiveDir)" />
+    <Copy SourceFiles="@(Libs)" DestinationFolder="$(PackageDir)\Griddly.Core\lib\net45\%(RecursiveDir)" />
+
     <!-- Get the version number of the main FV assembly to insert into the nuspec files -->
-    <GetAssemblyIdentity AssemblyFiles="$(PackageDir)\lib\net45\Griddly.Mvc.dll">
+    <GetAssemblyIdentity AssemblyFiles="$(PackageDir)\Griddly.Core\lib\net45\Griddly.Mvc.dll">
       <Output TaskParameter="Assemblies" ItemName="AsmInfo" />
     </GetAssemblyIdentity>
 
     <!-- insert the version number into the nuspec files -->
     <XmlUpdate
       Namespace="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"
-      XmlFileName="$(PackageDir)\Griddly.nuspec"
+      XmlFileName="$(PackageDir)\Griddly\Griddly.nuspec"
+      XPath="/package/metadata/version"
+      Value="%(AsmInfo.Version)" />
+    <XmlUpdate
+      Namespace="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"
+      XmlFileName="$(PackageDir)\Griddly.Core\Griddly.Core.nuspec"
       XPath="/package/metadata/version"
       Value="%(AsmInfo.Version)" />
 
+    <XmlUpdate
+      Namespace="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"
+      XmlFileName="$(PackageDir)\Griddly\Griddly.nuspec"
+      XPath="/package/metadata/dependencies/group/dependency[@id='Griddly.Core']/@version"
+      Value="%(AsmInfo.Version)" />
+
     <Exec WorkingDirectory="$(PackageDir)" 
-          Command="$(BaseDir)\.nuget\nuget.exe pack $(PackageDir)\Griddly.nuspec" />
+          Command="$(BaseDir)\.nuget\nuget.exe pack $(PackageDir)\Griddly\Griddly.nuspec" />
+    <Exec WorkingDirectory="$(PackageDir)"
+          Command="$(BaseDir)\.nuget\nuget.exe pack $(PackageDir)\Griddly.Core\Griddly.Core.nuspec" />
+
+    <ItemGroup>
+      <OutputPackages Include="$(PackageDir)\**\*.nupkg" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(OutputPackages)" DestinationFolder="$(PackageDir)"/>
   </Target>
 </Project>

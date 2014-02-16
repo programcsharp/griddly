@@ -21,7 +21,7 @@ namespace Griddly.Mvc
 
         public GriddlyButtonAction Action { get; set; }
 
-        public List<GriddlyButton> Buttons { get; private set; }
+        public List<GriddlyButton> Buttons { get; set; }
 
         public GriddlyButton()
         {
