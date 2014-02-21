@@ -141,7 +141,7 @@ namespace Griddly.Mvc
                 value = new HtmlString(((HelperResult)value).ToString());
             else if (value is Enum)
                 value = ToStringDescription((Enum)value);
-            else if (value.GetType().Name.Contains("M3DateTime"))
+            else if (value != null && value.GetType().Name.Contains("M3DateTime"))
                 value = (DateTime?)value;
 
             return value;

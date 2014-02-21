@@ -117,10 +117,14 @@ namespace Griddly.Mvc
                 settings.Columns.RemoveAll(x => x is GriddlySelectColumn);
 
                 ActionResult result;
- 
-                string fileName = settings.Title;
-                foreach (char c in System.IO.Path.GetInvalidFileNameChars())
-                    fileName = fileName.Replace(c, '_');
+
+                string fileName = settings.Title ?? context.Controller.ControllerContext.RouteData.Values["controller"].ToString();
+
+                if (fileName != null)
+                {
+                    foreach (char c in System.IO.Path.GetInvalidFileNameChars())
+                        fileName = fileName.Replace(c, '_');
+                }
 
                 var records = GetAll(sortFields);
                 if (exportFormat == GriddlyExportFormat.Custom)
