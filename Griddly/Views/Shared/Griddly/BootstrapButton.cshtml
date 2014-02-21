@@ -15,11 +15,11 @@ else if (!Model.Buttons.Any())
 }
 else
 {
-    <div class="btn-group @(Model.AlignRight ? "pull-right" : null)">
+    <div class="btn-group">
         @RenderLink(Model, true, false)
         @if (Model.IsSplitDropdown)
         {
-            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                 <span class="caret"></span>
             </button>
         }
@@ -41,7 +41,7 @@ else
 
 @helper RenderLink(GriddlyButton button, bool isDropdown, bool isMenuItem)
 {
-    <a class="@(!isMenuItem ? "btn" : null) @(isDropdown && !button.IsSplitDropdown ? "dropdown-toggle" : null) @(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null) @button.ClassName @(!string.IsNullOrWhiteSpace(Model.Icon) ? "btn-with-icon" : null)" onclick="@(button.Action == GriddlyButtonAction.Javascript ? button.Argument : null)"
+    <a class="@(!isMenuItem ? "btn btn-default" : null) @(isDropdown && !button.IsSplitDropdown ? "dropdown-toggle" : null) @(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null) @button.ClassName @(!string.IsNullOrWhiteSpace(Model.Icon) ? "btn-with-icon" : null)" onclick="@(button.Action == GriddlyButtonAction.Javascript ? button.Argument : null)"
        @Html.AttributeIf("data-toggle", button.Action != GriddlyButtonAction.Navigate && button.Action != GriddlyButtonAction.Javascript, button.Action.ToString().ToLower())
        @Html.AttributeIf("data-toggle", isDropdown && !button.IsSplitDropdown, "dropdown")
        @Html.AttributeIf("data-url", button.Action == GriddlyButtonAction.Ajax || button.Action == GriddlyButtonAction.AjaxBulk || button.Action == GriddlyButtonAction.Post || button.Action == GriddlyButtonAction.PostCriteria, button.Argument)

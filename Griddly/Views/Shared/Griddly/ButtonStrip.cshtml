@@ -1,8 +1,8 @@
 ﻿@model IList<GriddlyButton>
 
 @{
-    var leftButtons = Model.Where(x => !x.AlignRight);
-    var rightButtons = Model.Where(x => x.AlignRight);
+    var leftButtons = Model.Where(x => !x.AlignRight && ViewBag.AlignRight != true);
+    var rightButtons = Model.Where(x => x.AlignRight || ViewBag.AlignRight == true);
 }
 
 @if (Model.Any())
@@ -10,8 +10,11 @@
     if (rightButtons.Any())
     {
         <div class="btn-toolbar @ViewBag.ClassName pull-right">
-            <div class="btn-group">
-                @foreach (GriddlyButton button in rightButtons.Reverse())
+            @if (rightButtons.Count() > 1)
+            {
+            @:<div class="btn-group">
+            }
+                @foreach (GriddlyButton button in rightButtons)
                 {
                     if (button.IsSeparator)
                     {
@@ -23,26 +26,35 @@
                         @Html.Partial(GriddlySettings.ButtonTemplate, button);
                     }
                 }
-            </div>
+            @if (rightButtons.Count() > 1)
+            {
+            @:</div>
+            }
         </div>
     }
     if (leftButtons.Any())
     {
         <div class="btn-toolbar @ViewBag.ClassName">
-            <div class="btn-group">
-                @foreach (GriddlyButton button in leftButtons)
+            @if (leftButtons.Count() > 1)
+            {
+                @:<div class="btn-group">
+            }
+            @foreach (GriddlyButton button in leftButtons)
+            {
+                if (button.IsSeparator)
                 {
-                    if (button.IsSeparator)
-                    {
-                        @:</div>
-                        @:<div class="btn-group">
-                    }
-                    else
-                    {
-                        @Html.Partial(GriddlySettings.ButtonTemplate, button);
-                    }
+                    @:</div>
+                    @:<div class="btn-group">
                 }
-            </div>
+                else
+                {
+                    @Html.Partial(GriddlySettings.ButtonTemplate, button);
+                }
+            }
+            @if (leftButtons.Count() > 1)
+            {
+            @:</div>
+            }
         </div>
     }
 }
