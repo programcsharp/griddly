@@ -179,7 +179,7 @@
                 this.refresh(true);
             }, this));
 
-            var onRowClick = $.proxy(function (e)
+            $(this.$element).on("mouseup", "tbody.data tr td:not(:has(input))", $.proxy(function (e)
             {
                 var url = $(e.target).parents("tr").data("griddly-url");
 
@@ -196,10 +196,18 @@
                         else if (e.which != 3)
                             window.location = url;
                     }
-                }
-            }, this);
 
-            $(this.$element).on("mouseup", "tbody.data tr td:not(:has(input))", onRowClick);
+                    e.preventDefault();
+                }
+            }, this));
+
+            $(this.$element).on("mousedown", "tbody.data tr td:not(:has(input))", $.proxy(function (e)
+            {
+                var url = $(e.target).parents("tr").data("griddly-url");
+
+                if (url)
+                    e.preventDefault();
+            }, this));
 
             $(this.$element).on("click", "thead tr.columnHeaders th", $.proxy(function (event)
             {
