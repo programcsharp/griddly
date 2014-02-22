@@ -7,7 +7,7 @@
     {        
     }
     .Column(x => x.FirstName, "First Name")
-    .Column(x => x.LastName, "Last Name", defaultSort: "ASC")
+    .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending)
         .Column(x => x.Company, "Company")
         .Column(x => x.Address, "Address")
         .Column(x => x.City, "City")

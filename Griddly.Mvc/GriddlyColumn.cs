@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Web.Helpers;
 using System.Web.WebPages;
 
 namespace Griddly.Mvc
@@ -12,7 +13,7 @@ namespace Griddly.Mvc
         public string Caption { get; set; }
         public string SortField { get; set; }
         public string Format { get; set; }
-        public string DefaultSort { get; set; }
+        public SortDirection? DefaultSort { get; set; }
         public string ClassName { get; set; }
         public string Width { get; set; }
         public bool IsExportOnly { get; set; }

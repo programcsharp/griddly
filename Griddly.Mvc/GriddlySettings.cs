@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Web;
+using System.Web.Helpers;
 using System.Web.Mvc;
 
 namespace Griddly.Mvc
@@ -155,6 +157,13 @@ namespace Griddly.Mvc
                 Id = id
             });
         }
+
+        public SortField[] GetDefaultSort()
+        {
+            return Columns
+                    .Where(x => x.DefaultSort != null)
+                    .Select(x => new SortField() { Field = x.SortField, Direction = x.DefaultSort.Value }).ToArray();
+        }
     }
 
     public class GriddlySettings<TRow> : GriddlySettings
@@ -184,7 +193,7 @@ namespace Griddly.Mvc
             return RowClass((TRow)o);
         }
 
-        public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> template, string caption, string format = null, string sortField = null, string defaultSort = null, string className = null, bool isExportOnly = false, string width = null)
+        public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> template, string caption, string format = null, string sortField = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null)
         {
             var compiledTemplate = template.Compile();
             ModelMetadata metadata = ModelMetadata.FromLambdaExpression<TRow, TProperty>(template, new ViewDataDictionary<TRow>());
@@ -235,7 +244,7 @@ namespace Griddly.Mvc
             return this;
         }
 
-        public GriddlySettings<TRow> TemplateColumn(Func<TRow, object> template, string caption, string format = null, string sortField = null, string defaultSort = null, string className = null, bool isExportOnly = false, string width = null)
+        public GriddlySettings<TRow> TemplateColumn(Func<TRow, object> template, string caption, string format = null, string sortField = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null)
         {
             Add(new GriddlyColumn<TRow>()
             {

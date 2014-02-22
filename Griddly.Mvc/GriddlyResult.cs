@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Web.Helpers;
 using System.Web.Mvc;
 
 namespace Griddly.Mvc
@@ -30,7 +31,7 @@ namespace Griddly.Mvc
         {
             int pageNumber;
             int pageSize;
-            string[] sortFields = null;
+            SortField[] sortFields = null;
             GriddlyExportFormat exportFormatValue;
             GriddlyExportFormat? exportFormat;
 
@@ -40,33 +41,42 @@ namespace Griddly.Mvc
                 pageNumber = 0;
             if (!int.TryParse(items["pageSize"], out pageSize))
                 pageSize = 20;
-            if (!string.IsNullOrWhiteSpace(items["sortFields"]))
-                sortFields = items["sortFields"].Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim()).ToArray();
             if (Enum.TryParse(items["exportFormat"], true, out exportFormatValue))
                 exportFormat = exportFormatValue;
             else
                 exportFormat = null;
-            
+
+            sortFields = items.AllKeys
+                .Where(x => x.StartsWith("sortFields["))
+                .Select(x =>
+                {
+                    int pos = x.IndexOf(']', "sortFields[".Length);
+
+                    return new
+                    {
+                        Index = int.Parse(x.Substring("sortFields[".Length, pos - "sortFields[".Length)),
+                        Field = x.Substring(pos + 2, x.Length - pos - 2 - 1),
+                        Direction = (SortDirection)Enum.Parse(typeof(SortDirection), items[x])
+                    };
+
+                })
+                .OrderBy(x => x.Index)
+                .Select(x => new SortField()
+                {
+                    Field = x.Field,
+                    Direction = x.Direction
+                })
+                .ToArray();
 
             GriddlySettings settings = null;
 
             if (context.IsChildAction)
             {
-                settings = GriddlySettingsResult.GetSettings(context, ViewName);    
+                settings = GriddlySettingsResult.GetSettings(context, ViewName);
 
-                if (sortFields == null)
-                {
-                    List<string> sortFieldList = new List<string>();
-
-                    foreach (GriddlyColumn column in settings.Columns)
-                    {
-                        if (!string.IsNullOrWhiteSpace(column.DefaultSort))
-                            sortFieldList.Add(column.SortField + " " + column.DefaultSort);
-                    }
-
-                    if (sortFieldList.Count > 0)
-                        sortFields = sortFieldList.ToArray();
-                }
+                // TODO: should we always pull sort fields?
+                if (!sortFields.Any())
+                    sortFields = settings.GetDefaultSort();
 
                 if (settings.PageSize > settings.MaxPageSize)
                     settings.PageSize = settings.MaxPageSize;
@@ -145,14 +155,14 @@ namespace Griddly.Mvc
             }
         }
 
-        protected virtual IEnumerable<T> GetAll(string[] sortFields)
+        protected virtual IEnumerable<T> GetAll(SortField[] sortFields)
         {
             IQueryable<T> sortedQuery = ApplySortFields(_result, sortFields);
 
             return sortedQuery;
         }
 
-        protected virtual IList<T> GetPage(int pageNumber, int pageSize, string[] sortFields)
+        protected virtual IList<T> GetPage(int pageNumber, int pageSize, SortField[] sortFields)
         {
             IQueryable<T> sortedQuery = ApplySortFields(_result, sortFields);
 
@@ -164,7 +174,7 @@ namespace Griddly.Mvc
             return _result.Count();
         }
 
-        static IQueryable<T> ApplySortFields(IQueryable<T> source, string[] sortFields)
+        static IQueryable<T> ApplySortFields(IQueryable<T> source, SortField[] sortFields)
         {
             IOrderedQueryable<T> sortedQuery = null;
 
@@ -172,40 +182,28 @@ namespace Griddly.Mvc
             {
                 for (int i = 0; i < sortFields.Length; i++)
                 {
-                    string sortField = sortFields[i];
-                    string sortOrder = "ASC";
+                    SortField sortField = sortFields[i];
 
-                    if (sortField.EndsWith(" desc", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        sortField = sortField.Substring(0, sortField.Length - " desc".Length);
-                        sortOrder = "DESC";
-                    }
-                    else if (sortField.EndsWith(" asc", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        sortField = sortField.Substring(0, sortField.Length - " asc".Length);
-                        sortOrder = "ASC";
-                    }
-
-                    if (sortOrder == "ASC")
+                    if (sortField.Direction == SortDirection.Ascending)
                     {
                         if (i == 0)
-                            sortedQuery = OrderBy(source, sortField);
+                            sortedQuery = OrderBy(source, sortField.Field);
                         else
-                            sortedQuery = ThenBy(sortedQuery, sortField);
+                            sortedQuery = ThenBy(sortedQuery, sortField.Field);
                     }
                     else
                     {
                         if (i == 0)
-                            sortedQuery = OrderByDescending(source, sortField);
+                            sortedQuery = OrderByDescending(source, sortField.Field);
                         else
-                            sortedQuery = ThenByDescending(sortedQuery, sortField);
+                            sortedQuery = ThenByDescending(sortedQuery, sortField.Field);
                     }
                 }
             }
 
             return sortedQuery ?? source;
         }
-        
+
         // http://stackoverflow.com/a/233505/8037
         static IOrderedQueryable<T> OrderBy(IQueryable<T> source, string property)
         {
@@ -251,7 +249,7 @@ namespace Griddly.Mvc
                     .MakeGenericMethod(typeof(T), type)
                     .Invoke(null, new object[] { source, lambda });
             return (IOrderedQueryable<T>)result;
-        } 
+        }
     }
 
     public enum GriddlyExportFormat

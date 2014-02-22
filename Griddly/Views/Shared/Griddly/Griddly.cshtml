@@ -27,7 +27,7 @@
 
 @if (isFirstRender)
 {
-    string[] sortDefaults = settings.Columns.Where(x => !string.IsNullOrWhiteSpace(x.DefaultSort)).Select(x => x.SortField + " " + x.DefaultSort).ToArray();
+    SortField[] defaultSort = settings.GetDefaultSort();
 
 @:<div class="griddly @settings.ClassName" data-role="griddly"
 @:     @Html.AttributeNullable("data-griddly-url", !simple ? Url.Current() : null)
@@ -35,7 +35,7 @@
 @:     data-griddly-pagesize="@(settings.PageSize ?? Model.PageSize)"
 @:     @Html.AttributeNullable("data-griddly-onrefresh", settings.OnClientRefresh)
 @:     @Html.AttributeNullable("data-griddly-rowclickmodal", settings.RowClickModal)
-@:     @Html.AttributeIf("data-griddly-sortdefaults", sortDefaults != null && sortDefaults.Any(), @<text>@Json.Encode(sortDefaults)</text>)>
+@:     @Html.AttributeIf("data-griddly-defaultsort", defaultSort != null && defaultSort.Any(), @<text>@Json.Encode(defaultSort.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))</text>)>
     if (settings.Buttons.Any())
     { 
     <div class="buttons">
@@ -83,7 +83,7 @@
             @foreach (GriddlyColumn column in settings.Columns)
             {
                 bool isSortable = !simple && !string.IsNullOrWhiteSpace(column.SortField);
-                <th class="@column.ClassName @(isSortable ? "sortable" : null) @(column is GriddlySelectColumn ? "select" : null) @(!string.IsNullOrWhiteSpace(column.DefaultSort) ? (column.DefaultSort.Equals("DESC", StringComparison.InvariantCultureIgnoreCase) ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.SortField)>
+                <th class="@column.ClassName @(isSortable ? "sortable" : null) @(column is GriddlySelectColumn ? "select" : null) @(column.DefaultSort != null ? (column.DefaultSort == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.SortField)>
                     @column.Caption
                     @if (isSortable) {
                     <span class="icon">&nbsp;</span>
@@ -110,8 +110,7 @@
                 >
             @foreach (GriddlyColumn column in settings.Columns)
             {
-                string currentSort = Model.SortFields != null ? Model.SortFields.FirstOrDefault(x => x == column.SortField || x.StartsWith(column.SortField + " ")) : null;
-                <td class="@column.ClassName @(currentSort != null ? (currentSort.EndsWith(" DESC", StringComparison.InvariantCultureIgnoreCase) ? "sorted_d" : "sorted_a") : null)">@column.RenderCell(row)</td>
+                <td class="@column.ClassName @(column.DefaultSort != null ? (column.DefaultSort == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)">@column.RenderCell(row)</td>
             }
             </tr>
         }        

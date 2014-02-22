@@ -1,4 +1,4 @@
-﻿@*
+﻿/*
  * Griddly script
  * http://griddly.com
  * Copyright 2013-2014 Chris Hynes and Data Research Group, Inc.
@@ -6,7 +6,7 @@
  *
  * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
  *
- *@
+ */
 
 !function ($)
 {
@@ -24,7 +24,7 @@
         if (this.options.onRefresh)
             this.options.onRefresh(this, 0, this.options.count > this.options.pageSize ? this.options.pageSize : this.options.count, this.options.count, null);
 
-		// TODO: should we remove the onClientRefresh method?
+        // TODO: should we remove the onClientRefresh method?
         this.$element.trigger("refresh", 
         {
             start: 0,
@@ -65,7 +65,7 @@
             var url = this.$element.data("griddly-url");
             var count = this.$element.data("griddly-count");
             var pageSize = this.$element.data("griddly-pagesize");
-            var sortDefaults = this.$element.data("griddly-sortdefaults");
+            var defaultSort = this.$element.data("griddly-defaultsort");
             var isMultiSort = this.$element.data("griddly-multisort");
             var onRefresh = this.$element.data("griddly-onrefresh");
             var rowClickModal = this.$element.data("griddly-rowclickmodal");
@@ -80,26 +80,12 @@
             if (isMultiSort != null)
                 this.options.isMultiSort = isMultiSort == true;
 
-            this.options.sortFields = { };
-
-            if (sortDefaults)
-            {
-                for (var i = 0; i < sortDefaults.length; i++)
-                {
-                    var sort = sortDefaults[i].split(" ");
-                    var direction = "ASC";
-
-                    if (sort.length == 2 && sort[1].toLowerCase() == "desc")
-                        direction = "DESC";
-
-                    this.options.sortFields[sort[0]] = direction;
-                }
-            }
+            this.options.sortFields = defaultSort && defaultSort.length ? defaultSort : [];
 
             if (onRefresh && Object.prototype.toString.call(window[onRefresh]) == '[object Function]')
                 this.options.onRefresh = window[onRefresh];
 
-			// TODO: should we do this later on so we handle dynamically added buttons?
+            // TODO: should we do this later on so we handle dynamically added buttons?
             this.$element.find("[data-toggle=modal][href*='_griddlyIds']").each(function ()
             {
                 $(this).data("griddly-href-template", $(this).attr("href"));
@@ -215,27 +201,43 @@
 
                 if (sortField)
                 {
-                    var newSort = (this.options.sortFields[sortField] || "DESC") == "DESC" ? "ASC" : "DESC";
+                    var currentPos = -1;
 
-                    this.options.sortFields[sortField] = newSort;
+                    for (var i = 0; i < this.options.sortFields.length; i++)
+                    {
+                        if (this.options.sortFields[i].Field == sortField)
+                        {
+                            currentPos = i;
 
-                    if (newSort == "ASC")
-                        $(event.currentTarget).removeClass("sorted_d").addClass("sorted_a");
-                    else
-                        $(event.currentTarget).removeClass("sorted_a").addClass("sorted_d");
+                            break;
+                        }
+                    }
+
+                    var currentDirection = currentPos != -1 ? this.options.sortFields[currentPos].Direction : "Descending";
+                    var newDirection = currentDirection == "Descending" ? "Ascending" : "Descending";
 
                     if (!this.options.isMultiSort || !event.ctrlKey)
                     {
-                        for (var x in this.options.sortFields)
+                        for (var i = 0; i < this.options.sortFields.length; i++)
                         {
-                            if (x != sortField)
-                            {
-                                $(event.currentTarget).parents("tr").find("th[data-griddly-sortfield='" + x + "']").removeClass("sorted_a").removeClass("sorted_d");
+                            var thisSortField = this.options.sortFields[i].Field;
 
-                                delete this.options.sortFields[x];
-                            }
+                            if (thisSortField != sortField)
+                                $(event.currentTarget).parents("tr").find("th[data-griddly-sortfield='" + thisSortField + "']").removeClass("sorted_a").removeClass("sorted_d");
                         }
+
+                        this.options.sortFields = [];
                     }
+
+                    if (currentPos != -1 && this.options.sortFields.length)
+                        this.options.sortFields[currentPos].Direction = newDirection;
+                    else
+                        this.options.sortFields.push({ Field: sortField, Direction: newDirection });
+
+                    if (newDirection == "Ascending")
+                        $(event.currentTarget).removeClass("sorted_d").addClass("sorted_a");
+                    else
+                        $(event.currentTarget).removeClass("sorted_a").addClass("sorted_d");
 
                     this.refresh(true);
                 }
@@ -396,12 +398,12 @@
             params.exportFormat = type;
 
             if (exec)
-			{
+            {
                 $.extend(params, data);
                 exec(this.options.url, params)
             }
             else
-			{
+            {
                 var url = this.options.url + (this.options.url.indexOf("?") == -1 ? "?" : "&") + $.param(params, true);
                 window.location = url;
             }
@@ -427,23 +429,23 @@
         {
             var postData = serializeObject($(".filters input[type=text], .filters input[type=hidden], .filters select", this.$element));
 
-            if (this.options.sortFields)
+            if (this.options.sortFields.length)
             {
-                var sortFields = [];
+                for (var i = 0; i < this.options.sortFields.length; i++)
+                {
+                    var field = this.options.sortFields[i];
 
-                for (var x in this.options.sortFields)
-                    sortFields.push(x + " " + this.options.sortFields[x]);
-
-                if (sortFields.length)
-                    postData.sortFields = sortFields.join(",");
+                    postData["sortFields[" + i + "][" + field.Field + "]"] = field.Direction;
+                }
             }
 
-            if (!paging) {
-            $.extend(postData,
+            if (!paging)
             {
-                pageNumber: this.options.pageNumber,
-                pageSize: this.options.pageSize
-            });
+                $.extend(postData,
+                {
+                    pageNumber: this.options.pageNumber,
+                    pageSize: this.options.pageSize
+                });
             }
 
             return postData;
@@ -509,7 +511,7 @@
                 if (this.options.onRefresh)
                     this.options.onRefresh(this, startRecord, currentPageSize, count, postData);
 
-				// TODO: should we remove the onClientRefresh method?
+                // TODO: should we remove the onClientRefresh method?
                 this.$element.trigger("refresh", 
                 {
                     start: startRecord,

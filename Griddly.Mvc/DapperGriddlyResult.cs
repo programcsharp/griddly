@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Web.Helpers;
 
 namespace Griddly.Mvc
 {
@@ -47,32 +48,26 @@ namespace Griddly.Mvc
             return _overallCount.Value;
         }
 
-        protected override IList<T> GetPage(int pageNumber, int pageSize, string[] sortFields)
+        protected override IList<T> GetPage(int pageNumber, int pageSize, SortField[] sortFields)
         {
-            string orderBy;
-
-            if (sortFields != null && sortFields.Length > 0)
-                orderBy = string.Join(",", sortFields);
-            else
-                orderBy = "CURRENT_TIMESTAMP";
-
-            string sql = string.Format("{0} " + (_fixedSort ? "" : "ORDER BY {1}") + " OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", _sql, orderBy, pageNumber * pageSize, pageSize);
+            string sql = string.Format("{0} " + (_fixedSort ? "" : "ORDER BY {1}") + " OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", _sql, BuildSortClause(sortFields), pageNumber * pageSize, pageSize);
 
             return ExecuteQuery(sql, _param);
         }
 
-        protected override IEnumerable<T> GetAll(string[] sortFields)
+        protected override IEnumerable<T> GetAll(SortField[] sortFields)
         {
-            string orderBy;
-
-            if (sortFields != null && sortFields.Length > 0)
-                orderBy = string.Join(",", sortFields);
-            else
-                orderBy = "CURRENT_TIMESTAMP";
-
-            string sql = _fixedSort ? _sql : string.Format("{0} ORDER BY {1}", _sql, orderBy);
+            string sql = _fixedSort ? _sql : string.Format("{0} ORDER BY {1}", _sql, BuildSortClause(sortFields));
 
             return ExecuteQuery(sql, _param);
+        }
+
+        protected string BuildSortClause(SortField[] sortFields)
+        {
+            if (sortFields != null && sortFields.Length > 0)
+                return string.Join(",", sortFields.Select(x => x.Field + " " + (x.Direction == SortDirection.Ascending ? "ASC" : "DESC")));
+            else
+                return "CURRENT_TIMESTAMP";
         }
 
         // TODO: return IEnumerable so we don't have to .ToList()

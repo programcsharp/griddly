@@ -7,7 +7,7 @@ namespace Griddly.Mvc
     public class GriddlyResultPage
     {
         public IEnumerable Data { get; set; }
-        public string[] SortFields { get; set; }
+        public SortField[] SortFields { get; set; }
 
         public int PageNumber { get; set; }
         public int Count { get; set; }
