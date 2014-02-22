@@ -54,8 +54,8 @@ namespace Griddly.Mvc
 
         public Func<object, object> BeforeTemplate { get; set; }
         public Func<object, object> AfterTemplate { get; set; }
-        public Func<object, object> FilterTemplate { get; set; }
-        public Func<object, object> InlineFilterTemplate { get; set; }
+        public Func<object, GriddlySettings> FilterTemplate { get; set; }
+        public Func<object, GriddlySettings> InlineFilterTemplate { get; set; }
 
         public Func<object, object> RowClickUrl { get; set; }
         public string RowClickModal { get; set; }
@@ -168,8 +168,8 @@ namespace Griddly.Mvc
 
     public class GriddlySettings<TRow> : GriddlySettings
     {
-        public new Func<TRow, object> FilterTemplate { set { base.FilterTemplate = (x) => value((TRow)x); } }
-        public new Func<TRow, object> InlineFilterTemplate { set { base.InlineFilterTemplate = (x) => value((TRow)x); } }
+        public new Func<TRow, GriddlySettings<TRow>> FilterTemplate { set { base.FilterTemplate = (x) => value((TRow)x); } }
+        public new Func<TRow, GriddlySettings<TRow>> InlineFilterTemplate { set { base.InlineFilterTemplate = (x) => value((TRow)x); } }
         public new Func<TRow, object> RowClickUrl { get; set; }
         public new Func<TRow, object> RowClass { get; set; }
 

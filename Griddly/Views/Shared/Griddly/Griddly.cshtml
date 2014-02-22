@@ -69,7 +69,7 @@
                 <form class="filterForm novalidate">
                     @if (settings.FilterTemplate != null)
                     {
-                        @settings.FilterTemplate(null)
+                        @settings.FilterTemplate(settings)
                     }
                     <div class="errors"></div>
                     <div class="buttons">
@@ -97,7 +97,7 @@
         </tr>
         @if (settings.InlineFilterTemplate != null)
         {
-        <tr class="filters inline">@settings.InlineFilterTemplate(null)</tr> 
+        <tr class="filters inline">@settings.InlineFilterTemplate(settings)</tr> 
         }
     </thead>
 }
