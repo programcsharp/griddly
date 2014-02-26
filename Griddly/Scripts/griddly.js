@@ -302,24 +302,6 @@
                 onRowChange();
             }, this));
 
-            $(this.$element).on("click", "[data-toggle=post]", $.proxy(function (event)
-            {
-                var url = $(event.currentTarget).data("url");
-                var ids = this.getSelected();
-                var inputs = "";
-
-                if (ids.length == 0 && $(event.currentTarget).data("enable-on-selection"))
-                    return;
-
-                $.each(ids, function ()
-                {
-                    inputs += "<input name=\"ids\" value=\"" + this + "\" />";
-                });
-
-                $("<form action=\"" + url + "\" method=\"post\">" + inputs + "</form>")
-                    .appendTo("body").submit().remove();
-            }, this));
-
             $(this.$element).on("click", "[data-toggle=ajaxbulk]", $.proxy(function (event)
             {
                 var url = $(event.currentTarget).data("url");
@@ -341,9 +323,38 @@
                 }, this));
             }, this));
 
-            $(this.$element).on("click", "[data-toggle=postcriteria]", $.proxy(function (event) {
+            $(this.$element).on("click", "[data-toggle=post]", $.proxy(function (event)
+            {
+                var url = $(event.currentTarget).data("url");
+                var ids = this.getSelected();
+                var inputs = "";
+
+                if (ids.length == 0 && $(event.currentTarget).data("enable-on-selection"))
+                    return;
+
+                var token = $("input[name^=__RequestVerificationToken]").first();
+
+                if (token.length)
+                    inputs += '<input type="hidden" name="' + token.attr("name") + '" value="' + token.val() + '" />';
+
+                $.each(ids, function ()
+                {
+                    inputs += "<input name=\"ids\" value=\"" + this + "\" />";
+                });
+
+                $("<form action=\"" + url + "\" method=\"post\">" + inputs + "</form>")
+                    .appendTo("body").submit().remove();
+            }, this));
+
+            $(this.$element).on("click", "[data-toggle=postcriteria]", $.proxy(function (event)
+            {
                 var request = this.buildRequest(false);
                 var inputs = "";
+
+                var token = $("input[name^=__RequestVerificationToken]").first();
+
+                if (token.length)
+                    inputs += '<input type="hidden" name="' + token.attr("name") + '" value="' + token.val() + '" />';
 
                 for (var key in request)
                     inputs += '<input name="' + key + '" value="' + request[key] + '" />';
@@ -407,22 +418,6 @@
                 var url = this.options.url + (this.options.url.indexOf("?") == -1 ? "?" : "&") + $.param(params, true);
                 window.location = url;
             }
-        },
-
-        query: function(queryId, queryName)
-        {
-            if ($(".queryId", this.$element).length) {
-                $(".queryId", this.$element).val(queryId);
-                $(".queryName", this.$element).text(queryName);
-            }
-            else {
-                $("form", this.$element).prepend("<input class=\"queryId\" type=\"hidden\" name=\"queryId\" value=\"" + queryId + "\" />");
-                $("form", this.$element).prepend("<label>Custom query: <span class=\"queryName\">" + queryName + "</span></label>");
-            }
-
-            $(".filters", this.$element).show();
-
-            this.refresh(true);
         },
 
         buildRequest: function(paging)
