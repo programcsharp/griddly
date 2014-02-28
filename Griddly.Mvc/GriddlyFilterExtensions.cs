@@ -13,7 +13,7 @@ namespace Griddly.Mvc
                 name = column.Caption;
 
             if (field == null && column.SortField != null && !column.SortField.Contains("."))
-                field = column.SortField;
+                field = column.SortField.Substring(0, 1).ToLower() + column.SortField.Substring(1);
 
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException("name", "Name must be specified.");
@@ -36,8 +36,8 @@ namespace Griddly.Mvc
 
             if (field == null && column.SortField != null && !column.SortField.Contains("."))
             {
-                field = column.SortField + "Start";
-                fieldEnd = column.SortField + "End";
+                field = column.SortField.Substring(0, 1).ToLower() + column.SortField.Substring(1) + "Start";
+                fieldEnd = column.SortField.Substring(0, 1).ToLower() + column.SortField.Substring(1) + "End";
             }
 
             if (string.IsNullOrWhiteSpace(name))
@@ -64,7 +64,7 @@ namespace Griddly.Mvc
                 name = column.Caption;
 
             if (field == null && column.SortField != null && !column.SortField.Contains("."))
-                field = column.SortField;
+                field = column.SortField.Substring(0, 1).ToLower() + column.SortField.Substring(1);
 
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException("name", "Name must be specified.");

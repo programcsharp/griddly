@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{5CC20399-D191-4DD0-8BBA-30BAE95D4356}"
 	ProjectSection(SolutionItems) = preProject
 		Build\build.proj = Build\build.proj
+		Build\CommonAssemblyInfo.cs = Build\CommonAssemblyInfo.cs
 		Build\Griddly.Core.nuspec = Build\Griddly.Core.nuspec
 		Build\Griddly.nuspec = Build\Griddly.nuspec
 		Build\publish-nuget.ps1 = Build\publish-nuget.ps1
