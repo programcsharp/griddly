@@ -86,7 +86,10 @@ namespace Griddly.Mvc
 
         public static HtmlString AttributeIf(this HtmlHelper helper, string name, bool shouldShow, Func<object, object> value)
         {
-            return helper.AttributeIf(name, shouldShow, value(null));
+            if (shouldShow)
+                return helper.AttributeIf(name, shouldShow, value(null));
+            else
+                return null;
         }
 
         public static HtmlString AttributeIf(this HtmlHelper helper, string name, bool shouldShow, object value)

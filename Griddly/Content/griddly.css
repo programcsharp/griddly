@@ -99,4 +99,61 @@
 }  
 .griddly-scrollable-container::-webkit-scrollbar-thumb:hover {  
     background-color: #aaa;  
-} 
+}
+
+.griddly-filter-popover .popover-content
+{
+    padding:0;
+    max-width:200px;
+}
+
+.filter-content
+{
+    padding:0;
+    display:none
+}
+
+.filter-content .input-group, .filter-content .dropdown-menu
+{
+    padding:4px;
+}
+
+.filter-content .dropdown-menu
+{
+    display:block;border:none;box-shadow:none;position:relative;margin:0;
+    width: 100%;
+    max-height:400px;
+    overflow-y:auto
+}
+
+.filter-content .dropdown-menu li a
+{
+    padding: 3px 6px; white-space: normal
+}
+
+.filter-content .dropdown-menu li a input 
+{
+    display:none
+}
+
+    .filter-content .griddly-filter-buttons
+    {
+        margin-right:-1px
+    }
+
+.filter-content .griddly-select-all,
+.filter-content .griddly-clear
+{
+    width:100%
+}
+
+.griddly-filter-selected-indicator
+{
+    float:right;
+    display:none
+}
+
+.griddly-filter-selected .griddly-filter-selected-indicator
+{
+    display:block;
+}

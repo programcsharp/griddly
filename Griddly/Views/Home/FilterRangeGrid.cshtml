@@ -1,0 +1,16 @@
+﻿
+@{
+    ViewBag.Title = "TestGrid";
+}
+
+@Html.Griddly(new GriddlySettings<TestGridItem>()
+    {        
+        PageSize = 5
+    }
+    .Column(x => x.FirstName, "First Name", defaultSort: SortDirection.Ascending)
+            .Column(x => x.LastName, "Last Name")
+            .Column(x => x.Company, "Company", filter: x => x.FilterRange(FilterDataType.Decimal, 12345, 56789))
+            .Column(x => x.Address, "Address", filter: x => x.FilterRange(FilterDataType.Currency, 12345, 56789))
+            .Column(x => x.State, "State", filter: x => x.FilterRange(FilterDataType.Date, DateTime.Now, DateTime.Now.AddMonths(1)))
+        .Column(x => x.PostalCode, "Zip", filter: x => x.FilterRange(FilterDataType.Integer, 12345, 56789))
+)

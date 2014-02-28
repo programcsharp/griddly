@@ -31,6 +31,14 @@
             pageSize: this.options.count > this.options.pageSize ? this.options.pageSize : this.options.count,
             count: this.options.count
         });
+
+        $("html").on("click", $.proxy(function (event)
+        {
+            if ($(event.target).parents('.popover.in').length == 0 && $(event.target).parents(".filter-trigger").length == 0 && !$(event.target).hasClass("filter-trigger"))
+            {
+                $(".griddly-filters-inline .filter-trigger").popover("hide");
+            }
+        }, this));
     };
 
     var serializeObject = function ($elements)
@@ -157,12 +165,7 @@
 
             $("a.btn-search", this.$element).on("click", $.proxy(function (event)
             {
-                this.$element.find("tr.filters").toggle();
-            }, this));
-
-            $(".filters.inline input, .filters.inline select", this.$element).on("change", $.proxy(function (event)
-            {
-                this.refresh(true);
+                this.$element.find("tr.griddly-filters").toggle();
             }, this));
 
             $(this.$element).on("mouseup", "tbody.data tr td:not(:has(input))", $.proxy(function (e)
@@ -400,6 +403,262 @@
                 this.exportFile("tsv");
                 e.preventDefault();
             }, this));
+
+            $(".griddly-filters-inline .griddly-filter .griddly-filter-clear", this.$element).click(function (e)
+            {
+                $(this).parents(".input-group").find("input").val("").focus().on("blur", function()
+                {
+                    $(this).detach("blur");
+
+                    if (!$(this).val())
+                        $(this).change();
+                });
+            });
+
+            var getFormattedValue = function (val, dataType)
+            {
+                switch (dataType)
+                {
+                    case "Integer":
+                    {
+                        val = new String(val).replace(/[^0-9]/g, "")
+
+                        val = parseInt(val);
+
+                        if (!isFinite(val))
+                            val = null;
+
+                        return val;
+                    }
+                    case "Decimal":
+                    case "Currency":
+                    //case "Percent":
+                        val = new String(val).replace(/,/g, "").replace(/\$/g, "");
+
+                        val = parseFloat(val);
+
+                        if (!isFinite(val))
+                            val = null;
+                        else
+                        {
+                            val = val.toFixed(2)
+
+                            var x = val.split('.');
+
+                            var x1 = x[0];
+
+                            var x2 = x.length > 1 ? '.' + x[1] : '';
+
+                            var rgx = /(\d+)(\d{3})/;
+
+                            while (rgx.test(x1))
+                            {
+                                x1 = x1.replace(rgx, '$1' + ',' + '$2');
+                            }
+
+                            val = x1 + x2;
+                        }
+
+                        if (dataType == "Currency")
+                            val = "$" + val;
+                        //else if (dataType == "Percent")
+                        //    val += "%";
+
+                        if (val.indexOf(".00", val.length - 3) !== -1)
+                            val = val.substr(0, val.length - 3);
+
+                        return val;
+                    case "Date":
+                        val = new Date(val);
+
+                        return (val.getMonth() + 1) + "/" + val.getDate() + "/" + val.getFullYear();
+                    default:
+                        return val;
+                }
+            };
+
+            var isNullOrWhiteSpace = function (str)
+            {
+                return str == null || str.match(/^ *$/) !== null;
+            }
+
+            var trimToNull = function (str)
+            {
+                if (isNullOrWhiteSpace(str))
+                    return null;
+                else
+                    return str;
+            }
+
+            this.$inlineFilters = $(".griddly-filters-inline input, .griddly-filters-inline select", this.$element);
+
+            $(".griddly-filters-inline input, .griddly-filters-inline select", this.$element).on("change", $.proxy(function (event)
+            {
+                var filter = $(event.currentTarget).data("griddly-filter");
+                var content = filter.data("griddly-filter-content");
+                var displayEl = filter.data("griddly-filter-display");
+
+                var dataType = filter.data("filter-datatype");
+                var display = null;
+
+                // ignore unselect change events on single selection lists
+                //if (!filter.hasClass("griddly-filter-list") || filter.data("griddly-filter-ismultiple") || $(event.currentTarget).prop("checked"))
+                //{
+                    if (filter.hasClass("griddly-filter-box"))
+                    {
+                        filter.find(".filter-trigger").popover("hide");
+
+                        var val = trimToNull(content.find("input").first().val());
+
+                        if (val != null)
+                        {
+                            if (dataType == "String")
+                                display = 'Contains "' + getFormattedValue(val, dataType) + '"';
+                            else
+                                display = getFormattedValue(val, dataType);
+                        }
+                        else
+                        {
+                            display = "Any " + filter.data("filter-name");
+
+                            content.find("input").first().val("");
+                        }
+                    }
+                    else if (filter.hasClass("griddly-filter-range"))
+                    {
+                        var val = trimToNull(content.find("input").first().val());
+                        var valEnd = trimToNull(content.find("input").last().val());
+
+                        if (val != null && valEnd != null)
+                            display = getFormattedValue(val, dataType) + " - " + getFormattedValue(valEnd, dataType);
+                        else if (val != null)
+                            display = (dataType == "Date" ? "After " : ">= ") + getFormattedValue(val, dataType);
+                        else if (valEnd != null)
+                            display = (dataType == "Date" ? "Before " : "<= ") + getFormattedValue(valEnd, dataType);
+                        else
+                        {
+                            display = "All " + filter.data("filter-name-plural");
+
+                            content.find("input").first().val("");
+                            content.find("input").last().val("");
+                        }
+                    }
+                    else if (filter.hasClass("griddly-filter-list"))
+                    {
+                        var allItems = content.find("li");
+                        var selectedItems = allItems.filter(".griddly-filter-selected");
+
+                        if (selectedItems.length == allItems.length || (selectedItems.length == 0 && filter.data("griddly-filter-isnoneall")))
+                            display = (allItems.length == 2 ? "Both " : "All ") + filter.data("filter-name-plural");
+                        else if (selectedItems.length > 1)
+                            display = selectedItems.length + " " + filter.data("filter-name-plural");
+                        else if (selectedItems.length == 1)
+                            display = selectedItems.find("a").text();
+                        else
+                            display = "No " + filter.data("filter-name-plural");
+                    }
+
+                    if (display)
+                        displayEl.text(display);
+
+                    this.refresh(true);
+                //}
+            }, this));
+
+            $(".griddly-filters-inline input", this.$element).keyup(function (event)
+            {
+                // TODO: instead, fire blur and hide the popover so we don't get double change events
+                if (event.which == 13)
+                    $(this).change();
+            });
+
+            $(".griddly-filters-inline .filter-trigger", this.$element).each($.proxy(function (i, el)
+            {
+                var self = this;
+
+                var filter = $(el).parents(".griddly-filter");
+                var content = filter.find(".filter-content");
+
+                filter.data("griddly-filter-content", content);
+                filter.data("griddly-filter-display", filter.find(".griddly-filter-display"));
+                filter.find("input").data("griddly-filter", filter);
+
+                $(el).popover({
+                    html: true,
+                    placement: "bottom",
+                    container: "body",
+                    template:  '<div class="popover griddly-filter-popover"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>',
+                    content: function ()
+                    {
+                        return content;
+                    }
+                }).on("show.bs.popover", function ()
+                {
+                    self.$element.find(".griddly-filters-inline .filter-trigger").not(this).popover("hide");
+
+                    content.find("input:first").select();
+
+                    content.show();
+                }).on("shown.bs.popover", function ()
+                {
+                    content.find("input:first").focus();
+                }).on("hidden.bs.popover", function ()
+                {
+                    content.hide();
+                });
+            }, this));
+
+            $(".griddly-filters-inline .dropdown-menu", this.$element).each($.proxy(function (i, el)
+            {
+                var self = this;
+
+                $("a", el).click(function()
+                {
+                    var checkbox = $(this).find("input");
+                    var item = $(this).parents("li");
+
+                    var filter = checkbox.data("griddly-filter");
+
+                    if (filter.data("griddly-filter-ismultiple"))
+                    {
+                        item.toggleClass("griddly-filter-selected");
+
+                        checkbox.prop("checked", item.hasClass("griddly-filter-selected")).change();
+                    }
+                    else
+                    {
+                        var content = filter.data("griddly-filter-content");
+
+                        content.find(".dropdown-menu li").not(item).removeClass("griddly-filter-selected");
+                        content.find("input").not(checkbox).prop("checked", false);
+
+                        item.addClass("griddly-filter-selected");
+                        checkbox.prop("checked", true).change();
+                    }
+                });
+            }, this));
+
+            $(".griddly-filters-inline .filter-content .griddly-select-all", this.$element).each($.proxy(function (i, el)
+            {
+                var self = this;
+
+                $(el).click(function ()
+                {
+                    $(this).parents(".filter-content").find(".dropdown-menu li").addClass("griddly-filter-selected");
+                    $(this).parents(".filter-content").find("input").prop("checked", true).first().change();
+                });
+            }, this));
+
+            $(".griddly-filters-inline .filter-content .griddly-clear", this.$element).each($.proxy(function (i, el)
+            {
+                var self = this;
+
+                $(el).click(function ()
+                {
+                    $(this).parents(".filter-content").find(".dropdown-menu li").removeClass("griddly-filter-selected");
+                    $(this).parents(".filter-content").find("input").prop("checked", false).first().change();
+                });
+            }, this));
         },
 
         exportFile: function(type, exec, data)
@@ -422,7 +681,11 @@
 
         buildRequest: function(paging)
         {
-            var postData = serializeObject($(".filters input[type=text], .filters input[type=hidden], .filters select", this.$element));
+            var filters = $(".griddly-filters input[type=text], .griddly-filters input[type=hidden], .griddly-filters select", this.$element);
+
+            filters = filters.add(this.$inlineFilters);
+
+            var postData = serializeObject(filters);
 
             if (this.options.sortFields.length)
             {

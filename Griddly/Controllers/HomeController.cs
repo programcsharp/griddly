@@ -15,9 +15,72 @@ namespace Griddly.Controllers
             return View();
         }
 
-        public GriddlyResult TestGrid()
+        public GriddlyResult TestGrid(string firstName, int? zipStart, int? zipEnd)
         {
-            return new GriddlyResult<TestGridItem>(_testData);
+            IQueryable<TestGridItem> query = _testData;
+
+            if (!string.IsNullOrWhiteSpace(firstName))
+                query = query.Where(x => x.FirstName.Contains(firstName));
+
+            if (zipStart != null && zipEnd != null)
+                query = query.Where(x => x.PostalCodePrefix >= zipStart.Value && x.PostalCodePrefix <= zipEnd.Value);
+            else if (zipStart != null)
+                query = query.Where(x => x.PostalCodePrefix >= zipStart.Value);
+            else if (zipEnd != null)
+                query = query.Where(x => x.PostalCodePrefix <= zipEnd.Value);
+
+            return new GriddlyResult<TestGridItem>(query);
+        }
+
+        public GriddlyResult FilterBoxGrid()
+        {
+            IQueryable<TestGridItem> query = _testData;
+
+            //if (!string.IsNullOrWhiteSpace(firstName))
+            //    query = query.Where(x => x.FirstName.Contains(firstName));
+
+            //if (zipStart != null && zipEnd != null)
+            //    query = query.Where(x => x.PostalCodePrefix >= zipStart.Value && x.PostalCodePrefix <= zipEnd.Value);
+            //else if (zipStart != null)
+            //    query = query.Where(x => x.PostalCodePrefix >= zipStart.Value);
+            //else if (zipEnd != null)
+            //    query = query.Where(x => x.PostalCodePrefix <= zipEnd.Value);
+
+            return new GriddlyResult<TestGridItem>(query);
+        }
+
+        public GriddlyResult FilterRangeGrid()
+        {
+            IQueryable<TestGridItem> query = _testData;
+
+            //if (!string.IsNullOrWhiteSpace(firstName))
+            //    query = query.Where(x => x.FirstName.Contains(firstName));
+
+            //if (zipStart != null && zipEnd != null)
+            //    query = query.Where(x => x.PostalCodePrefix >= zipStart.Value && x.PostalCodePrefix <= zipEnd.Value);
+            //else if (zipStart != null)
+            //    query = query.Where(x => x.PostalCodePrefix >= zipStart.Value);
+            //else if (zipEnd != null)
+            //    query = query.Where(x => x.PostalCodePrefix <= zipEnd.Value);
+
+            return new GriddlyResult<TestGridItem>(query);
+        }
+
+        public GriddlyResult FilterListGrid()
+        {
+            IQueryable<TestGridItem> query = _testData;
+
+            //if (!string.IsNullOrWhiteSpace(firstName))
+            //    query = query.Where(x => x.FirstName.Contains(firstName));
+
+            //if (zipStart != null && zipEnd != null)
+            //    query = query.Where(x => x.PostalCodePrefix >= zipStart.Value && x.PostalCodePrefix <= zipEnd.Value);
+            //else if (zipStart != null)
+            //    query = query.Where(x => x.PostalCodePrefix >= zipStart.Value);
+            //else if (zipEnd != null)
+            //    query = query.Where(x => x.PostalCodePrefix <= zipEnd.Value);
+
+            return new GriddlyResult<TestGridItem>(query);
         }
 
         public ActionResult About()

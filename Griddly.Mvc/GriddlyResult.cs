@@ -155,21 +155,21 @@ namespace Griddly.Mvc
             }
         }
 
-        protected virtual IEnumerable<T> GetAll(SortField[] sortFields)
+        public virtual IEnumerable<T> GetAll(SortField[] sortFields)
         {
             IQueryable<T> sortedQuery = ApplySortFields(_result, sortFields);
 
             return sortedQuery;
         }
 
-        protected virtual IList<T> GetPage(int pageNumber, int pageSize, SortField[] sortFields)
+        public virtual IList<T> GetPage(int pageNumber, int pageSize, SortField[] sortFields)
         {
             IQueryable<T> sortedQuery = ApplySortFields(_result, sortFields);
 
             return sortedQuery.Skip(pageNumber * pageSize).Take(pageSize).ToList();
         }
 
-        protected virtual long GetCount()
+        public virtual long GetCount()
         {
             return _result.Count();
         }

@@ -18,12 +18,25 @@
 
     bool simple = ViewBag.isSimpleGriddly == true;
     bool isFirstRender = ViewContext.Controller.ControllerContext.IsChildAction || simple;
-    if (GriddlySettings.BeforeRender != null)
-    {
-        GriddlySettings.BeforeRender(settings);
+
+    if (isFirstRender)
+    {    
+        if (settings.HasInlineFilter && settings.InlineFilterTemplate == null && settings.Columns.Any(x => x.Filter != null))
+        {
+            settings.InlineFilterTemplate = (x) => RenderInlineFilters(x);
+        }
+    
+        if (settings.FilterTemplate == null && settings.Filters.Any())
+        {
+            settings.FilterTemplate = (x) => RenderFilters(x);
+        }
+    
+        if (GriddlySettings.BeforeRender != null)
+        {
+            GriddlySettings.BeforeRender(settings);
+        }
     }
 }
-
 
 @if (isFirstRender)
 {
@@ -64,7 +77,7 @@
             <td colspan="@settings.Columns.Count">@settings.Title</td>
         </tr>
         }
-        <tr class="filters" style="@(settings.FilterTemplate == null || !settings.ShowFilterInitially ? "display:none" : null)">
+        <tr class="griddly-filters" style="@(settings.FilterTemplate == null || !settings.ShowFilterInitially ? "display:none" : null)">
             <td colspan="@settings.Columns.Count">
                 <form class="filterForm novalidate">
                     @if (settings.FilterTemplate != null)
@@ -95,18 +108,18 @@
                 </th>
             }
         </tr>
-        @if (settings.InlineFilterTemplate != null)
+        @if (settings.InlineFilterTemplate != null && settings.HasInlineFilter)
         {
-        <tr class="filters inline">@settings.InlineFilterTemplate(settings)</tr> 
+        <tr class="griddly-filters griddly-filters-inline">@settings.InlineFilterTemplate(settings)</tr> 
         }
     </thead>
 }
     <tbody class="data">
         @foreach (object row in Model.Data)
         { 
-            <tr @Html.AttributeIf("data-griddly-url", settings.HasRowClickUrl, @<text>@settings.RenderRowClickUrl(row)</text>)
-                @Html.AttributeIf("class", settings.HasRowClass, @<text>@settings.RenderRowClass(row)</text>)
-                @Html.AttributeIf("data-id", TryEval(row,settings.IdProperty)!=null, TryEval(row,settings.IdProperty))
+            <tr @Html.AttributeIf("data-griddly-url", settings.RowClickUrl != null, @<text>@settings.RowClickUrl(row)</text>)
+                @Html.AttributeIf("class", settings.RowClass != null, @<text>@settings.RowClass(row)</text>)
+                @Html.AttributeNullable("data-id", TryEval(row, settings.IdProperty))
                 >
             @foreach (GriddlyColumn column in settings.Columns)
             {
@@ -141,14 +154,193 @@
     }
 @:</div>    
 }
+
 @functions
 {
-    object TryEval(object obj, string prop)
+    string TryEval(object obj, string prop)
     {
         try
         {
-            return DataBinder.Eval(obj, prop);
+            return DataBinder.Eval(obj, prop).ToString();
         }
         catch { return null; }
     }
+}
+
+@helper RenderInlineFilters(GriddlySettings settings)
+{
+    for (int i = 0; i < settings.Columns.Count; i++)
+    {
+        GriddlyColumn column = settings.Columns[i];
+        
+        <td class="@column.ClassName @(column.DefaultSort != null ? (column.DefaultSort == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)">
+            @if (column.Filter != null)
+{
+    GriddlyFilter filter = column.Filter;
+    GriddlyFilterBox filterBox = filter as GriddlyFilterBox;
+    GriddlyFilterRange filterRange = filter as GriddlyFilterRange;
+    GriddlyFilterList filterList = filter as GriddlyFilterList;
+
+    <div class="btn-group griddly-filter @(filterBox != null ? "griddly-filter-box" : null) @(filterRange != null ? "griddly-filter-range" : null) @(filterList != null ? "griddly-filter-list" : null)"
+         data-filter-name="@filter.Name" data-filter-name-plural="@filter.NamePlural"
+         data-filter-datatype="@filter.DataType.ToString()"
+         @Html.AttributeIf("data-griddly-filter-ismultiple", filterList != null, x => filterList.IsMultiple.ToString().ToLower())
+         @Html.AttributeIf("data-griddly-filter-isnoneall", filterList != null, x => filterList.IsNoneAll.ToString().ToLower())>
+        <a class="btn btn-link btn-xs filter-trigger" href="#">
+            <span class="griddly-filter-display">
+                @if (filterBox != null)
+                {
+                    if (filter.Default != null)
+                    {
+                        if (filter.DataType == FilterDataType.String)
+                        {
+                            <text>Contains "@filter.GetFormattedValue(filter.Default)"</text>
+                        }
+                        else
+                        {
+                            @filter.GetFormattedValue(filter.Default)
+                        }
+                    }
+                    else
+                    {
+                        <text>Any @filter.Name</text>
+                    }
+                }
+                else if (filterRange != null)
+                {
+                    if (filter.Default != null && filterRange.DefaultEnd != null)
+                    {
+                        <text>@filter.GetFormattedValue(filter.Default) - @filter.GetFormattedValue(filterRange.DefaultEnd)</text>
+                    }
+                    else if (filter.Default != null)
+                    {
+                        @(filter.DataType == FilterDataType.Date ? "After" : ">=")
+                        @filter.GetFormattedValue(filter.Default)
+                    }
+                    else if (filterRange.DefaultEnd != null)
+                    {
+                        @(filter.DataType == FilterDataType.Date ? "Before" : "<=")
+                        @filter.GetFormattedValue(filterRange.DefaultEnd)
+                    }
+                    else
+                    {
+                        <text>All @filter.NamePlural</text>
+                    }
+                }
+                else if (filterList != null)
+                {
+                    int selectedCount = filterList.Items.Count(x => x.Selected);
+
+                    if (selectedCount == filterList.Items.Count || (selectedCount == 0 && filterList.IsNoneAll))
+                    {
+                        <text>@(filterList.Items.Count == 2 ? "Both " : "All ") @filter.NamePlural</text>
+                    }
+                    else if (selectedCount > 1)
+                    {
+                        <text>@(selectedCount) @filter.NamePlural</text>
+                    }
+                    else if (selectedCount == 1)
+                    {
+                        @(filterList.Items.First(x => x.Selected).Text)
+                    }
+                    else
+                    {
+                        <text>No @filter.NamePlural</text>
+                    }
+                }
+            </span>
+            <span class="caret"></span>
+        </a>
+        <div class="filter-content">
+            @if (filterBox != null)
+            {
+                <div class="input-group input-group-sm">
+                    @if (filter.DataType == FilterDataType.Currency)
+                    {
+                        <span class="input-group-addon">$</span>
+                    }
+                    else if (filter.DataType == FilterDataType.Date)
+                    {
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                    }
+                    <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(filter.Default)" />
+                    @*@if (filter.DataType == FilterDataType.Percent)
+                    {
+                        <span class="input-group-addon">%</span>
+                    }*@
+                    <span class="input-group-btn">
+                        <a class="btn btn-default griddly-filter-clear"><i class="glyphicon glyphicon-remove"></i></a>
+                    </span>
+                </div>
+            }
+            else if (filterRange != null)
+            {
+                <div class="input-group input-group-sm">
+                    @if (filter.DataType == FilterDataType.Currency)
+                    {
+                        <span class="input-group-addon">$</span>
+                    }
+                    else if (filter.DataType == FilterDataType.Date)
+                    {
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                    }
+                    <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(filter.Default)" />
+                    @*@if (filter.DataType == FilterDataType.Percent)
+                    {
+                        <span class="input-group-addon">%</span>
+                    }*@
+                    <span class="input-group-btn">
+                        <a class="btn btn-default griddly-filter-clear"><i class="glyphicon glyphicon-remove"></i></a>
+                    </span>
+                </div>
+                <div style="text-align:center">to</div>
+                <div class="input-group input-group-sm">
+                    @if (filter.DataType == FilterDataType.Currency)
+                    {
+                        <span class="input-group-addon">$</span>
+                    }
+                    else if (filter.DataType == FilterDataType.Date)
+                    {
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                    }
+                    <input class="form-control" name="@filterRange.FieldEnd" type="text" value="@filter.GetEditValue(filterRange.DefaultEnd)" />
+                    @*@if (filter.DataType == FilterDataType.Percent)
+                    {
+                        <span class="input-group-addon">%</span>
+                    }*@
+                    <span class="input-group-btn">
+                        <a class="btn btn-default griddly-filter-clear"><i class="glyphicon glyphicon-remove"></i></a>
+                    </span>
+                </div>
+            }
+            else if (filterList != null)
+            {
+                if (filterList.IsMultiple)
+                {
+                <div class="input-group griddly-filter-buttons">
+                    <span class="input-group-btn">
+                        <a class="btn btn-default griddly-select-all"><i class="glyphicon glyphicon-check"></i> Select All</a>
+                    </span>
+                    <span class="input-group-btn">
+                        <a class="btn btn-default  griddly-clear"><i class="glyphicon glyphicon-ban-circle"></i> Clear</a>
+                    </span>
+                </div>
+                }
+                <ul class="dropdown-menu" role="menu">
+                    @foreach (SelectListItem item in filterList.Items)
+                    {
+                        <li class="@(item.Selected ? "griddly-filter-selected" : null)"><a href="#"><input name="@filter.Field" type="@(filterList.IsMultiple ? "checkbox" : "radio")" checked="@(item.Selected)" value="@item.Value" /><i class="glyphicon glyphicon-@(filterList.IsMultiple ? "ok" : "record") griddly-filter-selected-indicator"></i>@item.Text</a></li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+}
+        </td>
+    }
+}
+
+@helper RenderFilters(GriddlySettings settings)
+{
+
 }

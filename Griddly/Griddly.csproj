@@ -124,6 +124,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Enums.cs" />
     <Compile Include="Models\TestGridItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -176,6 +177,9 @@
     <Content Include="Views\Shared\Griddly\Griddly.cshtml" />
     <Content Include="Views\Home\TestGrid.cshtml" />
     <Content Include="Scripts\jquery-2.1.0.min.map" />
+    <Content Include="Views\Home\FilterRangeGrid.cshtml" />
+    <Content Include="Views\Home\FilterBoxGrid.cshtml" />
+    <Content Include="Views\Home\FilterListGrid.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Griddly.Mvc\Griddly.Mvc.csproj">

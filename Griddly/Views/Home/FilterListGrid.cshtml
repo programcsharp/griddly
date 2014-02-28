@@ -6,13 +6,10 @@
 @Html.Griddly(new GriddlySettings<TestGridItem>()
     {
         PageSize = 5
-               
     }
     .Column(x => x.FirstName, "First Name")
         .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending)
-        .Column(x => x.Company, "Company")
-        .Column(x => x.Address, "Address")
-        .Column(x => x.City, "City")
-        .Column(x => x.State, "State")
-        .Column(x => x.PostalCode, "Zip")
+            .Column(x => x.City, "City", filter: x => x.FilterEnum<Title>())
+            .Column(x => x.State, "State", filter: x => x.FilterList(TestGridItem.UsStates))
+        .Column(x => x.PostalCode, "Gender", filter: x => x.FilterBool())
 )

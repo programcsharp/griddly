@@ -34,7 +34,7 @@ namespace Griddly.Mvc
             _fixedSort = fixedSort;
         }
 
-        protected override long GetCount()
+        public override long GetCount()
         {
             if (_overallCount == null)
             {
@@ -48,14 +48,14 @@ namespace Griddly.Mvc
             return _overallCount.Value;
         }
 
-        protected override IList<T> GetPage(int pageNumber, int pageSize, SortField[] sortFields)
+        public override IList<T> GetPage(int pageNumber, int pageSize, SortField[] sortFields)
         {
             string sql = string.Format("{0} " + (_fixedSort ? "" : "ORDER BY {1}") + " OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", _sql, BuildSortClause(sortFields), pageNumber * pageSize, pageSize);
 
             return ExecuteQuery(sql, _param);
         }
 
-        protected override IEnumerable<T> GetAll(SortField[] sortFields)
+        public override IEnumerable<T> GetAll(SortField[] sortFields)
         {
             string sql = _fixedSort ? _sql : string.Format("{0} ORDER BY {1}", _sql, BuildSortClause(sortFields));
 

@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using Griddly.Mvc;
+using System.Web;
 using System.Web.Mvc;
 
 namespace Griddly
@@ -8,6 +9,7 @@ namespace Griddly
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             filters.Add(new HandleErrorAttribute());
+            filters.Add(new GriddlyDefaultParametersAttribute());
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Web;
 using System.Web.Helpers;
@@ -29,6 +29,7 @@ namespace Griddly.Mvc
         {
             IdProperty = "Id";
             Columns = new List<GriddlyColumn>();
+            Filters = new List<GriddlyFilter>();
             Buttons = new List<GriddlyButton>();
             FilterDefaults = new Dictionary<string, object>();
             ClassName = DefaultClassName;
@@ -36,6 +37,7 @@ namespace Griddly.Mvc
             FooterTemplate = DefaultFooterTemplate;
             PageSize = DefaultPageSize;
             ShowFilterInitially = DefaultShowFilterInitially;
+            HasInlineFilter = true;
         }
 
         public string IdProperty { get; set; }
@@ -49,7 +51,7 @@ namespace Griddly.Mvc
         public int? MaxPageSize { get; set; }
 
         public List<GriddlyColumn> Columns { get; set; }
-
+        public List<GriddlyFilter> Filters { get; set; }
         public List<GriddlyButton> Buttons { get; set; }
 
         public Func<object, object> BeforeTemplate { get; set; }
@@ -63,6 +65,8 @@ namespace Griddly.Mvc
 
         public Func<GriddlyResultPage, object> FooterTemplate { get; set; }
         public IDictionary<string, object> FilterDefaults { get; set; }
+
+        public bool HasInlineFilter { get; set; }
 
         public virtual bool HasRowClickUrl
         {
@@ -84,8 +88,21 @@ namespace Griddly.Mvc
             return RowClass(o);
         }
 
-        public GriddlySettings Add(GriddlyColumn column)
+        public GriddlySettings Add(GriddlyColumn column, Func<GriddlyColumn, GriddlyFilter> filter = null)
         {
+            if (filter != null)
+            {
+                GriddlyFilter filterDef = filter(column);
+
+                if (filterDef != null)
+                {
+                    if (HasInlineFilter)
+                        column.Filter = filterDef;
+                    else
+                        Filters.Add(filterDef);
+                }
+            }
+
             Columns.Add(column);
 
             return this;
@@ -170,30 +187,10 @@ namespace Griddly.Mvc
     {
         public new Func<GriddlySettings<TRow>, object> FilterTemplate { set { base.FilterTemplate = (x) => value((GriddlySettings<TRow>)x); } }
         public new Func<GriddlySettings<TRow>, object> InlineFilterTemplate { set { base.InlineFilterTemplate = (x) => value((GriddlySettings<TRow>)x); } }
-        public new Func<TRow, object> RowClickUrl { get; set; }
-        public new Func<TRow, object> RowClass { get; set; }
+        public new Func<TRow, object> RowClickUrl { set { base.RowClickUrl = (x) => value((TRow)x); } }
+        public new Func<TRow, object> RowClass { set { base.RowClass = (x) => value((TRow)x); } }
 
-        public override bool HasRowClickUrl
-        {
-            get { return RowClickUrl != null; }
-        }
-
-        public override bool HasRowClass
-        {
-            get { return RowClass != null; }
-        }
-
-        public override object RenderRowClickUrl(object o)
-        {
-            return RowClickUrl((TRow)o);
-        }
-
-        public override object RenderRowClass(object o)
-        {
-            return RowClass((TRow)o);
-        }
-
-        public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> template, string caption, string format = null, string sortField = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null)
+        public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> template, string caption, string format = null, string sortField = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
         {
             var compiledTemplate = template.Compile();
             ModelMetadata metadata = ModelMetadata.FromLambdaExpression<TRow, TProperty>(template, new ViewDataDictionary<TRow>());
@@ -201,7 +198,7 @@ namespace Griddly.Mvc
             if (className == null)
             {
                 if (metadata.ModelType == typeof(bool) || metadata.ModelType == typeof(bool?) ||
-                    metadata.ModelType == typeof(DateTime) || metadata.ModelType == typeof(DateTime?) || metadata.ModelType.Name.Contains("M3DateTime"))
+                    metadata.ModelType == typeof(DateTime) || metadata.ModelType == typeof(DateTime?) || metadata.ModelType.HasCastOperator<DateTime>())
                     className = "align-center";
                 else if (metadata.ModelType == typeof(byte) || metadata.ModelType == typeof(sbyte) ||
                          metadata.ModelType == typeof(short) || metadata.ModelType == typeof(ushort) ||
@@ -239,12 +236,12 @@ namespace Griddly.Mvc
                 ClassName = className,
                 IsExportOnly = isExportOnly,
                 Width = width
-            });
+            }, filter);
 
             return this;
         }
 
-        public GriddlySettings<TRow> TemplateColumn(Func<TRow, object> template, string caption, string format = null, string sortField = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null)
+        public GriddlySettings<TRow> TemplateColumn(Func<TRow, object> template, string caption, string format = null, string sortField = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
         {
             Add(new GriddlyColumn<TRow>()
             {
@@ -256,7 +253,7 @@ namespace Griddly.Mvc
                 ClassName = className,
                 IsExportOnly = isExportOnly,
                 Width = width
-            });
+            }, filter);
 
             return this;
         }

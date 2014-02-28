@@ -1,7 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Helpers;
 using System.Web.WebPages;
@@ -18,6 +15,8 @@ namespace Griddly.Mvc
         public string Width { get; set; }
         public bool IsExportOnly { get; set; }
 
+        public GriddlyFilter Filter { get; set; }
+
         public abstract HtmlString RenderCell(object row, bool encode = true);
         public abstract object RenderCellValue(object row);
 
@@ -28,63 +27,23 @@ namespace Griddly.Mvc
 
             if (Format == null)
             {
-                if (value is DateTime || value is DateTime? || value.GetType().Name.Contains("M3DateTime"))
+                if (value is DateTime || value is DateTime? || value.GetType().HasCastOperator<DateTime>())
                     Format = "d";
             }
 
             if (Format != null)
                 value = string.Format("{0:" + Format + "}", value);
             else if (value is Enum)
-                value = ToStringDescription((Enum)value);
+                value = Extensions.ToStringDescription((Enum)value);
             else
                 value = value.ToString();
 
             if (value is HtmlString)
                 return (HtmlString)value;
             else if (encode)
-                return GetHtmlView(value.ToString());
+                return Extensions.GetHtmlView(value.ToString());
             else
                 return new HtmlString(value.ToString());
-        }
-
-        static readonly Regex _urlRegex = new Regex(@"(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-        static HtmlString GetHtmlView(string value, bool turnUrlsIntoLinks = false)
-        {
-            if (value == null)
-                return null;
-
-            value = HttpUtility.HtmlEncode(value).Replace("  ", "&nbsp; ")
-                    .Replace("\r\n", "<br/>").Replace("\r", "<br/>").Replace("\n", "<br/>");
-
-            if (turnUrlsIntoLinks)
-            {
-                foreach (Match match in _urlRegex.Matches(value))
-                {
-                    if (match != null && !string.IsNullOrWhiteSpace(match.Value))
-                        value = value.Replace(match.Value, string.Format("<a href=\"{0}\">{1}</a>", HttpUtility.HtmlAttributeEncode(match.Value), match.Value));
-                }
-            }
-
-            return new HtmlString(value);
-        }
-
-        protected static string ToStringDescription(Enum value)
-        {
-            if (value == null)
-                return null;
-
-            FieldInfo fi = value.GetType().GetField(value.ToString());
-
-            DescriptionAttribute[] attributes = null;
-
-            if (fi != null)
-                attributes = (DescriptionAttribute[])fi.GetCustomAttributes(typeof(DescriptionAttribute), false);
-
-            if (attributes != null && attributes.Length > 0)
-                return attributes[0].Description;
-            else
-                return value.ToString();
         }
     }
 
@@ -141,9 +100,9 @@ namespace Griddly.Mvc
             else if (value is HelperResult)
                 value = new HtmlString(((HelperResult)value).ToString());
             else if (value is Enum)
-                value = ToStringDescription((Enum)value);
-            else if (value != null && value.GetType().Name.Contains("M3DateTime"))
-                value = (DateTime?)value;
+                value = Extensions.ToStringDescription((Enum)value);
+            else if (value != null && value.GetType().HasCastOperator<DateTime>())
+                value = (DateTime)value;
 
             return value;
         }
