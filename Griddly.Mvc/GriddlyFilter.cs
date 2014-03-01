@@ -8,15 +8,26 @@ namespace Griddly.Mvc
 {
     public abstract class GriddlyFilter
     {
-        public string Name { get; set; }
+        string _name;
 
-        public string NamePlural
+        public string Name
         {
             get
             {
-                return PluralizationService.CreateService(CultureInfo.CurrentUICulture).Pluralize(Name);
+                return _name;
+            }
+            set
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    NamePlural = PluralizationService.CreateService(CultureInfo.CurrentUICulture).Pluralize(value);
+                else
+                    NamePlural = null;
+
+                _name = value;
             }
         }
+
+        public string NamePlural { get; set; }
 
         public string Field { get; set; }
         public object Default { get; set; }
@@ -77,13 +88,17 @@ namespace Griddly.Mvc
         {
             IsMultiple = true;
             IsNoneAll = true;
+            DisplayItemCount = 1;
         }
 
         public List<SelectListItem> Items { get; set; }
+        public List<SelectListItem> SelectableItems { get; internal set; }
 
         public bool IsMultiple { get; set; }
         public bool IsNoneAll { get; set; }
         public bool IsNullable { get; set; }
+
+        public int DisplayItemCount { get; set; }
     }
 
     public enum FilterDataType

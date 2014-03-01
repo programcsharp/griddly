@@ -107,6 +107,7 @@
     <Compile Include="IHasOverallCount.cs" />
     <Compile Include="ListPage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SelectListItemGroup.cs" />
     <Compile Include="SortField.cs" />
   </ItemGroup>
   <ItemGroup>

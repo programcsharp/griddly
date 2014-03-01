@@ -131,6 +131,16 @@
     padding: 3px 6px; white-space: normal
 }
 
+.filter-content .dropdown-menu li.griddly-list-group-header
+{
+    padding-left:2px;
+}
+
+.filter-content .dropdown-menu li.griddly-list-group a
+{
+    padding-left:16px;
+}
+
 .filter-content .dropdown-menu li a input 
 {
     display:none

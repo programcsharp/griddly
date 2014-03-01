@@ -546,18 +546,25 @@
                 }
                 else if (filter.hasClass("griddly-filter-list"))
                 {
-                    if (filter.data("griddly-filter-ismultiple") && !dontHide)
+                    if (!filter.data("griddly-filter-ismultiple") && !dontHide)
                         filter.find(".filter-trigger").popover("hide");
 
-                    var allItems = content.find("li");
+                    var allItems = content.find("li:not(.griddly-list-group-header)");
                     var selectedItems = allItems.filter(".griddly-filter-selected");
+                    var displayItemCount = parseInt(filter.data("griddly-filter-displayitemcount"));
 
                     if (selectedItems.length == allItems.length || (selectedItems.length == 0 && filter.data("griddly-filter-isnoneall")))
                         display = (allItems.length == 2 ? "Both " : "All ") + filter.data("filter-name-plural");
-                    else if (selectedItems.length > 1)
+                    else if (selectedItems.length > displayItemCount)
                         display = selectedItems.length + " " + filter.data("filter-name-plural");
-                    else if (selectedItems.length == 1)
-                        display = selectedItems.find("a").text();
+                    else if (selectedItems.length > 0 && selectedItems.length <= displayItemCount)
+                    {
+                        var itemTexts = selectedItems.find("a");
+                        var display = $.trim($(itemTexts[0]).text());
+
+                        for (var i = 1; i < selectedItems.length && i < displayItemCount; i++)
+                            display += ", " + $.trim($(itemTexts[i]).text());
+                    }
                     else
                         display = "No " + filter.data("filter-name-plural");
                 }
@@ -643,7 +650,7 @@
                     {
                         var content = filter.data("griddly-filter-content");
 
-                        content.find(".dropdown-menu li").not(item).removeClass("griddly-filter-selected");
+                        content.find(".dropdown-menu li:not(.griddly-list-group-header)").not(item).removeClass("griddly-filter-selected");
                         content.find("input").not(checkbox).prop("checked", false);
 
                         item.addClass("griddly-filter-selected");
@@ -658,7 +665,7 @@
 
                 $(el).click(function ()
                 {
-                    $(this).parents(".filter-content").find(".dropdown-menu li").addClass("griddly-filter-selected");
+                    $(this).parents(".filter-content").find(".dropdown-menu li:not(.griddly-list-group-header)").addClass("griddly-filter-selected");
                     $(this).parents(".filter-content").find("input").prop("checked", true).first().change();
                 });
             }, this));
@@ -669,7 +676,7 @@
 
                 $(el).click(function ()
                 {
-                    $(this).parents(".filter-content").find(".dropdown-menu li").removeClass("griddly-filter-selected");
+                    $(this).parents(".filter-content").find(".dropdown-menu li:not(.griddly-list-group-header)").removeClass("griddly-filter-selected");
                     $(this).parents(".filter-content").find("input").prop("checked", false).first().change();
                 });
             }, this));

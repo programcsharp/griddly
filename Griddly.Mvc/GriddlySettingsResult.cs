@@ -45,7 +45,8 @@ namespace Griddly.Mvc
         {
             GriddlySettingsResult settingsResult = new GriddlySettingsResult()
             {
-                ViewName = viewName
+                ViewName = viewName,
+                ViewData = context.Controller.ViewData
             };
 
             ControllerContext settingsContext = new ControllerContext(new RequestContext(new EmptyHttpContext(), context.RouteData), context.Controller);
