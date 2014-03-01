@@ -406,13 +406,13 @@
 
             $(".griddly-filters-inline .griddly-filter .griddly-filter-clear", this.$element).click(function (e)
             {
-                $(this).parents(".input-group").find("input").val("").focus().on("blur", function()
+                $(this).parents(".input-group").find("input").val("").focus().triggerHandler("change", [true]);/*.on("blur", function()
                 {
                     $(this).detach("blur");
 
                     if (!$(this).val())
                         $(this).change();
-                });
+                });*/
             });
 
             var getFormattedValue = function (val, dataType)
@@ -435,6 +435,8 @@
                     //case "Percent":
                         val = new String(val).replace(/,/g, "").replace(/\$/g, "");
 
+                        // TODO: filter down to one decimal point
+                        // TODO: filter out non numerics
                         val = parseFloat(val);
 
                         if (!isFinite(val))
@@ -469,6 +471,7 @@
 
                         return val;
                     case "Date":
+                        // TODO: handle bad formats
                         val = new Date(val);
 
                         return (val.getMonth() + 1) + "/" + val.getDate() + "/" + val.getFullYear();
@@ -492,7 +495,7 @@
 
             this.$inlineFilters = $(".griddly-filters-inline .filter-content input", this.$element);
 
-            $(".griddly-filters-inline .filter-content input", this.$element).on("change", $.proxy(function (event)
+            $(".griddly-filters-inline .filter-content input", this.$element).on("change", $.proxy(function (event, dontHide)
             {
                 var filter = $(event.currentTarget).data("griddly-filter");
                 var content = filter.data("griddly-filter-content");
@@ -503,7 +506,8 @@
 
                 if (filter.hasClass("griddly-filter-box"))
                 {
-                    filter.find(".filter-trigger").popover("hide");
+                    if (!dontHide)
+                        filter.find(".filter-trigger").popover("hide");
 
                     var val = trimToNull(content.find("input").first().val());
 
@@ -542,6 +546,9 @@
                 }
                 else if (filter.hasClass("griddly-filter-list"))
                 {
+                    if (filter.data("griddly-filter-ismultiple") && !dontHide)
+                        filter.find(".filter-trigger").popover("hide");
+
                     var allItems = content.find("li");
                     var selectedItems = allItems.filter(".griddly-filter-selected");
 

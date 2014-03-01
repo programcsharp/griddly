@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -28,12 +29,32 @@ namespace Griddly.Mvc
                     foreach (GriddlyFilter filter in settings.Filters.Union(settings.Columns.Where(x => x.Filter != null).Select(x => x.Filter)))
                     {
                         if (filter.Default != null)
-                            settings.FilterDefaults[filter.Field] = filter.Default;
+                        {
+                            object value = filter.Default;
 
-                        GriddlyFilterRange rangeFilter = filter as GriddlyFilterRange;
+                            GriddlyFilterList filterList = filter as GriddlyFilterList;
+ 
+                            if (filterList != null && filterList.IsMultiple && !value.GetType().IsArray)
+                            {
+                                Type type = filter.Default.GetType();
 
-                        if (rangeFilter != null && rangeFilter.DefaultEnd != null)
-                            settings.FilterDefaults[rangeFilter.FieldEnd] = rangeFilter.DefaultEnd;
+                                if (filterList.IsNullable)
+                                    type = typeof(Nullable<>).MakeGenericType(type);
+
+                                Array array = Array.CreateInstance(type, 1);
+
+                                array.SetValue(filter.Default, 0);
+
+                                value = array;
+                            }
+
+                            settings.FilterDefaults[filter.Field] = value;
+                        }
+
+                        GriddlyFilterRange filterRange = filter as GriddlyFilterRange;
+
+                        if (filterRange != null && filterRange.DefaultEnd != null)
+                            settings.FilterDefaults[filterRange.FieldEnd] = filterRange.DefaultEnd;
                     }
 
                     foreach (KeyValuePair<string, object> param in settings.FilterDefaults)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
@@ -12,8 +13,8 @@ namespace Griddly.Mvc
             if (name == null)
                 name = column.Caption;
 
-            if (field == null && column.SortField != null && !column.SortField.Contains("."))
-                field = column.SortField.Substring(0, 1).ToLower() + column.SortField.Substring(1);
+            if (field == null)
+                field = GetField(column);
 
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException("name", "Name must be specified.");
@@ -34,11 +35,10 @@ namespace Griddly.Mvc
             if (name == null)
                 name = column.Caption;
 
-            if (field == null && column.SortField != null && !column.SortField.Contains("."))
-            {
-                field = column.SortField.Substring(0, 1).ToLower() + column.SortField.Substring(1) + "Start";
-                fieldEnd = column.SortField.Substring(0, 1).ToLower() + column.SortField.Substring(1) + "End";
-            }
+            if (field == null)
+                field = GetField(column) + "Start";
+            if (fieldEnd == null)
+                fieldEnd = GetField(column) + "End";
 
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException("name", "Name must be specified.");
@@ -58,13 +58,23 @@ namespace Griddly.Mvc
             };
         }
 
-        public static GriddlyFilterList FilterList(this GriddlyColumn column, IEnumerable<SelectListItem> items, object defaultValue = null, bool isMultiple = true, bool defaultSelectAll = true, string nullItemText = null, bool isNoneAll = true, string field = null, string name = null)
+        public static GriddlyFilterList FilterList(this GriddlyColumn column, IEnumerable<SelectListItem> items, bool isMultiple = true, bool defaultSelectAll = true, string nullItemText = null, bool isNoneAll = true, string field = null, string name = null)
+        {
+            return column.FilterList(items, (object)null, isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, name);
+        }
+
+        public static GriddlyFilterList FilterList(this GriddlyColumn column, IEnumerable<SelectListItem> items, Array defaultValue, bool isMultiple = true, bool defaultSelectAll = true, string nullItemText = null, bool isNoneAll = true, string field = null, string name = null)
+        {
+            return column.FilterList(items, (object)defaultValue, isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, name);
+        }
+
+        public static GriddlyFilterList FilterList(this GriddlyColumn column, IEnumerable<SelectListItem> items, object defaultValue, bool isMultiple = true, bool defaultSelectAll = true, string nullItemText = null, bool isNoneAll = true, string field = null, string name = null)
         {
             if (name == null)
                 name = column.Caption;
 
-            if (field == null && column.SortField != null && !column.SortField.Contains("."))
-                field = column.SortField.Substring(0, 1).ToLower() + column.SortField.Substring(1);
+            if (field == null)
+                field = GetField(column);
 
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentNullException("name", "Name must be specified.");
@@ -74,11 +84,11 @@ namespace Griddly.Mvc
             List<SelectListItem> itemsList = new List<SelectListItem>();
 
             if (!string.IsNullOrWhiteSpace(nullItemText))
-                itemsList.Add(new SelectListItem() { Text = nullItemText });
+                itemsList.Add(new SelectListItem() { Text = nullItemText, Value = "" });
 
             itemsList.AddRange(items);
 
-            if (isMultiple && defaultSelectAll)
+            if (isMultiple && defaultSelectAll && defaultValue == null)
             {
                 foreach (SelectListItem item in itemsList)
                     item.Selected = true;
@@ -87,10 +97,25 @@ namespace Griddly.Mvc
             {
                 if (defaultValue != null)
                 {
-                    string value = defaultValue.ToString();
+                    IEnumerable defaultValues = defaultValue as IEnumerable;
 
-                    foreach (SelectListItem item in itemsList)
-                        item.Selected = item.Value == value;
+                    if (defaultValues == null)
+                    {
+                        string value = GetDefaultValueString(defaultValue);
+
+                        foreach (SelectListItem item in itemsList)
+                            item.Selected = item.Value == value;
+                    }
+                    else
+                    {
+                        foreach (object value in defaultValues)
+                        {
+                            string valueString = GetDefaultValueString(value);
+
+                            foreach (SelectListItem item in itemsList.Where(x => x.Value == valueString))
+                                item.Selected = true;
+                        }
+                    }
                 }
                 else
                 {
@@ -102,26 +127,83 @@ namespace Griddly.Mvc
             return new GriddlyFilterList()
             {
                 Field = field,
+                Default = defaultValue,
                 Items = itemsList,
                 Name = name,
                 IsMultiple = isMultiple,
-                IsNoneAll = isNoneAll
+                IsNoneAll = isNoneAll,
+                IsNullable = !string.IsNullOrWhiteSpace(nullItemText)
             };
         }
 
-        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, T? defaultValue = null, bool isMultiple = true, bool defaultSelectAll = true, string nullItemText = null, bool isNoneAll = true, string field = null, string name = null)
-            where T : struct
+        static string GetDefaultValueString(object defaultValue)
         {
-            if (!typeof(T).IsEnum)
-                throw new InvalidOperationException("Type must be an Enum.");
-
-            IEnumerable<SelectListItem> items = Extensions.ToSelectListItems<T>();
-            string value = defaultValue != null ? Convert.ToInt32(defaultValue.Value).ToString() : null;
-
-            return column.FilterList(items, value, isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, name);
+            if (defaultValue.GetType().IsEnum)
+                return Convert.ToInt32(defaultValue).ToString();
+            else
+                return defaultValue.ToString();
         }
 
-        public static GriddlyFilterList FilterBool(this GriddlyColumn column, bool? defaultValue = null, bool isMultiple = false, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = false, string trueLabel = "Yes", string falseLabel = "No", string field = null, string name = null)
+        static string GetField(GriddlyColumn column)
+        {
+            string value = null;
+
+            if (column.SortField != null)
+            {
+                value = column.SortField.Split('.').Last();
+
+                if (value.Length > 1)
+                    value = char.ToLower(value[0]) + value.Substring(1);
+            }
+
+            return value;
+        }
+
+        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, bool isMultiple = true, bool defaultSelectAll = true, string nullItemText = null, bool isNoneAll = true, string field = null, string name = null)
+            where T : struct
+        {
+            return column.FilterList(Extensions.ToSelectListItems<T>(), null, isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, name);
+        }
+
+        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, T? defaultValue, bool isMultiple = true, bool defaultSelectAll = true, string nullItemText = null, bool isNoneAll = true, string field = null, string name = null)
+            where T : struct
+        {
+            return column.FilterList(Extensions.ToSelectListItems<T>(), defaultValue, isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, name);
+        }
+
+        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, T[] defaultValue, bool isMultiple = true, bool defaultSelectAll = true, string nullItemText = null, bool isNoneAll = true, string field = null, string name = null)
+            where T : struct
+        {
+            return column.FilterList(Extensions.ToSelectListItems<T>(), defaultValue, isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, name);
+        }
+
+        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, T?[] defaultValue, bool isMultiple = true, bool defaultSelectAll = true, string nullItemText = null, bool isNoneAll = true, string field = null, string name = null)
+            where T : struct
+        {
+            return column.FilterList(Extensions.ToSelectListItems<T>(), defaultValue, isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, name);
+        }
+
+        public static GriddlyFilterList FilterBool(this GriddlyColumn column, bool isMultiple = false, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = false, string trueLabel = "Yes", string falseLabel = "No", string field = null, string name = null)
+        {
+            return column.FilterBool((object)null, isMultiple, defaultSelectAll, nullItemText, isNoneAll, trueLabel, falseLabel, field, name);
+        }
+
+        public static GriddlyFilterList FilterBool(this GriddlyColumn column, bool? defaultValue, bool isMultiple = false, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = false, string trueLabel = "Yes", string falseLabel = "No", string field = null, string name = null)
+        {
+            return column.FilterBool(defaultValue, isMultiple, defaultSelectAll, nullItemText, isNoneAll, trueLabel, falseLabel, field, name);
+        }
+
+        public static GriddlyFilterList FilterBool(this GriddlyColumn column, bool[] defaultValue, bool isMultiple = false, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = false, string trueLabel = "Yes", string falseLabel = "No", string field = null, string name = null)
+        {
+            return column.FilterBool(defaultValue, isMultiple, defaultSelectAll, nullItemText, isNoneAll, trueLabel, falseLabel, field, name);
+        }
+
+        public static GriddlyFilterList FilterBool(this GriddlyColumn column, bool?[] defaultValue, bool isMultiple = false, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = false, string trueLabel = "Yes", string falseLabel = "No", string field = null, string name = null)
+        {
+            return column.FilterBool(defaultValue, isMultiple, defaultSelectAll, nullItemText, isNoneAll, trueLabel, falseLabel, field, name);
+        }
+
+        static GriddlyFilterList FilterBool(this GriddlyColumn column, object defaultValue, bool isMultiple = false, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = false, string trueLabel = "Yes", string falseLabel = "No", string field = null, string name = null)
         {
             List<SelectListItem> items = new List<SelectListItem>()
             {

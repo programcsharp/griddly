@@ -15,8 +15,8 @@ namespace Griddly.Mvc
         public static string DefaultTableClassName = "table table-bordered table-hover";
         public static string ButtonTemplate = "~/Views/Shared/Griddly/BootstrapButton.cshtml";
         public static string ButtonListTemplate = "~/Views/Shared/Griddly/ButtonStrip.cshtml";
-        public static string BoolTrueHtml = "<span class=\"icon20 check_gray\"></span>";
-        public static string BoolFalseHtml = null;
+        public static HtmlString BoolTrueHtml = null;
+        public static HtmlString BoolFalseHtml = null;
         public static int? DefaultPageSize = null;
         public static bool DefaultShowFilterInitially = true;
 
@@ -190,10 +190,11 @@ namespace Griddly.Mvc
         public new Func<TRow, object> RowClickUrl { set { base.RowClickUrl = (x) => value((TRow)x); } }
         public new Func<TRow, object> RowClass { set { base.RowClass = (x) => value((TRow)x); } }
 
-        public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> template, string caption, string format = null, string sortField = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
+        public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> template, string caption = null, string format = null, string sortField = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
         {
             var compiledTemplate = template.Compile();
             ModelMetadata metadata = ModelMetadata.FromLambdaExpression<TRow, TProperty>(template, new ViewDataDictionary<TRow>());
+            string htmlFieldName = ExpressionHelper.GetExpressionText(template);
 
             if (className == null)
             {
@@ -210,20 +211,18 @@ namespace Griddly.Mvc
                     className = "align-right";
             }
 
-            if (metadata.ModelType == typeof(bool) || metadata.ModelType == typeof(bool?))
+            if (caption == null)
+                caption = metadata.DisplayName ?? metadata.PropertyName ?? htmlFieldName.Split('.').Last();
+
+            if (metadata.ModelType == typeof(bool) || metadata.ModelType == typeof(bool?) && (BoolTrueHtml != null || BoolFalseHtml != null))
             {
                 return TemplateColumn(
                     (row) =>
                     {
-                        string value = (compiledTemplate(row) as bool? == true) ? BoolTrueHtml : BoolFalseHtml;
-
-                        if (!string.IsNullOrWhiteSpace(value))
-                            return new HtmlString(value);
-                        else
-                            return null;
+                        return (compiledTemplate(row) as bool? == true) ? BoolTrueHtml : BoolFalseHtml;
                     },
-                    caption, format, sortField, defaultSort, className, isExportOnly
-                    );
+                    caption, format, sortField, defaultSort, className, isExportOnly, width, filter
+                );
             }
 
             Add(new GriddlyColumn<TRow>()
@@ -231,7 +230,7 @@ namespace Griddly.Mvc
                 Template = (row) => compiledTemplate(row),
                 Caption = caption,
                 Format = format,
-                SortField = sortField ?? ExpressionHelper.GetExpressionText(template),
+                SortField = sortField ?? htmlFieldName,
                 DefaultSort = defaultSort,
                 ClassName = className,
                 IsExportOnly = isExportOnly,

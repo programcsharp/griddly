@@ -11,5 +11,5 @@
         .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending)
             .Column(x => x.City, "City", filter: x => x.FilterEnum<Title>())
             .Column(x => x.State, "State", filter: x => x.FilterList(TestGridItem.UsStates))
-        .Column(x => x.PostalCode, "Gender", filter: x => x.FilterBool())
+            .Column(x => x.PostalCode, "Gender", filter: x => x.FilterBool(nullItemText:"none"))
 )

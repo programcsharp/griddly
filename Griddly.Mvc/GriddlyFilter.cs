@@ -83,6 +83,7 @@ namespace Griddly.Mvc
 
         public bool IsMultiple { get; set; }
         public bool IsNoneAll { get; set; }
+        public bool IsNullable { get; set; }
     }
 
     public enum FilterDataType
