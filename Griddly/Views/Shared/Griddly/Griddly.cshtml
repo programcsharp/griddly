@@ -96,11 +96,10 @@
                     @foreach (GriddlyColumn column in settings.Columns)
                     {
                         bool isSortable = !simple && !string.IsNullOrWhiteSpace(column.SortField);
-                        <th class="@column.ClassName @(isSortable ? "sortable" : null) @(column is GriddlySelectColumn ? "select" : null) @(column.DefaultSort != null ? (column.DefaultSort == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.SortField)>
-                            @column.Caption
+                        <th class="@column.ClassName @(isSortable ? "sortable" : null) @(column is GriddlySelectColumn ? "select" : null) @(column.DefaultSort != null ? (column.DefaultSort == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.SortField)>                            
                             @if (isSortable)
                             {
-                                <span class="icon">&nbsp;</span>
+                                <text>@column.Caption<span class="icon">&nbsp;</span></text>
                             }
                             else if (column is GriddlySelectColumn)
                             {
