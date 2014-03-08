@@ -7,6 +7,7 @@
     {
         PageSize = 5
     }
+        .Column(x => x.Test)
     .Column(x => x.FirstName, "First Name")
         .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending, filter: x => x.FilterBox(FilterDataType.String, "ba"))
                 .Column(x => x.Company, "Company", filter: x => x.FilterBox(FilterDataType.Decimal, 53.5))

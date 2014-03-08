@@ -185,36 +185,80 @@ namespace Griddly.Mvc
 
     public class GriddlySettings<TRow> : GriddlySettings
     {
-        public new Func<GriddlySettings<TRow>, object> FilterTemplate { set { base.FilterTemplate = (x) => value((GriddlySettings<TRow>)x); } }
-        public new Func<GriddlySettings<TRow>, object> InlineFilterTemplate { set { base.InlineFilterTemplate = (x) => value((GriddlySettings<TRow>)x); } }
-        public new Func<TRow, object> RowClickUrl { set { base.RowClickUrl = (x) => value((TRow)x); } }
-        public new Func<TRow, object> RowClass { set { base.RowClass = (x) => value((TRow)x); } }
+        public new Func<GriddlySettings<TRow>, object> FilterTemplate
+        {
+            set
+            {
+                if (value != null)
+                    base.FilterTemplate = (x) => value((GriddlySettings<TRow>)x);
+                else
+                    base.FilterTemplate = null;
+            }
+        }
 
+        public new Func<GriddlySettings<TRow>, object> InlineFilterTemplate
+        {
+            set
+            {
+                if (value != null)
+                    base.InlineFilterTemplate = (x) => value((GriddlySettings<TRow>)x);
+                else
+                    base.InlineFilterTemplate = null;
+            }
+        }
+
+        public new Func<TRow, object> RowClickUrl
+        {
+            set
+            {
+                if (value != null)
+                    base.RowClickUrl = (x) => value((TRow)x);
+                else
+                    base.RowClickUrl = null;
+            }
+        }
+
+        public new Func<TRow, object> RowClass
+        {
+            set
+            {
+                if (value != null)
+                    base.RowClass = (x) => value((TRow)x);
+                else
+                    base.RowClass = null;
+            }
+        }
+        
         public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> template, string caption = null, string format = null, string sortField = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
         {
             var compiledTemplate = template.Compile();
             ModelMetadata metadata = ModelMetadata.FromLambdaExpression<TRow, TProperty>(template, new ViewDataDictionary<TRow>());
             string htmlFieldName = ExpressionHelper.GetExpressionText(template);
 
+            Type type = metadata.ModelType;
+
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                type = Nullable.GetUnderlyingType(type);
+
             if (className == null)
             {
-                if (metadata.ModelType == typeof(bool) || metadata.ModelType == typeof(bool?) ||
-                    metadata.ModelType == typeof(DateTime) || metadata.ModelType == typeof(DateTime?) || metadata.ModelType.HasCastOperator<DateTime>())
-                    className = "align-center";
-                else if (metadata.ModelType == typeof(byte) || metadata.ModelType == typeof(sbyte) ||
-                         metadata.ModelType == typeof(short) || metadata.ModelType == typeof(ushort) ||
-                         metadata.ModelType == typeof(int) || metadata.ModelType == typeof(uint) ||
-                         metadata.ModelType == typeof(long) || metadata.ModelType == typeof(ulong) ||
-                         metadata.ModelType == typeof(float) ||
-                         metadata.ModelType == typeof(double) ||
-                         metadata.ModelType == typeof(decimal))
+                if (type == typeof(byte) || type == typeof(sbyte) ||
+                         type == typeof(short) || type == typeof(ushort) ||
+                         type == typeof(int) || type == typeof(uint) ||
+                         type == typeof(long) || type == typeof(ulong) ||
+                         type == typeof(float) ||
+                         type == typeof(double) ||
+                         type == typeof(decimal))
                     className = "align-right";
+                else if (type == typeof(bool) ||
+                         type == typeof(DateTime) || type.HasCastOperator<DateTime>())
+                    className = "align-center";
             }
 
             if (caption == null)
                 caption = metadata.DisplayName ?? metadata.PropertyName ?? htmlFieldName.Split('.').Last();
 
-            if (metadata.ModelType == typeof(bool) || metadata.ModelType == typeof(bool?) && (BoolTrueHtml != null || BoolFalseHtml != null))
+            if (type == typeof(bool) && (BoolTrueHtml != null || BoolFalseHtml != null))
             {
                 return TemplateColumn(
                     (row) =>

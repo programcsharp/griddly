@@ -107,7 +107,7 @@ namespace Griddly.Mvc
 
                     if (defaultValues == null || defaultValue is string)
                     {
-                        string value = GetDefaultValueString(defaultValue);
+                        string value = defaultValue.ToString();
 
                         foreach (SelectListItem item in selectableItemsList)
                             item.Selected = item.Value == value;
@@ -116,7 +116,7 @@ namespace Griddly.Mvc
                     {
                         foreach (object value in defaultValues)
                         {
-                            string valueString = GetDefaultValueString(value);
+                            string valueString = value.ToString();
 
                             foreach (SelectListItem item in selectableItemsList.Where(x => x.Value == valueString))
                                 item.Selected = true;
@@ -142,14 +142,6 @@ namespace Griddly.Mvc
                 IsNoneAll = isNoneAll,
                 IsNullable = !string.IsNullOrWhiteSpace(nullItemText)
             };
-        }
-
-        static string GetDefaultValueString(object defaultValue)
-        {
-            if (defaultValue.GetType().IsEnum)
-                return Convert.ToInt32(defaultValue).ToString();
-            else
-                return defaultValue.ToString();
         }
 
         static string GetField(GriddlyColumn column)

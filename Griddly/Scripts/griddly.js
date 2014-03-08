@@ -504,6 +504,10 @@
                 var dataType = filter.data("filter-datatype");
                 var display = null;
 
+
+                // TODO: shove formatted values back into boxes to ensure post is correct?
+                // TODO: for numbers, do correctly shredded numeric (no symbols, but numbers and decimals etc.)
+                // TODO: for dates, push actual formatted date
                 if (filter.hasClass("griddly-filter-box"))
                 {
                     if (!dontHide)

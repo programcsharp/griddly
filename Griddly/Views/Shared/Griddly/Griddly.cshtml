@@ -105,6 +105,10 @@
                             {
                                 <i class="glyphicon glyphicon-check"></i>
                             }
+                            else
+                            {
+                                @column.Caption
+                            }
                         </th>
                     }
                 </tr>
@@ -186,7 +190,7 @@
                      @Html.AttributeIf("data-griddly-filter-ismultiple", filterList != null, x => filterList.IsMultiple.ToString().ToLower())
                      @Html.AttributeIf("data-griddly-filter-isnoneall", filterList != null, x => filterList.IsNoneAll.ToString().ToLower())
                      @Html.AttributeIf("data-griddly-filter-displayitemcount", filterList != null, x => filterList.DisplayItemCount)>
-                    <a class="btn btn-link btn-xs filter-trigger" href="#">
+                    <a class="btn btn-link btn-xs filter-trigger">
                         <span class="griddly-filter-display">
                             @if (filterBox != null)
                             {
@@ -357,7 +361,7 @@
 @helper RenderListItem(GriddlyFilterList filter, SelectListItem item, bool isGrouped = false)
 {
     <li class="@(item.Selected ? "griddly-filter-selected" : null) @(isGrouped ? "griddly-list-group" : null)">
-        <a href="#">
+        <a>
             <input name="@filter.Field" type="@(filter.IsMultiple ? "checkbox" : "radio")" checked="@(item.Selected)" value="@item.Value" />
             <i class="glyphicon glyphicon-@(filter.IsMultiple ? "ok" : "record") griddly-filter-selected-indicator"></i>
             @item.Text

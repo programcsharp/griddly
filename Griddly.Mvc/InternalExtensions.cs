@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Mvc;
-using System.Web.Routing;
 
 namespace Griddly.Mvc
 {
@@ -20,8 +19,8 @@ namespace Griddly.Mvc
             bool castable = type.GetMethods(BindingFlags.Public | BindingFlags.Static)
                             .Any(
                                 m => m.ReturnType == typeof(T) &&
-                                m.Name == "op_Implicit" ||
-                                m.Name == "op_Explicit"
+                                (m.Name == "op_Implicit" ||
+                                m.Name == "op_Explicit")
                             );
             return castable;
         }
