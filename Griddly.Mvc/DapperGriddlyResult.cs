@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Web.Helpers;
 
@@ -40,9 +41,17 @@ namespace Griddly.Mvc
             {
                 string sql = string.Format("SELECT CAST(COUNT(*) as bigint) FROM ({0}) [_proj]", _sql);
 
-                IDbConnection cn = _getConnection();
+                try
+                {
+                    IDbConnection cn = _getConnection();
 
-                _overallCount = cn.Query<long>(sql, _param).Single();
+                    _overallCount = cn.Query<long>(sql, _param).Single();
+
+                }
+                catch (Exception ex)
+                {
+                    throw new DapperGriddlyException("Error executing count query.", sql, _param, ex);
+                }
             }
 
             return _overallCount.Value;
@@ -73,40 +82,46 @@ namespace Griddly.Mvc
         // TODO: return IEnumerable so we don't have to .ToList()
         IList<T> ExecuteQuery(string sql, object param)
         {
-            IEnumerable<T> result = _map(_getConnection(), sql, param);
-            IHasOverallCount overallCount = result as IHasOverallCount;
+            try
+            {
+                IEnumerable<T> result = _map(_getConnection(), sql, param);
+                IHasOverallCount overallCount = result as IHasOverallCount;
 
-            if (overallCount != null)
-                _overallCount = overallCount.OverallCount;
+                if (overallCount != null)
+                    _overallCount = overallCount.OverallCount;
 
-            IList<T> results = result.ToList();
+                IList<T> results = result.ToList();
 
-            if (_massage != null)
-                _massage(_getConnection(), results);
+                if (_massage != null)
+                    _massage(_getConnection(), results);
 
-            return results;
+                return results;
+            }
+            catch (Exception ex)
+            {
+                throw new DapperGriddlyException("Error executing list query.", sql, param, ex);
+            }
         }
 
         protected IEnumerable<T> DefaultMap(IDbConnection cn, string sql, object param)
         {
             IEnumerable<T> result = cn.Query<T>(sql, param);
 
-            if(typeof(IHasOverallCount).IsAssignableFrom(typeof(T))){
+            if (typeof(IHasOverallCount).IsAssignableFrom(typeof(T)))
+            {
                 IHasOverallCount firstRow = result.FirstOrDefault() as IHasOverallCount;
+                ListPage<T> lp = new ListPage<T>();
+
                 if (firstRow != null)
                 {
-                    var lp = new ListPage<T>();
                     lp.OverallCount = firstRow.OverallCount;
                     lp.AddRange(result);
-                    result = lp;
                 }
-                else
-                {
-                    return new ListPage<T>();
-                }
-            }
-            return result;
 
+                result = lp;
+            }
+
+            return result;
         }
     }
 }
