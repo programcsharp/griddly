@@ -18,13 +18,15 @@ namespace Griddly.Mvc
     public class GriddlyResult<T> : GriddlyResult
     {
         IQueryable<T> _result;
+        Func<IQueryable<T>, IQueryable<T>> _massage = null;
 
         public string ViewName { get; set; }
 
-        public GriddlyResult(IQueryable<T> result, string viewName = null)
+        public GriddlyResult(IQueryable<T> result, string viewName = null, Func<IQueryable<T>, IQueryable<T>> massage = null)
         {
             _result = result;
             ViewName = viewName;
+            _massage = massage;
         }
 
         public override void ExecuteResult(ControllerContext context)
@@ -165,6 +167,9 @@ namespace Griddly.Mvc
         public virtual IList<T> GetPage(int pageNumber, int pageSize, SortField[] sortFields)
         {
             IQueryable<T> sortedQuery = ApplySortFields(_result, sortFields);
+
+            if (_massage != null)
+                sortedQuery = _massage(sortedQuery);
 
             return sortedQuery.Skip(pageNumber * pageSize).Take(pageSize).ToList();
         }
