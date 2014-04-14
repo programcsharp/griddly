@@ -258,6 +258,9 @@ namespace Griddly.Mvc
             if (caption == null)
                 caption = metadata.DisplayName ?? metadata.PropertyName ?? htmlFieldName.Split('.').Last();
 
+            if (sortField == null)
+                sortField = htmlFieldName;
+
             if (type == typeof(bool) && (BoolTrueHtml != null || BoolFalseHtml != null))
             {
                 return TemplateColumn(
@@ -274,7 +277,7 @@ namespace Griddly.Mvc
                 Template = (row) => compiledTemplate(row),
                 Caption = caption,
                 Format = format,
-                SortField = sortField ?? htmlFieldName,
+                SortField = sortField,
                 DefaultSort = defaultSort,
                 ClassName = className,
                 IsExportOnly = isExportOnly,
