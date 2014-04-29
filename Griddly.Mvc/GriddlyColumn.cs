@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Helpers;
 using System.Web.WebPages;
@@ -18,7 +20,8 @@ namespace Griddly.Mvc
         public GriddlyFilter Filter { get; set; }
 
         public abstract HtmlString RenderCell(object row, bool encode = true);
-        public abstract object RenderCellValue(object row);
+        public abstract object RenderCellValue(object row, bool stripHtml = false);
+        public abstract string RenderClassName(object row);
 
         protected virtual HtmlString RenderValue(object value, bool encode = true)
         {
@@ -50,6 +53,33 @@ namespace Griddly.Mvc
     public class GriddlyColumn<TRow> : GriddlyColumn
     {
         public Func<TRow, object> Template { get; set; }
+        public Func<TRow, string> ClassNameExpression { get; set; }
+
+        static readonly Regex _htmlMatch = new Regex(@"<[^>]*>", RegexOptions.Compiled);
+
+        public override string RenderClassName(object row)
+        {
+            HashSet<string> classes = new HashSet<string>();
+
+            if (!string.IsNullOrWhiteSpace(ClassName))
+                classes.UnionWith(ClassName.Split(' '));
+
+            if (DefaultSort != null)
+                classes.Add("sorted_" + (DefaultSort == SortDirection.Descending ? "d" : "a"));
+
+            if (ClassNameExpression != null)
+            {
+                string additional = ClassNameExpression((TRow)row);
+
+                if (!string.IsNullOrWhiteSpace(additional))
+                    classes.UnionWith(additional.Split(' '));
+            }
+
+            if (classes.Count > 0)
+                return string.Join(" ", classes);
+            else
+                return null;
+        }
 
         public override HtmlString RenderCell(object row, bool encode = true)
         {
@@ -78,7 +108,7 @@ namespace Griddly.Mvc
                 return RenderValue(value, encode);
         }
 
-        public override object RenderCellValue(object row)
+        public override object RenderCellValue(object row, bool stripHtml = false)
         {
             object value = null;
 
@@ -95,7 +125,10 @@ namespace Griddly.Mvc
                 throw new InvalidOperationException("Error rendering column \"" + Caption + "\"", ex);
             }
 
-            if (value is HtmlString)
+            // TODO: test if we need to match separately -- maybe we get a real string here and could strip?
+            if (stripHtml && (value is HtmlString || value is HelperResult || value is string))
+                value = _htmlMatch.Replace((string)value, "").Trim().Replace("  ", " ");
+            else if (value is HtmlString)
                 value = value.ToString();
             else if (value is HelperResult)
                 value = new HtmlString(((HelperResult)value).ToString());

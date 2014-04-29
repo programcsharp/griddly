@@ -29,6 +29,7 @@ namespace Griddly.Mvc
 
             Enabled = true;
             Action = GriddlyButtonAction.Navigate;
+            ClassName = GriddlySettings.DefaultButtonClassName;
         }
 
         public GriddlyButton Add(GriddlyButton item)

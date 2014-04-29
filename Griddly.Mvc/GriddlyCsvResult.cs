@@ -23,8 +23,6 @@ namespace Griddly.Mvc
             _format = format;
         }
 
-        static readonly Regex _htmlMatch = new Regex(@"<[^>]*>", RegexOptions.Compiled);
-
         public override void ExecuteResult(ControllerContext context)
         {
             string format = _format == GriddlyExportFormat.Tsv ? "tsv" : "csv";
@@ -45,10 +43,7 @@ namespace Griddly.Mvc
                 {
                     for (int x = 0; x < _settings.Columns.Count; x++)
                     {
-                        object renderedValue = _settings.Columns[x].RenderCellValue(row);
-
-                        if (renderedValue is string)
-                            renderedValue = _htmlMatch.Replace((string)renderedValue, "").Trim().Replace("  ", " ");
+                        object renderedValue = _settings.Columns[x].RenderCellValue(row, true);
 
                         w.WriteField(renderedValue);
                     }

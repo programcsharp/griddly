@@ -126,7 +126,7 @@
             @Html.AttributeNullable("data-id", TryEval(row, settings.IdProperty))>
             @foreach (GriddlyColumn column in settings.Columns)
             {
-                <td class="@column.ClassName @(column.DefaultSort != null ? (column.DefaultSort == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)">@column.RenderCell(row)</td>
+                <td class="@column.RenderClassName()">@column.RenderCell(row)</td>
             }
         </tr>
     }

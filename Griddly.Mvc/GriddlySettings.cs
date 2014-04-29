@@ -13,6 +13,7 @@ namespace Griddly.Mvc
     {
         public static string DefaultClassName = null;
         public static string DefaultTableClassName = "table table-bordered table-hover";
+        public static string DefaultButtonClassName = null;
         public static string ButtonTemplate = "~/Views/Shared/Griddly/BootstrapButton.cshtml";
         public static string ButtonListTemplate = "~/Views/Shared/Griddly/ButtonStrip.cshtml";
         public static HtmlString BoolTrueHtml = null;

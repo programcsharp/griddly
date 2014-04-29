@@ -20,8 +20,7 @@ namespace Griddly.Mvc
             _name = name;
         }
 
-        static readonly Regex _aMatch = new Regex(@"<a\s[^>]*\s?href=""(.*?)"">(.*?)</a>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        static readonly Regex _htmlMatch = new Regex(@"<[^>]*>", RegexOptions.Compiled);
+        // static readonly Regex _aMatch = new Regex(@"<a\s[^>]*\s?href=""(.*?)"">(.*?)</a>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public override void ExecuteResult(ControllerContext context)
         {
@@ -41,10 +40,7 @@ namespace Griddly.Mvc
                 {
                     for (int x = 0; x < _settings.Columns.Count; x++)
                     {
-                        object renderedValue = _settings.Columns[x].RenderCellValue(row);
-
-                        if (renderedValue is string)
-                            renderedValue = _htmlMatch.Replace((string)renderedValue, "").Trim().Replace("  ", " ");
+                        object renderedValue = _settings.Columns[x].RenderCellValue(row, true);
 
                         ExcelRange cell = ws.Cells[y + 2, x + 1];
                                         
