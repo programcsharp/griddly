@@ -43,17 +43,24 @@ namespace Griddly.Mvc
 
         public static GriddlySettings GetSettings(ControllerContext context, string viewName)
         {
-            GriddlySettingsResult settingsResult = new GriddlySettingsResult()
+            try
             {
-                ViewName = viewName,
-                ViewData = context.Controller.ViewData
-            };
+                GriddlySettingsResult settingsResult = new GriddlySettingsResult()
+                {
+                    ViewName = viewName,
+                    ViewData = context.Controller.ViewData
+                };
 
-            ControllerContext settingsContext = new ControllerContext(new RequestContext(new EmptyHttpContext(), context.RouteData), context.Controller);
+                ControllerContext settingsContext = new ControllerContext(new RequestContext(new EmptyHttpContext(), context.RouteData), context.Controller);
 
-            settingsResult.ExecuteResult(settingsContext);
+                settingsResult.ExecuteResult(settingsContext);
 
-            return settingsResult.Settings;
+                return settingsResult.Settings;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         class EmptyHttpContext : HttpContextBase

@@ -125,17 +125,20 @@ namespace Griddly.Mvc
                 throw new InvalidOperationException("Error rendering column \"" + Caption + "\"", ex);
             }
 
+
             // TODO: test if we need to match separately -- maybe we get a real string here and could strip?
-            if (stripHtml && (value is HtmlString || value is HelperResult || value is string))
-                value = _htmlMatch.Replace((string)value, "").Trim().Replace("  ", " ");
-            else if (value is HtmlString)
-                value = value.ToString();
-            else if (value is HelperResult)
+            if (value is HelperResult)
                 value = new HtmlString(((HelperResult)value).ToString());
+
+            if (value is HtmlString)
+                value = value.ToString();
             else if (value is Enum)
                 value = Extensions.ToStringDescription((Enum)value);
             else if (value != null && value.GetType().HasCastOperator<DateTime>())
                 value = (DateTime)value;
+
+            if (stripHtml && value is string)
+                value = HttpUtility.HtmlDecode(_htmlMatch.Replace(value.ToString(), "").Trim().Replace("  ", " "));
 
             return value;
         }

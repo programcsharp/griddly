@@ -14,5 +14,6 @@
         .Column(x => x.Address, "Address")
         .Column(x => x.City, "City")
         .Column(x => x.State, "State")
-        .Column(x => x.PostalCode, "Zip")
+        .TemplateColumn(x => Html.ActionLink("&" + x.PostalCode, "Profile"), "Zip")
+        .Button("", "export", action: GriddlyButtonAction.Javascript, className: "export-xlsx")
 )
