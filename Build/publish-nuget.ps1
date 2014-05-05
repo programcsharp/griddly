@@ -9,7 +9,7 @@ Function Get-DropBox() {
 }
 
 $dropbox = Get-DropBox
-$keyfile = "$dropbox\Foundry57\nuget-key.txt"
+$keyfile = "$dropbox\Personal\nuget-key.txt"
 $scriptpath = split-path -parent $MyInvocation.MyCommand.Path
 $nugetpath = resolve-path "$scriptpath/../.nuget/nuget.exe"
 $packagespath = resolve-path "$scriptpath/packages"
