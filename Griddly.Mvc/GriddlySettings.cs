@@ -138,7 +138,7 @@ namespace Griddly.Mvc
                 Icon = icon,
                 Action = action,
                 EnableOnSelection = enableOnSelection.Value,
-                ClassName = className,
+                ClassName = className ?? GriddlySettings.DefaultButtonClassName,
                 Target = target
             });
         }
@@ -155,7 +155,7 @@ namespace Griddly.Mvc
                 Icon = icon,
                 Action = action,
                 EnableOnSelection = enableOnSelection.Value,
-                ClassName = className,
+                ClassName = className ?? GriddlySettings.DefaultButtonClassName,
                 Target = target
             });
         }
