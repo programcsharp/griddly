@@ -131,16 +131,19 @@ namespace Griddly.Mvc
             if (enableOnSelection == null)
                 enableOnSelection = (action == GriddlyButtonAction.Ajax || action == GriddlyButtonAction.AjaxBulk || action == GriddlyButtonAction.Post);
 
-            return Add(new GriddlyButton()
+            var button = new GriddlyButton()
             {
                 ArgumentTemplate = argumentTemplate,
                 Text = caption,
                 Icon = icon,
                 Action = action,
                 EnableOnSelection = enableOnSelection.Value,
-                ClassName = className,
                 Target = target
-            });
+            };
+
+            button.ClassName = ((button.ClassName ?? "") + " " + (className ?? "")).Trim();
+
+            return Add(button);
         }
 
         public GriddlySettings Button(string argument, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null)
@@ -148,16 +151,19 @@ namespace Griddly.Mvc
             if (enableOnSelection == null)
                 enableOnSelection = (action == GriddlyButtonAction.Ajax || action == GriddlyButtonAction.AjaxBulk || action == GriddlyButtonAction.Post);
 
-            return Add(new GriddlyButton()
+            var button = new GriddlyButton()
             {
                 Argument = argument,
                 Text = caption,
                 Icon = icon,
                 Action = action,
                 EnableOnSelection = enableOnSelection.Value,
-                ClassName = className,
                 Target = target
-            });
+            };
+
+            button.ClassName = ((button.ClassName ?? "") + " " + (className ?? "")).Trim();
+
+            return Add(button);
         }
 
         public GriddlySettings ButtonSeparator()
