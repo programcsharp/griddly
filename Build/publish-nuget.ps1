@@ -1,6 +1,8 @@
 # http://www.jeremyskinner.co.uk/2011/01/12/automating-nuget-package-creation-with-msbuild-and-powershell/
 
-msbuild
+$scriptpath = split-path -parent $MyInvocation.MyCommand.Path
+
+msbuild $scriptpath/build.proj
 
 Function Get-DropBox() {
   $hostFile = Join-Path (Split-Path (Get-ItemProperty HKCU:\Software\Dropbox).InstallPath) "host.db"
@@ -10,12 +12,11 @@ Function Get-DropBox() {
 
 $dropbox = Get-DropBox
 $keyfile = "$dropbox\Personal\nuget-key.txt"
-$scriptpath = split-path -parent $MyInvocation.MyCommand.Path
 $nugetpath = resolve-path "$scriptpath/../.nuget/nuget.exe"
 $packagespath = resolve-path "$scriptpath/packages"
  
 if(-not (test-path $keyfile)) {
-  throw "Could not find the NuGet access key at $keyfile. If you're not Chris, you shouldn't be running this script!"
+  throw "Could not find the NuGet access key at $keyfile. If you're not the project owner, you shouldn't be running this script!"
 }
 else {  
   pushd $packagespath
