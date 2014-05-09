@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Web;
 using System.Web.Helpers;
 using System.Web.Mvc;
 
@@ -12,7 +13,30 @@ namespace Griddly.Mvc
 {
     public abstract class GriddlyResult : ActionResult
     {
+        public SortField[] GetSortFields(NameValueCollection items)
+        {
+            return items.AllKeys
+                .Where(x => x.StartsWith("sortFields["))
+                .Select(x =>
+                {
+                    int pos = x.IndexOf(']', "sortFields[".Length);
 
+                    return new
+                    {
+                        Index = int.Parse(x.Substring("sortFields[".Length, pos - "sortFields[".Length)),
+                        Field = x.Substring(pos + 2, x.Length - pos - 2 - 1),
+                        Direction = (SortDirection)Enum.Parse(typeof(SortDirection), items[x])
+                    };
+
+                })
+                .OrderBy(x => x.Index)
+                .Select(x => new SortField()
+                {
+                    Field = x.Field,
+                    Direction = x.Direction
+                })
+                .ToArray();
+        }
     }
 
     public class GriddlyResult<T> : GriddlyResult
@@ -41,34 +65,16 @@ namespace Griddly.Mvc
 
             if (!int.TryParse(items["pageNumber"], out pageNumber))
                 pageNumber = 0;
+            
             if (!int.TryParse(items["pageSize"], out pageSize))
                 pageSize = 20;
+
             if (Enum.TryParse(items["exportFormat"], true, out exportFormatValue))
                 exportFormat = exportFormatValue;
             else
                 exportFormat = null;
 
-            sortFields = items.AllKeys
-                .Where(x => x.StartsWith("sortFields["))
-                .Select(x =>
-                {
-                    int pos = x.IndexOf(']', "sortFields[".Length);
-
-                    return new
-                    {
-                        Index = int.Parse(x.Substring("sortFields[".Length, pos - "sortFields[".Length)),
-                        Field = x.Substring(pos + 2, x.Length - pos - 2 - 1),
-                        Direction = (SortDirection)Enum.Parse(typeof(SortDirection), items[x])
-                    };
-
-                })
-                .OrderBy(x => x.Index)
-                .Select(x => new SortField()
-                {
-                    Field = x.Field,
-                    Direction = x.Direction
-                })
-                .ToArray();
+            sortFields = GetSortFields(items);
 
             GriddlySettings settings = null;
 
