@@ -82,6 +82,9 @@ namespace Griddly.Mvc
             {
                 settings = GriddlySettingsResult.GetSettings(context, ViewName);
 
+                if (GriddlySettings.OnGriddlyResultExecuting != null)
+                    GriddlySettings.OnGriddlyResultExecuting(settings);
+
                 // TODO: should we always pull sort fields?
                 if (!sortFields.Any())
                     sortFields = settings.GetDefaultSort();

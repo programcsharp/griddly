@@ -25,6 +25,7 @@ namespace Griddly.Mvc
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
         public static Func<string, IEnumerable, ActionResult> HandleCustomReport = null;
         public static Action<GriddlySettings> BeforeRender = null;
+        public static Action<GriddlySettings> OnGriddlyResultExecuting = null;
 
         public GriddlySettings()
         {
