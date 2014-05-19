@@ -59,6 +59,7 @@ namespace Griddly.Mvc
             }
             catch
             {
+                // TODO: throw exception if it is bad like HttpCompileException
                 return null;
             }
         }
