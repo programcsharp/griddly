@@ -8,26 +8,26 @@ namespace Griddly.Mvc
 {
     public abstract class GriddlyFilter
     {
-        string _name;
+        string _caption;
 
-        public string Name
+        public string Caption
         {
             get
             {
-                return _name;
+                return _caption;
             }
             set
             {
                 if (!string.IsNullOrWhiteSpace(value))
-                    NamePlural = PluralizationService.CreateService(CultureInfo.CurrentUICulture).Pluralize(value);
+                    CaptionPlural = PluralizationService.CreateService(CultureInfo.CurrentUICulture).Pluralize(value);
                 else
-                    NamePlural = null;
+                    CaptionPlural = null;
 
-                _name = value;
+                _caption = value;
             }
         }
 
-        public string NamePlural { get; set; }
+        public string CaptionPlural { get; set; }
 
         public string Field { get; set; }
         public object Default { get; set; }

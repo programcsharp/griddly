@@ -185,7 +185,7 @@
                 GriddlyFilterList filterList = filter as GriddlyFilterList;
 
                 <div class="btn-group griddly-filter @(filterBox != null ? "griddly-filter-box" : null) @(filterRange != null ? "griddly-filter-range" : null) @(filterList != null ? "griddly-filter-list" : null)"
-                     data-filter-name="@filter.Name" data-filter-name-plural="@filter.NamePlural"
+                     data-filter-name="@filter.Caption" data-filter-name-plural="@filter.CaptionPlural"
                      data-filter-datatype="@filter.DataType.ToString()"
                      @Html.AttributeIf("data-griddly-filter-ismultiple", filterList != null, x => filterList.IsMultiple.ToString().ToLower())
                      @Html.AttributeIf("data-griddly-filter-isnoneall", filterList != null, x => filterList.IsNoneAll.ToString().ToLower())
@@ -207,7 +207,7 @@
                                 }
                                 else
                                 {
-                                    <text>Any @filter.Name</text>
+                                    <text>Any @filter.Caption</text>
                                 }
                             }
                             else if (filterRange != null)
@@ -228,7 +228,7 @@
                                 }
                                 else
                                 {
-                                    <text>All @filter.NamePlural</text>
+                                    <text>All @filter.CaptionPlural</text>
                                 }
                             }
                             else if (filterList != null)
@@ -238,11 +238,11 @@
                                                                 
                                 if (selectedCount == allCount || (selectedCount == 0 && filterList.IsNoneAll))
                                 {
-                                    <text>@(allCount == 2 ? "Both " : "All ") @filter.NamePlural</text>
+                                    <text>@(allCount == 2 ? "Both " : "All ") @filter.CaptionPlural</text>
                                 }
                                 else if (selectedCount > filterList.DisplayItemCount)
                                 {
-                                    <text>@(selectedCount) @filter.NamePlural</text>
+                                    <text>@(selectedCount) @filter.CaptionPlural</text>
                                 }
                                 else if (selectedCount > 0 && selectedCount <= filterList.DisplayItemCount)
                                 {
@@ -250,7 +250,7 @@
                                 }
                                 else
                                 {
-                                    <text>No @filter.NamePlural</text>
+                                    <text>No @filter.CaptionPlural</text>
                                 }
                             }
                         </span>
