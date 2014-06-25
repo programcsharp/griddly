@@ -33,7 +33,6 @@ namespace Griddly.Mvc
             Columns = new List<GriddlyColumn>();
             Filters = new List<GriddlyFilter>();
             Buttons = new List<GriddlyButton>();
-            FilterDefaults = new Dictionary<string, object>();
             ClassName = DefaultClassName;
             TableClassName = DefaultTableClassName;
             FooterTemplate = DefaultFooterTemplate;
@@ -66,7 +65,6 @@ namespace Griddly.Mvc
         public Func<object, object> RowClass { get; set; }
 
         public Func<GriddlyResultPage, object> FooterTemplate { get; set; }
-        public IDictionary<string, object> FilterDefaults { get; set; }
 
         public bool HasInlineFilter { get; set; }
 

@@ -40,7 +40,7 @@
             .Column(x => x.City, "City", filter: x => x.FilterEnum<Title>())
             .Column(x => x.State, "State", filter: x =>
                 {
-                    GriddlyFilterList filter = x.FilterList(TestGridItem.UsStates, new string[] { "AZ", "VA" });
+                    GriddlyFilterList filter = x.FilterList(TestGridItem.UsStates);
                     
                     filter.CaptionPlural = "State";
                     filter.DisplayItemCount = 2;
@@ -48,5 +48,5 @@
                     return filter;
                 })
                     .Column(x => x.Address, "Address", filter: x => x.FilterList(groupedList))
-            .Column(x => x.PostalCode, "Gender", filter: x => x.FilterBool(false, "YEAHH", "Naw", "what?"))
+            .Column(x => x.PostalCode, "Gender", filter: x => x.FilterBool("YEAHH", "Naw", "what?"))
 )

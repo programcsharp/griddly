@@ -32,9 +32,14 @@ namespace Griddly.Controllers
             return new GriddlyResult<TestGridItem>(query);
         }
 
-        public GriddlyResult FilterBoxGrid()
+        public GriddlyResult FilterBoxGrid(string lastName)
         {
+            this.SetGriddlyDefault(ref lastName, "lastName", "ba");
+
             IQueryable<TestGridItem> query = _testData;
+
+            if (!string.IsNullOrWhiteSpace(lastName))
+                query = query.Where(x => x.LastName.Contains(lastName));
 
             //if (!string.IsNullOrWhiteSpace(firstName))
             //    query = query.Where(x => x.FirstName.Contains(firstName));

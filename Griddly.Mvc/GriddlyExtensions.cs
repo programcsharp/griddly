@@ -100,6 +100,19 @@ namespace Griddly.Mvc
                 return null;
         }
 
+        public static void SetGriddlyDefault<T>(this Controller controller, ref T parameter, string field, T value)
+        {
+            if (controller.ControllerContext.IsChildAction)
+                parameter = value;
+
+            controller.ViewData["_griddlyDefault_" + field] = value;
+        }
+
+        public static object GetGriddlyDefault(this WebViewPage page, string field)
+        {
+            return page.ViewData["_griddlyDefault_" + field];
+        }
+
         static IDictionary<string, object> ObjectToDictionary(object value)
         {
             if (value == null)

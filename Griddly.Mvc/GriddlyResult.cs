@@ -5,7 +5,6 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Web;
 using System.Web.Helpers;
 using System.Web.Mvc;
 
@@ -65,7 +64,7 @@ namespace Griddly.Mvc
 
             if (!int.TryParse(items["pageNumber"], out pageNumber))
                 pageNumber = 0;
-            
+
             if (!int.TryParse(items["pageSize"], out pageSize))
                 pageSize = 20;
 
@@ -120,7 +119,7 @@ namespace Griddly.Mvc
                     ViewName = ViewName
                 };
 
-                foreach (KeyValuePair<string, object> value in context.Controller.ViewData.Where(x => !x.Key.StartsWith("_")))
+                foreach (KeyValuePair<string, object> value in context.Controller.ViewData.Where(x => x.Key != "_isGriddlySettingsRequest"))
                     view.ViewData[value.Key] = value.Value;
 
                 if (context.IsChildAction)

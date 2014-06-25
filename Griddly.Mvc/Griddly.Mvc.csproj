@@ -95,7 +95,6 @@
     <Compile Include="GriddlyButton.cs" />
     <Compile Include="GriddlyColumn.cs" />
     <Compile Include="GriddlyCsvResult.cs" />
-    <Compile Include="GriddlyDefaultParametersAttribute.cs" />
     <Compile Include="GriddlyExcelResult.cs" />
     <Compile Include="GriddlyExtensions.cs" />
     <Compile Include="GriddlyFilter.cs" />
