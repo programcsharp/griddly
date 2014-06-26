@@ -115,7 +115,7 @@ namespace Griddly.Mvc
                 {
                     IEnumerable defaultValues = value as IEnumerable;
 
-                    if (value == null || value is string)
+                    if (defaultValues == null || value is string)
                     {
                         string valueString = value.ToString();
 
