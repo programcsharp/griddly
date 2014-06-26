@@ -130,7 +130,7 @@ namespace Griddly.Mvc
             if (enableOnSelection == null)
                 enableOnSelection = (action == GriddlyButtonAction.Ajax || action == GriddlyButtonAction.AjaxBulk || action == GriddlyButtonAction.Post);
 
-            var button = new GriddlyButton()
+            var button = new GriddlyButton(className)
             {
                 ArgumentTemplate = argumentTemplate,
                 Text = caption,
@@ -140,8 +140,6 @@ namespace Griddly.Mvc
                 Target = target
             };
 
-            button.ClassName = ((button.ClassName ?? "") + " " + (className ?? "")).Trim();
-
             return Add(button);
         }
 
@@ -150,7 +148,7 @@ namespace Griddly.Mvc
             if (enableOnSelection == null)
                 enableOnSelection = (action == GriddlyButtonAction.Ajax || action == GriddlyButtonAction.AjaxBulk || action == GriddlyButtonAction.Post);
 
-            var button = new GriddlyButton()
+            var button = new GriddlyButton(className)
             {
                 Argument = argument,
                 Text = caption,
@@ -159,8 +157,6 @@ namespace Griddly.Mvc
                 EnableOnSelection = enableOnSelection.Value,
                 Target = target
             };
-
-            button.ClassName = ((button.ClassName ?? "") + " " + (className ?? "")).Trim();
 
             return Add(button);
         }

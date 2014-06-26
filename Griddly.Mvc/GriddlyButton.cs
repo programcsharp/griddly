@@ -23,13 +23,14 @@ namespace Griddly.Mvc
 
         public List<GriddlyButton> Buttons { get; set; }
 
-        public GriddlyButton()
+        public GriddlyButton(string additionalClassName = null)
         {
             Buttons = new List<GriddlyButton>();
 
             Enabled = true;
             Action = GriddlyButtonAction.Navigate;
-            ClassName = GriddlySettings.DefaultButtonClassName;
+
+            ClassName = ((GriddlySettings.DefaultButtonClassName ?? "") + " " + (additionalClassName ?? "")).Trim();
         }
 
         public GriddlyButton Add(GriddlyButton item)
