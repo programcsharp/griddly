@@ -178,7 +178,7 @@
                     {
                         $(this.options.rowClickModal).removeData("modal").modal({ remote: url });
                     }
-                    else
+                    else if (!$(e.target).is("a"))
                     {
                         if (e.which == 2 || e.ctrlKey)
                             window.open(url);

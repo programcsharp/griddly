@@ -5,8 +5,10 @@
 
 @Html.Griddly(new GriddlySettings<TestGridItem>()
     {
-        PageSize = 5
+        PageSize = 5,
+        RowClickUrl = x => "http://microsoft.com"
     }
+    .TemplateColumn(@<a href="http://google.com">google</a>, "test")
         .Column(x => x.Test)
     .Column(x => x.FirstName, "First Name")
         .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending, filter: x => x.FilterBox(FilterDataType.String))
