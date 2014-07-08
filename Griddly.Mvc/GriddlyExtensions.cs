@@ -133,8 +133,10 @@ namespace Griddly.Mvc
                 {
                     Type t = value.Value.GetType();
 
-                    if (t.IsPrimitive || t == typeof(Decimal) || t == typeof(String) || t == typeof(DateTime) || t == typeof(TimeSpan) || t == typeof(DateTimeOffset))
+                    if (t.IsPrimitive || t.IsEnum || t == typeof(Decimal) || t == typeof(String) || t == typeof(DateTime) || t == typeof(TimeSpan) || t == typeof(DateTimeOffset))
                         values[value.Key] = value.Value;
+                    else if (t.HasCastOperator<DateTime>())
+                        values[value.Key] = (DateTime)value.Value;
                 }
             }
 
@@ -152,8 +154,10 @@ namespace Griddly.Mvc
                     {
                         Type t = value.Value.GetType();
 
-                        if (t.IsPrimitive || t == typeof(Decimal) || t == typeof(String) || t == typeof(DateTime) || t == typeof(TimeSpan) || t == typeof(DateTimeOffset))
+                        if (t.IsPrimitive || t.IsEnum || t == typeof(Decimal) || t == typeof(String) || t == typeof(DateTime) || t == typeof(TimeSpan) || t == typeof(DateTimeOffset))
                             values[value.Key] = value.Value;
+                        else if (t.HasCastOperator<DateTime>())
+                            values[value.Key] = (DateTime)value.Value;
                     }
                 }
             }

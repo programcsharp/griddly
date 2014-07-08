@@ -32,7 +32,7 @@ namespace Griddly.Controllers
             return new GriddlyResult<TestGridItem>(query);
         }
 
-        public GriddlyResult FilterBoxGrid(string lastName)
+        public GriddlyResult FilterBoxGrid(string lastName, DateTime? city)
         {
             this.SetGriddlyDefault(ref lastName, "lastName", "ba");
 
@@ -54,8 +54,10 @@ namespace Griddly.Controllers
             return new GriddlyResult<TestGridItem>(query);
         }
 
-        public GriddlyResult FilterRangeGrid()
+        public GriddlyResult FilterRangeGrid(DateTime? stateStart)
         {
+            this.SetGriddlyDefault(ref stateStart, "stateStart", DateTime.Now);
+
             IQueryable<TestGridItem> query = _testData;
 
             //if (!string.IsNullOrWhiteSpace(firstName))

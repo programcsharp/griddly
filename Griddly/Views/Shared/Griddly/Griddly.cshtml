@@ -222,13 +222,11 @@
                                 }
                                 else if (defaultValue != null)
                                 {
-                                    @(filter.DataType == FilterDataType.Date ? "After" : ">=")
-                                    @filter.GetFormattedValue(defaultValue)
+                                    <text>@(filter.DataType == FilterDataType.Date ? "After" : ">=") @filter.GetFormattedValue(defaultValue)</text>
                                 }
                                 else if (defaultValueEnd != null)
                                 {
-                                    @(filter.DataType == FilterDataType.Date ? "Before" : "<=")
-                                    @filter.GetFormattedValue(defaultValueEnd)
+                                    <text>@(filter.DataType == FilterDataType.Date ? "Before" : "<=") @filter.GetFormattedValue(defaultValueEnd)</text>
                                 }
                                 else
                                 {
