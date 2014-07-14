@@ -2,7 +2,7 @@
 .highlight .hll { background-color: #333333 }
 .highlight  { 
 
-background: #111111; 
+background: #333; 
 
 color: #ffffff ;
 
@@ -12,7 +12,7 @@ padding: 0.2em 0.9em;
   line-height: 1.1em;
   overflow: auto;
 	font-size: 1.0em;
-	border: 1px solid #CCC;
+	border: 1px solid #888;
 	
 	-moz-border-radius:7px;
 	-webkit-border-radius:7px;
@@ -20,6 +20,13 @@ padding: 0.2em 0.9em;
 
 
 }
+
+  .highlight pre, .highlight pre code
+  {
+    background-color:inherit;
+    border:none;
+    padding:0;
+  } 
 
 p > code, p > a > code, li > code, h3 > code
 {
