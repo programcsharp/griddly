@@ -13,11 +13,11 @@ Griddly solves those problems by separating render and data logic, rendering in 
 
 Model:
 
-``` C#
+{% highlight C# %}
 public class Person
 {
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string ZipCode { get; set; }
 }
-```
+{% endhighlight %}
