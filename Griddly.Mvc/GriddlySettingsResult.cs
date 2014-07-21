@@ -61,7 +61,7 @@ namespace Griddly.Mvc
             {
                 throw;
             }
-            catch
+            catch (Exception ex)
             {
                 // TODO: throw exception if it is bad like HttpCompileException
                 return null;
@@ -113,6 +113,12 @@ namespace Griddly.Mvc
                 {
                     return _pageInstrumentation;
                 }
+            }
+
+            //http://stackoverflow.com/a/24348822/65611
+            public override object GetService(Type serviceType)
+            {
+                return DependencyResolver.Current.GetService(serviceType);
             }
         }
 
