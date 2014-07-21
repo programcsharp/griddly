@@ -11,15 +11,16 @@ namespace Griddly.Mvc
     public class DapperGriddlyResult<T> : GriddlyResult<T>
     {
         Func<IDbConnection> _getConnection;
+        Func<IDbTransaction> _getTransaction;
         string _sql;
         object _param;
-        Func<IDbConnection, string, object, IEnumerable<T>> _map;
-        Action<IDbConnection, IList<T>> _massage;
+        Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> _map;
+        Action<IDbConnection, IDbTransaction, IList<T>> _massage;
 
         long? _overallCount = null;
         bool _fixedSort;
 
-        public DapperGriddlyResult(Func<IDbConnection> getConnection, string sql, object param, Func<IDbConnection, string, object, IEnumerable<T>> map = null, Action<IDbConnection, IList<T>> massage = null, bool fixedSort = false)
+        public DapperGriddlyResult(Func<IDbConnection> getConnection, string sql, object param, Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map = null, Action<IDbConnection, IDbTransaction, IList<T>> massage = null, bool fixedSort = false, Func<IDbTransaction> getTransaction = null)
             : base(null)
         {
             _getConnection = getConnection;
@@ -33,6 +34,7 @@ namespace Griddly.Mvc
 
             _massage = massage;
             _fixedSort = fixedSort;
+            _getTransaction = getTransaction;
         }
 
         public override long GetCount()
@@ -44,8 +46,9 @@ namespace Griddly.Mvc
                 try
                 {
                     IDbConnection cn = _getConnection();
+                    IDbTransaction tx = _getTransaction != null ? _getTransaction() : null;
 
-                    _overallCount = cn.Query<long>(sql, _param).Single();
+                    _overallCount = cn.Query<long>(sql, _param, tx).Single();
 
                 }
                 catch (Exception ex)
@@ -84,7 +87,7 @@ namespace Griddly.Mvc
         {
             try
             {
-                IEnumerable<T> result = _map(_getConnection(), sql, param);
+                IEnumerable<T> result = _map(_getConnection(), _getTransaction != null ? _getTransaction() : null, sql, param);
                 IHasOverallCount overallCount = result as IHasOverallCount;
 
                 if (overallCount != null)
@@ -93,7 +96,7 @@ namespace Griddly.Mvc
                 IList<T> results = result.ToList();
 
                 if (_massage != null)
-                    _massage(_getConnection(), results);
+                    _massage(_getConnection(), _getTransaction != null ? _getTransaction() : null, results);
 
                 return results;
             }
@@ -103,9 +106,9 @@ namespace Griddly.Mvc
             }
         }
 
-        protected IEnumerable<T> DefaultMap(IDbConnection cn, string sql, object param)
+        protected IEnumerable<T> DefaultMap(IDbConnection cn, IDbTransaction tx, string sql, object param)
         {
-            IEnumerable<T> result = cn.Query<T>(sql, param);
+            IEnumerable<T> result = cn.Query<T>(sql, param, tx);
 
             if (typeof(IHasOverallCount).IsAssignableFrom(typeof(T)))
             {

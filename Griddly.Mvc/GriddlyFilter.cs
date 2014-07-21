@@ -1,36 +1,37 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity.Design.PluralizationServices;
 using System.Globalization;
 using System.Web.Mvc;
+using System.Linq;
 
 namespace Griddly.Mvc
 {
     public abstract class GriddlyFilter
     {
-        string _name;
+        string _caption;
 
-        public string Name
+        public string Caption
         {
             get
             {
-                return _name;
+                return _caption;
             }
             set
             {
                 if (!string.IsNullOrWhiteSpace(value))
-                    NamePlural = PluralizationService.CreateService(CultureInfo.CurrentUICulture).Pluralize(value);
+                    CaptionPlural = PluralizationService.CreateService(CultureInfo.CurrentUICulture).Pluralize(value);
                 else
-                    NamePlural = null;
+                    CaptionPlural = null;
 
-                _name = value;
+                _caption = value;
             }
         }
 
-        public string NamePlural { get; set; }
+        public string CaptionPlural { get; set; }
 
         public string Field { get; set; }
-        public object Default { get; set; }
         public virtual FilterDataType DataType { get; set; }
 
         public string GetFormattedValue(object value)
@@ -79,7 +80,6 @@ namespace Griddly.Mvc
             }
         }
         public string FieldEnd { get; set; }
-        public object DefaultEnd { get; set; }
     }
 
     public class GriddlyFilterList : GriddlyFilter
@@ -97,8 +97,51 @@ namespace Griddly.Mvc
         public bool IsMultiple { get; set; }
         public bool IsNoneAll { get; set; }
         public bool IsNullable { get; set; }
+        public bool DefaultSelectAll { get; set; }
 
         public int DisplayItemCount { get; set; }
+
+        public void SetSelectedItems(object value)
+        {
+            if (IsMultiple && DefaultSelectAll && value == null)
+            {
+                // TODO: set default value to all selected
+                foreach (SelectListItem item in SelectableItems)
+                    item.Selected = true;
+            }
+            else if (!IsMultiple || value != null)
+            {
+                if (value != null)
+                {
+                    IEnumerable defaultValues = value as IEnumerable;
+
+                    if (defaultValues == null || value is string)
+                    {
+                        string valueString = value.ToString();
+
+                        foreach (SelectListItem item in SelectableItems)
+                            item.Selected = item.Value == valueString;
+                    }
+                    else
+                    {
+                        foreach (object valueObject in defaultValues)
+                        {
+                            string valueString = valueObject.ToString();
+
+                            foreach (SelectListItem item in SelectableItems.Where(x => x.Value == valueString))
+                                item.Selected = true;
+                        }
+                    }
+                }
+                else
+                {
+                    // TODO: set default value to all selected
+                    for (int i = 0; i < SelectableItems.Count; i++)
+                        Items[i].Selected = (i == 0);
+                }
+            }
+
+        }
     }
 
     public enum FilterDataType

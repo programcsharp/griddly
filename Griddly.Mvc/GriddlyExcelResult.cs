@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.Web.Mvc;
-using OfficeOpenXml;
+﻿using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using System;
+using System.Collections.Generic;
+using System.Web.Mvc;
 
 namespace Griddly.Mvc
 {
@@ -43,7 +42,7 @@ namespace Griddly.Mvc
                         object renderedValue = _settings.Columns[x].RenderCellValue(row, true);
 
                         ExcelRange cell = ws.Cells[y + 2, x + 1];
-                                        
+
                         cell.Value = renderedValue;
 
                         if (renderedValue as DateTime? != null)

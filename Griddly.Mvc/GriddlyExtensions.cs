@@ -100,6 +100,19 @@ namespace Griddly.Mvc
                 return null;
         }
 
+        public static void SetGriddlyDefault<T>(this Controller controller, ref T parameter, string field, T value)
+        {
+            if (controller.ControllerContext.IsChildAction)
+                parameter = value;
+
+            controller.ViewData["_griddlyDefault_" + field] = value;
+        }
+
+        public static object GetGriddlyDefault(this WebViewPage page, string field)
+        {
+            return page.ViewData["_griddlyDefault_" + field];
+        }
+
         static IDictionary<string, object> ObjectToDictionary(object value)
         {
             if (value == null)
@@ -120,8 +133,10 @@ namespace Griddly.Mvc
                 {
                     Type t = value.Value.GetType();
 
-                    if (t.IsPrimitive || t == typeof(Decimal) || t == typeof(String) || t == typeof(DateTime) || t == typeof(TimeSpan) || t == typeof(DateTimeOffset))
+                    if (t.IsPrimitive || t.IsEnum || t == typeof(Decimal) || t == typeof(String) || t == typeof(DateTime) || t == typeof(TimeSpan) || t == typeof(DateTimeOffset))
                         values[value.Key] = value.Value;
+                    else if (t.HasCastOperator<DateTime>())
+                        values[value.Key] = (DateTime)value.Value;
                 }
             }
 
@@ -139,8 +154,10 @@ namespace Griddly.Mvc
                     {
                         Type t = value.Value.GetType();
 
-                        if (t.IsPrimitive || t == typeof(Decimal) || t == typeof(String) || t == typeof(DateTime) || t == typeof(TimeSpan) || t == typeof(DateTimeOffset))
+                        if (t.IsPrimitive || t.IsEnum || t == typeof(Decimal) || t == typeof(String) || t == typeof(DateTime) || t == typeof(TimeSpan) || t == typeof(DateTimeOffset))
                             values[value.Key] = value.Value;
+                        else if (t.HasCastOperator<DateTime>())
+                            values[value.Key] = (DateTime)value.Value;
                     }
                 }
             }

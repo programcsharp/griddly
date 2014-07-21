@@ -80,7 +80,7 @@ namespace Griddly.Mvc
 
         internal static string ToStringDescription(Enum value)
         {
-            if (value == null)
+            if (value == null || !Enum.IsDefined(value.GetType(), value))
                 return null;
 
             return GetEnumDescription(value.GetType().GetField(value.ToString()));
@@ -111,6 +111,9 @@ namespace Griddly.Mvc
 
         static string GetEnumDescription(FieldInfo fi)
         {
+            if (fi == null)
+                return null;
+
             DescriptionAttribute descriptionAttribute = fi.GetCustomAttribute<DescriptionAttribute>();
 
             if (descriptionAttribute != null)

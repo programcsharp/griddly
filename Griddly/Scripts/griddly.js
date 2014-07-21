@@ -178,7 +178,7 @@
                     {
                         $(this.options.rowClickModal).removeData("modal").modal({ remote: url });
                     }
-                    else
+                    else if (!$(e.target).is("a"))
                     {
                         if (e.which == 2 || e.ctrlKey)
                             window.open(url);
@@ -329,6 +329,10 @@
             $(this.$element).on("click", "[data-toggle=post]", $.proxy(function (event)
             {
                 var url = $(event.currentTarget).data("url");
+
+                if (!url)
+                    url = $(event.currentTarget).attr("href");
+
                 var ids = this.getSelected();
                 var inputs = "";
 
@@ -347,6 +351,8 @@
 
                 $("<form action=\"" + url + "\" method=\"post\">" + inputs + "</form>")
                     .appendTo("body").submit().remove();
+
+                return false;
             }, this));
 
             $(this.$element).on("click", "[data-toggle=postcriteria]", $.proxy(function (event)
