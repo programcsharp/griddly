@@ -310,7 +310,8 @@ namespace Griddly.Mvc
         {
             Add(new GriddlySelectColumn()
             {
-                Id = (x) => id((TRow)x)
+                Id = (x) => id((TRow)x),
+                ClassName = "align-center"
             });
 
             return this;
