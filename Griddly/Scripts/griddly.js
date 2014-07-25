@@ -910,5 +910,18 @@
     $(function()
     {
         $("[data-role=griddly]").griddly();
+
+        // patch stupid bootstrap js so it doesn't .empty() our inline filter dropdowns
+        // remove once bs fixes: https://github.com/twbs/bootstrap/pull/14244
+        var setContent = $.fn.popover.Constructor.prototype.setContent;
+
+        $.fn.popover.Constructor.prototype.setContent = function ()
+        {
+            var $tip = this.tip();
+
+            $tip.find('.popover-content').children().detach();
+
+            setContent.call(this);
+        };
     });
 }(window.jQuery);
