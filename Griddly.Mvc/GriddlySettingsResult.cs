@@ -175,6 +175,14 @@ namespace Griddly.Mvc
                     return _serverVariables;
                 }
             }
+
+            public override Uri Url
+            {
+                get
+                {
+                    return new Uri("http://localhost/");
+                }
+            }
         }
 
         class EmptyHttpResponse : HttpResponseBase
