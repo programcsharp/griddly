@@ -57,13 +57,12 @@ namespace Griddly.Mvc
 
                 return settingsResult.Settings;
             }
-            catch (HttpCompileException)
+            catch (HttpException)
             {
                 throw;
             }
-            catch (Exception ex)
+            catch
             {
-                // TODO: throw exception if it is bad like HttpCompileException
                 return null;
             }
         }
