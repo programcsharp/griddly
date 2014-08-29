@@ -172,13 +172,13 @@
             {
                 var url = $(e.target).parents("tr").data("griddly-url");
 
-                if (url)
+                if (url && $(e.target).closest("a").length == 0)
                 {
                     if (this.options.rowClickModal)
                     {
                         $(this.options.rowClickModal).removeData("modal").modal({ remote: url });
                     }
-                    else if (!$(e.target).is("a"))
+                    else
                     {
                         if (e.which == 2 || e.ctrlKey)
                             window.open(url);
