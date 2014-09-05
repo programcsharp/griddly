@@ -153,7 +153,9 @@ namespace Griddly.Mvc
                     if (t.IsPrimitive || t.IsEnum || t == typeof(Decimal) || t == typeof(String) || t == typeof(DateTime) || t == typeof(TimeSpan) || t == typeof(DateTimeOffset))
                         values[value.Key] = value.Value;
                     else if (t.HasCastOperator<DateTime>())
-                        values[value.Key] = (DateTime)value.Value;
+                        // values[value.Key] = (DateTime)value.Value; -- BAD: can't unbox a value type as a different type
+                        values[value.Key] = Convert.ChangeType(value.Value, typeof(DateTime));
+
                 }
             }
 
@@ -174,7 +176,8 @@ namespace Griddly.Mvc
                         if (t.IsPrimitive || t.IsEnum || t == typeof(Decimal) || t == typeof(String) || t == typeof(DateTime) || t == typeof(TimeSpan) || t == typeof(DateTimeOffset))
                             values[value.Key] = value.Value;
                         else if (t.HasCastOperator<DateTime>())
-                            values[value.Key] = (DateTime)value.Value;
+                            // values[value.Key] = (DateTime)value.Value; -- BAD: can't unbox a value type as a different type
+                            values[value.Key] = Convert.ChangeType(value.Value, typeof(DateTime));
                     }
                 }
             }

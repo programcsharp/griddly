@@ -135,7 +135,8 @@ namespace Griddly.Mvc
             else if (value is Enum)
                 value = Extensions.ToStringDescription((Enum)value);
             else if (value != null && value.GetType().HasCastOperator<DateTime>())
-                value = (DateTime)value;
+                // value = (DateTime)value; -- BAD: can't unbox a value type as a different type
+                value = Convert.ChangeType(value, typeof(DateTime));
 
             if (stripHtml && value is string)
                 value = HttpUtility.HtmlDecode(_htmlMatch.Replace(value.ToString(), "").Trim().Replace("  ", " "));
