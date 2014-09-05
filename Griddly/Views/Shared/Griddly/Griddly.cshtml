@@ -40,7 +40,7 @@
 
 @if (isFirstRender)
 {
-    SortField[] defaultSort = settings.GetDefaultSort();
+    SortField[] defaultSort = settings.DefaultSort;
 
     @:<div class="griddly @settings.ClassName" data-role="griddly"
                                             @: @Html.AttributeNullable("data-griddly-url", !simple ? Url.Current() : null)
