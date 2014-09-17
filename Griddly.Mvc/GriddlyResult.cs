@@ -86,7 +86,7 @@ namespace Griddly.Mvc
 
                 // TODO: should we always pull sort fields?
                 if (!sortFields.Any())
-                    sortFields = settings.GetDefaultSort();
+                    sortFields = settings.DefaultSort;
 
                 if (settings.PageSize > settings.MaxPageSize)
                     settings.PageSize = settings.MaxPageSize;

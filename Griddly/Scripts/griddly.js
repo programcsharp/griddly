@@ -172,13 +172,13 @@
             {
                 var url = $(e.target).parents("tr").data("griddly-url");
 
-                if (url)
+                if (url && $(e.target).closest("a").length == 0)
                 {
                     if (this.options.rowClickModal)
                     {
                         $(this.options.rowClickModal).removeData("modal").modal({ remote: url });
                     }
-                    else if (!$(e.target).is("a"))
+                    else
                     {
                         if (e.which == 2 || e.ctrlKey)
                             window.open(url);
@@ -910,5 +910,18 @@
     $(function()
     {
         $("[data-role=griddly]").griddly();
+
+        // patch stupid bootstrap js so it doesn't .empty() our inline filter dropdowns
+        // remove once bs fixes: https://github.com/twbs/bootstrap/pull/14244
+        var setContent = $.fn.popover.Constructor.prototype.setContent;
+
+        $.fn.popover.Constructor.prototype.setContent = function ()
+        {
+            var $tip = this.tip();
+
+            $tip.find('.popover-content').children().detach();
+
+            setContent.call(this);
+        };
     });
 }(window.jQuery);

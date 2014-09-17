@@ -177,11 +177,23 @@ namespace Griddly.Mvc
             });
         }
 
-        public SortField[] GetDefaultSort()
+        SortField[] _defaultSort;
+
+        public SortField[] DefaultSort
         {
-            return Columns
-                    .Where(x => x.DefaultSort != null)
-                    .Select(x => new SortField() { Field = x.SortField, Direction = x.DefaultSort.Value }).ToArray();
+            get
+            {
+                if (_defaultSort == null)
+                    _defaultSort = Columns
+                        .Where(x => x.DefaultSort != null)
+                        .Select(x => new SortField() { Field = x.SortField, Direction = x.DefaultSort.Value }).ToArray();
+
+                return _defaultSort;
+            }
+            set
+            {
+                _defaultSort = value;
+            }
         }
     }
 
