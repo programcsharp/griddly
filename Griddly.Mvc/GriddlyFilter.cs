@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity.Design.PluralizationServices;
 using System.Globalization;
-using System.Web.Mvc;
 using System.Linq;
+using System.Web.Mvc;
 
 namespace Griddly.Mvc
 {
@@ -117,7 +117,7 @@ namespace Griddly.Mvc
 
                     if (defaultValues == null || value is string)
                     {
-                        string valueString = GetValueString(value);
+                        string valueString = value.ToString();// GetValueString(value);
 
                         foreach (SelectListItem item in SelectableItems)
                             item.Selected = item.Value == valueString;
@@ -128,7 +128,7 @@ namespace Griddly.Mvc
                         {
                             if (valueObject != null)
                             {
-                                string valueString = GetValueString(valueObject);
+                                string valueString = valueObject.ToString();// GetValueString(valueObject);
 
                                 foreach (SelectListItem item in SelectableItems.Where(x => x.Value == valueString))
                                     item.Selected = true;
@@ -150,15 +150,15 @@ namespace Griddly.Mvc
             }
         }
 
-        string GetValueString(object value)
-        {
-            Type valueType = Nullable.GetUnderlyingType(value.GetType()) ?? value.GetType();
+        //string GetValueString(object value)
+        //{
+        //    Type valueType = Nullable.GetUnderlyingType(value.GetType()) ?? value.GetType();
 
-            if (valueType.IsEnum)
-                return Convert.ChangeType(value, Enum.GetUnderlyingType(valueType)).ToString();
-            else
-                return value.ToString();
-        }
+        //    if (valueType.IsEnum)
+        //        return Convert.ChangeType(value, Enum.GetUnderlyingType(valueType)).ToString();
+        //    else
+        //        return value.ToString();
+        //}
     }
 
     public enum FilterDataType
