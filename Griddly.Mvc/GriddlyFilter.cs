@@ -126,10 +126,18 @@ namespace Griddly.Mvc
                     {
                         foreach (object valueObject in defaultValues)
                         {
-                            string valueString = valueObject.ToString();
+                            if (valueObject != null)
+                            {
+                                string valueString = valueObject.ToString();
 
-                            foreach (SelectListItem item in SelectableItems.Where(x => x.Value == valueString))
-                                item.Selected = true;
+                                foreach (SelectListItem item in SelectableItems.Where(x => x.Value == valueString))
+                                    item.Selected = true;
+                            }
+                            else
+                            {
+                                foreach (SelectListItem item in SelectableItems.Where(x => string.IsNullOrWhiteSpace(x.Value)))
+                                    item.Selected = true;
+                            }
                         }
                     }
                 }
