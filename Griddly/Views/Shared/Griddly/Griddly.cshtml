@@ -126,7 +126,7 @@
             @Html.AttributeNullable("data-id", TryEval(row, settings.IdProperty))>
             @foreach (GriddlyColumn column in settings.Columns)
             {
-                <td class="@column.RenderClassName(row)">@column.RenderCell(row)</td>
+                <td class="@column.RenderClassName(row, Model)">@column.RenderCell(row)</td>
             }
         </tr>
     }

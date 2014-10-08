@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Helpers;
 using System.Web.WebPages;
+using System.Linq;
 
 namespace Griddly.Mvc
 {
@@ -21,7 +22,7 @@ namespace Griddly.Mvc
 
         public abstract HtmlString RenderCell(object row, bool encode = true);
         public abstract object RenderCellValue(object row, bool stripHtml = false);
-        public abstract string RenderClassName(object row);
+        public abstract string RenderClassName(object row, GriddlyResultPage page);
 
         protected virtual HtmlString RenderValue(object value, bool encode = true)
         {
@@ -57,15 +58,17 @@ namespace Griddly.Mvc
 
         static readonly Regex _htmlMatch = new Regex(@"<[^>]*>", RegexOptions.Compiled);
 
-        public override string RenderClassName(object row)
+        public override string RenderClassName(object row, GriddlyResultPage page)
         {
             HashSet<string> classes = new HashSet<string>();
 
             if (!string.IsNullOrWhiteSpace(ClassName))
                 classes.UnionWith(ClassName.Split(' '));
 
-            if (DefaultSort != null)
-                classes.Add("sorted_" + (DefaultSort == SortDirection.Descending ? "d" : "a"));
+            SortField field = !string.IsNullOrWhiteSpace(SortField) ? page.SortFields.FirstOrDefault(x => x.Field == SortField) : null;
+
+            if (field != null)
+                classes.Add("sorted_" + (field.Direction == SortDirection.Descending ? "d" : "a"));
 
             if (ClassNameExpression != null)
             {

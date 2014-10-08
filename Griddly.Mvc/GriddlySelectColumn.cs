@@ -29,7 +29,7 @@ namespace Griddly.Mvc
             return null;
         }
 
-        public override string RenderClassName(object row)
+        public override string RenderClassName(object row, GriddlyResultPage page)
         {
             return null;
         }
