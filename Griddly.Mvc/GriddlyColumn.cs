@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Helpers;
 using System.Web.WebPages;
-using System.Linq;
 
 namespace Griddly.Mvc
 {
@@ -65,7 +65,7 @@ namespace Griddly.Mvc
             if (!string.IsNullOrWhiteSpace(ClassName))
                 classes.UnionWith(ClassName.Split(' '));
 
-            SortField field = !string.IsNullOrWhiteSpace(SortField) ? page.SortFields.FirstOrDefault(x => x.Field == SortField) : null;
+            SortField field = !string.IsNullOrWhiteSpace(SortField) && page.SortFields != null ? page.SortFields.FirstOrDefault(x => x.Field == SortField) : null;
 
             if (field != null)
                 classes.Add("sorted_" + (field.Direction == SortDirection.Descending ? "d" : "a"));
