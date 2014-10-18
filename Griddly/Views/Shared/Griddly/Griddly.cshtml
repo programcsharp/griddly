@@ -40,7 +40,7 @@
 
 @if (isFirstRender)
 {
-    SortField[] defaultSort = settings.GetDefaultSort();
+    SortField[] defaultSort = settings.DefaultSort;
 
     @:<div class="griddly @settings.ClassName" data-role="griddly"
                                             @: @Html.AttributeNullable("data-griddly-url", !simple ? Url.Current() : null)
@@ -126,7 +126,7 @@
             @Html.AttributeNullable("data-id", TryEval(row, settings.IdProperty))>
             @foreach (GriddlyColumn column in settings.Columns)
             {
-                <td class="@column.RenderClassName(row)">@column.RenderCell(row)</td>
+                <td class="@column.RenderClassName(row, Model)">@column.RenderCell(row)</td>
             }
         </tr>
     }
@@ -185,64 +185,68 @@
                 GriddlyFilterList filterList = filter as GriddlyFilterList;
 
                 <div class="btn-group griddly-filter @(filterBox != null ? "griddly-filter-box" : null) @(filterRange != null ? "griddly-filter-range" : null) @(filterList != null ? "griddly-filter-list" : null)"
-                     data-filter-name="@filter.Name" data-filter-name-plural="@filter.NamePlural"
+                     data-filter-name="@filter.Caption" data-filter-name-plural="@filter.CaptionPlural"
                      data-filter-datatype="@filter.DataType.ToString()"
                      @Html.AttributeIf("data-griddly-filter-ismultiple", filterList != null, x => filterList.IsMultiple.ToString().ToLower())
                      @Html.AttributeIf("data-griddly-filter-isnoneall", filterList != null, x => filterList.IsNoneAll.ToString().ToLower())
                      @Html.AttributeIf("data-griddly-filter-displayitemcount", filterList != null, x => filterList.DisplayItemCount)>
+                    @{
+                        object defaultValue = this.GetGriddlyDefault(filter.Field);
+                        object defaultValueEnd = filterRange != null ? this.GetGriddlyDefault(filterRange.FieldEnd) : null;
+                    }
                     <a class="btn btn-link btn-xs filter-trigger">
                         <span class="griddly-filter-display">
                             @if (filterBox != null)
                             {
-                                if (filter.Default != null)
+                                if (defaultValue != null)
                                 {
                                     if (filter.DataType == FilterDataType.String)
                                     {
-                                        <text>Contains "@filter.GetFormattedValue(filter.Default)"</text>
+                                        <text>Contains "@filter.GetFormattedValue(defaultValue)"</text>
                                     }
                                     else
                                     {
-                                        @filter.GetFormattedValue(filter.Default)
+                                        @filter.GetFormattedValue(defaultValue)
                                     }
                                 }
                                 else
                                 {
-                                    <text>Any @filter.Name</text>
+                                    <text>Any @filter.Caption</text>
                                 }
                             }
                             else if (filterRange != null)
                             {
-                                if (filter.Default != null && filterRange.DefaultEnd != null)
+                                if (defaultValue != null && defaultValueEnd != null)
                                 {
-                                    <text>@filter.GetFormattedValue(filter.Default) - @filter.GetFormattedValue(filterRange.DefaultEnd)</text>
+                                    <text>@filter.GetFormattedValue(defaultValue) - @filter.GetFormattedValue(defaultValueEnd)</text>
                                 }
-                                else if (filter.Default != null)
+                                else if (defaultValue != null)
                                 {
-                                    @(filter.DataType == FilterDataType.Date ? "After" : ">=")
-                                    @filter.GetFormattedValue(filter.Default)
+                                    <text>@(filter.DataType == FilterDataType.Date ? "After" : ">=") @filter.GetFormattedValue(defaultValue)</text>
                                 }
-                                else if (filterRange.DefaultEnd != null)
+                                else if (defaultValueEnd != null)
                                 {
-                                    @(filter.DataType == FilterDataType.Date ? "Before" : "<=")
-                                    @filter.GetFormattedValue(filterRange.DefaultEnd)
+                                    <text>@(filter.DataType == FilterDataType.Date ? "Before" : "<=") @filter.GetFormattedValue(defaultValueEnd)</text>
                                 }
                                 else
                                 {
-                                    <text>All @filter.NamePlural</text>
+                                    <text>All @filter.CaptionPlural</text>
                                 }
                             }
                             else if (filterList != null)
                             {
+                                filterList.SetSelectedItems(defaultValue);
+                                
                                 int allCount = filterList.SelectableItems.Count;
                                 int selectedCount = filterList.SelectableItems.Count(x => x.Selected);
                                                                 
                                 if (selectedCount == allCount || (selectedCount == 0 && filterList.IsNoneAll))
                                 {
-                                    <text>@(allCount == 2 ? "Both " : "All ") @filter.NamePlural</text>
+                                    <text>@(allCount == 2 ? "Both " : "All ") @filter.CaptionPlural</text>
                                 }
                                 else if (selectedCount > filterList.DisplayItemCount)
                                 {
-                                    <text>@(selectedCount) @filter.NamePlural</text>
+                                    <text>@(selectedCount) @filter.CaptionPlural</text>
                                 }
                                 else if (selectedCount > 0 && selectedCount <= filterList.DisplayItemCount)
                                 {
@@ -250,7 +254,7 @@
                                 }
                                 else
                                 {
-                                    <text>No @filter.NamePlural</text>
+                                    <text>No @filter.CaptionPlural</text>
                                 }
                             }
                         </span>
@@ -268,7 +272,7 @@
                                 {
                                     <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
                                 }
-                                <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(filter.Default)" />
+                                <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)" />
                                 @*@if (filter.DataType == FilterDataType.Percent)
                                     {
                                         <span class="input-group-addon">%</span>
@@ -289,7 +293,7 @@
                                 {
                                     <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
                                 }
-                                <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(filter.Default)" />
+                                <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)" />
                                 @*@if (filter.DataType == FilterDataType.Percent)
                                     {
                                         <span class="input-group-addon">%</span>
@@ -308,7 +312,7 @@
                                 {
                                     <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
                                 }
-                                <input class="form-control" name="@filterRange.FieldEnd" type="text" value="@filter.GetEditValue(filterRange.DefaultEnd)" />
+                                <input class="form-control" name="@filterRange.FieldEnd" type="text" value="@filter.GetEditValue(defaultValueEnd)" />
                                 @*@if (filter.DataType == FilterDataType.Percent)
                                     {
                                         <span class="input-group-addon">%</span>

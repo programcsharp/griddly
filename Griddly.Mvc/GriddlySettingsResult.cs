@@ -57,9 +57,12 @@ namespace Griddly.Mvc
 
                 return settingsResult.Settings;
             }
+            catch (HttpException)
+            {
+                throw;
+            }
             catch
             {
-                // TODO: throw exception if it is bad like HttpCompileException
                 return null;
             }
         }
@@ -109,6 +112,12 @@ namespace Griddly.Mvc
                 {
                     return _pageInstrumentation;
                 }
+            }
+
+            //http://stackoverflow.com/a/24348822/65611
+            public override object GetService(Type serviceType)
+            {
+                return DependencyResolver.Current.GetService(serviceType);
             }
         }
 
@@ -163,6 +172,14 @@ namespace Griddly.Mvc
                 get
                 {
                     return _serverVariables;
+                }
+            }
+
+            public override Uri Url
+            {
+                get
+                {
+                    return new Uri("http://localhost/");
                 }
             }
         }

@@ -172,7 +172,7 @@
             {
                 var url = $(e.target).parents("tr").data("griddly-url");
 
-                if (url)
+                if (url && $(e.target).closest("a").length == 0)
                 {
                     if (this.options.rowClickModal)
                     {
@@ -219,6 +219,8 @@
                     var currentDirection = currentPos != -1 ? this.options.sortFields[currentPos].Direction : "Descending";
                     var newDirection = currentDirection == "Descending" ? "Ascending" : "Descending";
 
+                    var inlineFilters = $("tr.griddly-filters-inline", this.element);
+
                     if (!this.options.isMultiSort || !event.ctrlKey)
                     {
                         for (var i = 0; i < this.options.sortFields.length; i++)
@@ -226,7 +228,14 @@
                             var thisSortField = this.options.sortFields[i].Field;
 
                             if (thisSortField != sortField)
-                                $(event.currentTarget).parents("tr").find("th[data-griddly-sortfield='" + thisSortField + "']").removeClass("sorted_a").removeClass("sorted_d");
+                            {
+                                var oldSortDisplay = $(event.currentTarget).parents("tr").find("th[data-griddly-sortfield='" + thisSortField + "']");
+
+                                if (inlineFilters.length)
+                                    oldSortDisplay = [oldSortDisplay[0], inlineFilters[0].cells[oldSortDisplay[0].cellIndex]];
+
+                                $(oldSortDisplay).removeClass("sorted_a").removeClass("sorted_d");
+                            }
                         }
 
                         this.options.sortFields = [];
@@ -237,11 +246,17 @@
                     else
                         this.options.sortFields.push({ Field: sortField, Direction: newDirection });
 
-                    if (newDirection == "Ascending")
-                        $(event.currentTarget).removeClass("sorted_d").addClass("sorted_a");
-                    else
-                        $(event.currentTarget).removeClass("sorted_a").addClass("sorted_d");
 
+                    var newSortDisplay = [event.currentTarget];
+
+                    if (inlineFilters.length)
+                        newSortDisplay.push(inlineFilters[0].cells[newSortDisplay[0].cellIndex]);
+
+                    if (newDirection == "Ascending")
+                        $(newSortDisplay).removeClass("sorted_d").addClass("sorted_a");
+                    else
+                        $(newSortDisplay).removeClass("sorted_a").addClass("sorted_d");
+                    
                     this.refresh(true);
                 }
             }, this));
@@ -910,5 +925,18 @@
     $(function()
     {
         $("[data-role=griddly]").griddly();
+
+        // patch stupid bootstrap js so it doesn't .empty() our inline filter dropdowns
+        // remove once bs fixes: https://github.com/twbs/bootstrap/pull/14244
+        var setContent = $.fn.popover.Constructor.prototype.setContent;
+
+        $.fn.popover.Constructor.prototype.setContent = function ()
+        {
+            var $tip = this.tip();
+
+            $tip.find('.popover-content').children().detach();
+
+            setContent.call(this);
+        };
     });
 }(window.jQuery);

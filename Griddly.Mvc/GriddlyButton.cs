@@ -14,6 +14,7 @@ namespace Griddly.Mvc
         public bool IsSeparator { get; set; }
         public bool IsSplitDropdown { get; set; }
         public string Text { get; set; }
+        public string Title { get; set; }
         public string Icon { get; set; }
         public string ClassName { get; set; }
         public string Target { get; set; }
@@ -23,13 +24,14 @@ namespace Griddly.Mvc
 
         public List<GriddlyButton> Buttons { get; set; }
 
-        public GriddlyButton()
+        public GriddlyButton(string additionalClassName = null)
         {
             Buttons = new List<GriddlyButton>();
 
             Enabled = true;
             Action = GriddlyButtonAction.Navigate;
-            ClassName = GriddlySettings.DefaultButtonClassName;
+
+            ClassName = ((GriddlySettings.DefaultButtonClassName ?? "") + " " + (additionalClassName ?? "")).Trim();
         }
 
         public GriddlyButton Add(GriddlyButton item)

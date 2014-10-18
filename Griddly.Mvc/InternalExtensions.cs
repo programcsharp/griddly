@@ -109,6 +109,26 @@ namespace Griddly.Mvc
             }
         }
 
+        internal static IEnumerable<SelectListItem> ToSelectListItems<T>(IEnumerable<T> items)
+            where T : struct
+        {
+            Type enumType = typeof(T);
+
+            if (!enumType.IsEnum)
+                throw new InvalidOperationException("T must be an Enum.");
+
+            foreach (T item in items)
+            {
+                FieldInfo field = enumType.GetField(item.ToString());
+
+                yield return new SelectListItem()
+                {
+                    Value = field.GetValue(null).ToString(),
+                    Text = GetEnumDescription(field)
+                };
+            }
+        }
+
         static string GetEnumDescription(FieldInfo fi)
         {
             if (fi == null)

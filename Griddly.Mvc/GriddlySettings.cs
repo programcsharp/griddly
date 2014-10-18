@@ -33,7 +33,6 @@ namespace Griddly.Mvc
             Columns = new List<GriddlyColumn>();
             Filters = new List<GriddlyFilter>();
             Buttons = new List<GriddlyButton>();
-            FilterDefaults = new Dictionary<string, object>();
             ClassName = DefaultClassName;
             TableClassName = DefaultTableClassName;
             FooterTemplate = DefaultFooterTemplate;
@@ -66,7 +65,6 @@ namespace Griddly.Mvc
         public Func<object, object> RowClass { get; set; }
 
         public Func<GriddlyResultPage, object> FooterTemplate { get; set; }
-        public IDictionary<string, object> FilterDefaults { get; set; }
 
         public bool HasInlineFilter { get; set; }
 
@@ -132,7 +130,7 @@ namespace Griddly.Mvc
             if (enableOnSelection == null)
                 enableOnSelection = (action == GriddlyButtonAction.Ajax || action == GriddlyButtonAction.AjaxBulk || action == GriddlyButtonAction.Post);
 
-            var button = new GriddlyButton()
+            var button = new GriddlyButton(className)
             {
                 ArgumentTemplate = argumentTemplate,
                 Text = caption,
@@ -142,8 +140,6 @@ namespace Griddly.Mvc
                 Target = target
             };
 
-            button.ClassName = ((button.ClassName ?? "") + " " + (className ?? "")).Trim();
-
             return Add(button);
         }
 
@@ -152,7 +148,7 @@ namespace Griddly.Mvc
             if (enableOnSelection == null)
                 enableOnSelection = (action == GriddlyButtonAction.Ajax || action == GriddlyButtonAction.AjaxBulk || action == GriddlyButtonAction.Post);
 
-            var button = new GriddlyButton()
+            var button = new GriddlyButton(className)
             {
                 Argument = argument,
                 Text = caption,
@@ -161,8 +157,6 @@ namespace Griddly.Mvc
                 EnableOnSelection = enableOnSelection.Value,
                 Target = target
             };
-
-            button.ClassName = ((button.ClassName ?? "") + " " + (className ?? "")).Trim();
 
             return Add(button);
         }
@@ -183,11 +177,23 @@ namespace Griddly.Mvc
             });
         }
 
-        public SortField[] GetDefaultSort()
+        SortField[] _defaultSort;
+
+        public SortField[] DefaultSort
         {
-            return Columns
-                    .Where(x => x.DefaultSort != null)
-                    .Select(x => new SortField() { Field = x.SortField, Direction = x.DefaultSort.Value }).ToArray();
+            get
+            {
+                if (_defaultSort == null)
+                    _defaultSort = Columns
+                        .Where(x => x.DefaultSort != null)
+                        .Select(x => new SortField() { Field = x.SortField, Direction = x.DefaultSort.Value }).ToArray();
+
+                return _defaultSort;
+            }
+            set
+            {
+                _defaultSort = value;
+            }
         }
     }
 
@@ -316,7 +322,8 @@ namespace Griddly.Mvc
         {
             Add(new GriddlySelectColumn()
             {
-                Id = (x) => id((TRow)x)
+                Id = (x) => id((TRow)x),
+                ClassName = "align-center"
             });
 
             return this;
