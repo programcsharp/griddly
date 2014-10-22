@@ -40,6 +40,11 @@
         color: #333;
     }
 
+        .griddly th.select
+        {
+            width: 22px;
+        }
+
         .griddly th.sortable
         {
             cursor: pointer;

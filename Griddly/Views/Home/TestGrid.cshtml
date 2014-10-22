@@ -8,12 +8,14 @@
         PageSize = 5
                
     }
+    .SelectColumn(x => x.ToString())
     .Column(x => x.FirstName, "First Name")
-        .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending)
-        .Column(x => x.Company, "Company")
-        .Column(x => x.Address, "Address")
-        .Column(x => x.City, "City")
-        .Column(x => x.State, "State")
-        .TemplateColumn(x => Html.ActionLink("&" + x.PostalCode, "Profile"), "Zip")
-        .Button("", "export", action: GriddlyButtonAction.Javascript, className: "export-xlsx")
+    .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending)
+    .Column(x => x.Company, "Company")
+    .Column(x => x.Address, "Address")
+    .Column(x => x.City, "City")
+    .Column(x => x.State, "State")
+    .TemplateColumn(x => Html.ActionLink("&" + x.PostalCode, "Profile"), "Zip")
+    .Button("", "export", action: GriddlyButtonAction.Javascript, className: "export-xlsx")
+    .Add(new GriddlyButton() { Text = "Confirm", Argument = "http://google.com", Action = GriddlyButtonAction.PostCriteria, ConfirmMessage = "Please confirm" })
 )
