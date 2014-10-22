@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Entity.Design.PluralizationServices;
 using System.Globalization;
-using System.Web.Mvc;
 using System.Linq;
+using System.Web.Mvc;
 
 namespace Griddly.Mvc
 {
@@ -117,7 +117,7 @@ namespace Griddly.Mvc
 
                     if (defaultValues == null || value is string)
                     {
-                        string valueString = value.ToString();
+                        string valueString = value.ToString();// GetValueString(value);
 
                         foreach (SelectListItem item in SelectableItems)
                             item.Selected = item.Value == valueString;
@@ -126,10 +126,18 @@ namespace Griddly.Mvc
                     {
                         foreach (object valueObject in defaultValues)
                         {
-                            string valueString = valueObject.ToString();
+                            if (valueObject != null)
+                            {
+                                string valueString = valueObject.ToString();// GetValueString(valueObject);
 
-                            foreach (SelectListItem item in SelectableItems.Where(x => x.Value == valueString))
-                                item.Selected = true;
+                                foreach (SelectListItem item in SelectableItems.Where(x => x.Value == valueString))
+                                    item.Selected = true;
+                            }
+                            else
+                            {
+                                foreach (SelectListItem item in SelectableItems.Where(x => string.IsNullOrWhiteSpace(x.Value)))
+                                    item.Selected = true;
+                            }
                         }
                     }
                 }
@@ -140,8 +148,17 @@ namespace Griddly.Mvc
                         Items[i].Selected = (i == 0);
                 }
             }
-
         }
+
+        //string GetValueString(object value)
+        //{
+        //    Type valueType = Nullable.GetUnderlyingType(value.GetType()) ?? value.GetType();
+
+        //    if (valueType.IsEnum)
+        //        return Convert.ChangeType(value, Enum.GetUnderlyingType(valueType)).ToString();
+        //    else
+        //        return value.ToString();
+        //}
     }
 
     public enum FilterDataType
