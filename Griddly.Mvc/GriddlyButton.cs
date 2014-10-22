@@ -18,6 +18,7 @@ namespace Griddly.Mvc
         public string Icon { get; set; }
         public string ClassName { get; set; }
         public string Target { get; set; }
+        public string ConfirmMessage { get; set; }
         public bool AlignRight { get; set; }
 
         public GriddlyButtonAction Action { get; set; }
@@ -47,7 +48,6 @@ namespace Griddly.Mvc
                 switch (Action)
                 {
                     case GriddlyButtonAction.Navigate:
-                    case GriddlyButtonAction.Report:
                         return HttpVerbs.Get;
                     case GriddlyButtonAction.Post:
                     case GriddlyButtonAction.PostCriteria:
@@ -70,7 +70,6 @@ namespace Griddly.Mvc
         AjaxBulk,
         Post,
         Modal,
-        Report,
         PostCriteria
     }
 }
