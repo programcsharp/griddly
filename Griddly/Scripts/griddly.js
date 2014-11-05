@@ -912,7 +912,8 @@
             }).done($.proxy(function (data, status, xhr) {
                 // TODO: handle errors
                 // TODO: go back to first page?
-                this.refresh();
+                var griddly = this.$element.closest("[data-role=griddly]");
+                griddly.griddly("refresh");
 
                 $(this.$element).triggerHandler("afterExecute", [data, status, xhr]);
             }, this));
@@ -960,7 +961,8 @@
                 }).done($.proxy(function (data, status, xhr) {
                     // TODO: handle errors
                     // TODO: go back to first page?
-                    this.refresh();
+                    var griddly = this.$element.closest("[data-role=griddly]");
+                    griddly.griddly("refresh");
 
                     $(this.$element).triggerHandler("afterExecute", [data, status, xhr]);
                 }, this));
