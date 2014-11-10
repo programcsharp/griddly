@@ -115,6 +115,7 @@ namespace Griddly.Controllers
             {
                 items.Add(new TestGridItem()
                 {
+                    Id = (long)i,
                     FirstName = Name.GetFirstName(),
                     LastName = Name.GetLastName(),
                     Company = Company.GetName(),

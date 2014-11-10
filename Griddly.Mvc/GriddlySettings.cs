@@ -20,6 +20,7 @@ namespace Griddly.Mvc
         public static HtmlString BoolFalseHtml = null;
         public static int? DefaultPageSize = null;
         public static bool DefaultShowFilterInitially = true;
+        public static bool DefaultShowRowSelectCount = false;
 
         public static Func<GriddlyButton, object> IconTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
@@ -39,6 +40,7 @@ namespace Griddly.Mvc
             PageSize = DefaultPageSize;
             ShowFilterInitially = DefaultShowFilterInitially;
             HasInlineFilter = true;
+            ShowRowSelectCount = DefaultShowRowSelectCount;
         }
 
         public string IdProperty { get; set; }
@@ -47,6 +49,7 @@ namespace Griddly.Mvc
         public string TableClassName { get; set; }
         public string OnClientRefresh { get; set; }
         public bool ShowFilterInitially { get; set; }
+        public bool ShowRowSelectCount { get; set; }
 
         public int? PageSize { get; set; }
         public int? MaxPageSize { get; set; }

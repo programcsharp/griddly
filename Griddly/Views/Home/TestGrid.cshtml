@@ -5,10 +5,10 @@
 
 @Html.Griddly(new GriddlySettings<TestGridItem>()
     {
-        PageSize = 5
-               
+        PageSize = 5,
+        ShowRowSelectCount = true
     }
-    .SelectColumn(x => x.ToString())
+    .SelectColumn(x => x.Id)
     .Column(x => x.FirstName, "First Name")
     .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending)
     .Column(x => x.Company, "Company")
