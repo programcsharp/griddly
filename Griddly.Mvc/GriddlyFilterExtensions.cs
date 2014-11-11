@@ -96,9 +96,9 @@ namespace Griddly.Mvc
         {
             string value = null;
 
-            if (column.SortField != null)
+            if (column.ExpressionString != null)
             {
-                value = column.SortField.Split('.').Last();
+                value = column.ExpressionString.Split('.').Last();
 
                 if (value.Length > 1)
                     value = char.ToLower(value[0]) + value.Substring(1);

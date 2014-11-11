@@ -5,8 +5,10 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 using System.Web.Helpers;
 using System.Web.Mvc;
+using System.Linq.Dynamic;
 
 namespace Griddly.Mvc
 {
@@ -107,7 +109,8 @@ namespace Griddly.Mvc
                     Total = GetCount(),
                     PageSize = pageSize,
                     SortFields = sortFields,
-                    Settings = settings
+                    //Settings = settings,
+                    PopulateSummaryValues = PopulateSummaryValues
                 };
 
                 context.RequestContext.HttpContext.Response.Headers["X-Griddly-Count"] = result.Total.ToString();
@@ -169,6 +172,9 @@ namespace Griddly.Mvc
         {
             IQueryable<T> sortedQuery = ApplySortFields(_result, sortFields);
 
+            if (_massage != null)
+                sortedQuery = _massage(sortedQuery);
+
             return sortedQuery;
         }
 
@@ -180,6 +186,37 @@ namespace Griddly.Mvc
                 sortedQuery = _massage(sortedQuery);
 
             return sortedQuery.Skip(pageNumber * pageSize).Take(pageSize).ToList();
+        }
+
+        public virtual void PopulateSummaryValues(GriddlySettings<T> settings)
+        {
+            List<GriddlyColumn> summaryColumns = settings.Columns.Where(x => x.SummaryFunction != null).ToList();
+
+            if (summaryColumns.Any())
+            {
+                StringBuilder aggregateExpression = new StringBuilder();
+
+                aggregateExpression.Append("new (");
+
+                for (int i = 0; i < summaryColumns.Count; i++)
+                {
+                    if (i > 0)
+                        aggregateExpression.Append(", ");
+
+                    GriddlyColumn col = summaryColumns[i];
+
+                    aggregateExpression.AppendFormat("{0}({1}) AS _a{2}", col.SummaryFunction, col.ExpressionString, i);
+                }
+
+                aggregateExpression.Append(")");
+
+                var query = _result.GroupBy(x => 1).Select(aggregateExpression.ToString());
+                var item = query.Cast<object>().Single();
+                var type = item.GetType();
+
+                for (int i = 0; i < summaryColumns.Count; i++)
+                    summaryColumns[i].SummaryValue = type.GetProperty("_a" + i).GetValue(item);
+            }
         }
 
         public virtual long GetCount()

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Text;
 using System.Web.Helpers;
 
 namespace Griddly.Mvc
@@ -35,6 +36,45 @@ namespace Griddly.Mvc
             _massage = massage;
             _fixedSort = fixedSort;
             _getTransaction = getTransaction;
+        }
+
+        public override void PopulateSummaryValues(GriddlySettings<T> settings)
+        {
+            List<GriddlyColumn> summaryColumns = settings.Columns.Where(x => x.SummaryFunction != null).ToList();
+
+            if (summaryColumns.Any())
+            {
+                StringBuilder aggregateExpression = new StringBuilder();
+
+                aggregateExpression.Append("SELECT ");
+
+                for (int i = 0; i < summaryColumns.Count; i++)
+                {
+                    if (i > 0)
+                        aggregateExpression.Append(", ");
+
+                    GriddlyColumn col = summaryColumns[i];
+
+                    aggregateExpression.AppendFormat("{0}({1}) AS _a{2}", col.SummaryFunction, col.ExpressionString, i);
+                }
+
+                string sql = string.Format("{0} FROM ({1}) [_proj]", aggregateExpression.ToString(), _sql);
+
+                try
+                {
+                    IDbConnection cn = _getConnection();
+                    IDbTransaction tx = _getTransaction != null ? _getTransaction() : null;
+
+                    IDictionary<string, object> item = cn.Query(sql, _param, tx).Single();
+
+                    for (int i = 0; i < summaryColumns.Count; i++)
+                        summaryColumns[i].SummaryValue = item["_a" + i];
+                }
+                catch (Exception ex)
+                {
+                    throw new DapperGriddlyException("Error populating summary values.", sql, _param, ex);
+                }
+            }
         }
 
         public override long GetCount()

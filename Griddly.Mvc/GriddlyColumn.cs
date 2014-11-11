@@ -11,12 +11,14 @@ namespace Griddly.Mvc
     public abstract class GriddlyColumn
     {
         public string Caption { get; set; }
-        public string SortField { get; set; }
+        public string ExpressionString { get; set; }
         public string Format { get; set; }
         public SortDirection? DefaultSort { get; set; }
         public string ClassName { get; set; }
         public string Width { get; set; }
         public bool IsExportOnly { get; set; }
+        public SummaryAggregateFunction? SummaryFunction { get; set; }
+        public object SummaryValue { get; set; }
 
         public GriddlyFilter Filter { get; set; }
 
@@ -24,7 +26,7 @@ namespace Griddly.Mvc
         public abstract object RenderCellValue(object row, bool stripHtml = false);
         public abstract string RenderClassName(object row, GriddlyResultPage page);
 
-        protected virtual HtmlString RenderValue(object value, bool encode = true)
+        public virtual HtmlString RenderValue(object value, bool encode = true)
         {
             if (value == null)
                 return null;
@@ -54,7 +56,7 @@ namespace Griddly.Mvc
     public class GriddlyColumn<TRow> : GriddlyColumn
     {
         public Func<TRow, object> Template { get; set; }
-        public Func<TRow, string> ClassNameExpression { get; set; }
+        public Func<TRow, string> ClassNameTemplate { get; set; }
 
         static readonly Regex _htmlMatch = new Regex(@"<[^>]*>", RegexOptions.Compiled);
 
@@ -65,14 +67,14 @@ namespace Griddly.Mvc
             if (!string.IsNullOrWhiteSpace(ClassName))
                 classes.UnionWith(ClassName.Split(' '));
 
-            SortField field = !string.IsNullOrWhiteSpace(SortField) && page.SortFields != null ? page.SortFields.FirstOrDefault(x => x.Field == SortField) : null;
+            SortField field = !string.IsNullOrWhiteSpace(ExpressionString) && page.SortFields != null ? page.SortFields.FirstOrDefault(x => x.Field == ExpressionString) : null;
 
             if (field != null)
                 classes.Add("sorted_" + (field.Direction == SortDirection.Descending ? "d" : "a"));
 
-            if (ClassNameExpression != null)
+            if (ClassNameTemplate != null)
             {
-                string additional = ClassNameExpression((TRow)row);
+                string additional = ClassNameTemplate((TRow)row);
 
                 if (!string.IsNullOrWhiteSpace(additional))
                     classes.UnionWith(additional.Split(' '));
@@ -146,5 +148,13 @@ namespace Griddly.Mvc
 
             return value;
         }
+    }
+
+    public enum SummaryAggregateFunction
+    {
+        Sum = 1,
+        Average = 2,
+        Min = 3,
+        Max = 4
     }
 }

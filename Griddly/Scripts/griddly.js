@@ -696,7 +696,15 @@
                 this.options.count = count;
                 this.options.pageCount = Math.ceil(this.options.count / this.options.pageSize);
                 // TODO: handle smaller count
-                this.$element.find("tbody.data").replaceWith(data);
+                
+                var html = $(data);
+
+                this.$element.find("tbody.data").replaceWith(html.filter("tbody"));
+
+                var tfoot = this.$element.find("tfoot");
+
+                if (tfoot.length && html.is("tfoot"))
+                    tfoot.replaceWith(html.filter("tfoot"));
 
                 var startRecord = this.options.pageNumber * this.options.pageSize;
 
