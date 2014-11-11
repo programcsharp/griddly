@@ -77,6 +77,15 @@
                         <td colspan="@settings.Columns.Count">@settings.Title</td>
                     </tr>
                 }
+
+                @if (settings.ShowRowSelectCount == true)
+                {
+                    <tr class="header"><td colspan="@settings.Columns.Count">
+                        <span>Rows selected: <label id="selectRowCount" class="selectRowCount" /></span> | 
+                        <span><a id="selectNone" class="selectNone" onclick="return true">Select None</a></span>
+                    </tr>
+                }
+
                 <tr class="griddly-filters" style="@(settings.FilterTemplate == null || !settings.ShowFilterInitially ? "display:none" : null)">
                     <td colspan="@settings.Columns.Count">
                         <form class="filterForm novalidate">

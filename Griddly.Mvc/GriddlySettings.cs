@@ -20,6 +20,7 @@ namespace Griddly.Mvc
         public static HtmlString BoolFalseHtml = null;
         public static int? DefaultPageSize = null;
         public static bool DefaultShowFilterInitially = true;
+        public static bool DefaultShowRowSelectCount = false;
 
         public static Func<GriddlyButton, object> IconTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
@@ -39,6 +40,7 @@ namespace Griddly.Mvc
             PageSize = DefaultPageSize;
             ShowFilterInitially = DefaultShowFilterInitially;
             HasInlineFilter = true;
+            ShowRowSelectCount = DefaultShowRowSelectCount;
         }
 
         public string IdProperty { get; set; }
@@ -47,6 +49,7 @@ namespace Griddly.Mvc
         public string TableClassName { get; set; }
         public string OnClientRefresh { get; set; }
         public bool ShowFilterInitially { get; set; }
+        public bool ShowRowSelectCount { get; set; }
 
         public int? PageSize { get; set; }
         public int? MaxPageSize { get; set; }
@@ -171,10 +174,20 @@ namespace Griddly.Mvc
 
         public GriddlySettings SelectColumn(Func<object, object> id)
         {
-            return Add(new GriddlySelectColumn()
+            var col = new GriddlySelectColumn();
+            col.Ids.Add("value", id);
+
+            return Add(col);
+        }
+
+        public GriddlySettings SelectColumn(Dictionary<string, Func<object, object>> ids)
+        {
+            var col = new GriddlySelectColumn()
             {
-                Id = id
-            });
+                Ids = ids
+            };
+
+            return Add(col);
         }
 
         SortField[] _defaultSort;
@@ -320,11 +333,24 @@ namespace Griddly.Mvc
 
         public GriddlySettings<TRow> SelectColumn(Func<TRow, object> id)
         {
-            Add(new GriddlySelectColumn()
+            var col = new GriddlySelectColumn();
+            col.Ids.Add("value", (x) => id((TRow)x));
+
+            Add(col);
+
+            return this;
+        }
+
+        public GriddlySettings<TRow> SelectColumn(Dictionary<string, Func<TRow, object>> ids)
+        {
+            var col = new GriddlySelectColumn();
+
+            foreach (var f in ids)
             {
-                Id = (x) => id((TRow)x),
-                ClassName = "align-center"
-            });
+                col.Ids.Add(f.Key, (x) => f.Value((TRow)x));
+            }
+
+            Add(col);
 
             return this;
         }

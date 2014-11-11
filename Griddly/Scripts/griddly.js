@@ -16,7 +16,6 @@
     {
         this.$element = $(element);
         this.options = options;
-
         this.create();
 
         $(this.$element).find("[data-enable-on-selection=true]").addClass("disabled");
@@ -84,6 +83,10 @@
                 this.options.pageSize = parseInt(pageSize);
             this.options.pageCount = this.options.count * this.options.pageSize;
             this.options.rowClickModal = rowClickModal;
+
+            if ($.isEmptyObject(this.options.selectedRows)) {
+                this.options.selectedRows = [];
+            }            
 
             if (isMultiSort != null)
                 this.options.isMultiSort = isMultiSort == true;
@@ -256,7 +259,7 @@
                         $(newSortDisplay).removeClass("sorted_d").addClass("sorted_a");
                     else
                         $(newSortDisplay).removeClass("sorted_a").addClass("sorted_d");
-                    
+
                     this.refresh(true);
                 }
             }, this));
@@ -318,6 +321,24 @@
                     this.$element.find("input[name=_rowselect]").prop("checked", true);
 
                 onRowChange();
+            }, this));
+
+            $(this.$element).on("click", "tbody.data tr input:checkbox", $.proxy(function (event) {
+
+                var idx = $.inArray(event.target.value, this.options.selectedRows);
+                if (idx == -1) {
+                    this.options.selectedRows.push(event.target.value);
+                } else {
+                    this.options.selectedRows.splice(idx, 1);
+                }
+
+                $(".selectRowCount", this.$element).html(this.options.selectedRows.length);
+            }, this));
+            
+            $(this.$element).on("click", "thead tr .selectNone", $.proxy(function (event) {
+                this.options.selectedRows = [];
+                $("tbody tr", this.$element).slice(0, this.options.pageSize).find("input[name=_rowselect]").prop("checked", false);
+                $(".selectRowCount", this.$element).text("0");
             }, this));
 
             $("a.export-xlsx", this.$element).on("click", $.proxy(function (e) {
@@ -699,12 +720,13 @@
                 this.$element.find("tbody.data").replaceWith(data);
 
                 var startRecord = this.options.pageNumber * this.options.pageSize;
-
                 this.$element.find(".griddly-summary").html('<span class="hidden-xs">Records</span> ' + (startRecord + (this.options.count ? 1 : 0)) + ' <span class="hidden-xs">through</span><span class="visible-xs">-</span> ' + (startRecord + currentPageSize) + " of " + this.options.count);
 
                 this.$element.find(".pageCount").html(this.options.pageCount);
 
                 this.$element.find("input.pageNumber").val(this.options.pageNumber + 1);
+
+                this.$element.find(".selectRowCount").val(this.options.selectedRows.count);                
 
                 if (startRecord > this.options.count - this.options.pageSize)
                     this.$element.find(".next").hide();
@@ -722,6 +744,13 @@
                     this.$element.find(".griddly-pager").show();
 
                 $(this.$element).find("[data-enable-on-selection=true]").addClass("disabled");
+
+                var _this = this;
+                //iterate through table and check rows that are in the selected list and have a checkbox
+                $("tbody tr", this.$element).find("input[name=_rowselect]").each(function (index, e) {                    
+                    if ($.inArray(e.value, _this.options.selectedRows) !== -1)
+                        $(e).prop("checked", true);
+                });
 
                 if (this.options.onRefresh)
                     this.options.onRefresh(this, startRecord, currentPageSize, count, postData);
@@ -753,14 +782,7 @@
 
         getSelected: function()
         {
-            var data = serializeObject(this.$element.find("input[name=_rowselect]"))._rowselect;
-
-            if (!data)
-                data = [];
-            else if (!data.push)
-                data = [data];
-
-            return data;
+            return this.options.selectedRows;
         },
 
         onRefresh: function(onRefresh)
@@ -827,7 +849,8 @@
         onError: null,
         isMultiSort: true,
         lastSelectedRow: null,
-        rowClickModal: null
+        rowClickModal: null,
+        selectedRows: null
     };
 
     var GriddlyButton = function (element, options) {
