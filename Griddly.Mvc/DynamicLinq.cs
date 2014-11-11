@@ -1,17 +1,19 @@
-﻿﻿using System.Collections.Generic;
+﻿﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
 
-namespace System.Linq.Dynamic
+namespace Griddly.Mvc.Linq.Dynamic
 {
     /// <summary>
     /// Microsoft provided class. It allows dynamic string based querying. 
     /// Very handy when, at compile time, you don't know the type of queries that will be generated.
     /// </summary>
-    internal static class DynamicQueryable
+    public static class DynamicQueryable
     {
         public static IQueryable<T> Where<T>(this IQueryable<T> source, string predicate, params object[] values)
         {
@@ -123,7 +125,7 @@ namespace System.Linq.Dynamic
         }
     }
 
-    internal abstract class DynamicClass
+    public abstract class DynamicClass
     {
         public override string ToString()
         {
@@ -142,7 +144,7 @@ namespace System.Linq.Dynamic
         }
     }
 
-    internal class DynamicProperty
+    public class DynamicProperty
     {
         string name;
         Type type;
@@ -166,7 +168,7 @@ namespace System.Linq.Dynamic
         }
     }
 
-    internal static class DynamicExpression
+    public static class DynamicExpression
     {
         public static Expression Parse(Type resultType, string expression, params object[] values)
         {
@@ -418,7 +420,7 @@ namespace System.Linq.Dynamic
         }
     }
 
-    internal sealed class ParseException : Exception
+    public sealed class ParseException : Exception
     {
         int position;
 

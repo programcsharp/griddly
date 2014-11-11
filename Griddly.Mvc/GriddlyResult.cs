@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Web.Helpers;
 using System.Web.Mvc;
-using System.Linq.Dynamic;
+using Griddly.Mvc.Linq.Dynamic;
 
 namespace Griddly.Mvc
 {
