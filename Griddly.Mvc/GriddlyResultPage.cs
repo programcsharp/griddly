@@ -1,7 +1,7 @@
-﻿using System.Linq;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System;
+using System.Linq;
 
 namespace Griddly.Mvc
 {
@@ -16,7 +16,7 @@ namespace Griddly.Mvc
 
         public int PageSize { get; set; }
 
-        //public GriddlySettings Settings { get; set; }
+        public GriddlySettings Settings { get; set; }
 
         public Action<GriddlySettings> PopulateSummaryValues { get; set; }
     }
