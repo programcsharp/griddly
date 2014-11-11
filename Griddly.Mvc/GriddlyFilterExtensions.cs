@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
@@ -55,7 +54,7 @@ namespace Griddly.Mvc
             };
         }
 
-        public static GriddlyFilterList FilterList(this GriddlyColumn column, IEnumerable<SelectListItem> items, bool isMultiple = true, bool defaultSelectAll = true, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null)
+        public static GriddlyFilterList FilterList(this GriddlyColumn column, IEnumerable<SelectListItem> items, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null)
         {
             if (caption == null)
                 caption = column.Caption;
@@ -108,13 +107,13 @@ namespace Griddly.Mvc
             return value;
         }
 
-        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, bool isMultiple = true, bool defaultSelectAll = true, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null)
+        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null)
             where T : struct
         {
             return column.FilterList(Extensions.ToSelectListItems<T>().OrderBy(x => x.Text), isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption);
         }
 
-        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, IEnumerable<T> items, bool isMultiple = true, bool defaultSelectAll = true, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null)
+        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, IEnumerable<T> items, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null)
             where T : struct
         {
             return column.FilterList(Extensions.ToSelectListItems(items).OrderBy(x => x.Text), isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption);
