@@ -115,6 +115,7 @@ namespace Griddly.Controllers
             {
                 items.Add(new TestGridItem()
                 {
+                    Id = (long)i,
                     FirstName = Name.GetFirstName(),
                     LastName = Name.GetLastName(),
                     Company = Company.GetName(),
@@ -122,7 +123,8 @@ namespace Griddly.Controllers
                     City = Address.GetCity(),
                     State = Address.GetUSState(),
                     PostalCode = Address.GetZipCode(),
-                    Test = (decimal)(r.NextDouble() * 10000)
+                    Test = (decimal)(r.NextDouble() * 10000),
+                    NullThing = (string)null,
                 });
             }
 

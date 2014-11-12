@@ -20,6 +20,7 @@ namespace Griddly.Mvc
         public string Target { get; set; }
         public string ConfirmMessage { get; set; }
         public bool AlignRight { get; set; }
+        public string[] RowIds { get; set; }
 
         public GriddlyButtonAction Action { get; set; }
 

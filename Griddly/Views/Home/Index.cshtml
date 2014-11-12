@@ -17,3 +17,17 @@
         @Html.Griddly("TestGrid")
     </div>
 </div>
+
+<script>
+    function AlertSelectedIds(rowIds)
+    {
+        var result = $(this).closest(".griddly").griddly("getSelected", rowIds);
+
+        var str = "{\n";
+        for (var k in result)
+            str += " " + k + " : [ " + result[k].toString() + " ]\n";
+        str += "}";
+        
+        alert(str);
+    }
+</script>

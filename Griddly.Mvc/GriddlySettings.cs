@@ -20,6 +20,7 @@ namespace Griddly.Mvc
         public static HtmlString BoolFalseHtml = null;
         public static int? DefaultPageSize = null;
         public static bool DefaultShowFilterInitially = true;
+        public static bool DefaultShowRowSelectCount = true;
 
         public static Func<GriddlyButton, object> IconTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
@@ -30,23 +31,29 @@ namespace Griddly.Mvc
         public GriddlySettings()
         {
             IdProperty = "Id";
+            HasInlineFilter = true;
+
             Columns = new List<GriddlyColumn>();
             Filters = new List<GriddlyFilter>();
             Buttons = new List<GriddlyButton>();
+            RowIds = new Dictionary<string, Func<object, object>>();
+
             ClassName = DefaultClassName;
             TableClassName = DefaultTableClassName;
             FooterTemplate = DefaultFooterTemplate;
             PageSize = DefaultPageSize;
             ShowFilterInitially = DefaultShowFilterInitially;
-            HasInlineFilter = true;
+            ShowRowSelectCount = DefaultShowRowSelectCount;
         }
 
+        public string[] DefaultRowIds { get; set; }
         public string IdProperty { get; set; }
         public string Title { get; set; }
         public string ClassName { get; set; }
         public string TableClassName { get; set; }
         public string OnClientRefresh { get; set; }
         public bool ShowFilterInitially { get; set; }
+        public bool ShowRowSelectCount { get; set; }
 
         public int? PageSize { get; set; }
         public int? MaxPageSize { get; set; }
@@ -68,6 +75,8 @@ namespace Griddly.Mvc
 
         public bool HasInlineFilter { get; set; }
 
+        public Dictionary<string, Func<object, object>> RowIds { get; protected set; }
+
         public virtual bool HasRowClickUrl
         {
             get { return RowClickUrl != null; }
@@ -86,6 +95,19 @@ namespace Griddly.Mvc
         public virtual object RenderRowClass(object o)
         {
             return RowClass(o);
+        }
+
+        public GriddlySettings RowId(Expression<Func<object, object>> expression, string name = null)
+        {
+            if (name == null)
+            {
+                var meta = ModelMetadata.FromLambdaExpression(expression, new ViewDataDictionary<object>());
+                name = ExpressionHelper.GetExpressionText(expression);
+            }
+
+            RowIds[name ?? "id"] = expression.Compile();
+
+            return this;
         }
 
         public GriddlySettings Add(GriddlyColumn column, Func<GriddlyColumn, GriddlyFilter> filter = null)
@@ -125,7 +147,7 @@ namespace Griddly.Mvc
                 });
         }*/
 
-        public GriddlySettings Button(Func<object, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null)
+        public GriddlySettings Button(Func<object, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null, string[] rowIds = null)
         {
             if (enableOnSelection == null)
                 enableOnSelection = (action == GriddlyButtonAction.Ajax || action == GriddlyButtonAction.AjaxBulk || action == GriddlyButtonAction.Post);
@@ -137,13 +159,14 @@ namespace Griddly.Mvc
                 Icon = icon,
                 Action = action,
                 EnableOnSelection = enableOnSelection.Value,
-                Target = target
+                Target = target,
+                RowIds = rowIds
             };
 
             return Add(button);
         }
 
-        public GriddlySettings Button(string argument, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null)
+        public GriddlySettings Button(string argument, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null, string[] rowIds = null)
         {
             if (enableOnSelection == null)
                 enableOnSelection = (action == GriddlyButtonAction.Ajax || action == GriddlyButtonAction.AjaxBulk || action == GriddlyButtonAction.Post);
@@ -155,7 +178,8 @@ namespace Griddly.Mvc
                 Icon = icon,
                 Action = action,
                 EnableOnSelection = enableOnSelection.Value,
-                Target = target
+                Target = target,
+                RowIds = rowIds
             };
 
             return Add(button);
@@ -169,11 +193,26 @@ namespace Griddly.Mvc
             });
         }
 
-        public GriddlySettings SelectColumn(Func<object, object> id)
+        public GriddlySettings SelectColumn(Expression<Func<object, object>> id, object summaryValue = null)
         {
+            RowId(id, "id");
+
             return Add(new GriddlySelectColumn()
             {
-                Id = id
+                SummaryValue = summaryValue
+            });
+        }
+
+        public GriddlySettings SelectColumn(Dictionary<string, Func<object, object>> ids, object summaryValue = null)
+        {
+            foreach (var x in ids)
+            {
+                RowIds[x.Key] = x.Value;
+            }
+
+            return Add(new GriddlySelectColumn()
+            {
+                SummaryValue = summaryValue
             });
         }
 
@@ -241,6 +280,19 @@ namespace Griddly.Mvc
                 else
                     base.RowClass = null;
             }
+        }
+
+        public GriddlySettings<TRow> RowId(Expression<Func<TRow, object>> expression, string name = null)
+        {
+            if (name == null)
+            {
+                var meta = ModelMetadata.FromLambdaExpression(expression, new ViewDataDictionary<TRow>());
+                name = ExpressionHelper.GetExpressionText(expression);
+            }
+
+            RowIds[name ?? "id"] = (x) => expression.Compile()((TRow)x);
+
+            return this;
         }
         
         public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> expression, string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
@@ -330,26 +382,42 @@ namespace Griddly.Mvc
         //    return this;
         //}
 
-        public GriddlySettings<TRow> SelectColumn(Func<TRow, object> id, object summaryValue = null)
+        public GriddlySettings<TRow> SelectColumn(Expression<Func<TRow, object>> id, object summaryValue = null)
         {
+            RowId(id, "id");
+
             Add(new GriddlySelectColumn()
             {
-                Id = (x) => id((TRow)x),
-                ClassName = "align-center",
                 SummaryValue = summaryValue
             });
 
             return this;
         }
 
-        public GriddlySettings<TRow> Button<TModel>(Func<TModel, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate)
+        public GriddlySettings<TRow> SelectColumn(Dictionary<string, Func<TRow, object>> ids, object summaryValue = null)
+        {
+            foreach (var x in ids)
+            {
+                RowIds[x.Key] = (z) => x.Value((TRow)z);
+            }
+
+            Add(new GriddlySelectColumn()
+            {
+                SummaryValue = summaryValue
+            });
+
+            return this;
+        }
+
+        public GriddlySettings<TRow> Button<TModel>(Func<TModel, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, string[] rowIds = null)
         {
             Add(new GriddlyButton()
             {
                 ArgumentTemplate = (x) => argumentTemplate((TModel)x),
                 Text = caption,
                 Icon = icon,
-                Action = action
+                Action = action,
+                RowIds = rowIds
             });
 
             return this;

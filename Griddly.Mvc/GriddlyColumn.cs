@@ -22,7 +22,7 @@ namespace Griddly.Mvc
 
         public GriddlyFilter Filter { get; set; }
 
-        public abstract HtmlString RenderCell(object row, bool encode = true);
+        public abstract HtmlString RenderCell(object row, GriddlySettings settings, bool encode = true);
         public abstract object RenderCellValue(object row, bool stripHtml = false);
         public abstract string RenderClassName(object row, GriddlyResultPage page);
 
@@ -86,7 +86,7 @@ namespace Griddly.Mvc
                 return null;
         }
 
-        public override HtmlString RenderCell(object row, bool encode = true)
+        public override HtmlString RenderCell(object row, GriddlySettings settings, bool encode = true)
         {
             object value = null;
 

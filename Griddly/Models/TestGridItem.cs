@@ -4,6 +4,7 @@ namespace Griddly.Models
 {
     public class TestGridItem
     {
+        public long? Id { get; set; }
         public decimal? Test { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -12,6 +13,7 @@ namespace Griddly.Models
         public string City { get; set; }
         public string State { get; set; }
         public string PostalCode { get; set; }
+        public string NullThing { get; set; }
 
         public int PostalCodePrefix
         {
