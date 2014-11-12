@@ -43,6 +43,7 @@ namespace Griddly.Mvc
             ShowRowSelectCount = DefaultShowRowSelectCount;
         }
 
+        public Dictionary<string, Func<object, object>> RowIds { get; set; }
         public string IdProperty { get; set; }
         public string Title { get; set; }
         public string ClassName { get; set; }
@@ -89,6 +90,16 @@ namespace Griddly.Mvc
         public virtual object RenderRowClass(object o)
         {
             return RowClass(o);
+        }
+
+        public GriddlySettings RowId(Func<object, object> expression, string name = null)
+        {
+            RowIds = new Dictionary<string, Func<object, object>>()
+            {
+                { "value", expression }
+            };
+
+            return this;
         }
 
         public GriddlySettings Add(GriddlyColumn column, Func<GriddlyColumn, GriddlyFilter> filter = null)
@@ -254,6 +265,18 @@ namespace Griddly.Mvc
                 else
                     base.RowClass = null;
             }
+        }
+
+        public new Dictionary<string, Func<TRow, object>> RowIds { get; set; }
+
+        public GriddlySettings<TRow> RowId(Func<TRow, object> expression, string name = null)
+        {
+            RowIds = new Dictionary<string, Func<TRow, object>>()
+            {
+                { "value", expression }
+            };
+
+            return this;
         }
         
         public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> template, string caption = null, string format = null, string sortField = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
