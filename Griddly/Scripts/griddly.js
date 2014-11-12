@@ -838,182 +838,155 @@
         rowClickModal: null
     };
 
-    var GriddlyButton = function (element, options) {
-        this.$element = $(element);
-        this.options = options;
+    function GriddlyButton()
+    { }
 
-        this.create();
+    GriddlyButton.handleClick = $.proxy(function (event)
+    {
+        var button = $(event.currentTarget);
+        var griddly = button.closest("[data-role=griddly]");
+        var url = button.data("url");
+        var toggle = button.data("toggle");
+        var onclick = button.data("onclick");
+        var confirmMessage = button.data("confirm-message");
+        var enableOnSelection = button.data("enable-on-selection");
 
-        if ($(this.$element).is("[data-enable-on-selection=true]")) {
-            $(this.$element).addClass("disabled");
-        }
-    };
+        if ((typeof confirmMessage === "undefined" || confirm(confirmMessage)))
+        {
+            if (button.triggerHandler("beforeExecute") !== false)
+            {
+                if (toggle && ["ajaxbulk", "postcriteria", "ajax", "post"].indexOf(toggle) > -1)
+                {
+                    if (!url)
+                        url = button.attr("href");
 
-    GriddlyButton.prototype = {
-        constructor: GriddlyButton,
+                    var ids = {};
 
-        // create and bind
-        create: function () {
-            var griddly = this.$element.closest("[data-role=griddly]");
-            var url = this.$element.data("url");
-            var toggle = this.$element.data("toggle");
-            var onclick = this.$element.data("onclick");
-            var confirmMessage = this.$element.data("confirm-message");
-            var enableOnSelection = this.$element.data("enable-on-selection");
+                    if (griddly)
+                        ids = griddly.griddly("getSelected");
 
-            $(this.$element).on("click", $.proxy(function (event) {
-                if ((typeof confirmMessage === "undefined" || confirm(confirmMessage))) {
-                    if ($(this.$element).triggerHandler("beforeExecute") !== false) {
-                        if (toggle && ["ajaxbulk", "postcriteria", "ajax", "post"].indexOf(toggle) > -1) {
-                            if (!url)
-                                url = $(event.currentTarget).attr("href");
+                    switch (toggle)
+                    {
+                        case "ajaxbulk":
+                            if (ids.length == 0 && enableOnSelection)
+                                return;
 
-                            var ids = {};
-                            if (griddly)
-                                ids = $(griddly).griddly("getSelected");
+                            return this.ajaxBulk(url, ids, button, griddly);
 
-                            switch (toggle) {
-                                case "ajaxbulk":
-                                    if (ids.length == 0 && enableOnSelection)
-                                        return;
-                                    return this.ajaxBulk(url, ids);
+                        case "post":
+                            if (ids.length == 0 && enableOnSelection)
+                                return;
 
-                                case "post":
-                                    if (ids.length == 0 && enableOnSelection)
-                                        return;
-                                    return this.post(url, ids);
+                            return this.post(url, ids, button, griddly);
 
-                                case "postcriteria":
-                                    if (!griddly)
-                                        return;
-                                    return this.postCriteria(url, $(griddly).griddly("buildRequest"));
+                        case "postcriteria":
+                            if (!griddly)
+                                return;
 
-                                case "ajax":
-                                    if (ids.length == 0)
-                                        return;
-                                    return this.ajax(url, ids);
-                            }
-                        }
+                            return this.postCriteria(url, griddly.griddly("buildRequest"));
 
-                        if (onclick) {
-                            var f = window[onclick];
-                            if ($.isFunction(f))
-                                return f.call(this.$element);
-                            throw "onclick must be a global function";
-                            // we do not support eval cause it's insecure
-                        }
+                        case "ajax":
+                            if (ids.length == 0)
+                                return;
 
-                        return true;
+                            return this.ajax(url, ids, button, griddly);
                     }
                 }
 
-                return false;
-            }, this));
-        },
-
-        ajaxBulk: function (url, ids) {
-            $.ajax(url,
-            {
-                data: { ids: ids },
-                traditional: true,
-                type: "POST"
-            }).done($.proxy(function (data, status, xhr) {
-                // TODO: handle errors
-                // TODO: go back to first page?
-                var griddly = this.$element.closest("[data-role=griddly]");
-                griddly.griddly("refresh");
-
-                $(this.$element).triggerHandler("afterExecute", [data, status, xhr]);
-            }, this));
-        },
-
-        post: function (url, ids) {
-            var inputs = "";
-
-            var token = $("input[name^=__RequestVerificationToken]").first();
-
-            if (token.length)
-                inputs += '<input type="hidden" name="' + token.attr("name") + '" value="' + token.val() + '" />';
-
-            $.each(ids, function () {
-                inputs += "<input name=\"ids\" value=\"" + this + "\" />";
-            });
-
-            $("<form action=\"" + url + "\" method=\"post\">" + inputs + "</form>")
-                .appendTo("body").submit().remove();
-
-            return false;
-        },
-
-        postCriteria: function (url, request) {
-            var inputs = "";
-
-            var token = $("input[name^=__RequestVerificationToken]").first();
-
-            if (token.length)
-                inputs += '<input type="hidden" name="' + token.attr("name") + '" value="' + token.val() + '" />';
-
-            for (var key in request)
-                inputs += '<input name="' + key + '" value="' + request[key] + '" />';
-
-            $("<form action=\"" + url + "\" method=\"post\">" + inputs + "</form>")
-                .appendTo("body").submit().remove();
-        },
-
-        ajax: function (url, ids) {
-            for (var i = 0; i < ids.length; i++) {
-                $.ajax(url,
+                if (onclick)
                 {
-                    data: { id: ids[i] },
-                    type: "POST"
-                }).done($.proxy(function (data, status, xhr) {
-                    // TODO: handle errors
-                    // TODO: go back to first page?
-                    var griddly = this.$element.closest("[data-role=griddly]");
-                    griddly.griddly("refresh");
+                    var f = window[onclick];
 
-                    $(this.$element).triggerHandler("afterExecute", [data, status, xhr]);
-                }, this));
+                    if ($.isFunction(f))
+                        return f.call(button);
+
+                    throw "onclick must be a global function";
+                    // we do not support eval cause it's insecure
+                }
+
+                return true;
             }
-        },
+        }
+
+        return false;
+    }, GriddlyButton);
+
+    GriddlyButton.ajaxBulk = function (url, ids, button, griddly)
+    {
+        $.ajax(url,
+        {
+            data: { ids: ids },
+            traditional: true,
+            type: "POST"
+        }).done($.proxy(function (data, status, xhr)
+        {
+            // TODO: handle errors
+            // TODO: go back to first page?
+            griddly.griddly("refresh");
+
+            button.triggerHandler("afterExecute", [data, status, xhr]);
+        }, this));
     };
 
-    $.fn.griddlyButton = function (option, parameter) {
-        var value;
-        var args = arguments;
+    GriddlyButton.post = function (url, ids, button, griddly)
+    {
+        var inputs = "";
 
-        this.each(function () {
-            var data = $(this).data('griddly'),
-                options = typeof option == 'object' && option;
+        var token = $("input[name^=__RequestVerificationToken]").first();
 
-            // initialize griddly button
-            if (!data) {
-                var instanceOptions = $.extend({}, $.fn.griddlyButton.defaults, options);
+        if (token.length)
+            inputs += '<input type="hidden" name="' + token.attr("name") + '" value="' + token.val() + '" />';
 
-                $(this).data('griddly', (data = new GriddlyButton(this, instanceOptions)));
-            }
-
-            // call griddly method
-            if (typeof option == 'string') {
-                value = data[option].apply(data, Array.prototype.slice.call(args, 1));
-            }
-
+        $.each(ids, function ()
+        {
+            inputs += "<input name=\"ids\" value=\"" + this + "\" />";
         });
 
-        if (value !== undefined)
-            return value;
-        else
-            return this;
+        $("<form action=\"" + url + "\" method=\"post\">" + inputs + "</form>")
+            .appendTo("body").submit().remove();
+
+        return false;
     };
 
-    $.fn.griddlyButton.defaults =
+    GriddlyButton.postCriteria = function (url, request, button, griddly)
     {
+        var inputs = "";
+
+        var token = $("input[name^=__RequestVerificationToken]").first();
+
+        if (token.length)
+            inputs += '<input type="hidden" name="' + token.attr("name") + '" value="' + token.val() + '" />';
+
+        for (var key in request)
+            inputs += '<input name="' + key + '" value="' + request[key] + '" />';
+
+        $("<form action=\"" + url + "\" method=\"post\">" + inputs + "</form>")
+            .appendTo("body").submit().remove();
+    };
+
+    GriddlyButton.ajax = function (url, ids, button, griddly)
+    {
+        for (var i = 0; i < ids.length; i++)
+        {
+            $.ajax(url,
+            {
+                data: { id: ids[i] },
+                type: "POST"
+            }).done($.proxy(function (data, status, xhr)
+            {
+                // TODO: handle errors
+                // TODO: go back to first page?
+                griddly.griddly("refresh");
+
+                button.triggerHandler("afterExecute", [data, status, xhr]);
+            }, this));
+        }
     };
 
     $(function()
     {
         $("[data-role=griddly]").griddly();
-        $("[data-role=griddly-button]").griddlyButton();
+        $(document).on("click", "[data-role=griddly-button]", GriddlyButton.handleClick);
 
         // patch stupid bootstrap js so it doesn't .empty() our inline filter dropdowns
         // remove once bs fixes: https://github.com/twbs/bootstrap/pull/14244
