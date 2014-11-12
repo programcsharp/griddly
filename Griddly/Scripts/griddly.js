@@ -116,7 +116,7 @@
                 this.options.onRefresh = window[onRefresh];
 
             // TODO: should we do this later on so we handle dynamically added buttons?
-            this.$element.find("[data-griddly-toggle=modal][href*='_griddlyIds']").each(function ()
+            this.$element.find("[data-append-rowids-to-url]").each(function ()
             {
                 $(this).data("griddly-href-template", $(this).attr("href"));
             });
@@ -285,22 +285,24 @@
 
             var onRowChange = $.proxy(function (event)
             {
-                var ids = this.getSelected();
+                this.setSelectedCount();
 
-                if (ids.length)
-                    ids = ids.join(",");
-                else
-                    ids = "";
-
-                this.$element.find("[data-griddly-toggle=modal]").each(function ()
+                this.$element.find("[data-append-rowids-to-url]").each(function ()
                 {
                     var template = $(this).data("griddly-href-template");
 
                     if (template)
-                        $(this).attr("href", template.replace(/_griddlyIds/g, ids));
-                });
+                    {
+                        var selection = this.getSelected($(this).data["rowids"]);
+                        var query = [];
+                        for (var k in selection)
+                        {
+                            query[query.length] = k + "=" + selection[k].join(",");
+                        }
 
-                this.setSelectedCount();
+                        $(this).attr("href", template + (template.indexOf("?") > -1 ? "&" : "?") + query.join("&"));
+                    }            
+                });
             }, this);
 
             var setRowSelect = $.proxy(function ($checkbox)
@@ -820,12 +822,15 @@
 
         getSelected: function(arrayIdNames)
         {
+            if (arrayIdNames === "all")
+                return this.options.selectedRows;
+
             if (!arrayIdNames)
                 arrayIdNames = this.options.defaultRowIds;
             else if (typeof arrayIdNames === "string")
                 arrayIdNames = [ arrayIdNames ];
 
-            var result = {}
+            var result = {};
             for (var name in arrayIdNames)
                 result[arrayIdNames[name]] = $.map(this.options.selectedRows, function (x) { return x[arrayIdNames[name]] });
 
@@ -1009,11 +1014,12 @@
         if (token.length)
             inputs += '<input type="hidden" name="' + token.attr("name") + '" value="' + token.val() + '" />';
 
-        $.each(selection, function () {
-            $.each(this, function () {
-                inputs += "<input name=\"ids\" value=\"" + this + "\" />";
+        for (var idname in selection)
+        {
+            $.each(selection[idname], function () {
+                inputs += "<input name=\"" + idname + "\" value=\"" + this + "\" />";
             });
-        });
+        }
 
         $("<form action=\"" + url + "\" method=\"post\">" + inputs + "</form>")
             .appendTo("body").submit().remove();

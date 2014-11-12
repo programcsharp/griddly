@@ -21,6 +21,10 @@ namespace Griddly.Mvc
         public string ConfirmMessage { get; set; }
         public bool AlignRight { get; set; }
         public string[] RowIds { get; set; }
+        /// <summary>
+        /// Append the selected row ids to the button href as comma separated query strings (only navigate and modal types supported)
+        /// </summary>
+        public bool AppendRowIdsToUrl { get; set; }
 
         public GriddlyButtonAction Action { get; set; }
 
