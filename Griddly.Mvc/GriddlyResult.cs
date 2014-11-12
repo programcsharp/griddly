@@ -190,32 +190,59 @@ namespace Griddly.Mvc
 
         public virtual void PopulateSummaryValues(GriddlySettings<T> settings)
         {
-            List<GriddlyColumn> summaryColumns = settings.Columns.Where(x => x.SummaryFunction != null).ToList();
+            // Only works for linq to objects
+            //List<GriddlyColumn> summaryColumns = settings.Columns.Where(x => x.SummaryFunction != null).ToList();
 
-            if (summaryColumns.Any())
+            //if (summaryColumns.Any())
+            //{
+            //    StringBuilder aggregateExpression = new StringBuilder();
+
+            //    aggregateExpression.Append("new (");
+
+            //    for (int i = 0; i < summaryColumns.Count; i++)
+            //    {
+            //        if (i > 0)
+            //            aggregateExpression.Append(", ");
+
+            //        GriddlyColumn col = summaryColumns[i];
+
+            //        aggregateExpression.AppendFormat("{0}({1}) AS _a{2}", col.SummaryFunction, col.ExpressionString, i);
+            //    }
+
+            //    aggregateExpression.Append(")");
+
+            //    var query = _result.GroupBy(x => 1).Select(aggregateExpression.ToString());
+            //    var item = query.Cast<object>().Single();
+            //    var type = item.GetType();
+
+            //    for (int i = 0; i < summaryColumns.Count; i++)
+            //        summaryColumns[i].SummaryValue = type.GetProperty("_a" + i).GetValue(item);
+            //}
+
+            // TODO: figure out how to get this in one query
+            foreach (GriddlyColumn c in settings.Columns.Where(x => x.SummaryFunction != null))
             {
-                StringBuilder aggregateExpression = new StringBuilder();
-
-                aggregateExpression.Append("new (");
-
-                for (int i = 0; i < summaryColumns.Count; i++)
+                switch (c.SummaryFunction.Value)
                 {
-                    if (i > 0)
-                        aggregateExpression.Append(", ");
+                    case SummaryAggregateFunction.Sum:
+                        c.SummaryValue = _result.Select(c.ExpressionString).Cast<decimal?>().Sum();
 
-                    GriddlyColumn col = summaryColumns[i];
+                        break;
+                    case SummaryAggregateFunction.Average:
+                        c.SummaryValue = _result.Select(c.ExpressionString).Cast<decimal?>().Average();
 
-                    aggregateExpression.AppendFormat("{0}({1}) AS _a{2}", col.SummaryFunction, col.ExpressionString, i);
+                        break;
+                    case SummaryAggregateFunction.Min:
+                        c.SummaryValue = _result.Select(c.ExpressionString).Cast<decimal?>().Min();
+
+                        break;
+                    case SummaryAggregateFunction.Max:
+                        c.SummaryValue = _result.Select(c.ExpressionString).Cast<decimal?>().Max();
+
+                        break;
+                    default:
+                        throw new InvalidOperationException(string.Format("Unknown summary function {0} for column {1}.", c.SummaryFunction, c.ExpressionString));
                 }
-
-                aggregateExpression.Append(")");
-
-                var query = _result.GroupBy(x => 1).Select(aggregateExpression.ToString());
-                var item = query.Cast<object>().Single();
-                var type = item.GetType();
-
-                for (int i = 0; i < summaryColumns.Count; i++)
-                    summaryColumns[i].SummaryValue = type.GetProperty("_a" + i).GetValue(item);
             }
         }
 
