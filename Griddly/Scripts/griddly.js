@@ -740,7 +740,15 @@
                 this.options.count = count;
                 this.options.pageCount = Math.ceil(this.options.count / this.options.pageSize);
                 // TODO: handle smaller count
-                this.$element.find("tbody.data").replaceWith(data);
+                
+                var html = $(data);
+
+                this.$element.find("tbody.data").replaceWith(html.filter("tbody"));
+
+                var tfoot = this.$element.find("tfoot");
+
+                if (tfoot.length && html.is("tfoot"))
+                    tfoot.replaceWith(html.filter("tfoot"));
 
                 var startRecord = this.options.pageNumber * this.options.pageSize;
                 this.$element.find(".griddly-summary").html('<span class="hidden-xs">Records</span> ' + (startRecord + (this.options.count ? 1 : 0)) + ' <span class="hidden-xs">through</span><span class="visible-xs">-</span> ' + (startRecord + currentPageSize) + " of " + this.options.count);

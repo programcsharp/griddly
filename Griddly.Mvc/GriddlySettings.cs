@@ -210,7 +210,7 @@ namespace Griddly.Mvc
                 if (_defaultSort == null)
                     _defaultSort = Columns
                         .Where(x => x.DefaultSort != null)
-                        .Select(x => new SortField() { Field = x.SortField, Direction = x.DefaultSort.Value }).ToArray();
+                        .Select(x => new SortField() { Field = x.ExpressionString, Direction = x.DefaultSort.Value }).ToArray();
 
                 return _defaultSort;
             }
@@ -279,72 +279,63 @@ namespace Griddly.Mvc
             return this;
         }
         
-        public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> template, string caption = null, string format = null, string sortField = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
+        public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> expression, string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
         {
-            var compiledTemplate = template.Compile();
-            ModelMetadata metadata = ModelMetadata.FromLambdaExpression<TRow, TProperty>(template, new ViewDataDictionary<TRow>());
-            string htmlFieldName = ExpressionHelper.GetExpressionText(template);
+            ModelMetadata metadata = null;
 
-            Type type = metadata.ModelType;
-
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-                type = Nullable.GetUnderlyingType(type);
-
-            if (className == null)
+            if (expression != null)
             {
-                if (type == typeof(byte) || type == typeof(sbyte) ||
-                         type == typeof(short) || type == typeof(ushort) ||
-                         type == typeof(int) || type == typeof(uint) ||
-                         type == typeof(long) || type == typeof(ulong) ||
-                         type == typeof(float) ||
-                         type == typeof(double) ||
-                         type == typeof(decimal))
-                    className = "align-right";
-                else if (type == typeof(bool) ||
-                         type == typeof(DateTime) || type.HasCastOperator<DateTime>())
-                    className = "align-center";
+                metadata = ModelMetadata.FromLambdaExpression<TRow, TProperty>(expression, new ViewDataDictionary<TRow>());
+                string htmlFieldName = ExpressionHelper.GetExpressionText(expression);
+
+                Type type = metadata.ModelType;
+
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    type = Nullable.GetUnderlyingType(type);
+
+                if (className == null)
+                {
+                    if (type == typeof(byte) || type == typeof(sbyte) ||
+                             type == typeof(short) || type == typeof(ushort) ||
+                             type == typeof(int) || type == typeof(uint) ||
+                             type == typeof(long) || type == typeof(ulong) ||
+                             type == typeof(float) ||
+                             type == typeof(double) ||
+                             type == typeof(decimal))
+                        className = "align-right";
+                    else if (type == typeof(bool) ||
+                             type == typeof(DateTime) || type.HasCastOperator<DateTime>())
+                        className = "align-center";
+                }
+
+                if (caption == null)
+                    caption = metadata.DisplayName ?? metadata.PropertyName ?? htmlFieldName.Split('.').Last();
+
+                if (expressionString == null)
+                    expressionString = htmlFieldName;
+
+                if (template == null)
+                {
+                    var compiledTemplate = expression.Compile();
+
+                    if (type == typeof(bool) && (BoolTrueHtml != null || BoolFalseHtml != null))
+                        template = (row) => (compiledTemplate(row) as bool? == true) ? BoolTrueHtml : BoolFalseHtml;
+                    else
+                        template = (row) => compiledTemplate(row);
+                }
             }
 
-            if (caption == null)
-                caption = metadata.DisplayName ?? metadata.PropertyName ?? htmlFieldName.Split('.').Last();
+            if (string.IsNullOrWhiteSpace(expressionString) && summaryFunction != null)
+                throw new InvalidOperationException("Must specify an expression to use a summary function.");
 
-            if (sortField == null)
-                sortField = htmlFieldName;
-
-            if (type == typeof(bool) && (BoolTrueHtml != null || BoolFalseHtml != null))
-            {
-                return TemplateColumn(
-                    (row) =>
-                    {
-                        return (compiledTemplate(row) as bool? == true) ? BoolTrueHtml : BoolFalseHtml;
-                    },
-                    caption, format, sortField, defaultSort, className, isExportOnly, width, filter
-                );
-            }
-
-            Add(new GriddlyColumn<TRow>()
-            {
-                Template = (row) => compiledTemplate(row),
-                Caption = caption,
-                Format = format,
-                SortField = sortField,
-                DefaultSort = defaultSort,
-                ClassName = className,
-                IsExportOnly = isExportOnly,
-                Width = width
-            }, filter);
-
-            return this;
-        }
-
-        public GriddlySettings<TRow> TemplateColumn(Func<TRow, object> template, string caption, string format = null, string sortField = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
-        {
             Add(new GriddlyColumn<TRow>()
             {
                 Template = template,
                 Caption = caption,
                 Format = format,
-                SortField = sortField,
+                ExpressionString = expressionString,
+                SummaryFunction = summaryFunction,
+                SummaryValue = summaryValue,
                 DefaultSort = defaultSort,
                 ClassName = className,
                 IsExportOnly = isExportOnly,
@@ -354,7 +345,28 @@ namespace Griddly.Mvc
             return this;
         }
 
-        public GriddlySettings<TRow> SelectColumn(Func<TRow, object> id)
+        public GriddlySettings<TRow> Column(string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
+        {
+            return Column<object>(null, caption, format, expressionString, defaultSort, className, isExportOnly, width, summaryFunction, summaryValue, template, filter);
+        }
+        //public GriddlySettings<TRow> TemplateColumn(Func<TRow, object> template, string caption, string format = null, string sortField = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
+        //{
+        //    Add(new GriddlyColumn<TRow>()
+        //    {
+        //        Template = template,
+        //        Caption = caption,
+        //        Format = format,
+        //        SortField = sortField,
+        //        DefaultSort = defaultSort,
+        //        ClassName = className,
+        //        IsExportOnly = isExportOnly,
+        //        Width = width
+        //    }, filter);
+
+        //    return this;
+        //}
+
+        public GriddlySettings<TRow> SelectColumn(Func<TRow, object> id, object summaryValue = null)
         {
             var col = new GriddlySelectColumn();
             col.Ids.Add("value", (x) => id((TRow)x));
@@ -372,6 +384,7 @@ namespace Griddly.Mvc
             {
                 col.Ids.Add(f.Key, (x) => f.Value((TRow)x));
             }
+                SummaryValue = summaryValue
 
             Add(col);
 

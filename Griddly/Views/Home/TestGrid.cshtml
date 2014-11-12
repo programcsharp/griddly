@@ -15,7 +15,7 @@
     .Column(x => x.Address, "Address")
     .Column(x => x.City, "City")
     .Column(x => x.State, "State")
-    .TemplateColumn(x => Html.ActionLink("&" + x.PostalCode, "Profile"), "Zip")
+    .Column(x => x.PostalCode, "Zip", template: x => Html.ActionLink("&" + x.PostalCode, "Profile"))
     .Button("", "export", action: GriddlyButtonAction.Javascript, className: "export-xlsx")
     .Add(new GriddlyButton() { Text = "Confirm", Argument = "http://google.com", Action = GriddlyButtonAction.PostCriteria, ConfirmMessage = "Please confirm", EnableOnSelection = true })
 )

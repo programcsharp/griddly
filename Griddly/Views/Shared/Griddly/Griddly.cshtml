@@ -36,6 +36,11 @@
             GriddlySettings.BeforeRender(settings);
         }
     }
+
+    if (Model.PopulateSummaryValues != null)
+    {
+        Model.PopulateSummaryValues(settings);
+    }
 }
 
 @if (isFirstRender)
@@ -106,8 +111,8 @@
         <tr class="columnHeaders">
             @foreach (GriddlyColumn column in settings.Columns)
             {
-                bool isSortable = !simple && !string.IsNullOrWhiteSpace(column.SortField);
-                <th class="@column.ClassName @(isSortable ? "sortable" : null) @(column is GriddlySelectColumn ? "select" : null) @(column.DefaultSort != null ? (column.DefaultSort == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.SortField)>
+                bool isSortable = !simple && !string.IsNullOrWhiteSpace(column.ExpressionString);
+                <th class="@column.ClassName @(isSortable ? "sortable" : null) @(column is GriddlySelectColumn ? "select" : null) @(column.DefaultSort != null ? (column.DefaultSort == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.ExpressionString)>
                     @if (isSortable)
                     {
                         <text>@column.Caption<span class="icon">&nbsp;</span></text>
@@ -142,6 +147,17 @@
         </tr>
     }
 </tbody>
+@if (settings.Columns.Any(x => x.SummaryFunction != null || x.SummaryValue != null))
+{
+    <tfoot>
+        <tr>
+            @foreach (GriddlyColumn column in settings.Columns)
+            {
+                <td>@column.RenderValue(column.SummaryValue)</td>
+            }
+        </tr>
+    </tfoot>
+}
 @if (isFirstRender)
 {
     @:</table>
