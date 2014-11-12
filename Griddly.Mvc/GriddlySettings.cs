@@ -20,7 +20,7 @@ namespace Griddly.Mvc
         public static HtmlString BoolFalseHtml = null;
         public static int? DefaultPageSize = null;
         public static bool DefaultShowFilterInitially = true;
-        public static bool DefaultShowRowSelectCount = false;
+        public static bool DefaultShowRowSelectCount = true;
 
         public static Func<GriddlyButton, object> IconTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
@@ -31,19 +31,22 @@ namespace Griddly.Mvc
         public GriddlySettings()
         {
             IdProperty = "Id";
+            HasInlineFilter = true;
+
             Columns = new List<GriddlyColumn>();
             Filters = new List<GriddlyFilter>();
             Buttons = new List<GriddlyButton>();
+            RowIds = new Dictionary<string, Func<object, object>>();
+
             ClassName = DefaultClassName;
             TableClassName = DefaultTableClassName;
             FooterTemplate = DefaultFooterTemplate;
             PageSize = DefaultPageSize;
             ShowFilterInitially = DefaultShowFilterInitially;
-            HasInlineFilter = true;
             ShowRowSelectCount = DefaultShowRowSelectCount;
         }
 
-        public Dictionary<string, Func<object, object>> RowIds { get; set; }
+        public string[] DefaultRowIds { get; set; }
         public string IdProperty { get; set; }
         public string Title { get; set; }
         public string ClassName { get; set; }
@@ -72,6 +75,8 @@ namespace Griddly.Mvc
 
         public bool HasInlineFilter { get; set; }
 
+        public Dictionary<string, Func<object, object>> RowIds { get; protected set; }
+
         public virtual bool HasRowClickUrl
         {
             get { return RowClickUrl != null; }
@@ -92,12 +97,15 @@ namespace Griddly.Mvc
             return RowClass(o);
         }
 
-        public GriddlySettings RowId(Func<object, object> expression, string name = null)
+        public GriddlySettings RowId(Expression<Func<object, object>> expression, string name = null)
         {
-            RowIds = new Dictionary<string, Func<object, object>>()
+            if (name == null)
             {
-                { "value", expression }
-            };
+                var meta = ModelMetadata.FromLambdaExpression(expression, new ViewDataDictionary<object>());
+                name = ExpressionHelper.GetExpressionText(expression);
+            }
+
+            RowIds[name ?? "id"] = expression.Compile();
 
             return this;
         }
@@ -183,22 +191,27 @@ namespace Griddly.Mvc
             });
         }
 
-        public GriddlySettings SelectColumn(Func<object, object> id)
+        public GriddlySettings SelectColumn(Expression<Func<object, object>> id, object summaryValue = null)
         {
-            var col = new GriddlySelectColumn();
-            col.Ids.Add("value", id);
+            RowId(id, "id");
 
-            return Add(col);
+            return Add(new GriddlySelectColumn()
+            {
+                SummaryValue = summaryValue
+            });
         }
 
-        public GriddlySettings SelectColumn(Dictionary<string, Func<object, object>> ids)
+        public GriddlySettings SelectColumn(Dictionary<string, Func<object, object>> ids, object summaryValue = null)
         {
-            var col = new GriddlySelectColumn()
+            foreach (var x in ids)
             {
-                Ids = ids
-            };
+                RowIds[x.Key] = x.Value;
+            }
 
-            return Add(col);
+            return Add(new GriddlySelectColumn()
+            {
+                SummaryValue = summaryValue
+            });
         }
 
         SortField[] _defaultSort;
@@ -267,14 +280,15 @@ namespace Griddly.Mvc
             }
         }
 
-        public new Dictionary<string, Func<TRow, object>> RowIds { get; set; }
-
-        public GriddlySettings<TRow> RowId(Func<TRow, object> expression, string name = null)
+        public GriddlySettings<TRow> RowId(Expression<Func<TRow, object>> expression, string name = null)
         {
-            RowIds = new Dictionary<string, Func<TRow, object>>()
+            if (name == null)
             {
-                { "value", expression }
-            };
+                var meta = ModelMetadata.FromLambdaExpression(expression, new ViewDataDictionary<TRow>());
+                name = ExpressionHelper.GetExpressionText(expression);
+            }
+
+            RowIds[name ?? "id"] = (x) => expression.Compile()((TRow)x);
 
             return this;
         }
@@ -366,29 +380,29 @@ namespace Griddly.Mvc
         //    return this;
         //}
 
-        public GriddlySettings<TRow> SelectColumn(Func<TRow, object> id, object summaryValue = null)
+        public GriddlySettings<TRow> SelectColumn(Expression<Func<TRow, object>> id, object summaryValue = null)
         {
-            var col = new GriddlySelectColumn();
-            col.Ids.Add("value", (x) => id((TRow)x));
-            col.SummaryValue = summaryValue;
+            RowId(id, "id");
 
-            Add(col);
+            Add(new GriddlySelectColumn()
+            {
+                SummaryValue = summaryValue
+            });
 
             return this;
         }
 
         public GriddlySettings<TRow> SelectColumn(Dictionary<string, Func<TRow, object>> ids, object summaryValue = null)
         {
-            var col = new GriddlySelectColumn();
-            col.SummaryValue = summaryValue;
-
-            foreach (var f in ids)
+            foreach (var x in ids)
             {
-                col.Ids.Add(f.Key, (x) => f.Value((TRow)x));
-                
-            }   
+                RowIds[x.Key] = (z) => x.Value((TRow)z);
+            }
 
-            Add(col);
+            Add(new GriddlySelectColumn()
+            {
+                SummaryValue = summaryValue
+            });
 
             return this;
         }

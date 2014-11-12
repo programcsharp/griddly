@@ -123,7 +123,8 @@ namespace Griddly.Controllers
                     City = Address.GetCity(),
                     State = Address.GetUSState(),
                     PostalCode = Address.GetZipCode(),
-                    Test = (decimal)(r.NextDouble() * 10000)
+                    Test = (decimal)(r.NextDouble() * 10000),
+                    NullThing = (string)null,
                 });
             }
 

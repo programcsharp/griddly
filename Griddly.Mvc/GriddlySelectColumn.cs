@@ -12,22 +12,37 @@ namespace Griddly.Mvc
         public GriddlySelectColumn()
         {
             ClassName = "griddly-select align-center";
-
-            Ids = new Dictionary<string, Func<object, object>>();
         }
-
-        public Dictionary<string, Func<object, object>> Ids { get; set; }
-
-        public override HtmlString RenderCell(object row, bool encode = true)
+        
+        public override HtmlString RenderCell(object row, GriddlySettings settings, bool encode = true)
         {
             TagBuilder input = new TagBuilder("input");
 
             input.Attributes["name"] = "_rowselect";
             input.Attributes["type"] = "checkbox";
 
-            foreach (var x in this.Ids)
+            if (settings.RowIds.Any())
             {
-                input.Attributes[x.Key] = x.Value(row).ToString();
+                bool valueSet = false;
+                string key = "";
+                foreach (var x in settings.RowIds)
+                {
+                    string val = "";
+                    object result = x.Value(row);
+                    if (result != null)
+                        val = result.ToString();
+
+                    input.Attributes["data-" + x.Key] = val;
+                    key += "_" + val;
+
+                    if (!valueSet)
+                    {
+                        input.Attributes["value"] = val;
+                        valueSet = true;
+                    }
+                }
+
+                input.Attributes["data-rowkey"] = key;
             }
 
             return new HtmlString(input.ToString(TagRenderMode.SelfClosing));

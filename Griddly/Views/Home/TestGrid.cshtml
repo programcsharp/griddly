@@ -6,9 +6,12 @@
 @Html.Griddly(new GriddlySettings<TestGridItem>()
     {
         PageSize = 5,
-        ShowRowSelectCount = true
+        ShowRowSelectCount = true,
     }
     .SelectColumn(x => x.Id)
+    .RowId(x => x.FirstName)
+    .RowId(x => x.LastName)
+    .RowId(x => x.NullThing)
     .Column(x => x.FirstName, "First Name")
     .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending)
     .Column(x => x.Company, "Company")
@@ -17,5 +20,6 @@
     .Column(x => x.State, "State")
     .Column(x => x.PostalCode, "Zip", template: x => Html.ActionLink("&" + x.PostalCode, "Profile"))
     .Button("", "export", action: GriddlyButtonAction.Javascript, className: "export-xlsx")
-    .Add(new GriddlyButton() { Text = "Confirm", Argument = "http://google.com", Action = GriddlyButtonAction.PostCriteria, ConfirmMessage = "Please confirm", EnableOnSelection = true })
+    .Add(new GriddlyButton() { Text = "Confirm", Argument = "http://google.com", Action = GriddlyButtonAction.PostCriteria, ConfirmMessage = "Please confirm" })
+    .Button("AlertSelectedIds", "Selected", action: GriddlyButtonAction.Javascript, enableOnSelection: true)
 )

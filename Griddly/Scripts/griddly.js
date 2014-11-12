@@ -90,11 +90,13 @@
             var count = this.$element.data("griddly-count");
             var pageSize = this.$element.data("griddly-pagesize");
             var defaultSort = this.$element.data("griddly-defaultsort");
+            var defaultRowIds = this.$element.data("griddly-defaultrowids");
             var isMultiSort = this.$element.data("griddly-multisort");
             var onRefresh = this.$element.data("griddly-onrefresh");
             var rowClickModal = this.$element.data("griddly-rowclickmodal");
 
             this.options.url = url;
+            this.options.defaultRowIds = defaultRowIds;
             this.options.count = parseInt(count);
             if (pageSize)
                 this.options.pageSize = parseInt(pageSize);
@@ -303,14 +305,22 @@
 
             var setRowSelect = $.proxy(function ($checkbox)
             {
-                var rowvalue = { "value": $checkbox.val() };
-                var rowkey = "_" + $.map(rowvalue, function (x) { return x; }).join("_");
+                var rowkey = $checkbox.data("rowkey");                
                 var row = this.options.selectedRows[rowkey];
 
                 if (!row && $checkbox.prop("checked"))
+                {
+                    var rowvalue = { "value": $checkbox.attr("value") };
+                    var data = $checkbox.data();                                        
+                    for (var d in data)
+                        rowvalue[d] = data[d];
+
                     this.options.selectedRows[rowkey] = rowvalue;
+                }
                 else if (row && !$checkbox.prop("checked"))
+                {
                     delete this.options.selectedRows[rowkey];
+                }
 
                 onRowChange();
             }, this);
@@ -775,7 +785,7 @@
                 var _this = this;
                 //iterate through table and check rows that are in the selected list and have a checkbox
                 $("tbody tr", this.$element).find("input[name=_rowselect]").each(function (index, e) {
-                    var rowkey = "_" + [$(e).val()].join("_");
+                    var rowkey = $(e).data("rowkey");
                     if (_this.options.selectedRows[rowkey])
                         $(e).prop("checked", true);
                 });
@@ -808,12 +818,18 @@
             }, this));
         },
 
-        getSelected: function(idName)
+        getSelected: function(arrayIdNames)
         {
-            if (!idName)
-                return $.map(this.options.selectedRows, function (x) { return x["value"]; });
-            else
-                return $.map(this.options.selectedRows, function (x) { return x[idName]; });
+            if (!arrayIdNames)
+                arrayIdNames = this.options.defaultRowIds;
+            else if (typeof arrayIdNames === "string")
+                arrayIdNames = [ arrayIdNames ];
+
+            var result = {}
+            for (var name in arrayIdNames)
+                result[arrayIdNames[name]] = $.map(this.options.selectedRows, function (x) { return x[arrayIdNames[name]] });
+
+            return result;
         },
 
         onRefresh: function(onRefresh)
