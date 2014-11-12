@@ -370,21 +370,23 @@ namespace Griddly.Mvc
         {
             var col = new GriddlySelectColumn();
             col.Ids.Add("value", (x) => id((TRow)x));
+            col.SummaryValue = summaryValue;
 
             Add(col);
 
             return this;
         }
 
-        public GriddlySettings<TRow> SelectColumn(Dictionary<string, Func<TRow, object>> ids)
+        public GriddlySettings<TRow> SelectColumn(Dictionary<string, Func<TRow, object>> ids, object summaryValue = null)
         {
             var col = new GriddlySelectColumn();
+            col.SummaryValue = summaryValue;
 
             foreach (var f in ids)
             {
                 col.Ids.Add(f.Key, (x) => f.Value((TRow)x));
-            }
-                SummaryValue = summaryValue
+                
+            }   
 
             Add(col);
 
