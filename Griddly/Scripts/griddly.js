@@ -1043,7 +1043,9 @@
         {
             var postdata = {};
             for (var k in selection)
-                postdata[k] = selection[k][i];
+            {
+                postdata[k === "ids" ? "id" : k] = selection[k][i];
+            }
 
             $.ajax(url,
             {
