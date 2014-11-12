@@ -912,6 +912,7 @@
         var onclick = button.data("onclick");
         var confirmMessage = button.data("confirm-message");
         var enableOnSelection = button.data("enable-on-selection");
+        var rowIds = button.data("rowids");
 
         if ((typeof confirmMessage === "undefined" || confirm(confirmMessage)))
         {
@@ -922,24 +923,31 @@
                     if (!url)
                         url = button.attr("href");
 
-                    var ids = {};
-
+                    var selection = {};
                     if (griddly)
-                        ids = griddly.griddly("getSelected");
+                    {
+                        selection = griddly.griddly("getSelected", rowIds);
+
+                        if (selection.value)
+                        {
+                            selection.ids = selection.value;
+                            delete selection.value;
+                        }
+                    }
 
                     switch (toggle)
                     {
                         case "ajaxbulk":
-                            if (ids.length == 0 && enableOnSelection)
+                            if (selection[Object.keys(selection)[0]].length == 0 && enableOnSelection)
                                 return;
 
-                            return this.ajaxBulk(url, ids, button, griddly);
+                            return this.ajaxBulk(url, selection, button, griddly);
 
                         case "post":
-                            if (ids.length == 0 && enableOnSelection)
+                            if (selection[Object.keys(selection)[0]].length == 0 && enableOnSelection)
                                 return;
 
-                            return this.post(url, ids, button, griddly);
+                            return this.post(url, selection, button, griddly);
 
                         case "postcriteria":
                             if (!griddly)
@@ -948,10 +956,10 @@
                             return this.postCriteria(url, griddly.griddly("buildRequest"));
 
                         case "ajax":
-                            if (ids.length == 0)
+                            if (selection[Object.keys(selection)[0]].length == 0 && enableOnSelection)
                                 return;
 
-                            return this.ajax(url, ids, button, griddly);
+                            return this.ajax(url, selection, button, griddly);
                     }
                 }
 
@@ -960,7 +968,9 @@
                     var f = window[onclick];
 
                     if ($.isFunction(f))
-                        return f.call(button);
+                    {
+                        return f.call(button, rowIds);
+                    }
 
                     throw "onclick must be a global function";
                     // we do not support eval cause it's insecure
@@ -973,11 +983,11 @@
         return false;
     }, GriddlyButton);
 
-    GriddlyButton.ajaxBulk = function (url, ids, button, griddly)
+    GriddlyButton.ajaxBulk = function (url, selection, button, griddly)
     {
         $.ajax(url,
         {
-            data: { ids: ids },
+            data: selection,
             traditional: true,
             type: "POST"
         }).done($.proxy(function (data, status, xhr)
@@ -990,7 +1000,7 @@
         }, this));
     };
 
-    GriddlyButton.post = function (url, ids, button, griddly)
+    GriddlyButton.post = function (url, selection, button, griddly)
     {
         var inputs = "";
 
@@ -999,9 +1009,10 @@
         if (token.length)
             inputs += '<input type="hidden" name="' + token.attr("name") + '" value="' + token.val() + '" />';
 
-        $.each(ids, function ()
-        {
-            inputs += "<input name=\"ids\" value=\"" + this + "\" />";
+        $.each(selection, function () {
+            $.each(this, function () {
+                inputs += "<input name=\"ids\" value=\"" + this + "\" />";
+            });
         });
 
         $("<form action=\"" + url + "\" method=\"post\">" + inputs + "</form>")
@@ -1026,13 +1037,17 @@
             .appendTo("body").submit().remove();
     };
 
-    GriddlyButton.ajax = function (url, ids, button, griddly)
+    GriddlyButton.ajax = function (url, selection, button, griddly)
     {
-        for (var i = 0; i < ids.length; i++)
+        for (var i = 0; i < selection[Object.keys(selection)[0]].length; i++)
         {
+            var postdata = {};
+            for (var k in selection)
+                postdata[k] = selection[k][i];
+
             $.ajax(url,
             {
-                data: { id: ids[i] },
+                data: postdata,
                 type: "POST"
             }).done($.proxy(function (data, status, xhr)
             {

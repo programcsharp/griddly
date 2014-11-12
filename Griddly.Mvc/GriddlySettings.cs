@@ -147,7 +147,7 @@ namespace Griddly.Mvc
                 });
         }*/
 
-        public GriddlySettings Button(Func<object, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null)
+        public GriddlySettings Button(Func<object, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null, string[] rowIds = null)
         {
             if (enableOnSelection == null)
                 enableOnSelection = (action == GriddlyButtonAction.Ajax || action == GriddlyButtonAction.AjaxBulk || action == GriddlyButtonAction.Post);
@@ -159,13 +159,14 @@ namespace Griddly.Mvc
                 Icon = icon,
                 Action = action,
                 EnableOnSelection = enableOnSelection.Value,
-                Target = target
+                Target = target,
+                RowIds = rowIds
             };
 
             return Add(button);
         }
 
-        public GriddlySettings Button(string argument, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null)
+        public GriddlySettings Button(string argument, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null, string[] rowIds = null)
         {
             if (enableOnSelection == null)
                 enableOnSelection = (action == GriddlyButtonAction.Ajax || action == GriddlyButtonAction.AjaxBulk || action == GriddlyButtonAction.Post);
@@ -177,7 +178,8 @@ namespace Griddly.Mvc
                 Icon = icon,
                 Action = action,
                 EnableOnSelection = enableOnSelection.Value,
-                Target = target
+                Target = target,
+                RowIds = rowIds
             };
 
             return Add(button);
@@ -407,14 +409,15 @@ namespace Griddly.Mvc
             return this;
         }
 
-        public GriddlySettings<TRow> Button<TModel>(Func<TModel, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate)
+        public GriddlySettings<TRow> Button<TModel>(Func<TModel, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, string[] rowIds = null)
         {
             Add(new GriddlyButton()
             {
                 ArgumentTemplate = (x) => argumentTemplate((TModel)x),
                 Text = caption,
                 Icon = icon,
-                Action = action
+                Action = action,
+                RowIds = rowIds
             });
 
             return this;

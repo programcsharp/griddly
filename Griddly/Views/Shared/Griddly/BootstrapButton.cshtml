@@ -77,7 +77,8 @@ else
        @Html.AttributeIf("data-url", button.Action == GriddlyButtonAction.Ajax || button.Action == GriddlyButtonAction.AjaxBulk || button.Action == GriddlyButtonAction.Post || button.Action == GriddlyButtonAction.PostCriteria, button.Argument)
        @Html.AttributeIf("data-target", button.Action != GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
        @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())
-       @Html.AttributeIf("data-confirm-message", button.ConfirmMessage != null, button.ConfirmMessage)>
+       @Html.AttributeIf("data-confirm-message", button.ConfirmMessage != null, button.ConfirmMessage)
+       @Html.AttributeIf("data-rowids", button.RowIds != null, button.RowIds != null ? Html.AttributeEncode(Json.Encode(button.RowIds.Select(x => x.ToLower()).ToArray())) : null)>
 
         @if (!string.IsNullOrWhiteSpace(Model.Icon) && GriddlySettings.IconTemplate != null)
         {

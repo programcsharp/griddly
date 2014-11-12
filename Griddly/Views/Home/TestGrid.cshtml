@@ -21,5 +21,6 @@
     .Column(x => x.PostalCode, "Zip", template: x => Html.ActionLink("&" + x.PostalCode, "Profile"))
     .Button("", "export", action: GriddlyButtonAction.Javascript, className: "export-xlsx")
     .Add(new GriddlyButton() { Text = "Confirm", Argument = "http://google.com", Action = GriddlyButtonAction.PostCriteria, ConfirmMessage = "Please confirm" })
-    .Button("AlertSelectedIds", "Selected", action: GriddlyButtonAction.Javascript, enableOnSelection: true)
+    .Button("AlertSelectedIds", "Alert Selected", action: GriddlyButtonAction.Javascript, enableOnSelection: true)
+    .Button("TestPost", "Post Selected", action: GriddlyButtonAction.AjaxBulk, enableOnSelection: true)
 )

@@ -19,9 +19,9 @@
 </div>
 
 <script>
-    function AlertSelectedIds()
+    function AlertSelectedIds(rowIds)
     {
-        var result = $(this).closest(".griddly").griddly("getSelected", [ "firstname", "lastname" ]);
+        var result = $(this).closest(".griddly").griddly("getSelected", rowIds);
 
         var str = "{\n";
         for (var k in result)
