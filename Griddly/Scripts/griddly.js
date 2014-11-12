@@ -94,7 +94,7 @@
                 this.options.onRefresh = window[onRefresh];
 
             // TODO: should we do this later on so we handle dynamically added buttons?
-            this.$element.find("[data-griddly-toggle=modal][href*='_griddlyIds']").each(function ()
+            this.$element.find("[data-toggle=modal][href*='_griddlyIds']").each(function ()
             {
                 $(this).data("griddly-href-template", $(this).attr("href"));
             });
@@ -274,7 +274,7 @@
                 else
                     ids = "";
 
-                this.$element.find("[data-griddly-toggle=modal]").each(function ()
+                this.$element.find("[data-toggle=modal]").each(function ()
                 {
                     var template = $(this).data("griddly-href-template");
 
