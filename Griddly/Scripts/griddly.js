@@ -38,6 +38,23 @@
                 $(".griddly-filters-inline .filter-trigger").popover("hide");
             }
         }, this));
+
+        this.setSelectedCount = $.proxy(function ()
+        {
+            $("thead tr .griddly-selection-count", this.$element).text(Object.keys(this.options.selectedRows).length);
+
+            if (!$.isEmptyObject(this.options.selectedRows))
+            {
+                this.$element.find("tr.griddly-selection:not(:visible)").show("slow");
+                $(this.$element).find("[data-enable-on-selection=true]").removeClass("disabled");
+            }
+            else
+            {
+                this.$element.find("tr.griddly-selection:visible").hide("slow");
+                $(this.$element).find("[data-enable-on-selection=true]").addClass("disabled");
+            }
+
+        }, this);
     };
 
     var serializeObject = function ($elements)
@@ -84,8 +101,8 @@
             this.options.pageCount = this.options.count * this.options.pageSize;
             this.options.rowClickModal = rowClickModal;
 
-            if ($.isEmptyObject(this.options.selectedRows)) {
-                this.options.selectedRows = [];
+            if (!this.options.selectedRows) {
+                this.options.selectedRows = {};
             }            
 
             if (isMultiSort != null)
@@ -268,10 +285,6 @@
             {
                 var ids = this.getSelected();
 
-                var op = ids.length ? "remove" : "add";
-
-                $(this.$element).find("[data-enable-on-selection=true]")[op + "Class"]("disabled");
-
                 if (ids.length)
                     ids = ids.join(",");
                 else
@@ -284,6 +297,22 @@
                     if (template)
                         $(this).attr("href", template.replace(/_griddlyIds/g, ids));
                 });
+
+                this.setSelectedCount();
+            }, this);
+
+            var setRowSelect = $.proxy(function ($checkbox)
+            {
+                var rowvalue = { "value": $checkbox.val() };
+                var rowkey = "_" + $.map(rowvalue, function (x) { return x; }).join("_");
+                var row = this.options.selectedRows[rowkey];
+
+                if (!row && $checkbox.prop("checked"))
+                    this.options.selectedRows[rowkey] = rowvalue;
+                else if (row && !$checkbox.prop("checked"))
+                    delete this.options.selectedRows[rowkey];
+
+                onRowChange();
             }, this);
 
             $(this.$element).on("change", "input[name=_rowselect]", onRowChange);
@@ -292,12 +321,14 @@
             {
                 var $target = $(event.target);
 
-                if (!$target.is("input"))
-                {
-                    var $checkbox = $target.find("input[name=_rowselect]");
+                var $checkbox = $target;
+                if (!$target.is("input")) {
+                    $checkbox = $target.find("input[name=_rowselect]");
 
                     $checkbox.prop("checked", !$checkbox.prop("checked"));
                 }
+
+                setRowSelect($checkbox);
 
                 if (event.shiftKey && this.options.lastSelectedRow)
                 {
@@ -316,29 +347,21 @@
             $(this.$element).on("click", "thead tr.columnHeaders th.select", $.proxy(function (event)
             {
                 if (this.$element.find("input[name=_rowselect]:not(:checked)").length == 0)
-                    this.$element.find("input[name=_rowselect]").prop("checked", false);
+                    this.$element.find("input[name=_rowselect]").prop("checked", false).each(function() { setRowSelect($(this)); });
                 else
-                    this.$element.find("input[name=_rowselect]").prop("checked", true);
+                    this.$element.find("input[name=_rowselect]").prop("checked", true).each(function () { setRowSelect($(this)); });
 
                 onRowChange();
             }, this));
-
-            $(this.$element).on("click", "tbody.data tr input:checkbox", $.proxy(function (event) {
-
-                var idx = $.inArray(event.target.value, this.options.selectedRows);
-                if (idx == -1) {
-                    this.options.selectedRows.push(event.target.value);
-                } else {
-                    this.options.selectedRows.splice(idx, 1);
-                }
-
-                $(".selectRowCount", this.$element).html(this.options.selectedRows.length);
-            }, this));
             
-            $(this.$element).on("click", "thead tr .selectNone", $.proxy(function (event) {
-                this.options.selectedRows = [];
-                $("tbody tr", this.$element).slice(0, this.options.pageSize).find("input[name=_rowselect]").prop("checked", false);
-                $(".selectRowCount", this.$element).text("0");
+            $(this.$element).on("click", "thead tr .griddly-selection-clear", $.proxy(function (event)
+            {
+                this.options.selectedRows = {};
+
+                $("tbody tr", this.$element).find("input[name=_rowselect]").prop("checked", false);
+
+                onRowChange();
+                this.setSelectedCount();
             }, this));
 
             $("a.export-xlsx", this.$element).on("click", $.proxy(function (e) {
@@ -725,9 +748,7 @@
                 this.$element.find(".pageCount").html(this.options.pageCount);
 
                 this.$element.find("input.pageNumber").val(this.options.pageNumber + 1);
-
-                this.$element.find(".selectRowCount").val(this.options.selectedRows.count);                
-
+                
                 if (startRecord > this.options.count - this.options.pageSize)
                     this.$element.find(".next").hide();
                 else
@@ -742,13 +763,12 @@
                     this.$element.find(".griddly-pager").hide();
                 else
                     this.$element.find(".griddly-pager").show();
-
-                $(this.$element).find("[data-enable-on-selection=true]").addClass("disabled");
-
+                
                 var _this = this;
                 //iterate through table and check rows that are in the selected list and have a checkbox
-                $("tbody tr", this.$element).find("input[name=_rowselect]").each(function (index, e) {                    
-                    if ($.inArray(e.value, _this.options.selectedRows) !== -1)
+                $("tbody tr", this.$element).find("input[name=_rowselect]").each(function (index, e) {
+                    var rowkey = "_" + [$(e).val()].join("_");
+                    if (_this.options.selectedRows[rowkey])
                         $(e).prop("checked", true);
                 });
 
@@ -780,9 +800,12 @@
             }, this));
         },
 
-        getSelected: function()
+        getSelected: function(idName)
         {
-            return this.options.selectedRows;
+            if (!idName)
+                return $.map(this.options.selectedRows, function (x) { return x["value"]; });
+            else
+                return $.map(this.options.selectedRows, function (x) { return x[idName]; });
         },
 
         onRefresh: function(onRefresh)

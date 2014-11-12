@@ -70,62 +70,64 @@
                     <col @Html.AttributeIf("style", column.Width != null, "width:" + column.Width) />
                 }
             </colgroup>
-            <thead>
-                @if (!string.IsNullOrWhiteSpace(settings.Title))
-                {
-                    <tr class="header">
-                        <td colspan="@settings.Columns.Count">@settings.Title</td>
-                    </tr>
-                }
+    <thead>
+        @if (!string.IsNullOrWhiteSpace(settings.Title))
+        {
+            <tr class="header">
+                <td colspan="@settings.Columns.Count">@settings.Title</td>
+            </tr>
+        }
 
-                @if (settings.ShowRowSelectCount == true)
-                {
-                    <tr class="header"><td colspan="@settings.Columns.Count">
-                        <span>Rows selected: <label id="selectRowCount" class="selectRowCount" /></span> | 
-                        <span><a id="selectNone" class="selectNone" onclick="return true">Select None</a></span>
-                    </tr>
-                }
+        @if (settings.ShowRowSelectCount)
+        {
+            <tr class="griddly-selection header" style="display:none;">
+                <td colspan="@settings.Columns.Count">
+                    <span><label class="griddly-selection-count">0</label> rows selected</span>
+                    <span><a class="griddly-selection-clear" href="javascript:;">Clear</a></span>
+                </td>
+            </tr>
+        }
 
-                <tr class="griddly-filters" style="@(settings.FilterTemplate == null || !settings.ShowFilterInitially ? "display:none" : null)">
-                    <td colspan="@settings.Columns.Count">
-                        <form class="filterForm novalidate">
-                            @if (settings.FilterTemplate != null)
-                            {
-                                @settings.FilterTemplate(settings)
-                            }
-                            <div class="errors"></div>
-                            <div class="buttons">
-                                <input type="hidden" name="query" value="true" />
-                                <input type="submit" value="Search"> <a class="grid_searchreset" href="javascript:void(0);">Reset</a>
-                            </div>
-                        </form>
-                    </td>
-                </tr>
-                <tr class="columnHeaders">
-                    @foreach (GriddlyColumn column in settings.Columns)
+        <tr class="griddly-filters" style="@(settings.FilterTemplate == null || !settings.ShowFilterInitially ? "display:none" : null)">
+            <td colspan="@settings.Columns.Count">
+                <form class="filterForm novalidate">
+                    @if (settings.FilterTemplate != null)
                     {
-                        bool isSortable = !simple && !string.IsNullOrWhiteSpace(column.SortField);
-                        <th class="@column.ClassName @(isSortable ? "sortable" : null) @(column is GriddlySelectColumn ? "select" : null) @(column.DefaultSort != null ? (column.DefaultSort == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.SortField)>                            
-                            @if (isSortable)
-                            {
-                                <text>@column.Caption<span class="icon">&nbsp;</span></text>
-                            }
-                            else if (column is GriddlySelectColumn)
-                            {
-                                <i class="glyphicon glyphicon-check"></i>
-                            }
-                            else
-                            {
-                                @column.Caption
-                            }
-                        </th>
+                        @settings.FilterTemplate(settings)
                     }
-                </tr>
-                @if (settings.InlineFilterTemplate != null && settings.HasInlineFilter)
-                {
-                    <tr class="griddly-filters griddly-filters-inline">@settings.InlineFilterTemplate(settings)</tr>
-                }
-            </thead>
+                    <div class="errors"></div>
+                    <div class="buttons">
+                        <input type="hidden" name="query" value="true" />
+                        <input type="submit" value="Search"> <a class="grid_searchreset" href="javascript:void(0);">Reset</a>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        <tr class="columnHeaders">
+            @foreach (GriddlyColumn column in settings.Columns)
+            {
+                bool isSortable = !simple && !string.IsNullOrWhiteSpace(column.SortField);
+                <th class="@column.ClassName @(isSortable ? "sortable" : null) @(column is GriddlySelectColumn ? "select" : null) @(column.DefaultSort != null ? (column.DefaultSort == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.SortField)>
+                    @if (isSortable)
+                    {
+                        <text>@column.Caption<span class="icon">&nbsp;</span></text>
+                    }
+                    else if (column is GriddlySelectColumn)
+                    {
+                        <i class="glyphicon glyphicon-check"></i>
+                    }
+                    else
+                    {
+                        @column.Caption
+                    }
+                </th>
+            }
+        </tr>
+        @if (settings.InlineFilterTemplate != null && settings.HasInlineFilter)
+        {
+            <tr class="griddly-filters griddly-filters-inline">@settings.InlineFilterTemplate(settings)</tr>
+        }
+    </thead>
 }
 <tbody class="data">
     @foreach (object row in Model.Data)

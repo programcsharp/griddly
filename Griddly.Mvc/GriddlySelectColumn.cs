@@ -40,7 +40,7 @@ namespace Griddly.Mvc
 
         public override string RenderClassName(object row, GriddlyResultPage page)
         {
-            return null;
+            return ClassName;
         }
     }
 }
