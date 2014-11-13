@@ -147,7 +147,7 @@ namespace Griddly.Mvc
                 });
         }*/
 
-        public GriddlySettings Button(Func<object, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null, string[] rowIds = null)
+        public GriddlySettings Button(Func<object, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null, string[] rowIds = null, object htmlAttributes = null)
         {
             if (enableOnSelection == null)
                 enableOnSelection = (action == GriddlyButtonAction.Ajax || action == GriddlyButtonAction.AjaxBulk || action == GriddlyButtonAction.Post);
@@ -163,10 +163,13 @@ namespace Griddly.Mvc
                 RowIds = rowIds
             };
 
+            if (htmlAttributes != null)
+                button.HtmlAttributes = HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
+
             return Add(button);
         }
 
-        public GriddlySettings Button(string argument, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null, string[] rowIds = null)
+        public GriddlySettings Button(string argument, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null, string[] rowIds = null, object htmlAttributes = null)
         {
             if (enableOnSelection == null)
                 enableOnSelection = (action == GriddlyButtonAction.Ajax || action == GriddlyButtonAction.AjaxBulk || action == GriddlyButtonAction.Post);
@@ -181,6 +184,9 @@ namespace Griddly.Mvc
                 Target = target,
                 RowIds = rowIds
             };
+
+            if (htmlAttributes != null)
+                button.HtmlAttributes = HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
 
             return Add(button);
         }
@@ -409,16 +415,21 @@ namespace Griddly.Mvc
             return this;
         }
 
-        public GriddlySettings<TRow> Button<TModel>(Func<TModel, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, string[] rowIds = null)
+        public GriddlySettings<TRow> Button<TModel>(Func<TModel, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, string[] rowIds = null, object htmlAttributes = null)
         {
-            Add(new GriddlyButton()
+            var button = new GriddlyButton()
             {
                 ArgumentTemplate = (x) => argumentTemplate((TModel)x),
                 Text = caption,
                 Icon = icon,
                 Action = action,
                 RowIds = rowIds
-            });
+            };
+
+            if (htmlAttributes != null)
+                button.HtmlAttributes = HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
+
+            Add(button);
 
             return this;
         }

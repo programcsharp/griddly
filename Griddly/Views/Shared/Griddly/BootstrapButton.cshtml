@@ -30,7 +30,7 @@ else
         @RenderLink(Model, true, false)
         @if (Model.IsSplitDropdown)
         {
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            <button type="button" class="btn btn-default dropdown-toggle @GriddlySettings.DefaultButtonClassName" data-toggle="dropdown">
                 <span class="caret"></span>
             </button>
         }
@@ -67,19 +67,26 @@ else
     }
 
     <a data-role="griddly-button" class="@(!isMenuItem ? "btn btn-default" : null) @(isDropdown && !button.IsSplitDropdown ? "dropdown-toggle" : null) @(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null) @button.ClassName @(!string.IsNullOrWhiteSpace(Model.Icon) ? "btn-with-icon" : null)"
-       @*onclick="@(button.Action == GriddlyButtonAction.Javascript ? button.Argument : null)"*@
-       title="@button.Title"
-       @Html.AttributeIf("target", button.Action == GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
-       @Html.AttributeIf("href", href != null, href)
-       @Html.AttributeIf("data-toggle", button.Action != GriddlyButtonAction.Navigate && button.Action != GriddlyButtonAction.Javascript, button.Action.ToString().ToLower())
-       @Html.AttributeIf("data-toggle", isDropdown && !button.IsSplitDropdown, "dropdown")
-       @Html.AttributeIf("data-onclick", button.Action == GriddlyButtonAction.Javascript && button.Argument != null, button.Argument)
-       @Html.AttributeIf("data-url", button.Action == GriddlyButtonAction.Ajax || button.Action == GriddlyButtonAction.AjaxBulk || button.Action == GriddlyButtonAction.Post || button.Action == GriddlyButtonAction.PostCriteria, button.Argument)
-       @Html.AttributeIf("data-target", button.Action != GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
-       @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())
-       @Html.AttributeIf("data-confirm-message", button.ConfirmMessage != null, button.ConfirmMessage)
-       @Html.AttributeIf("data-rowids", button.RowIds != null, button.RowIds != null ? Html.AttributeEncode(Json.Encode(button.RowIds.Select(x => x.ToLower()).ToArray())) : null)
-       @Html.AttributeIf("data-append-rowids-to-url", (button.Action == GriddlyButtonAction.Modal || button.Action == GriddlyButtonAction.Navigate) && button.AppendRowIdsToUrl, "")>
+        @*onclick="@(button.Action == GriddlyButtonAction.Javascript ? button.Argument : null)"*@
+        title="@button.Title"
+        @Html.AttributeIf("target", button.Action == GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
+        @Html.AttributeIf("href", href != null, href)
+        @Html.AttributeIf("data-toggle", button.Action != GriddlyButtonAction.Navigate && button.Action != GriddlyButtonAction.Javascript, button.Action.ToString().ToLower())
+        @Html.AttributeIf("data-toggle", isDropdown && !button.IsSplitDropdown, "dropdown")
+        @Html.AttributeIf("data-onclick", button.Action == GriddlyButtonAction.Javascript && button.Argument != null, button.Argument)
+        @Html.AttributeIf("data-url", button.Action == GriddlyButtonAction.Ajax || button.Action == GriddlyButtonAction.AjaxBulk || button.Action == GriddlyButtonAction.Post || button.Action == GriddlyButtonAction.PostCriteria, button.Argument)
+        @Html.AttributeIf("data-target", button.Action != GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
+        @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())
+        @Html.AttributeIf("data-confirm-message", button.ConfirmMessage != null, button.ConfirmMessage)
+        @Html.AttributeIf("data-rowids", button.RowIds != null, button.RowIds != null ? Html.AttributeEncode(Json.Encode(button.RowIds.Select(x => x.ToLower()).ToArray())) : null)
+        @Html.AttributeIf("data-append-rowids-to-url", (button.Action == GriddlyButtonAction.Modal || button.Action == GriddlyButtonAction.Navigate) && button.AppendRowIdsToUrl, "")
+        @if (button.HtmlAttributes != null)
+        {
+            foreach (var attr in button.HtmlAttributes)
+            {
+                <text>@attr.Key="@attr.Value"</text>
+            }
+        }>
 
         @if (!string.IsNullOrWhiteSpace(Model.Icon) && GriddlySettings.IconTemplate != null)
         {
