@@ -6,6 +6,16 @@ namespace Griddly.Mvc
 {
     public class GriddlyButton
     {
+        public GriddlyButton(string additionalClassName = null)
+        {
+            Buttons = new List<GriddlyButton>();
+
+            Enabled = true;
+            Action = GriddlyButtonAction.Navigate;
+
+            ClassName = ((GriddlySettings.DefaultButtonClassName ?? "") + " " + (additionalClassName ?? "")).Trim();
+        }
+
         public string Argument { get; set; }
         public Func<object, object> ArgumentTemplate { get; set; }
 
@@ -20,25 +30,22 @@ namespace Griddly.Mvc
         public string Target { get; set; }
         public string ConfirmMessage { get; set; }
         public bool AlignRight { get; set; }
+        
+        /// <summary>
+        /// The row ids to include in the button action (default uses grid default)
+        /// </summary>
         public string[] RowIds { get; set; }
+
         /// <summary>
         /// Append the selected row ids to the button href as comma separated query strings (only navigate and modal types supported)
         /// </summary>
         public bool AppendRowIdsToUrl { get; set; }
 
+        public IDictionary<string, object> HtmlAttributes { get; set; }
+
         public GriddlyButtonAction Action { get; set; }
 
         public List<GriddlyButton> Buttons { get; set; }
-
-        public GriddlyButton(string additionalClassName = null)
-        {
-            Buttons = new List<GriddlyButton>();
-
-            Enabled = true;
-            Action = GriddlyButtonAction.Navigate;
-
-            ClassName = ((GriddlySettings.DefaultButtonClassName ?? "") + " " + (additionalClassName ?? "")).Trim();
-        }
 
         public GriddlyButton Add(GriddlyButton item)
         {
