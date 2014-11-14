@@ -152,8 +152,7 @@ namespace Griddly.Mvc
                 var records = GetAll(sortFields);
                 if (exportFormat == GriddlyExportFormat.Custom)
                 {
-                    string report = items["reportType"];
-                    result = GriddlySettings.HandleCustomReport(report, records);
+                    result = GriddlySettings.HandleCustomExport(records, items);
                 }
                 else if (exportFormat == GriddlyExportFormat.Xlsx)
                 {
