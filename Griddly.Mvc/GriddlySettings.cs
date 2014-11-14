@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Web;
@@ -24,7 +25,13 @@ namespace Griddly.Mvc
 
         public static Func<GriddlyButton, object> IconTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
-        public static Func<string, IEnumerable, ActionResult> HandleCustomReport = null;
+        
+        /// <summary>
+        /// Defines an event handler for custom export requests.
+        /// 
+        /// First argument is the record set. Second argument is the posted form values.
+        /// </summary>s
+        public static Func<IEnumerable, NameValueCollection, ActionResult> HandleCustomExport = null;
         public static Action<GriddlySettings> BeforeRender = null;
         public static Action<GriddlySettings> OnGriddlyResultExecuting = null;
 
