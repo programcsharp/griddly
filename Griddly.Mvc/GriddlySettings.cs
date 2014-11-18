@@ -25,15 +25,15 @@ namespace Griddly.Mvc
 
         public static Func<GriddlyButton, object> IconTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
-        
+
         /// <summary>
         /// Defines an event handler for custom export requests.
         /// 
         /// First argument is the record set. Second argument is the posted form values.
         /// </summary>s
         public static Func<IEnumerable, NameValueCollection, ActionResult> HandleCustomExport = null;
-        public static Action<GriddlySettings> BeforeRender = null;
-        public static Action<GriddlySettings> OnGriddlyResultExecuting = null;
+        public static Action<GriddlySettings, ViewContext> BeforeRender = null;
+        public static Action<GriddlySettings, ControllerContext> OnGriddlyResultExecuting = null;
 
         public GriddlySettings()
         {
@@ -307,7 +307,7 @@ namespace Griddly.Mvc
 
             return this;
         }
-        
+
         public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> expression, string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
         {
             ModelMetadata metadata = null;
