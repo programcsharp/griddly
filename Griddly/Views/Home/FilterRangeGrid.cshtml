@@ -5,7 +5,8 @@
 
 @Html.Griddly(new GriddlySettings<TestGridItem>()
     {        
-        PageSize = 5
+        PageSize = 5,
+        ClassName = "filter-range-grid"
     }
     .Column(x => x.FirstName, "First Name", defaultSort: SortDirection.Ascending)
             .Column(x => x.LastName, "Last Name")

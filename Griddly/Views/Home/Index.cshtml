@@ -5,15 +5,19 @@
 <div class="jumbotron">
     <h1>Griddly</h1>
     @*<p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="http://asp.net" class="btn btn-primary btn-large">Learn more &raquo;</a></p>
-        *@
+        <p><a href="http://asp.net" class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+    *@
 </div>
 
 <div class="row">
     <div class="col-md-12">
         @Html.Griddly("FilterBoxGrid", new { test = SortDirection.Ascending })
+        <br />
+        <a href="javascript:GetFilterValues()">get filter values</a> | <a href="javascript:SetFilterValues()">set filter values</a> 
         @Html.Griddly("FilterRangeGrid")
+        <br />
         @Html.Griddly("FilterListGrid")
+        <br />
         @Html.Griddly("TestGrid")
     </div>
 </div>
@@ -27,7 +31,24 @@
         for (var k in result)
             str += " " + k + " : [ " + result[k].toString() + " ]\n";
         str += "}";
-        
+
         alert(str);
+    }
+
+    function GetFilterValues()
+    {
+        var result = $(".filter-range-grid").griddly("getFilterValues");
+
+        var str = "{\n";
+        for (var k in result)
+            str += " " + k + " : [ " + result[k].toString() + " ]\n";
+        str += "}";
+
+        alert(str);
+    }
+
+    function SetFilterValues()
+    {
+        $(".filter-range-grid").griddly("setFilterValues", { companyStart: '53' } );
     }
 </script>

@@ -692,13 +692,34 @@
             }
         },
 
+        getFilterValues: function()
+        {
+            var allFilters = $(".griddly-filters input, .griddly-filters select", this.$element).add(this.$inlineFilters);
+
+            return serializeObject(allFilters);
+        },
+
+        setFilterValues: function(filters, isPatch)
+        {
+            if (isPatch !== true)
+            {
+                var allFilters = $(".griddly-filters input, .griddly-filters select", this.$element).add(this.$inlineFilters);
+
+                allFilters.each(function ()
+                {
+                    $(this).val(filters[this.name]).change();
+                });
+            }
+            else
+            {
+                for (var key in filters)
+                    $("[name='" + key + "']").val(filters[key]).change();
+            }
+        },
+
         buildRequest: function(paging)
         {
-            var filters = $(".griddly-filters input, .griddly-filters select", this.$element);
-
-            filters = filters.add(this.$inlineFilters);
-
-            var postData = serializeObject(filters);
+            var postData = this.getFilterValues();
 
             if (this.options.sortFields.length)
             {
