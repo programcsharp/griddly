@@ -40,3 +40,10 @@ input[type="checkbox"].input-validation-error {
 .validation-summary-valid {
     display: none;
 }
+
+.page-header
+{
+    background-image:url(griddly-64.png);
+    background-position:right center;
+    background-repeat:no-repeat;
+}
