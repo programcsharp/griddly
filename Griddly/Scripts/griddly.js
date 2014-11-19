@@ -567,7 +567,8 @@
 
             $(".griddly-filters-inline input, .griddly-filters-inline select", this.$element).on("change", $.proxy(function (event)
             {
-                this.refresh(true);
+                if (this.options.autoRefreshOnFilter)
+                    this.refresh(true);
             }, this));
 
             $(".griddly-filters-inline .filter-content input", this.$element).keyup(function (event)
@@ -701,6 +702,8 @@
 
         setFilterValues: function(filters, isPatch)
         {
+            this.options.autoRefreshOnFilter = false;
+
             if (isPatch !== true)
             {
                 var allFilters = $(".griddly-filters input, .griddly-filters select", this.$element).add(this.$inlineFilters);
@@ -715,6 +718,9 @@
                 for (var key in filters)
                     $("[name='" + key + "']").val(filters[key]).change();
             }
+
+            this.options.autoRefreshOnFilter = true;
+            this.refresh(true);
         },
 
         buildRequest: function(paging)
@@ -923,7 +929,8 @@
         isMultiSort: true,
         lastSelectedRow: null,
         rowClickModal: null,
-        selectedRows: null
+        selectedRows: null,
+        autoRefreshOnFilter: true
     };
 
     function GriddlyButton()
