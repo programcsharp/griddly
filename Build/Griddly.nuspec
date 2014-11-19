@@ -4,10 +4,10 @@
   <metadata>
     <id>Griddly</id>
     <version></version>
-    <authors>Chris Hynes</authors>
+    <authors>Chris Hynes, Joel Potter</authors>
     <!--<licenseUrl></licenseUrl>-->
     <projectUrl>https://github.com/programcsharp/griddly</projectUrl>
-    <!--<iconUrl></iconUrl>-->
+    <iconUrl>https://raw.githubusercontent.com/programcsharp/griddly/master/Griddly/Content/griddly-32.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Pagable sortable MVC enabled grid</description>
     <!--<summary></summary>-->
