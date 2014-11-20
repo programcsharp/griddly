@@ -21,11 +21,12 @@
                 @Html.ActionLink("Griddly", "Index", "Home", null, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
+                @*<ul class="nav navbar-nav">
                     <li>@Html.ActionLink("Home", "Index", "Home")</li>
                     <li>@Html.ActionLink("About", "About", "Home")</li>
                     <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
                 </ul>
+                    *@
             </div>
         </div>
     </div>
@@ -33,7 +34,23 @@
         @RenderBody()
         <hr />
         <footer>
-            <p>&copy; @DateTime.Now.Year - Chris Hynes, Data Research Group</p>
+            <div class="docs-social">
+                <ul class="docs-social-buttons">
+                    <li>
+                        <iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=programcsharp&amp;repo=griddly&amp;type=watch&amp;count=true" width="100" height="20" title="Star on GitHub"></iframe>
+                    </li>
+                    <li>
+                        <iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=programcsharp&amp;repo=griddly&amp;type=fork&amp;count=true" width="102" height="20" title="Fork on GitHub"></iframe>
+                    </li>
+                    <li class="follow-btn">
+                        <a href="https://twitter.com/griddlygrid" class="twitter-follow-button" data-link-color="#0069D6" data-show-count="true">Follow @@griddlygrid</a>
+                    </li>
+                    <li class="tweet-btn">
+                        <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://griddly.com/" data-count="horizontal" data-via="griddlygrid" data-related="programcsharp:Creator of Griddly">Tweet</a>
+                    </li>
+                </ul>
+            </div>
+            <p>&copy; @DateTime.Now.Year - Chris Hynes</p>
         </footer>
     </div>
 
@@ -45,7 +62,9 @@
     @Scripts.Render("~/scripts/SyntaxHighlighter/shBrushCSharp.js")
     @RenderSection("scripts", required: false)
     <script>
-        SyntaxHighlighter.all()
+        SyntaxHighlighter.all();
+        
+        !function (d, s, id) { var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location) ? 'http' : 'https'; if (!d.getElementById(id)) { js = d.createElement(s); js.id = id; js.src = p + '://platform.twitter.com/widgets.js'; fjs.parentNode.insertBefore(js, fjs); } }(document, 'script', 'twitter-wjs');
     </script>
 </body>
 </html>
