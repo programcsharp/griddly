@@ -23,7 +23,7 @@
         if (this.options.onRefresh)
             this.options.onRefresh(this, 0, this.options.count > this.options.pageSize ? this.options.pageSize : this.options.count, this.options.count, null);
 
-        this.$element.trigger("init.griddly", 
+        this.$element.trigger("init.griddly", this.$element,
         {
             start: 0,
             pageSize: this.options.count > this.options.pageSize ? this.options.pageSize : this.options.count,
@@ -566,7 +566,7 @@
 
             $(".griddly-filters-inline input, .griddly-filters-inline select", this.$element).on("change", $.proxy(function (event)
             {
-                this.$element.trigger("filterchange.griddly", event.target);
+                this.$element.trigger("filterchange.griddly", this.$element, event.target);
 
                 if (this.options.autoRefreshOnFilter)
                     this.refresh(true);
@@ -752,7 +752,7 @@
 
         refresh: function(resetPage)
         {
-            this.$element.trigger("beforerefresh.griddly");
+            this.$element.trigger("beforerefresh.griddly", this.$element);
 
             if (!this.options.url)
             {
@@ -822,7 +822,7 @@
                         $(e).prop("checked", true);
                 });
 
-                this.$element.trigger("refresh.griddly",
+                this.$element.trigger("refresh.griddly", this.$element,
                 {
                     start: startRecord,
                     pageSize: currentPageSize,
@@ -844,7 +844,7 @@
                     window.location = url;
                 }
 
-                this.$element.trigger("error.griddly");
+                this.$element.trigger("error.griddly", this.$element);
             }, this));
         },
 
