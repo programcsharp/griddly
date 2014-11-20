@@ -23,8 +23,7 @@
         if (this.options.onRefresh)
             this.options.onRefresh(this, 0, this.options.count > this.options.pageSize ? this.options.pageSize : this.options.count, this.options.count, null);
 
-        // TODO: should we remove the onClientRefresh method?
-        this.$element.trigger("refresh", 
+        this.$element.trigger("refresh.griddly", 
         {
             start: 0,
             pageSize: this.options.count > this.options.pageSize ? this.options.pageSize : this.options.count,
@@ -845,7 +844,7 @@
                     window.location = url;
                 }
 
-                this.$element.trigger("error");
+                this.$element.trigger("error.griddly");
             }, this));
         },
 
