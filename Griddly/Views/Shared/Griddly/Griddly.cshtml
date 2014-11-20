@@ -83,17 +83,6 @@
                 <td colspan="@settings.Columns.Count">@settings.Title</td>
             </tr>
         }
-
-        @if (settings.ShowRowSelectCount)
-        {
-            <tr class="griddly-selection header" style="display:none;">
-                <td colspan="@settings.Columns.Count">
-                    <span><label class="griddly-selection-count">0</label> rows selected</span>
-                    <span><a class="griddly-selection-clear" href="javascript:;">Clear</a></span>
-                </td>
-            </tr>
-        }
-
         <tr class="griddly-filters" style="@(settings.FilterTemplate == null || !settings.ShowFilterInitially ? "display:none" : null)">
             <td colspan="@settings.Columns.Count">
                 <form class="filterForm novalidate">
@@ -132,6 +121,15 @@
         @if (settings.InlineFilterTemplate != null && settings.HasInlineFilter)
         {
             <tr class="griddly-filters griddly-filters-inline">@settings.InlineFilterTemplate(settings)</tr>
+        }
+        @if (settings.ShowRowSelectCount)
+        {
+            <tr class="griddly-selection" style="display:none;">
+                <td colspan="@settings.Columns.Count">
+                    <span><label class="griddly-selection-count">0</label> rows selected</span>
+                    <span><a class="griddly-selection-clear" href="javascript:;">Clear</a></span>
+                </td>
+            </tr>
         }
     </thead>
 }

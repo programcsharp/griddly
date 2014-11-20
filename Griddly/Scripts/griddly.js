@@ -567,6 +567,8 @@
 
             $(".griddly-filters-inline input, .griddly-filters-inline select", this.$element).on("change", $.proxy(function (event)
             {
+                this.$element.trigger("filterchange.griddly", event.target);
+
                 if (this.options.autoRefreshOnFilter)
                     this.refresh(true);
             }, this));
@@ -751,6 +753,8 @@
 
         refresh: function(resetPage)
         {
+            this.$element.trigger("beforerefresh.griddly");
+
             if (!this.options.url)
             {
                 window.location = window.location;
@@ -811,19 +815,15 @@
                 else
                     this.$element.find(".griddly-pager").show();
                 
-                var _this = this;
                 //iterate through table and check rows that are in the selected list and have a checkbox
+                var _this = this;
                 $("tbody tr", this.$element).find("input[name=_rowselect]").each(function (index, e) {
                     var rowkey = $(e).data("rowkey");
                     if (_this.options.selectedRows[rowkey])
                         $(e).prop("checked", true);
                 });
 
-                if (this.options.onRefresh)
-                    this.options.onRefresh(this, startRecord, currentPageSize, count, postData);
-
-                // TODO: should we remove the onClientRefresh method?
-                this.$element.trigger("refresh", 
+                this.$element.trigger("refresh.griddly",
                 {
                     start: startRecord,
                     pageSize: currentPageSize,
@@ -844,6 +844,8 @@
 
                     window.location = url;
                 }
+
+                this.$element.trigger("error");
             }, this));
         },
 
@@ -862,11 +864,6 @@
                 result[arrayIdNames[name]] = $.map(this.options.selectedRows, function (x) { return x[arrayIdNames[name]] });
 
             return result;
-        },
-
-        onRefresh: function(onRefresh)
-        {
-            this.options.onRefresh = onRefresh;
         },
 
         pageNumber: function(pageNumber)
@@ -924,7 +921,6 @@
     {
         pageNumber: 0,
         pageSize: 20,
-        onRefresh: null,
         onError: null,
         isMultiSort: true,
         lastSelectedRow: null,
