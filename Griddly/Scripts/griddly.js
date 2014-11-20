@@ -23,7 +23,7 @@
         if (this.options.onRefresh)
             this.options.onRefresh(this, 0, this.options.count > this.options.pageSize ? this.options.pageSize : this.options.count, this.options.count, null);
 
-        this.$element.trigger("refresh.griddly", 
+        this.$element.trigger("init.griddly", 
         {
             start: 0,
             pageSize: this.options.count > this.options.pageSize ? this.options.pageSize : this.options.count,
