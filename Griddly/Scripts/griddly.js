@@ -178,10 +178,7 @@
 
             $("form .grid_searchreset", this.$element).on("click", $.proxy(function (event)
             {
-                this.$element.find("form .transient").remove();
-                this.$element.find("form")[0].reset();
-
-                this.refresh(true);
+                this.resetFilterValues();
             }, this));
 
             $("a.btn-search", this.$element).on("click", $.proxy(function (event)
@@ -696,9 +693,11 @@
 
         getFilterValues: function()
         {
-            var allFilters = $(".griddly-filters input, .griddly-filters select", this.$element).add(this.$inlineFilters);
+            var visibleFilters = $(".griddly-filters-inline:visible input, .griddly-filters-inline:visible select, .griddly-filters-form div:visible input, .griddly-filters-form div:visible select", this.$element);
+            // We don't want to include these, cause they may be hidden. ".griddly-filters:visible input" should get the ones we care about
+            // .add(this.$inlineFilters);
 
-            return serializeObject(allFilters);
+            return serializeObject(visibleFilters);
         },
 
         setFilterValues: function(filters, isPatch)
@@ -721,6 +720,18 @@
             }
 
             this.options.autoRefreshOnFilter = true;
+            this.refresh(true);
+        },
+
+        resetFilterValues: function ()
+        {
+            // TODO: get defaults?
+
+            this.$element.find("form .transient").remove();
+            this.$element.find("form")[0].reset();
+
+            this.$element.trigger("resetfilters.griddly", this.$element);
+
             this.refresh(true);
         },
 

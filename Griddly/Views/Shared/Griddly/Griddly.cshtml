@@ -82,7 +82,7 @@
                 <td colspan="@settings.Columns.Count">@settings.Title</td>
             </tr>
         }
-        <tr class="griddly-filters" style="@(settings.FilterTemplate == null || !settings.ShowFilterInitially ? "display:none" : null)">
+        <tr class="griddly-filters griddly-filters-form" style="@(settings.FilterTemplate == null || !settings.ShowFilterInitially ? "display:none" : null)">
             <td colspan="@settings.Columns.Count">
                 <form class="filterForm novalidate">
                     @if (settings.FilterTemplate != null)
