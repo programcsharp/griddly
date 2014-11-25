@@ -829,7 +829,7 @@
             for (var name in arrayIdNames)
                 result[arrayIdNames[name]] = $.map(this.options.selectedRows, function (x) { return x[arrayIdNames[name]] });
 
-            return result;
+            return result.value;
         },
 
         onRefresh: function(onRefresh)
