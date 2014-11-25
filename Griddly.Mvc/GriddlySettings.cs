@@ -58,7 +58,6 @@ namespace Griddly.Mvc
         public string Title { get; set; }
         public string ClassName { get; set; }
         public string TableClassName { get; set; }
-        public string OnClientRefresh { get; set; }
         public bool ShowFilterInitially { get; set; }
         public bool ShowRowSelectCount { get; set; }
 
