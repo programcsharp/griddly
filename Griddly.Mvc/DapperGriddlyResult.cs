@@ -102,6 +102,16 @@ namespace Griddly.Mvc
 
         public override IList<T> GetPage(int pageNumber, int pageSize, SortField[] sortFields)
         {
+            /* TODO: grab the count all at once like this:
+             * TODO: also grab the other summary values in the _count branch too
+;WITH _data AS (
+	select * from fin_lineitem where not oldpk is null
+),
+	_count AS (
+		SELECT COUNT(0) AS _AllRows FROM _data
+)
+SELECT * FROM _data CROSS APPLY _count ORDER BY CURRENT_TIMESTAMP OFFSET 50 ROWS FETCH NEXT 50 ROWS ONLY
+             */
             string sql = string.Format("{0} " + (_fixedSort ? "" : "ORDER BY {1}") + " OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", _sql, BuildSortClause(sortFields), pageNumber * pageSize, pageSize);
 
             return ExecuteQuery(sql, _param);
