@@ -10,7 +10,7 @@
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
-    <div class="navbar navbar-default navbar-fixed-top">
+    <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -22,11 +22,14 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
+                    <li class="@(ViewContext.RouteData.Values["action"].ToString() == "examples" ? "active" : null)">@Html.ActionLink("Examples", "Examples")</li>
                     <li><a href="https://github.com/programcsharp/griddly/issues">Issues</a></li>
+                    <li class="@(ViewContext.RouteData.Values["action"].ToString() == "about" ? "active" : null)">@Html.ActionLink("About", "About")</li>
                 </ul>
             </div>
         </div>
     </div>
+    @RenderSection("header", false)
     <div class="container body-content">
         @RenderBody()
         <hr />
@@ -39,15 +42,15 @@
                     <li>
                         <iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=programcsharp&amp;repo=griddly&amp;type=fork&amp;count=true" width="102" height="20" title="Fork on GitHub"></iframe>
                     </li>
-                    <li class="follow-btn">
+                    @*<li class="follow-btn">
                         <a href="https://twitter.com/griddlygrid" class="twitter-follow-button" data-link-color="#0069D6" data-show-count="true">Follow @@griddlygrid</a>
-                    </li>
+                    </li>*@
                     <li class="tweet-btn">
                         <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://griddly.com/" data-count="horizontal" data-via="griddlygrid" data-related="programcsharp:Creator of Griddly">Tweet</a>
                     </li>
                 </ul>
             </div>
-            <p>&copy; @DateTime.Now.Year - Chris Hynes</p>
+            <p>&copy; @DateTime.Now.Year Chris Hynes, Joel Potter</p>
         </footer>
     </div>
 
@@ -57,8 +60,12 @@
     @Scripts.Render("~/scripts/bootstrap-multiselect.js")
     @Scripts.Render("~/scripts/SyntaxHighlighter/shCore.js")
     @Scripts.Render("~/scripts/SyntaxHighlighter/shBrushCSharp.js")
+    @Scripts.Render("~/scripts/SyntaxHighlighter/shBrushRazor.js")
     @RenderSection("scripts", required: false)
     <script>
+        SyntaxHighlighter.defaults.gutter = false;
+        SyntaxHighlighter.defaults.toolbar = false;
+
         SyntaxHighlighter.all();
         
         !function (d, s, id) { var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location) ? 'http' : 'https'; if (!d.getElementById(id)) { js = d.createElement(s); js.id = id; js.src = p + '://platform.twitter.com/widgets.js'; fjs.parentNode.insertBefore(js, fjs); } }(document, 'script', 'twitter-wjs');

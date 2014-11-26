@@ -88,8 +88,23 @@ input[type="checkbox"].input-validation-error {
     box-shadow: 2px 2px 3px #6e6e6e;
     color: #e2e2e2;
     display: block;
-    font: 1.5em 'andale mono','lucida console',monospace;
-    line-height: 1.5em;
+    font: 1.4em 'andale mono','lucida console',monospace;
+    line-height: 1.4em;
     overflow: auto;
     padding: 15px
+}
+
+.syntaxhighlighter
+{
+    overflow-y:hidden !important;
+    padding: 10px 20px;
+    margin: 0 0 20px;
+    font-size: .8em !important;
+    line-height: 1.25em !important;
+    border-left: 5px solid #eee;
+}
+
+.syntaxhighlighter .line
+{
+    line-height: 1.25em !important;
 }
