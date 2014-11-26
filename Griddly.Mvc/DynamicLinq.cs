@@ -32,11 +32,24 @@ namespace Griddly.Mvc.Linq.Dynamic
                     source.Expression, Expression.Quote(lambda)));
         }
 
-        public static IQueryable Select(this IQueryable source, string selector, params object[] values)
+        //public static IQueryable Select(this IQueryable source, string selector, params object[] values)
+        //{
+        //    if (source == null) throw new ArgumentNullException("source");
+        //    if (selector == null) throw new ArgumentNullException("selector");
+        //    LambdaExpression lambda = DynamicExpression.ParseLambda(source.ElementType, null, selector, values);
+        //    return source.Provider.CreateQuery(
+        //        Expression.Call(
+        //            typeof(Queryable), "Select",
+        //            new Type[] { source.ElementType, lambda.Body.Type },
+        //            source.Expression, Expression.Quote(lambda)));
+        //}
+
+        // https://code.google.com/p/dynamic-linq/
+        public static IQueryable Select(this IQueryable source, Type type, string selector, params object[] values)
         {
             if (source == null) throw new ArgumentNullException("source");
             if (selector == null) throw new ArgumentNullException("selector");
-            LambdaExpression lambda = DynamicExpression.ParseLambda(source.ElementType, null, selector, values);
+            LambdaExpression lambda = DynamicExpression.ParseLambda(source.ElementType, type, selector, values);
             return source.Provider.CreateQuery(
                 Expression.Call(
                     typeof(Queryable), "Select",
@@ -44,6 +57,16 @@ namespace Griddly.Mvc.Linq.Dynamic
                     source.Expression, Expression.Quote(lambda)));
         }
 
+        public static IQueryable Select(this IQueryable source, string selector, params object[] values)
+        {
+            return Select(source, null, selector, values);
+        }
+
+        public static IQueryable<T> Select<T>(this IQueryable source, string selector, params object[] values)
+        {
+            return Select(source, typeof(T), selector, values) as IQueryable<T>;
+        }
+        
         public static IQueryable<T> OrderBy<T>(this IQueryable<T> source, string ordering, params object[] values)
         {
             return (IQueryable<T>)OrderBy((IQueryable)source, ordering, values);
@@ -122,6 +145,52 @@ namespace Griddly.Mvc.Linq.Dynamic
                 Expression.Call(
                     typeof(Queryable), "Count",
                     new Type[] { source.ElementType }, source.Expression));
+        }
+
+        // http://stackoverflow.com/questions/17490080/how-to-do-a-sum-using-dynamic-linq
+        public static object Aggregate(this IQueryable source, string function, string member)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            if (member == null) throw new ArgumentNullException("member");
+
+            // Properties
+            PropertyInfo property = source.ElementType.GetProperty(member);
+            ParameterExpression parameter = Expression.Parameter(source.ElementType, "s");
+            Expression selector = Expression.Lambda(Expression.MakeMemberAccess(parameter, property), parameter);
+            // We've tried to find an expression of the type Expression<Func<TSource, TAcc>>,
+            // which is expressed as ( (TSource s) => s.Price );
+
+            var methods = typeof(Queryable).GetMethods().Where(x => x.Name == function);
+
+            // Method
+            MethodInfo aggregateMethod = typeof(Queryable).GetMethods().SingleOrDefault(
+                m => m.Name == function
+                    && m.ReturnType == property.PropertyType // should match the type of the property
+                    && m.IsGenericMethod);
+
+            // Sum, Average
+            if (aggregateMethod != null)
+            {
+                return source.Provider.Execute(
+                    Expression.Call(
+                        null,
+                        aggregateMethod.MakeGenericMethod(new[] { source.ElementType }),
+                        new[] { source.Expression, Expression.Quote(selector) }));
+            }
+            // Min, Max
+            else
+            {
+                aggregateMethod = typeof(Queryable).GetMethods().SingleOrDefault(
+                m => m.Name == function
+                    && m.GetGenericArguments().Length == 2
+                    && m.IsGenericMethod);
+
+                return source.Provider.Execute(
+                    Expression.Call(
+                        null,
+                        aggregateMethod.MakeGenericMethod(new[] { source.ElementType, property.PropertyType }),
+                        new[] { source.Expression, Expression.Quote(selector) }));
+            }
         }
     }
 

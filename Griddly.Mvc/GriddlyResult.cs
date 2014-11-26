@@ -1,14 +1,13 @@
-﻿using System;
+﻿using Griddly.Mvc.Linq.Dynamic;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using System.Web.Helpers;
 using System.Web.Mvc;
-using Griddly.Mvc.Linq.Dynamic;
 
 namespace Griddly.Mvc
 {
@@ -224,21 +223,13 @@ namespace Griddly.Mvc
                 switch (c.SummaryFunction.Value)
                 {
                     case SummaryAggregateFunction.Sum:
-                        c.SummaryValue = _result.Select(c.ExpressionString).Cast<decimal?>().Sum();
-
-                        break;
                     case SummaryAggregateFunction.Average:
-                        c.SummaryValue = _result.Select(c.ExpressionString).Cast<decimal?>().Average();
-
-                        break;
                     case SummaryAggregateFunction.Min:
-                        c.SummaryValue = _result.Select(c.ExpressionString).Cast<decimal?>().Min();
-
-                        break;
                     case SummaryAggregateFunction.Max:
-                        c.SummaryValue = _result.Select(c.ExpressionString).Cast<decimal?>().Max();
+                        c.SummaryValue = _result.Aggregate(c.SummaryFunction.Value.ToString(), c.ExpressionString);
 
                         break;
+
                     default:
                         throw new InvalidOperationException(string.Format("Unknown summary function {0} for column {1}.", c.SummaryFunction, c.ExpressionString));
                 }
