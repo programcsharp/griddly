@@ -138,7 +138,9 @@
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\griddly-128.png" />
     <Content Include="Content\griddly-16.png" />
+    <Content Include="Content\griddly-192.png" />
     <Content Include="Content\griddly-256.png" />
     <Content Include="Content\griddly-32.png" />
     <Content Include="Content\griddly-48.png" />
