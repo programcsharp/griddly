@@ -183,10 +183,7 @@
 
             $("form .grid_searchreset", this.$element).on("click", $.proxy(function (event)
             {
-                this.$element.find("form .transient").remove();
-                this.$element.find("form")[0].reset();
-
-                this.refresh(true);
+                this.resetFilterValues();
             }, this));
 
             $("a.btn-search", this.$element).on("click", $.proxy(function (event)
@@ -739,6 +736,18 @@
             }
 
             this.options.autoRefreshOnFilter = true;
+            this.refresh(true);
+        },
+
+        resetFilterValues: function ()
+        {
+            // TODO: get defaults?
+
+            this.$element.find("form .transient").remove();
+            this.$element.find("form")[0].reset();
+
+            this.$element.trigger("resetfilters.griddly", this.$element);
+
             this.refresh(true);
         },
 
