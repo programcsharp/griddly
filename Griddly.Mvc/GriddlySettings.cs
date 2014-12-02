@@ -20,7 +20,8 @@ namespace Griddly.Mvc
         public static HtmlString BoolTrueHtml = null;
         public static HtmlString BoolFalseHtml = null;
         public static int? DefaultPageSize = null;
-        public static bool DefaultShowFilterInitially = true;
+        //public static FilterMode? DefaultInitialFilterMode = FilterMode.Inline;
+        //public static FilterMode? DefaultAllowedFilterModes = FilterMode.Inline;
         public static bool DefaultShowRowSelectCount = true;
 
         public static Func<GriddlyButton, object> IconTemplate = null;
@@ -38,7 +39,6 @@ namespace Griddly.Mvc
         public GriddlySettings()
         {
             IdProperty = "Id";
-            HasInlineFilter = true;
 
             Columns = new List<GriddlyColumn>();
             Filters = new List<GriddlyFilter>();
@@ -49,7 +49,8 @@ namespace Griddly.Mvc
             TableClassName = DefaultTableClassName;
             FooterTemplate = DefaultFooterTemplate;
             PageSize = DefaultPageSize;
-            ShowFilterInitially = DefaultShowFilterInitially;
+            //InitialFilterMode = DefaultInitialFilterMode;
+            //AllowedFilterModes = DefaultAllowedFilterModes;
             ShowRowSelectCount = DefaultShowRowSelectCount;
         }
 
@@ -58,7 +59,8 @@ namespace Griddly.Mvc
         public string Title { get; set; }
         public string ClassName { get; set; }
         public string TableClassName { get; set; }
-        public bool ShowFilterInitially { get; set; }
+        public FilterMode? AllowedFilterModes { get; set; }
+        public FilterMode? InitialFilterMode { get; set; }
         public bool ShowRowSelectCount { get; set; }
 
         public int? PageSize { get; set; }
@@ -78,8 +80,6 @@ namespace Griddly.Mvc
         public Func<object, object> RowClass { get; set; }
 
         public Func<GriddlyResultPage, object> FooterTemplate { get; set; }
-
-        public bool HasInlineFilter { get; set; }
 
         public Dictionary<string, Func<object, object>> RowIds { get; protected set; }
 
@@ -124,10 +124,9 @@ namespace Griddly.Mvc
 
                 if (filterDef != null)
                 {
-                    if (HasInlineFilter)
-                        column.Filter = filterDef;
-                    else
-                        Filters.Add(filterDef);
+                    column.Filter = filterDef;
+
+                    Filters.Add(filterDef);
                 }
             }
 
@@ -439,5 +438,14 @@ namespace Griddly.Mvc
 
             return this;
         }
+    }
+
+    [Flags]
+    public enum FilterMode
+    {
+        None = 0,
+        Inline = 1,
+        Form = 2,
+        Both = Inline | Form
     }
 }

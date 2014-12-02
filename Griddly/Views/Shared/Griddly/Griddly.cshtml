@@ -21,14 +21,55 @@
 
     if (isFirstRender)
     {
-        if (settings.HasInlineFilter && settings.InlineFilterTemplate == null && settings.Columns.Any(x => x.Filter != null))
+        if (settings.AllowedFilterModes == null)
         {
-            settings.InlineFilterTemplate = (x) => RenderInlineFilters(x);
-        }
+            FilterMode allowedModes = FilterMode.None;
 
-        if (settings.FilterTemplate == null && settings.Filters.Any())
+            if (settings.InlineFilterTemplate != null || settings.Columns.Any(x => x.Filter != null))
+            {
+                allowedModes |= FilterMode.Inline;
+            }
+
+            if (settings.FilterTemplate != null || (settings.Filters.Any(x => !settings.Columns.Any(y => y.Filter != x))))
+            {
+                allowedModes |= FilterMode.Form;
+            }
+
+            settings.AllowedFilterModes = allowedModes;
+        }
+        
+        if (settings.AllowedFilterModes != FilterMode.None)
         {
-            settings.FilterTemplate = (x) => RenderFilters(x);
+            if (settings.InitialFilterMode == null)
+            {
+                if (settings.AllowedFilterModes.Value.HasFlag(FilterMode.Inline))  
+                {
+                    settings.InitialFilterMode = FilterMode.Inline;
+                }
+                else if (settings.AllowedFilterModes.Value.HasFlag(FilterMode.Form))
+                {
+                    settings.InitialFilterMode = FilterMode.Form;
+                }
+                
+                if (settings.InitialFilterMode == null || settings.InitialFilterMode == FilterMode.Both)
+                {
+                    throw new InvalidOperationException("Invalid InitialFilterMode: " + settings.InitialFilterMode + ".");
+                }                
+            }
+            
+            if (settings.AllowedFilterModes.Value.HasFlag(FilterMode.Inline) && settings.InlineFilterTemplate == null && settings.Columns.Any(x => x.Filter != null))
+            {
+                settings.InlineFilterTemplate = (x) => RenderInlineFilters(x);
+            }
+
+            if (settings.AllowedFilterModes.Value.HasFlag(FilterMode.Form) && settings.FilterTemplate == null && settings.Filters.Any())
+            {
+                settings.FilterTemplate = (x) => RenderFilters(x);
+            }
+        }
+        else
+        {
+            settings.InitialFilterMode = FilterMode.None;
         }
 
         if (GriddlySettings.BeforeRender != null)
@@ -50,6 +91,8 @@
     @:<div class="griddly @settings.ClassName" data-role="griddly"
                                             @: @Html.AttributeNullable("data-griddly-url", !simple ? Url.Current() : null)
                                             @: data-griddly-count="@Model.Total"
+                                            @: @Html.AttributeNullable("data-griddly-filtermode", settings.InitialFilterMode != FilterMode.None ? settings.InitialFilterMode.ToString() : null)
+                                            @: @Html.AttributeNullable("data-griddly-allowedfiltermodes", settings.AllowedFilterModes != FilterMode.None ? Json.Encode(Enum.GetValues(typeof(FilterMode)).Cast<FilterMode>().Where(x => settings.AllowedFilterModes.Value.HasFlag(x) && x != FilterMode.Both && x != FilterMode.None).Select(x => x.ToString())) : null)
                                             @: data-griddly-pagesize="@(settings.PageSize ?? Model.PageSize)"
                                             @: @Html.AttributeNullable("data-griddly-rowclickmodal", settings.RowClickModal)
                                             @: data-griddly-defaultrowids="@Json.Encode(settings.DefaultRowIds != null ? settings.DefaultRowIds.Select(x => x.ToLower()).ToArray() : new[] { "value" })"
@@ -82,7 +125,9 @@
                 <td colspan="@settings.Columns.Count">@settings.Title</td>
             </tr>
         }
-        <tr class="griddly-filters" style="@(settings.FilterTemplate == null || !settings.ShowFilterInitially ? "display:none" : null)">
+        @if (settings.AllowedFilterModes != FilterMode.None && settings.AllowedFilterModes.Value.HasFlag(FilterMode.Form))
+        {
+        <tr class="griddly-filters griddly-filters-form" style="@(settings.InitialFilterMode == FilterMode.Form ? null : "display:none")">
             <td colspan="@settings.Columns.Count">
                 <form class="filterForm novalidate">
                     @if (settings.FilterTemplate != null)
@@ -97,6 +142,7 @@
                 </form>
             </td>
         </tr>
+        }
         <tr class="columnHeaders">
             @foreach (GriddlyColumn column in settings.Columns)
             {
@@ -117,9 +163,9 @@
                 </th>
             }
         </tr>
-        @if (settings.InlineFilterTemplate != null && settings.HasInlineFilter)
+        @if (settings.AllowedFilterModes != FilterMode.None && settings.AllowedFilterModes.Value.HasFlag(FilterMode.Inline))
         {
-            <tr class="griddly-filters griddly-filters-inline">@settings.InlineFilterTemplate(settings)</tr>
+            <tr class="griddly-filters griddly-filters-inline" style="@(settings.InitialFilterMode == FilterMode.Inline ? null : "display:none")">@settings.InlineFilterTemplate(settings)</tr>
         }
         @if (settings.ShowRowSelectCount)
         {

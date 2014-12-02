@@ -11,7 +11,8 @@
         {
             new GriddlyButton() { Text = "Dropdown Test" }
                 .Add(new GriddlyButton() { Text = "UrlHelper Test", Argument = Url.Action("About") })
-        }
+        },
+        FilterTemplate = @<text>test filter form</text>
     }
     .Column("test", template: @<a href="http://google.com">google</a>, summaryValue: "Total")
     .Column(x => x.Test, "Sum", format: "c", summaryFunction: SummaryAggregateFunction.Sum)
@@ -24,4 +25,6 @@
     .Column(x => x.Address, "Address", filter: x => x.FilterBox(FilterDataType.Currency))
     .Column(x => x.City, "City", filter: x => x.FilterBox(FilterDataType.Date))
     .Column(x => x.PostalCode, "Zip", filter: x => x.FilterBox(FilterDataType.Integer))
+    .Button(x => "javascript:void(0)", "Search", className: "btn-search", action: GriddlyButtonAction.Navigate )
+    //.Filters.Add(new GriddlyFilterBox() { Caption = "Test Form Filter", Field = "Test Form Field" })
 )

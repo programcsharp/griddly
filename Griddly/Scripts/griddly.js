@@ -93,6 +93,8 @@
             var isMultiSort = this.$element.data("griddly-multisort");
             var onRefresh = this.$element.data("griddly-onrefresh");
             var rowClickModal = this.$element.data("griddly-rowclickmodal");
+            var filterMode = this.$element.data("griddly-filtermode");
+            var allowedFilterModes = this.$element.data("griddly-allowedfiltermodes");
 
             this.options.url = url;
             this.options.defaultRowIds = defaultRowIds;
@@ -113,6 +115,9 @@
 
             if (onRefresh && Object.prototype.toString.call(window[onRefresh]) == '[object Function]')
                 this.options.onRefresh = window[onRefresh];
+
+            this.options.filterMode = filterMode;
+            this.options.allowedFilterModes = allowedFilterModes != null ? allowedFilterModes : null;
 
             // TODO: should we do this later on so we handle dynamically added buttons?
             this.$element.find("[data-append-rowids-to-url]").each(function ()
@@ -186,7 +191,15 @@
 
             $("a.btn-search", this.$element).on("click", $.proxy(function (event)
             {
-                this.$element.find("tr.griddly-filters").toggle();
+                if (this.options.allowedFilterModes.length > 1)
+                {
+                    this.options.filterMode = this.options.filterMode == "Inline" ? "Form" : "Inline";
+                    
+                    this.$element.find("tr.griddly-filters:not(tr.griddly-filters-" + this.options.filterMode.toLowerCase() + ")").hide();
+                    this.$element.find("tr.griddly-filters-" + this.options.filterMode.toLowerCase()).show();
+
+                    this.refresh(true);
+                }
             }, this));
 
             $(this.$element).on("mouseup", "tbody.data tr td:not(:has(input))", $.proxy(function (e)
@@ -696,7 +709,12 @@
 
         getFilterValues: function()
         {
-            var allFilters = $(".griddly-filters input, .griddly-filters select", this.$element).add(this.$inlineFilters);
+            var allFilters;
+
+            if (this.options.filterMode == "Inline")
+                allFilters = this.$inlineFilters;
+            else
+                allFilters = $(".griddly-filters-form input, .griddly-filters-form select", this.$element);
 
             return serializeObject(allFilters);
         },
@@ -925,7 +943,9 @@
         lastSelectedRow: null,
         rowClickModal: null,
         selectedRows: null,
-        autoRefreshOnFilter: true
+        autoRefreshOnFilter: true,
+        filterMode: null,
+        allowedFilterModes: []
     };
 
     function GriddlyButton()
