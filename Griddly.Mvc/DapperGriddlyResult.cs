@@ -19,6 +19,7 @@ namespace Griddly.Mvc
 
         long? _overallCount = null;
         bool _fixedSort;
+        static readonly bool _hasOverallCount = typeof(IHasOverallCount).IsAssignableFrom(typeof(T));
 
         public DapperGriddlyResult(Func<IDbConnection> getConnection, string sql, object param, Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map = null, Action<IDbConnection, IDbTransaction, IList<T>> massage = null, bool fixedSort = false, Func<IDbTransaction> getTransaction = null)
             : base(null)
@@ -35,6 +36,7 @@ namespace Griddly.Mvc
             _massage = massage;
             _fixedSort = fixedSort;
             _getTransaction = getTransaction;
+
         }
 
         public override void PopulateSummaryValues(GriddlySettings<T> settings)
@@ -101,17 +103,22 @@ namespace Griddly.Mvc
 
         public override IList<T> GetPage(int pageNumber, int pageSize, SortField[] sortFields)
         {
-            /* TODO: grab the count all at once like this:
-             * TODO: also grab the other summary values in the _count branch too
+            string format;
+
+            if (!_hasOverallCount || _sql.IndexOf("OverallCount", StringComparison.InvariantCultureIgnoreCase) != -1)
+                format = "{0} " + (_fixedSort ? "" : "ORDER BY {1}") + " OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY";
+            else
+                // TODO: use dapper multimap Query<T, Dictionary<string, object>> to map all summary values in one go
+                format = @"
 ;WITH _data AS (
-    select * from fin_lineitem where not oldpk is null
+    {0}
 ),
     _count AS (
-        SELECT COUNT(0) AS _AllRows FROM _data
+        SELECT COUNT(0) AS OverallCount FROM _data
 )
-SELECT * FROM _data CROSS APPLY _count ORDER BY CURRENT_TIMESTAMP OFFSET 50 ROWS FETCH NEXT 50 ROWS ONLY
-             */
-            string sql = string.Format("{0} " + (_fixedSort ? "" : "ORDER BY {1}") + " OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", _sql, BuildSortClause(sortFields), pageNumber * pageSize, pageSize);
+SELECT * FROM _data CROSS APPLY _count " + (_fixedSort ? "" : "ORDER BY {1}") + " OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY";
+
+            string sql = string.Format(format, _sql, BuildSortClause(sortFields), pageNumber * pageSize, pageSize);
 
             return ExecuteQuery(sql, _param);
         }
@@ -137,10 +144,14 @@ SELECT * FROM _data CROSS APPLY _count ORDER BY CURRENT_TIMESTAMP OFFSET 50 ROWS
             try
             {
                 IEnumerable<T> result = _map(_getConnection(), _getTransaction != null ? _getTransaction() : null, sql, param);
-                IHasOverallCount overallCount = result as IHasOverallCount;
 
-                if (overallCount != null)
-                    _overallCount = overallCount.OverallCount;
+                if (_hasOverallCount)
+                {
+                    IHasOverallCount overallCount = result as IHasOverallCount;
+
+                    if (overallCount != null)
+                        _overallCount = overallCount.OverallCount;
+                }
 
                 IList<T> results = result.ToList();
 
@@ -159,7 +170,7 @@ SELECT * FROM _data CROSS APPLY _count ORDER BY CURRENT_TIMESTAMP OFFSET 50 ROWS
         {
             IEnumerable<T> result = cn.Query<T>(sql, param, tx);
 
-            if (typeof(IHasOverallCount).IsAssignableFrom(typeof(T)))
+            if (_hasOverallCount)
             {
                 IHasOverallCount firstRow = result.FirstOrDefault() as IHasOverallCount;
                 ListPage<T> lp = new ListPage<T>();
