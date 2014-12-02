@@ -195,6 +195,7 @@
                     this.$element.find("tr.griddly-filters:not(tr.griddly-filters-" + this.options.filterMode.toLowerCase() + ")").hide();
                     this.$element.find("tr.griddly-filters-" + this.options.filterMode.toLowerCase()).show();
 
+                    // TODO: only refresh if filter values changed
                     this.refresh(true);
                 }
             }, this));

@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Web.Helpers;
@@ -105,10 +104,10 @@ namespace Griddly.Mvc
             /* TODO: grab the count all at once like this:
              * TODO: also grab the other summary values in the _count branch too
 ;WITH _data AS (
-	select * from fin_lineitem where not oldpk is null
+    select * from fin_lineitem where not oldpk is null
 ),
-	_count AS (
-		SELECT COUNT(0) AS _AllRows FROM _data
+    _count AS (
+        SELECT COUNT(0) AS _AllRows FROM _data
 )
 SELECT * FROM _data CROSS APPLY _count ORDER BY CURRENT_TIMESTAMP OFFSET 50 ROWS FETCH NEXT 50 ROWS ONLY
              */
