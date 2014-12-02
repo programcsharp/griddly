@@ -61,10 +61,6 @@ namespace Griddly.Mvc
             {
                 throw;
             }
-            catch
-            {
-                return null;
-            }
         }
 
         class EmptyHttpContext : HttpContextBase
