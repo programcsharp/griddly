@@ -66,7 +66,7 @@ namespace Griddly.Mvc.Linq.Dynamic
         {
             return Select(source, typeof(T), selector, values) as IQueryable<T>;
         }
-        
+
         public static IQueryable<T> OrderBy<T>(this IQueryable<T> source, string ordering, params object[] values)
         {
             return (IQueryable<T>)OrderBy((IQueryable)source, ordering, values);
@@ -148,6 +148,13 @@ namespace Griddly.Mvc.Linq.Dynamic
         }
 
         // http://stackoverflow.com/questions/17490080/how-to-do-a-sum-using-dynamic-linq
+        /// <summary>
+        /// Dynamically runs an aggregate function on the IQueryable.
+        /// </summary>
+        /// <param name="source">The IQueryable data source.</param>
+        /// <param name="function">The name of the function to run. Can be Sum, Average, Min, Max.</param>
+        /// <param name="member">The name of the property to aggregate over.</param>
+        /// <returns>The value of the aggregate function run over the specified property.</returns>
         public static object Aggregate(this IQueryable source, string function, string member)
         {
             if (source == null) throw new ArgumentNullException("source");
@@ -181,9 +188,9 @@ namespace Griddly.Mvc.Linq.Dynamic
             else
             {
                 aggregateMethod = typeof(Queryable).GetMethods().SingleOrDefault(
-                m => m.Name == function
-                    && m.GetGenericArguments().Length == 2
-                    && m.IsGenericMethod);
+                    m => m.Name == function
+                        && m.GetGenericArguments().Length == 2
+                        && m.IsGenericMethod);
 
                 return source.Provider.Execute(
                     Expression.Call(
