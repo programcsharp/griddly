@@ -982,7 +982,7 @@
                         url = button.attr("href");
 
                     var selection = {};
-                    if (griddly)
+                    if (griddly.length)
                     {
                         selection = griddly.griddly("getSelected", rowIds);
 
@@ -996,13 +996,13 @@
                     switch (toggle)
                     {
                         case "ajaxbulk":
-                            if (selection[Object.keys(selection)[0]].length == 0 && enableOnSelection)
+                            if (Object.keys(selection).length && selection[Object.keys(selection)[0]].length == 0 && enableOnSelection)
                                 return;
 
                             return this.ajaxBulk(url, selection, button, griddly);
 
                         case "post":
-                            if (selection[Object.keys(selection)[0]].length == 0 && enableOnSelection)
+                            if (Object.keys(selection).length && selection[Object.keys(selection)[0]].length == 0 && enableOnSelection)
                                 return;
 
                             return this.post(url, selection, button, griddly);
@@ -1014,7 +1014,7 @@
                             return this.postCriteria(url, griddly.griddly("buildRequest"));
 
                         case "ajax":
-                            if (selection[Object.keys(selection)[0]].length == 0 && enableOnSelection)
+                            if (Object.keys(selection).length && selection[Object.keys(selection)[0]].length == 0 && enableOnSelection)
                                 return;
 
                             return this.ajax(url, selection, button, griddly);
