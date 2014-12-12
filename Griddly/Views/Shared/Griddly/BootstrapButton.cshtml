@@ -66,7 +66,7 @@ else
         href = "#" + button.Argument;
     }
 
-    <a data-role="griddly-button" class="@(!isMenuItem ? "btn btn-default" : null) @(isDropdown && !button.IsSplitDropdown ? "dropdown-toggle" : null) @(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null) @button.ClassName @(!string.IsNullOrWhiteSpace(Model.Icon) ? "btn-with-icon" : null)"
+    <a data-role="griddly-button" class="@(!isMenuItem ? "btn btn-default" : null) @(isDropdown && !button.IsSplitDropdown ? "dropdown-toggle" : null) @(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null) @button.ClassName @(!string.IsNullOrWhiteSpace(button.Icon) ? "btn-with-icon" : null)"
         @*onclick="@(button.Action == GriddlyButtonAction.Javascript ? button.Argument : null)"*@
         title="@button.Title"
         @Html.AttributeIf("target", button.Action == GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
@@ -88,7 +88,7 @@ else
             }
         }>
 
-        @if (!string.IsNullOrWhiteSpace(Model.Icon) && GriddlySettings.IconTemplate != null)
+        @if (!string.IsNullOrWhiteSpace(button.Icon) && GriddlySettings.IconTemplate != null)
         {
             @GriddlySettings.IconTemplate(button)
         }
