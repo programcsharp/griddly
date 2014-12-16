@@ -12,6 +12,7 @@ namespace Griddly.Mvc
 
             Enabled = true;
             Action = GriddlyButtonAction.Navigate;
+            ClearSelectionOnAction = true;
 
             ClassName = ((GriddlySettings.DefaultButtonClassName ?? "") + " " + (additionalClassName ?? "")).Trim();
         }
@@ -23,6 +24,12 @@ namespace Griddly.Mvc
         public bool EnableOnSelection { get; set; }
         public bool IsSeparator { get; set; }
         public bool IsSplitDropdown { get; set; }
+
+        /// <summary>
+        /// Clear the current row selections after this button is activated (default: true)
+        /// </summary>
+        public bool ClearSelectionOnAction { get; set; }
+
         public string Text { get; set; }
         public string Title { get; set; }
         public string Icon { get; set; }

@@ -356,11 +356,12 @@
                 {
                     var last = $("tbody tr", this.$element).index(this.options.lastSelectedRow);
                     var first = $("tbody tr", this.$element).index($target.parents("tr"));
+                    var newstate = this.options.lastSelectedRow.find("input[name=_rowselect]").prop("checked");
 
                     var start = Math.min(first, last);
                     var end = Math.max(first, last);
 
-                    $("tbody tr", this.$element).slice(start, end).find("input[name=_rowselect]").prop("checked", true);
+                    $("tbody tr", this.$element).slice(start, end).find("input[name=_rowselect]").each(function () { $(this).prop("checked", newstate); setRowSelect($(this)) });
                 }
 
                 this.options.lastSelectedRow = $target.parents("tr");
@@ -378,12 +379,8 @@
             
             $(this.$element).on("click", "thead tr .griddly-selection-clear", $.proxy(function (event)
             {
-                this.options.selectedRows = {};
-
-                $("tbody tr", this.$element).find("input[name=_rowselect]").prop("checked", false);
-
+                this.clearSelected();
                 onRowChange();
-                this.setSelectedCount();
             }, this));
 
             $("a.export-xlsx", this.$element).on("click", $.proxy(function (e) {
@@ -893,6 +890,15 @@
             return result;
         },
 
+        clearSelected: function()
+        {
+            this.options.selectedRows = {};
+
+            $("tbody tr", this.$element).find("input[name=_rowselect]").prop("checked", false);
+
+            this.setSelectedCount();
+        },
+
         pageNumber: function(pageNumber)
         {
             if (pageNumber >= 0 && pageNumber < this.options.pageCount)
@@ -970,6 +976,7 @@
         var onclick = button.data("onclick");
         var confirmMessage = button.data("confirm-message");
         var enableOnSelection = button.data("enable-on-selection");
+        var clearSelectionOnAction = button.data("clear-selection-on-action");
         var rowIds = button.data("rowids");
 
         if ((typeof confirmMessage === "undefined" || confirm(confirmMessage)))
@@ -991,6 +998,11 @@
                             selection.ids = selection.value;
                             delete selection.value;
                         }
+                    }
+
+                    if (clearSelectionOnAction)
+                    {
+                        griddly.griddly("clearSelected");
                     }
 
                     switch (toggle)
@@ -1027,7 +1039,14 @@
 
                     if ($.isFunction(f))
                     {
-                        return f.call(button, rowIds);
+                        var result = f.call(button, rowIds);
+
+                        if (clearSelectionOnAction)
+                        {
+                            griddly.griddly("clearSelected");
+                        }
+
+                        return result;
                     }
 
                     throw "onclick must be a global function";
@@ -1096,7 +1115,7 @@
             .appendTo("body").submit().remove();
     };
 
-    GriddlyButton.ajax = function (url, selection, button, griddly)
+    GriddlyButton.ajax = function (url, selection, button, griddly, clearSelection)
     {
         for (var i = 0; i < selection[Object.keys(selection)[0]].length; i++)
         {
