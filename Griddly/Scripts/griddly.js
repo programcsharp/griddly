@@ -186,18 +186,9 @@
                 this.resetFilterValues();
             }, this));
 
-            $("a.btn-search", this.$element).on("click", $.proxy(function (event)
+            $("a.btn-search, button.btn-search", this.$element).on("click", $.proxy(function (event)
             {
-                if (this.options.allowedFilterModes.length > 1)
-                {
-                    this.options.filterMode = this.options.filterMode == "Inline" ? "Form" : "Inline";
-                    
-                    this.$element.find("tr.griddly-filters:not(tr.griddly-filters-" + this.options.filterMode.toLowerCase() + ")").hide();
-                    this.$element.find("tr.griddly-filters-" + this.options.filterMode.toLowerCase()).show();
-
-                    // TODO: only refresh if filter values changed
-                    this.refresh(true);
-                }
+                this.toggleFilterMode();
             }, this));
 
             $(this.$element).on("mouseup", "tbody.data tr td:not(:has(input))", $.proxy(function (e)
@@ -702,6 +693,20 @@
             }
         },
 
+        toggleFilterMode: function()
+        {
+            if (this.options.allowedFilterModes.length > 1)
+            {
+                this.options.filterMode = this.options.filterMode == "Inline" ? "Form" : "Inline";
+
+                this.$element.find("tr.griddly-filters:not(tr.griddly-filters-" + this.options.filterMode.toLowerCase() + ")").hide();
+                this.$element.find("tr.griddly-filters-" + this.options.filterMode.toLowerCase()).show();
+
+                // TODO: only refresh if filter values changed
+                this.refresh(true);
+            }
+        },
+
         getFilterValues: function()
         {
             var allFilters;
@@ -1000,7 +1005,7 @@
                         }
                     }
 
-                    if (clearSelectionOnAction)
+                    if (clearSelectionOnAction && griddly.length)
                     {
                         griddly.griddly("clearSelected");
                     }
@@ -1041,7 +1046,7 @@
                     {
                         var result = f.call(button, rowIds);
 
-                        if (clearSelectionOnAction)
+                        if (clearSelectionOnAction && griddly.length)
                         {
                             griddly.griddly("clearSelected");
                         }
