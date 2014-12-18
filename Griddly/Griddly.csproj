@@ -247,6 +247,8 @@
     <Content Include="Views\Home\FilterListGrid.cshtml" />
     <Content Include="_AppStart.cshtml" />
     <Content Include="Views\Home\IndexGrid.cshtml" />
+    <Content Include="Views\Shared\Griddly\GriddlyFilterInline.cshtml" />
+    <Content Include="Views\Shared\Griddly\GriddlyFilterForm.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Griddly.Mvc\Griddly.Mvc.csproj">

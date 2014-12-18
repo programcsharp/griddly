@@ -1,7 +1,7 @@
 ﻿@*
  * GriddlyButton renderer using Bootstrap html and styles
  * http://griddly.com
- * Copyright 2013-2014 Chris Hynes and Data Research Group, Inc.
+ * Copyright 2013-2015 Chris Hynes and Data Research Group, Inc.
  * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
  *
  * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
@@ -77,6 +77,7 @@ else
         @Html.AttributeIf("data-url", button.Action == GriddlyButtonAction.Ajax || button.Action == GriddlyButtonAction.AjaxBulk || button.Action == GriddlyButtonAction.Post || button.Action == GriddlyButtonAction.PostCriteria, button.Argument)
         @Html.AttributeIf("data-target", button.Action != GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
         @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())
+        @Html.AttributeIf("data-clear-selection-on-action", button.ClearSelectionOnAction, button.ClearSelectionOnAction.ToString().ToLower())
         @Html.AttributeIf("data-confirm-message", button.ConfirmMessage != null, button.ConfirmMessage)
         @Html.AttributeIf("data-rowids", button.RowIds != null, button.RowIds != null ? Html.AttributeEncode(Json.Encode(button.RowIds.Select(x => x.ToLower()).ToArray())) : null)
         @Html.AttributeIf("data-append-rowids-to-url", (button.Action == GriddlyButtonAction.Modal || button.Action == GriddlyButtonAction.Navigate) && button.AppendRowIdsToUrl, "")
