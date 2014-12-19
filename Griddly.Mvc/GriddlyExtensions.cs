@@ -133,6 +133,17 @@ namespace Griddly.Mvc
             return page.ViewData["_griddlyDefault_" + field];
         }
 
+        public static Dictionary<string, object> GetGriddlyDefaults(this WebViewPage page)
+        {
+            Dictionary<string, object> defaults = new Dictionary<string, object>();
+            foreach (var key in page.ViewData.Keys.Where(k => k.StartsWith("_griddlyDefault_")))
+            {
+                defaults[key.Substring("_griddlyDefault_".Length)] = page.ViewData[key];
+            }
+
+            return defaults;
+        }
+
         static IDictionary<string, object> ObjectToDictionary(object value)
         {
             if (value == null)
