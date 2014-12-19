@@ -89,14 +89,15 @@
     SortField[] defaultSort = settings.DefaultSort;
 
     @:<div class="griddly @settings.ClassName" data-role="griddly"
-                                            @: @Html.AttributeNullable("data-griddly-url", !simple ? Url.Current() : null)
-                                            @: data-griddly-count="@Model.Total"
-                                            @: @Html.AttributeNullable("data-griddly-filtermode", settings.InitialFilterMode != FilterMode.None ? settings.InitialFilterMode.ToString() : null)
-                                            @: @Html.AttributeNullable("data-griddly-allowedfiltermodes", settings.AllowedFilterModes != FilterMode.None ? Json.Encode(Enum.GetValues(typeof(FilterMode)).Cast<FilterMode>().Where(x => settings.AllowedFilterModes.Value.HasFlag(x) && x != FilterMode.Both && x != FilterMode.None).Select(x => x.ToString())) : null)
-                                            @: data-griddly-pagesize="@(settings.PageSize ?? Model.PageSize)"
-                                            @: @Html.AttributeNullable("data-griddly-rowclickmodal", settings.RowClickModal)
-                                            @: data-griddly-defaultrowids="@Json.Encode(settings.DefaultRowIds != null ? settings.DefaultRowIds.Select(x => x.ToLower()).ToArray() : new[] { "value" })"
-                                            @: @Html.AttributeIf("data-griddly-defaultsort", defaultSort != null && defaultSort.Any(), Html.AttributeEncode(Json.Encode(defaultSort.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))))>
+        @: @Html.AttributeNullable("data-griddly-url", !simple ? Url.Current() : null)
+        @: data-griddly-count="@Model.Total"
+        @: @Html.AttributeNullable("data-griddly-filtermode", settings.InitialFilterMode != FilterMode.None ? settings.InitialFilterMode.ToString() : null)
+        @: @Html.AttributeNullable("data-griddly-allowedfiltermodes", settings.AllowedFilterModes != FilterMode.None ? Json.Encode(Enum.GetValues(typeof(FilterMode)).Cast<FilterMode>().Where(x => settings.AllowedFilterModes.Value.HasFlag(x) && x != FilterMode.Both && x != FilterMode.None).Select(x => x.ToString())) : null)
+        @: data-griddly-pagesize="@(settings.PageSize ?? Model.PageSize)"
+        @: @Html.AttributeNullable("data-griddly-rowclickmodal", settings.RowClickModal)
+        @: data-griddly-defaultrowids="@Json.Encode(settings.DefaultRowIds != null ? settings.DefaultRowIds.Select(x => x.ToLower()).ToArray() : new[] { "value" })"
+        @: data-griddly-filter-defaults="@Newtonsoft.Json.JsonConvert.SerializeObject(this.GetGriddlyDefaults())"
+        @: @Html.AttributeIf("data-griddly-defaultsort", defaultSort != null && defaultSort.Any(), Html.AttributeEncode(Json.Encode(defaultSort.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))))>
     if (settings.Buttons.Any())
     {
         <div class="buttons">

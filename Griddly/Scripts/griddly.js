@@ -95,6 +95,7 @@
             var rowClickModal = this.$element.data("griddly-rowclickmodal");
             var filterMode = this.$element.data("griddly-filtermode");
             var allowedFilterModes = this.$element.data("griddly-allowedfiltermodes");
+            var filterDefaults = this.$element.data("griddly-filter-defaults");
 
             this.options.url = url;
             this.options.defaultRowIds = defaultRowIds;
@@ -103,7 +104,7 @@
                 this.options.pageSize = parseInt(pageSize);
             this.options.pageCount = this.options.count * this.options.pageSize;
             this.options.rowClickModal = rowClickModal;
-
+            
             if (!this.options.selectedRows) {
                 this.options.selectedRows = {};
             }            
@@ -118,6 +119,7 @@
 
             this.options.filterMode = filterMode;
             this.options.allowedFilterModes = allowedFilterModes != null ? allowedFilterModes : null;
+            this.options.filterDefaults = filterDefaults;
 
             // TODO: should we do this later on so we handle dynamically added buttons?
             this.$element.find("[data-append-rowids-to-url]").each(function ()
@@ -693,17 +695,36 @@
             }
         },
 
-        toggleFilterMode: function()
+        getFilterMode: function()
         {
-            if (this.options.allowedFilterModes.length > 1)
+            return this.options.filterMode;
+        },
+
+        setFilterMode: function(mode)
+        {
+            if (this.options.allowedFilterModes.indexOf(mode) > -1)
             {
-                this.options.filterMode = this.options.filterMode == "Inline" ? "Form" : "Inline";
+                this.options.filterMode = mode;
+
+                var request1 = this.buildRequest();
 
                 this.$element.find("tr.griddly-filters:not(tr.griddly-filters-" + this.options.filterMode.toLowerCase() + ")").hide();
                 this.$element.find("tr.griddly-filters-" + this.options.filterMode.toLowerCase()).show();
 
-                // TODO: only refresh if filter values changed
-                this.refresh(true);
+                var request2 = this.buildRequest();
+
+                if (JSON.stringify(request1) !== JSON.stringify(request2))
+                {
+                    this.refresh(true);
+                }
+            }
+        },
+
+        toggleFilterMode: function()
+        {
+            if (this.options.allowedFilterModes.length > 1)
+            {
+                this.setFilterMode(this.options.filterMode == "Inline" ? "Form" : "Inline");
             }
         },
 
@@ -719,6 +740,29 @@
             return serializeObject(allFilters);
         },
 
+        setFilterValue: function(field, value)
+        {
+            var input = $(field);
+            
+            if (value)
+            {
+                var datatype = input.data("griddly-filter-data-type");
+
+                switch (datatype)
+                {
+                    case "Date":
+                        var date = new Date(value);
+                        value = date.toLocaleDateString();
+                        break;
+                    case "Currency":
+                        value = value.toFixed(2);
+                        break;
+                }
+            }
+
+            input.val(value).change();
+        },
+
         setFilterValues: function(filters, isPatch)
         {
             this.options.autoRefreshOnFilter = false;
@@ -727,15 +771,17 @@
             {
                 var allFilters = $(".griddly-filters input, .griddly-filters select", this.$element).add(this.$inlineFilters);
 
-                allFilters.each(function ()
+                allFilters.each($.proxy(function (i, e)
                 {
-                    $(this).val(filters[this.name]).change();
-                });
+                    this.setFilterValue(e, filters[e.name]);
+                }, this));
             }
             else
             {
                 for (var key in filters)
-                    $("[name='" + key + "']").val(filters[key]).change();
+                {
+                    this.setFilterValue("[name='" + key + "']", filters[key]);
+                }
             }
 
             this.options.autoRefreshOnFilter = true;
@@ -744,10 +790,10 @@
 
         resetFilterValues: function ()
         {
-            // TODO: get defaults?
-
             this.$element.find("form .transient").remove();
             this.$element.find("form")[0].reset();
+
+            this.setFilterValues(this.options.filterDefaults);
 
             this.$element.trigger("resetfilters.griddly", this.$element);
 

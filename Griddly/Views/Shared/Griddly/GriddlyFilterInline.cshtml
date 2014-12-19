@@ -111,7 +111,8 @@
                             {
                                 <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
                             }
-                            <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)" />
+                            <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
+                                data-griddly-filter-data-type="@filter.DataType" />
                             @*@if (filter.DataType == FilterDataType.Percent)
                                 {
                                     <span class="input-group-addon">%</span>
@@ -132,7 +133,8 @@
                             {
                                 <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
                             }
-                            <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)" />
+                            <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
+                                data-griddly-filter-data-type="@filter.DataType" />
                             @*@if (filter.DataType == FilterDataType.Percent)
                                 {
                                     <span class="input-group-addon">%</span>
@@ -151,7 +153,8 @@
                             {
                                 <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
                             }
-                            <input class="form-control" name="@filterRange.FieldEnd" type="text" value="@filter.GetEditValue(defaultValueEnd)" />
+                            <input class="form-control" name="@filterRange.FieldEnd" type="text" value="@filter.GetEditValue(defaultValueEnd)"
+                                data-griddly-filter-data-type="@filter.DataType" />
                             @*@if (filter.DataType == FilterDataType.Percent)
                                 {
                                     <span class="input-group-addon">%</span>
