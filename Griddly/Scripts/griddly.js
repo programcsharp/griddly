@@ -38,6 +38,20 @@
                 $(".griddly-filters-inline .filter-trigger").popover("hide");
             }
         }, this));
+
+        this.setSelectedCount = $.proxy(function () {
+            $("thead tr td span .griddly-selection-count", this.$element).text(Object.keys(this.options.selectedRows).length);
+
+            if (!$.isEmptyObject(this.options.selectedRows)) {
+                this.$element.find("span.griddly-selection:not(:visible)").show("slow");
+                $(this.$element).find("[data-enable-on-selection=true]").removeClass("disabled");
+            }
+            else {
+                this.$element.find("span.griddly-selection:visible").hide("slow");
+                $(this.$element).find("[data-enable-on-selection=true]").addClass("disabled");
+            }
+
+        }, this);
     };
 
     var serializeObject = function ($elements)
