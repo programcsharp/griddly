@@ -23,7 +23,7 @@
         if (this.options.onRefresh)
             this.options.onRefresh(this, 0, this.options.count > this.options.pageSize ? this.options.pageSize : this.options.count, this.options.count, null);
 
-        this.$element.trigger("init.griddly", this.$element,
+        this.$element.trigger("init.griddly",
         {
             start: 0,
             pageSize: this.options.count > this.options.pageSize ? this.options.pageSize : this.options.count,
@@ -795,7 +795,7 @@
 
             this.setFilterValues(this.options.filterDefaults);
 
-            this.$element.trigger("resetfilters.griddly", this.$element);
+            this.$element.trigger("resetfilters.griddly");
 
             this.refresh(true);
         },
@@ -828,7 +828,7 @@
 
         refresh: function(resetPage)
         {
-            this.$element.trigger("beforerefresh.griddly", this.$element);
+            this.$element.trigger("beforerefresh.griddly");
 
             if (!this.options.url)
             {
@@ -898,7 +898,7 @@
                         $(e).prop("checked", true);
                 });
 
-                this.$element.trigger("refresh.griddly", this.$element,
+                this.$element.trigger("refresh.griddly",
                 {
                     start: startRecord,
                     pageSize: currentPageSize,
@@ -920,7 +920,7 @@
                     window.location = url;
                 }
 
-                this.$element.trigger("error.griddly", this.$element);
+                this.$element.trigger("error.griddly", { xhr: xhr, status: status, error: errorThrown });
             }, this));
         },
 

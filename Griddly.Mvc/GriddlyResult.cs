@@ -16,7 +16,7 @@ namespace Griddly.Mvc
         public SortField[] GetSortFields(NameValueCollection items)
         {
             return items.AllKeys
-                .Where(x => x.StartsWith("sortFields["))
+                .Where(x => x != null && x.StartsWith("sortFields["))
                 .Select(x =>
                 {
                     int pos = x.IndexOf(']', "sortFields[".Length);
