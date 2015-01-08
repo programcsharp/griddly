@@ -40,3 +40,71 @@ input[type="checkbox"].input-validation-error {
 .validation-summary-valid {
     display: none;
 }
+
+.page-header
+{
+    background-image:url(griddly-64.png);
+    background-position:right center;
+    background-repeat:no-repeat;
+}
+
+.docs-social {
+    margin-bottom: 20px;
+    text-align: center
+}
+
+.docs-social-buttons {
+    display: inline-block;
+    padding-left: 0;
+    margin-bottom: 0;
+    list-style: none
+}
+
+.docs-social-buttons li {
+    display: inline-block;
+    padding: 5px 8px;
+    line-height: 1
+}
+
+.docs-social-buttons .twitter-follow-button {
+    width: 225px!important
+}
+
+.docs-social-buttons .twitter-share-button {
+    width: 98px!important
+}
+
+.github-btn {
+    overflow: hidden;
+    border: 0
+}
+
+.nuget-badge code {
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    background-color: #202020;
+    border: 4px solid silver;
+    border-radius: 5px;
+    box-shadow: 2px 2px 3px #6e6e6e;
+    color: #e2e2e2;
+    display: block;
+    font: 1.4em 'andale mono','lucida console',monospace;
+    line-height: 1.4em;
+    overflow: auto;
+    padding: 15px
+}
+
+.syntaxhighlighter
+{
+    overflow-y:hidden !important;
+    padding: 10px 20px;
+    margin: 0 0 20px;
+    font-size: .8em !important;
+    line-height: 1.25em !important;
+    border-left: 5px solid #eee;
+}
+
+.syntaxhighlighter .line
+{
+    line-height: 1.25em !important;
+}

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Web;
@@ -19,36 +20,47 @@ namespace Griddly.Mvc
         public static HtmlString BoolTrueHtml = null;
         public static HtmlString BoolFalseHtml = null;
         public static int? DefaultPageSize = null;
-        public static bool DefaultShowFilterInitially = true;
-        public static bool DefaultShowRowSelectCount = false;
+        //public static FilterMode? DefaultInitialFilterMode = FilterMode.Inline;
+        //public static FilterMode? DefaultAllowedFilterModes = FilterMode.Inline;
+        public static bool DefaultShowRowSelectCount = true;
 
         public static Func<GriddlyButton, object> IconTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
-        public static Func<string, IEnumerable, ActionResult> HandleCustomReport = null;
-        public static Action<GriddlySettings> BeforeRender = null;
-        public static Action<GriddlySettings> OnGriddlyResultExecuting = null;
+
+        /// <summary>
+        /// Defines an event handler for custom export requests.
+        /// 
+        /// First argument is the record set. Second argument is the posted form values.
+        /// </summary>s
+        public static Func<IEnumerable, NameValueCollection, ActionResult> HandleCustomExport = null;
+        public static Action<GriddlySettings, HtmlHelper> BeforeRender = null;
+        public static Action<GriddlySettings, ControllerContext> OnGriddlyResultExecuting = null;
 
         public GriddlySettings()
         {
             IdProperty = "Id";
+
             Columns = new List<GriddlyColumn>();
             Filters = new List<GriddlyFilter>();
             Buttons = new List<GriddlyButton>();
+            RowIds = new Dictionary<string, Func<object, object>>();
+
             ClassName = DefaultClassName;
             TableClassName = DefaultTableClassName;
             FooterTemplate = DefaultFooterTemplate;
             PageSize = DefaultPageSize;
-            ShowFilterInitially = DefaultShowFilterInitially;
-            HasInlineFilter = true;
+            //InitialFilterMode = DefaultInitialFilterMode;
+            //AllowedFilterModes = DefaultAllowedFilterModes;
             ShowRowSelectCount = DefaultShowRowSelectCount;
         }
 
+        public string[] DefaultRowIds { get; set; }
         public string IdProperty { get; set; }
         public string Title { get; set; }
         public string ClassName { get; set; }
         public string TableClassName { get; set; }
-        public string OnClientRefresh { get; set; }
-        public bool ShowFilterInitially { get; set; }
+        public FilterMode? AllowedFilterModes { get; set; }
+        public FilterMode? InitialFilterMode { get; set; }
         public bool ShowRowSelectCount { get; set; }
 
         public int? PageSize { get; set; }
@@ -69,7 +81,7 @@ namespace Griddly.Mvc
 
         public Func<GriddlyResultPage, object> FooterTemplate { get; set; }
 
-        public bool HasInlineFilter { get; set; }
+        public Dictionary<string, Func<object, object>> RowIds { get; protected set; }
 
         public virtual bool HasRowClickUrl
         {
@@ -91,6 +103,19 @@ namespace Griddly.Mvc
             return RowClass(o);
         }
 
+        public GriddlySettings RowId(Expression<Func<object, object>> expression, string name = null)
+        {
+            if (name == null)
+            {
+                var meta = ModelMetadata.FromLambdaExpression(expression, new ViewDataDictionary<object>());
+                name = ExpressionHelper.GetExpressionText(expression);
+            }
+
+            RowIds[name ?? "id"] = expression.Compile();
+
+            return this;
+        }
+
         public GriddlySettings Add(GriddlyColumn column, Func<GriddlyColumn, GriddlyFilter> filter = null)
         {
             if (filter != null)
@@ -99,10 +124,9 @@ namespace Griddly.Mvc
 
                 if (filterDef != null)
                 {
-                    if (HasInlineFilter)
-                        column.Filter = filterDef;
-                    else
-                        Filters.Add(filterDef);
+                    column.Filter = filterDef;
+
+                    Filters.Add(filterDef);
                 }
             }
 
@@ -128,7 +152,7 @@ namespace Griddly.Mvc
                 });
         }*/
 
-        public GriddlySettings Button(Func<object, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null)
+        public GriddlySettings Button(Func<object, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null, string[] rowIds = null, object htmlAttributes = null)
         {
             if (enableOnSelection == null)
                 enableOnSelection = (action == GriddlyButtonAction.Ajax || action == GriddlyButtonAction.AjaxBulk || action == GriddlyButtonAction.Post);
@@ -140,13 +164,17 @@ namespace Griddly.Mvc
                 Icon = icon,
                 Action = action,
                 EnableOnSelection = enableOnSelection.Value,
-                Target = target
+                Target = target,
+                RowIds = rowIds
             };
+
+            if (htmlAttributes != null)
+                button.HtmlAttributes = HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
 
             return Add(button);
         }
 
-        public GriddlySettings Button(string argument, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null)
+        public GriddlySettings Button(string argument, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null, string[] rowIds = null, object htmlAttributes = null)
         {
             if (enableOnSelection == null)
                 enableOnSelection = (action == GriddlyButtonAction.Ajax || action == GriddlyButtonAction.AjaxBulk || action == GriddlyButtonAction.Post);
@@ -158,8 +186,12 @@ namespace Griddly.Mvc
                 Icon = icon,
                 Action = action,
                 EnableOnSelection = enableOnSelection.Value,
-                Target = target
+                Target = target,
+                RowIds = rowIds
             };
+
+            if (htmlAttributes != null)
+                button.HtmlAttributes = HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
 
             return Add(button);
         }
@@ -172,11 +204,26 @@ namespace Griddly.Mvc
             });
         }
 
-        public GriddlySettings SelectColumn(Func<object, object> id)
+        public GriddlySettings SelectColumn(Expression<Func<object, object>> id, object summaryValue = null)
         {
+            RowId(id, "id");
+
             return Add(new GriddlySelectColumn()
             {
-                Id = id
+                SummaryValue = summaryValue
+            });
+        }
+
+        public GriddlySettings SelectColumn(Dictionary<string, Func<object, object>> ids, object summaryValue = null)
+        {
+            foreach (var x in ids)
+            {
+                RowIds[x.Key] = x.Value;
+            }
+
+            return Add(new GriddlySelectColumn()
+            {
+                SummaryValue = summaryValue
             });
         }
 
@@ -189,7 +236,7 @@ namespace Griddly.Mvc
                 if (_defaultSort == null)
                     _defaultSort = Columns
                         .Where(x => x.DefaultSort != null)
-                        .Select(x => new SortField() { Field = x.SortField, Direction = x.DefaultSort.Value }).ToArray();
+                        .Select(x => new SortField() { Field = x.ExpressionString, Direction = x.DefaultSort.Value }).ToArray();
 
                 return _defaultSort;
             }
@@ -245,73 +292,77 @@ namespace Griddly.Mvc
                     base.RowClass = null;
             }
         }
-        
-        public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> template, string caption = null, string format = null, string sortField = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
+
+        public GriddlySettings<TRow> RowId(Expression<Func<TRow, object>> expression, string name = null)
         {
-            var compiledTemplate = template.Compile();
-            ModelMetadata metadata = ModelMetadata.FromLambdaExpression<TRow, TProperty>(template, new ViewDataDictionary<TRow>());
-            string htmlFieldName = ExpressionHelper.GetExpressionText(template);
-
-            Type type = metadata.ModelType;
-
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-                type = Nullable.GetUnderlyingType(type);
-
-            if (className == null)
+            if (name == null)
             {
-                if (type == typeof(byte) || type == typeof(sbyte) ||
-                         type == typeof(short) || type == typeof(ushort) ||
-                         type == typeof(int) || type == typeof(uint) ||
-                         type == typeof(long) || type == typeof(ulong) ||
-                         type == typeof(float) ||
-                         type == typeof(double) ||
-                         type == typeof(decimal))
-                    className = "align-right";
-                else if (type == typeof(bool) ||
-                         type == typeof(DateTime) || type.HasCastOperator<DateTime>())
-                    className = "align-center";
+                var meta = ModelMetadata.FromLambdaExpression(expression, new ViewDataDictionary<TRow>());
+                name = ExpressionHelper.GetExpressionText(expression);
             }
 
-            if (caption == null)
-                caption = metadata.DisplayName ?? metadata.PropertyName ?? htmlFieldName.Split('.').Last();
-
-            if (sortField == null)
-                sortField = htmlFieldName;
-
-            if (type == typeof(bool) && (BoolTrueHtml != null || BoolFalseHtml != null))
-            {
-                return TemplateColumn(
-                    (row) =>
-                    {
-                        return (compiledTemplate(row) as bool? == true) ? BoolTrueHtml : BoolFalseHtml;
-                    },
-                    caption, format, sortField, defaultSort, className, isExportOnly, width, filter
-                );
-            }
-
-            Add(new GriddlyColumn<TRow>()
-            {
-                Template = (row) => compiledTemplate(row),
-                Caption = caption,
-                Format = format,
-                SortField = sortField,
-                DefaultSort = defaultSort,
-                ClassName = className,
-                IsExportOnly = isExportOnly,
-                Width = width
-            }, filter);
+            RowIds[name ?? "id"] = (x) => expression.Compile()((TRow)x);
 
             return this;
         }
 
-        public GriddlySettings<TRow> TemplateColumn(Func<TRow, object> template, string caption, string format = null, string sortField = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
+        public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> expression, string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
         {
+            ModelMetadata metadata = null;
+
+            if (expression != null)
+            {
+                metadata = ModelMetadata.FromLambdaExpression<TRow, TProperty>(expression, new ViewDataDictionary<TRow>());
+                string htmlFieldName = ExpressionHelper.GetExpressionText(expression);
+
+                Type type = metadata.ModelType;
+
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                    type = Nullable.GetUnderlyingType(type);
+
+                if (className == null)
+                {
+                    if (type == typeof(byte) || type == typeof(sbyte) ||
+                             type == typeof(short) || type == typeof(ushort) ||
+                             type == typeof(int) || type == typeof(uint) ||
+                             type == typeof(long) || type == typeof(ulong) ||
+                             type == typeof(float) ||
+                             type == typeof(double) ||
+                             type == typeof(decimal))
+                        className = "align-right";
+                    else if (type == typeof(bool) ||
+                             type == typeof(DateTime) || type.HasCastOperator<DateTime>())
+                        className = "align-center";
+                }
+
+                if (caption == null)
+                    caption = metadata.DisplayName ?? metadata.PropertyName ?? htmlFieldName.Split('.').Last();
+
+                if (expressionString == null)
+                    expressionString = htmlFieldName;
+
+                if (template == null)
+                {
+                    var compiledTemplate = expression.Compile();
+
+                    if (type == typeof(bool) && (BoolTrueHtml != null || BoolFalseHtml != null))
+                        template = (row) => (compiledTemplate(row) as bool? == true) ? BoolTrueHtml : BoolFalseHtml;
+                    else
+                        template = (row) => compiledTemplate(row);
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(expressionString) && summaryFunction != null)
+                throw new InvalidOperationException("Must specify an expression to use a summary function.");
+
             Add(new GriddlyColumn<TRow>()
             {
                 Template = template,
                 Caption = caption,
                 Format = format,
-                SortField = sortField,
+                ExpressionString = expressionString,
+                SummaryFunction = summaryFunction,
+                SummaryValue = summaryValue,
                 DefaultSort = defaultSort,
                 ClassName = className,
                 IsExportOnly = isExportOnly,
@@ -321,28 +372,80 @@ namespace Griddly.Mvc
             return this;
         }
 
-        public GriddlySettings<TRow> SelectColumn(Func<TRow, object> id)
+        public GriddlySettings<TRow> Column(string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
         {
+            return Column<object>(null, caption, format, expressionString, defaultSort, className, isExportOnly, width, summaryFunction, summaryValue, template, filter);
+        }
+        //public GriddlySettings<TRow> TemplateColumn(Func<TRow, object> template, string caption, string format = null, string sortField = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
+        //{
+        //    Add(new GriddlyColumn<TRow>()
+        //    {
+        //        Template = template,
+        //        Caption = caption,
+        //        Format = format,
+        //        SortField = sortField,
+        //        DefaultSort = defaultSort,
+        //        ClassName = className,
+        //        IsExportOnly = isExportOnly,
+        //        Width = width
+        //    }, filter);
+
+        //    return this;
+        //}
+
+        public GriddlySettings<TRow> SelectColumn(Expression<Func<TRow, object>> id, object summaryValue = null)
+        {
+            RowId(id, "id");
+
             Add(new GriddlySelectColumn()
             {
-                Id = (x) => id((TRow)x),
-                ClassName = "align-center"
+                SummaryValue = summaryValue
             });
 
             return this;
         }
 
-        public GriddlySettings<TRow> Button<TModel>(Func<TModel, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate)
+        public GriddlySettings<TRow> SelectColumn(Dictionary<string, Func<TRow, object>> ids, object summaryValue = null)
         {
-            Add(new GriddlyButton()
+            foreach (var x in ids)
+            {
+                RowIds[x.Key] = (z) => x.Value((TRow)z);
+            }
+
+            Add(new GriddlySelectColumn()
+            {
+                SummaryValue = summaryValue
+            });
+
+            return this;
+        }
+
+        public GriddlySettings<TRow> Button<TModel>(Func<TModel, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, string[] rowIds = null, object htmlAttributes = null)
+        {
+            var button = new GriddlyButton()
             {
                 ArgumentTemplate = (x) => argumentTemplate((TModel)x),
                 Text = caption,
                 Icon = icon,
-                Action = action
-            });
+                Action = action,
+                RowIds = rowIds
+            };
+
+            if (htmlAttributes != null)
+                button.HtmlAttributes = HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
+
+            Add(button);
 
             return this;
         }
+    }
+
+    [Flags]
+    public enum FilterMode
+    {
+        None = 0,
+        Inline = 1,
+        Form = 2,
+        Both = Inline | Form
     }
 }

@@ -33,8 +33,10 @@
 
 @Html.Griddly(new GriddlySettings<TestGridItem>()
     {
+        ShowRowSelectCount = true,
         PageSize = 5
     }
+    .SelectColumn(x => x.Id)
     .Column(x => x.FirstName, "First Name")
         .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending)
             .Column(x => x.City, "City", filter: x => x.FilterEnum<Title>())

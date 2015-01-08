@@ -13,6 +13,8 @@ namespace Griddly.Models
         public string City { get; set; }
         public string State { get; set; }
         public string PostalCode { get; set; }
+        public string NullThing { get; set; }
+
         public int PostalCodePrefix
         {
             get

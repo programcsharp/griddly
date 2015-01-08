@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
 using System.Web.Routing;
+using System.Web.WebPages;
+using System.Web.WebPages.Instrumentation;
 
 namespace Griddly.Mvc
 {
@@ -117,7 +120,7 @@ namespace Griddly.Mvc
         }
 
         public static void SetGriddlyDefault<T>(this Controller controller, ref T?[] parameter, string field, IEnumerable<T> value)
-            where T: struct
+            where T : struct
         {
             if (controller.ControllerContext.IsChildAction)
                 parameter = value.Cast<T?>().ToArray();
@@ -128,6 +131,17 @@ namespace Griddly.Mvc
         public static object GetGriddlyDefault(this WebViewPage page, string field)
         {
             return page.ViewData["_griddlyDefault_" + field];
+        }
+
+        public static Dictionary<string, object> GetGriddlyDefaults(this WebViewPage page)
+        {
+            Dictionary<string, object> defaults = new Dictionary<string, object>();
+            foreach (var key in page.ViewData.Keys.Where(k => k.StartsWith("_griddlyDefault_")))
+            {
+                defaults[key.Substring("_griddlyDefault_".Length)] = page.ViewData[key];
+            }
+
+            return defaults;
         }
 
         static IDictionary<string, object> ObjectToDictionary(object value)
@@ -183,6 +197,14 @@ namespace Griddly.Mvc
             }
 
             return helper.RouteUrl(values);
+        }
+
+        static readonly PropertyInfo _instrumentationService = typeof(WebPageExecutingBase).GetProperty("InstrumentationService", BindingFlags.NonPublic | BindingFlags.Instance);
+        static readonly PropertyInfo _isAvailableProperty = typeof(InstrumentationService).GetProperty("IsAvailable");
+
+        public static void DisableInstrumentation(this WebPageExecutingBase page)
+        {
+            _isAvailableProperty.SetValue(_instrumentationService.GetValue(page), false);
         }
     }
 }

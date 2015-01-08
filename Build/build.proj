@@ -18,6 +18,9 @@
   </Target>
  
   <Target Name="Package">
+    <!-- remove publish output -->
+    <RemoveDir Directories="$(BaseDir)\Griddly\obj" />
+
     <ItemGroup>
       <Libs Include="$(BaseDir)\Griddly.Mvc\bin\$(Configuration)\Griddly.Mvc.dll" />
       <Content Include="$(BaseDir)\Griddly\**\griddly.js" />

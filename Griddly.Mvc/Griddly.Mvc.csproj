@@ -90,6 +90,7 @@
     </Compile>
     <Compile Include="DapperGriddlyException.cs" />
     <Compile Include="DapperGriddlyResult.cs" />
+    <Compile Include="DynamicLinq.cs" />
     <Compile Include="GriddlyFilterExtensions.cs" />
     <Compile Include="InternalExtensions.cs" />
     <Compile Include="GriddlyButton.cs" />
