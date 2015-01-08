@@ -9,7 +9,7 @@
     .Column(x => x.Item,
         filter: x => x.FilterBox(FilterDataType.String), summaryValue: "Total")
     .Column(x => x.Quantity,
-        filter: x => x.FilterRange(FilterDataType.Integer), summaryFunction: SummaryAggregateFunction.Sum)
+        filter: x => x.FilterRange(FilterDataType.Integer, htmlClass: "testing"), summaryFunction: SummaryAggregateFunction.Sum)
     .Column(x => x.Total, format: "c", defaultSort: SortDirection.Descending,
         filter: x => x.FilterRange(FilterDataType.Currency), summaryFunction: SummaryAggregateFunction.Sum)
     .Column(x => x.Person.FirstName, "First Name",
