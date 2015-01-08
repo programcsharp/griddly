@@ -16,7 +16,6 @@
     {
         this.$element = $(element);
         this.options = options;
-
         this.create();
 
         $(this.$element).find("[data-enable-on-selection=true]").addClass("disabled");
@@ -24,8 +23,7 @@
         if (this.options.onRefresh)
             this.options.onRefresh(this, 0, this.options.count > this.options.pageSize ? this.options.pageSize : this.options.count, this.options.count, null);
 
-        // TODO: should we remove the onClientRefresh method?
-        this.$element.trigger("refresh", 
+        this.$element.trigger("init.griddly",
         {
             start: 0,
             pageSize: this.options.count > this.options.pageSize ? this.options.pageSize : this.options.count,
@@ -39,6 +37,23 @@
                 $(".griddly-filters-inline .filter-trigger").popover("hide");
             }
         }, this));
+
+        this.setSelectedCount = $.proxy(function ()
+        {
+            $("thead tr .griddly-selection-count", this.$element).text(Object.keys(this.options.selectedRows).length);
+
+            if (!$.isEmptyObject(this.options.selectedRows))
+            {
+                this.$element.find("tr.griddly-selection:not(:visible)").show("slow");
+                $(this.$element).find("[data-enable-on-selection=true]").removeClass("disabled");
+            }
+            else
+            {
+                this.$element.find("tr.griddly-selection:visible").hide("slow");
+                $(this.$element).find("[data-enable-on-selection=true]").addClass("disabled");
+            }
+
+        }, this);
     };
 
     var serializeObject = function ($elements)
@@ -74,16 +89,25 @@
             var count = this.$element.data("griddly-count");
             var pageSize = this.$element.data("griddly-pagesize");
             var defaultSort = this.$element.data("griddly-defaultsort");
+            var defaultRowIds = this.$element.data("griddly-defaultrowids");
             var isMultiSort = this.$element.data("griddly-multisort");
             var onRefresh = this.$element.data("griddly-onrefresh");
             var rowClickModal = this.$element.data("griddly-rowclickmodal");
+            var filterMode = this.$element.data("griddly-filtermode");
+            var allowedFilterModes = this.$element.data("griddly-allowedfiltermodes");
+            var filterDefaults = this.$element.data("griddly-filter-defaults");
 
             this.options.url = url;
+            this.options.defaultRowIds = defaultRowIds;
             this.options.count = parseInt(count);
             if (pageSize)
                 this.options.pageSize = parseInt(pageSize);
             this.options.pageCount = this.options.count * this.options.pageSize;
             this.options.rowClickModal = rowClickModal;
+            
+            if (!this.options.selectedRows) {
+                this.options.selectedRows = {};
+            }            
 
             if (isMultiSort != null)
                 this.options.isMultiSort = isMultiSort == true;
@@ -93,8 +117,12 @@
             if (onRefresh && Object.prototype.toString.call(window[onRefresh]) == '[object Function]')
                 this.options.onRefresh = window[onRefresh];
 
+            this.options.filterMode = filterMode;
+            this.options.allowedFilterModes = allowedFilterModes != null ? allowedFilterModes : null;
+            this.options.filterDefaults = filterDefaults;
+
             // TODO: should we do this later on so we handle dynamically added buttons?
-            this.$element.find("[data-griddly-toggle=modal][href*='_griddlyIds']").each(function ()
+            this.$element.find("[data-append-rowids-to-url]").each(function ()
             {
                 $(this).data("griddly-href-template", $(this).attr("href"));
             });
@@ -157,15 +185,12 @@
 
             $("form .grid_searchreset", this.$element).on("click", $.proxy(function (event)
             {
-                this.$element.find("form .transient").remove();
-                this.$element.find("form")[0].reset();
-
-                this.refresh(true);
+                this.resetFilterValues();
             }, this));
 
-            $("a.btn-search", this.$element).on("click", $.proxy(function (event)
+            $("a.btn-search, button.btn-search", this.$element).on("click", $.proxy(function (event)
             {
-                this.$element.find("tr.griddly-filters").toggle();
+                this.toggleFilterMode();
             }, this));
 
             $(this.$element).on("mouseup", "tbody.data tr td:not(:has(input))", $.proxy(function (e)
@@ -256,31 +281,53 @@
                         $(newSortDisplay).removeClass("sorted_d").addClass("sorted_a");
                     else
                         $(newSortDisplay).removeClass("sorted_a").addClass("sorted_d");
-                    
+
                     this.refresh(true);
                 }
             }, this));
 
             var onRowChange = $.proxy(function (event)
             {
-                var ids = this.getSelected();
+                this.setSelectedCount();
 
-                var op = ids.length ? "remove" : "add";
-
-                $(this.$element).find("[data-enable-on-selection=true]")[op + "Class"]("disabled");
-
-                if (ids.length)
-                    ids = ids.join(",");
-                else
-                    ids = "";
-
-                this.$element.find("[data-griddly-toggle=modal]").each(function ()
+                this.$element.find("[data-append-rowids-to-url]").each(function ()
                 {
                     var template = $(this).data("griddly-href-template");
 
                     if (template)
-                        $(this).attr("href", template.replace(/_griddlyIds/g, ids));
+                    {
+                        var selection = this.getSelected($(this).data["rowids"]);
+                        var query = [];
+                        for (var k in selection)
+                        {
+                            query[query.length] = k + "=" + selection[k].join(",");
+                        }
+
+                        $(this).attr("href", template + (template.indexOf("?") > -1 ? "&" : "?") + query.join("&"));
+                    }            
                 });
+            }, this);
+
+            var setRowSelect = $.proxy(function ($checkbox)
+            {
+                var rowkey = $checkbox.data("rowkey");                
+                var row = this.options.selectedRows[rowkey];
+
+                if (!row && $checkbox.prop("checked"))
+                {
+                    var rowvalue = { "value": $checkbox.attr("value") };
+                    var data = $checkbox.data();                                        
+                    for (var d in data)
+                        rowvalue[d] = data[d];
+
+                    this.options.selectedRows[rowkey] = rowvalue;
+                }
+                else if (row && !$checkbox.prop("checked"))
+                {
+                    delete this.options.selectedRows[rowkey];
+                }
+
+                onRowChange();
             }, this);
 
             $(this.$element).on("change", "input[name=_rowselect]", onRowChange);
@@ -289,22 +336,25 @@
             {
                 var $target = $(event.target);
 
-                if (!$target.is("input"))
-                {
-                    var $checkbox = $target.find("input[name=_rowselect]");
+                var $checkbox = $target;
+                if (!$target.is("input")) {
+                    $checkbox = $target.find("input[name=_rowselect]");
 
                     $checkbox.prop("checked", !$checkbox.prop("checked"));
                 }
+
+                setRowSelect($checkbox);
 
                 if (event.shiftKey && this.options.lastSelectedRow)
                 {
                     var last = $("tbody tr", this.$element).index(this.options.lastSelectedRow);
                     var first = $("tbody tr", this.$element).index($target.parents("tr"));
+                    var newstate = this.options.lastSelectedRow.find("input[name=_rowselect]").prop("checked");
 
                     var start = Math.min(first, last);
                     var end = Math.max(first, last);
 
-                    $("tbody tr", this.$element).slice(start, end).find("input[name=_rowselect]").prop("checked", true);
+                    $("tbody tr", this.$element).slice(start, end).find("input[name=_rowselect]").each(function () { $(this).prop("checked", newstate); setRowSelect($(this)) });
                 }
 
                 this.options.lastSelectedRow = $target.parents("tr");
@@ -313,10 +363,16 @@
             $(this.$element).on("click", "thead tr.columnHeaders th.select", $.proxy(function (event)
             {
                 if (this.$element.find("input[name=_rowselect]:not(:checked)").length == 0)
-                    this.$element.find("input[name=_rowselect]").prop("checked", false);
+                    this.$element.find("input[name=_rowselect]").prop("checked", false).each(function() { setRowSelect($(this)); });
                 else
-                    this.$element.find("input[name=_rowselect]").prop("checked", true);
+                    this.$element.find("input[name=_rowselect]").prop("checked", true).each(function () { setRowSelect($(this)); });
 
+                onRowChange();
+            }, this));
+            
+            $(this.$element).on("click", "thead tr .griddly-selection-clear", $.proxy(function (event)
+            {
+                this.clearSelected();
                 onRowChange();
             }, this));
 
@@ -511,7 +567,10 @@
 
             $(".griddly-filters-inline input, .griddly-filters-inline select", this.$element).on("change", $.proxy(function (event)
             {
-                this.refresh(true);
+                this.$element.trigger("filterchange.griddly", this.$element, event.target);
+
+                if (this.options.autoRefreshOnFilter)
+                    this.refresh(true);
             }, this));
 
             $(".griddly-filters-inline .filter-content input", this.$element).keyup(function (event)
@@ -636,13 +695,114 @@
             }
         },
 
+        getFilterMode: function()
+        {
+            return this.options.filterMode;
+        },
+
+        setFilterMode: function(mode)
+        {
+            if (this.options.allowedFilterModes.indexOf(mode) > -1)
+            {
+                this.options.filterMode = mode;
+
+                var request1 = this.buildRequest();
+
+                this.$element.find("tr.griddly-filters:not(tr.griddly-filters-" + this.options.filterMode.toLowerCase() + ")").hide();
+                this.$element.find("tr.griddly-filters-" + this.options.filterMode.toLowerCase()).show();
+
+                var request2 = this.buildRequest();
+
+                if (JSON.stringify(request1) !== JSON.stringify(request2))
+                {
+                    this.refresh(true);
+                }
+            }
+        },
+
+        toggleFilterMode: function()
+        {
+            if (this.options.allowedFilterModes.length > 1)
+            {
+                this.setFilterMode(this.options.filterMode == "Inline" ? "Form" : "Inline");
+            }
+        },
+
+        getFilterValues: function()
+        {
+            var allFilters;
+
+            if (this.options.filterMode == "Inline")
+                allFilters = this.$inlineFilters;
+            else
+                allFilters = $(".griddly-filters-form input, .griddly-filters-form select", this.$element);
+
+            return serializeObject(allFilters);
+        },
+
+        setFilterValue: function(field, value)
+        {
+            var input = $(field);
+            
+            if (value)
+            {
+                var datatype = input.data("griddly-filter-data-type");
+
+                switch (datatype)
+                {
+                    case "Date":
+                        var date = new Date(value);
+                        value = date.toLocaleDateString();
+                        break;
+                    case "Currency":
+                        value = value.toFixed(2);
+                        break;
+                }
+            }
+
+            input.val(value).change();
+        },
+
+        setFilterValues: function(filters, isPatch)
+        {
+            this.options.autoRefreshOnFilter = false;
+
+            if (isPatch !== true)
+            {
+                var allFilters = $(".griddly-filters input, .griddly-filters select", this.$element).add(this.$inlineFilters);
+
+                allFilters.each($.proxy(function (i, e)
+                {
+                    this.setFilterValue(e, filters[e.name]);
+                }, this));
+            }
+            else
+            {
+                for (var key in filters)
+                {
+                    this.setFilterValue("[name='" + key + "']", filters[key]);
+                }
+            }
+
+            this.options.autoRefreshOnFilter = true;
+            this.refresh(true);
+        },
+
+        resetFilterValues: function ()
+        {
+            this.$element.find("form .transient").remove();
+            this.$element.find("form")[0].reset();
+
+            this.setFilterValues(this.options.filterDefaults);
+
+            this.$element.trigger("resetfilters.griddly");
+
+            this.refresh(true);
+        },
+
         buildRequest: function(paging)
         {
-            var filters = $(".griddly-filters input, .griddly-filters select", this.$element);
-
-            filters = filters.add(this.$inlineFilters);
-
-            var postData = serializeObject(filters);
+            var postData = this.getFilterValues();
 
             if (this.options.sortFields.length)
             {
@@ -668,6 +828,8 @@
 
         refresh: function(resetPage)
         {
+            this.$element.trigger("beforerefresh.griddly");
+
             if (!this.options.url)
             {
                 window.location = window.location;
@@ -696,16 +858,23 @@
                 this.options.count = count;
                 this.options.pageCount = Math.ceil(this.options.count / this.options.pageSize);
                 // TODO: handle smaller count
-                this.$element.find("tbody.data").replaceWith(data);
+                
+                var html = $(data);
+
+                this.$element.find("tbody.data").replaceWith(html.filter("tbody"));
+
+                var tfoot = this.$element.find("tfoot");
+
+                if (tfoot.length && html.is("tfoot"))
+                    tfoot.replaceWith(html.filter("tfoot"));
 
                 var startRecord = this.options.pageNumber * this.options.pageSize;
-
                 this.$element.find(".griddly-summary").html('<span class="hidden-xs">Records</span> ' + (startRecord + (this.options.count ? 1 : 0)) + ' <span class="hidden-xs">through</span><span class="visible-xs">-</span> ' + (startRecord + currentPageSize) + " of " + this.options.count);
 
                 this.$element.find(".pageCount").html(this.options.pageCount);
 
                 this.$element.find("input.pageNumber").val(this.options.pageNumber + 1);
-
+                
                 if (startRecord > this.options.count - this.options.pageSize)
                     this.$element.find(".next").hide();
                 else
@@ -720,14 +889,16 @@
                     this.$element.find(".griddly-pager").hide();
                 else
                     this.$element.find(".griddly-pager").show();
+                
+                //iterate through table and check rows that are in the selected list and have a checkbox
+                var _this = this;
+                $("tbody tr", this.$element).find("input[name=_rowselect]").each(function (index, e) {
+                    var rowkey = $(e).data("rowkey");
+                    if (_this.options.selectedRows[rowkey])
+                        $(e).prop("checked", true);
+                });
 
-                $(this.$element).find("[data-enable-on-selection=true]").addClass("disabled");
-
-                if (this.options.onRefresh)
-                    this.options.onRefresh(this, startRecord, currentPageSize, count, postData);
-
-                // TODO: should we remove the onClientRefresh method?
-                this.$element.trigger("refresh", 
+                this.$element.trigger("refresh.griddly",
                 {
                     start: startRecord,
                     pageSize: currentPageSize,
@@ -748,24 +919,35 @@
 
                     window.location = url;
                 }
+
+                this.$element.trigger("error.griddly", { xhr: xhr, status: status, error: errorThrown });
             }, this));
         },
 
-        getSelected: function()
+        getSelected: function(arrayIdNames)
         {
-            var data = serializeObject(this.$element.find("input[name=_rowselect]"))._rowselect;
+            if (arrayIdNames === "all")
+                return this.options.selectedRows;
 
-            if (!data)
-                data = [];
-            else if (!data.push)
-                data = [data];
+            if (!arrayIdNames)
+                arrayIdNames = this.options.defaultRowIds;
+            else if (typeof arrayIdNames === "string")
+                arrayIdNames = [ arrayIdNames ];
 
-            return data;
+            var result = {};
+            for (var name in arrayIdNames)
+                result[arrayIdNames[name]] = $.map(this.options.selectedRows, function (x) { return x[arrayIdNames[name]] });
+
+            return result;
         },
 
-        onRefresh: function(onRefresh)
+        clearSelected: function()
         {
-            this.options.onRefresh = onRefresh;
+            this.options.selectedRows = {};
+
+            $("tbody tr", this.$element).find("input[name=_rowselect]").prop("checked", false);
+
+            this.setSelectedCount();
         },
 
         pageNumber: function(pageNumber)
@@ -823,189 +1005,196 @@
     {
         pageNumber: 0,
         pageSize: 20,
-        onRefresh: null,
         onError: null,
         isMultiSort: true,
         lastSelectedRow: null,
-        rowClickModal: null
+        rowClickModal: null,
+        selectedRows: null,
+        autoRefreshOnFilter: true,
+        filterMode: null,
+        allowedFilterModes: []
     };
 
-    var GriddlyButton = function (element, options) {
-        this.$element = $(element);
-        this.options = options;
+    function GriddlyButton()
+    { }
 
-        this.create();
+    GriddlyButton.handleClick = $.proxy(function (event)
+    {
+        var button = $(event.currentTarget);
+        var griddly = button.closest("[data-role=griddly]");
+        var url = button.data("url");
+        var toggle = button.data("toggle");
+        var onclick = button.data("onclick");
+        var confirmMessage = button.data("confirm-message");
+        var enableOnSelection = button.data("enable-on-selection");
+        var clearSelectionOnAction = button.data("clear-selection-on-action");
+        var rowIds = button.data("rowids");
 
-        if ($(this.$element).is("[data-enable-on-selection=true]")) {
-            $(this.$element).addClass("disabled");
-        }
-    };
+        if ((typeof confirmMessage === "undefined" || confirm(confirmMessage)))
+        {
+            if (button.triggerHandler("beforeExecute") !== false)
+            {
+                if (toggle && ["ajaxbulk", "postcriteria", "ajax", "post"].indexOf(toggle) > -1)
+                {
+                    if (!url)
+                        url = button.attr("href");
 
-    GriddlyButton.prototype = {
-        constructor: GriddlyButton,
+                    var selection = {};
+                    if (griddly.length)
+                    {
+                        selection = griddly.griddly("getSelected", rowIds);
 
-        // create and bind
-        create: function () {
-            var griddly = this.$element.closest("[data-role=griddly]");
-            var url = this.$element.data("url");
-            var toggle = this.$element.data("toggle");
-            var onclick = this.$element.data("onclick");
-            var confirmMessage = this.$element.data("confirm-message");
-            var enableOnSelection = this.$element.data("enable-on-selection");
-
-            $(this.$element).on("click", $.proxy(function (event) {
-                if ((typeof confirmMessage === "undefined" || confirm(confirmMessage))) {
-                    if ($(this.$element).triggerHandler("beforeExecute") !== false) {
-                        if (toggle && ["ajaxbulk", "postcriteria", "ajax", "post"].indexOf(toggle) > -1) {
-                            if (!url)
-                                url = $(event.currentTarget).attr("href");
-
-                            var ids = {};
-                            if (griddly)
-                                ids = $(griddly).griddly("getSelected");
-
-                            switch (toggle) {
-                                case "ajaxbulk":
-                                    if (ids.length == 0 && enableOnSelection)
-                                        return;
-                                    return this.ajaxBulk(url, ids);
-
-                                case "post":
-                                    if (ids.length == 0 && enableOnSelection)
-                                        return;
-                                    return this.post(url, ids);
-
-                                case "postcriteria":
-                                    if (!griddly)
-                                        return;
-                                    return this.postCriteria(url, $(griddly).griddly("buildRequest"));
-
-                                case "ajax":
-                                    if (ids.length == 0)
-                                        return;
-                                    return this.ajax(url, ids);
-                            }
+                        if (selection.value)
+                        {
+                            selection.ids = selection.value;
+                            delete selection.value;
                         }
+                    }
 
-                        if (onclick) {
-                            var f = window[onclick];
-                            if ($.isFunction(f))
-                                return f.call(this.$element);
-                            throw "onclick must be a global function";
-                            // we do not support eval cause it's insecure
-                        }
+                    if (clearSelectionOnAction && griddly.length)
+                    {
+                        griddly.griddly("clearSelected");
+                    }
 
-                        return true;
+                    switch (toggle)
+                    {
+                        case "ajaxbulk":
+                            if (Object.keys(selection).length && selection[Object.keys(selection)[0]].length == 0 && enableOnSelection)
+                                return;
+
+                            return this.ajaxBulk(url, selection, button, griddly);
+
+                        case "post":
+                            if (Object.keys(selection).length && selection[Object.keys(selection)[0]].length == 0 && enableOnSelection)
+                                return;
+
+                            return this.post(url, selection, button, griddly);
+
+                        case "postcriteria":
+                            if (!griddly)
+                                return;
+
+                            return this.postCriteria(url, griddly.griddly("buildRequest"));
+
+                        case "ajax":
+                            if (Object.keys(selection).length && selection[Object.keys(selection)[0]].length == 0 && enableOnSelection)
+                                return;
+
+                            return this.ajax(url, selection, button, griddly);
                     }
                 }
 
-                return false;
-            }, this));
-        },
+                if (onclick)
+                {
+                    var f = window[onclick];
 
-        ajaxBulk: function (url, ids) {
+                    if ($.isFunction(f))
+                    {
+                        var result = f.call(button, rowIds);
+
+                        if (clearSelectionOnAction && griddly.length)
+                        {
+                            griddly.griddly("clearSelected");
+                        }
+
+                        return result;
+                    }
+
+                    throw "onclick must be a global function";
+                    // we do not support eval cause it's insecure
+                }
+
+                return true;
+            }
+        }
+
+        return false;
+    }, GriddlyButton);
+
+    GriddlyButton.ajaxBulk = function (url, selection, button, griddly)
+    {
+        $.ajax(url,
+        {
+            data: selection,
+            traditional: true,
+            type: "POST"
+        }).done($.proxy(function (data, status, xhr)
+        {
+            // TODO: handle errors
+            // TODO: go back to first page?
+            griddly.griddly("refresh");
+
+            button.triggerHandler("afterExecute", [data, status, xhr]);
+        }, this));
+    };
+
+    GriddlyButton.post = function (url, selection, button, griddly)
+    {
+        var inputs = "";
+
+        var token = $("input[name^=__RequestVerificationToken]").first();
+
+        if (token.length)
+            inputs += '<input type="hidden" name="' + token.attr("name") + '" value="' + token.val() + '" />';
+
+        for (var idname in selection)
+        {
+            $.each(selection[idname], function () {
+                inputs += "<input name=\"" + idname + "\" value=\"" + this + "\" />";
+            });
+        }
+
+        $("<form action=\"" + url + "\" method=\"post\">" + inputs + "</form>")
+            .appendTo("body").submit().remove();
+
+        return false;
+    };
+
+    GriddlyButton.postCriteria = function (url, request, button, griddly)
+    {
+        var inputs = "";
+
+        var token = $("input[name^=__RequestVerificationToken]").first();
+
+        if (token.length)
+            inputs += '<input type="hidden" name="' + token.attr("name") + '" value="' + token.val() + '" />';
+
+        for (var key in request)
+            inputs += '<input name="' + key + '" value="' + request[key] + '" />';
+
+        $("<form action=\"" + url + "\" method=\"post\">" + inputs + "</form>")
+            .appendTo("body").submit().remove();
+    };
+
+    GriddlyButton.ajax = function (url, selection, button, griddly, clearSelection)
+    {
+        for (var i = 0; i < selection[Object.keys(selection)[0]].length; i++)
+        {
+            var postdata = {};
+            for (var k in selection)
+            {
+                postdata[k === "ids" ? "id" : k] = selection[k][i];
+            }
+
             $.ajax(url,
             {
-                data: { ids: ids },
-                traditional: true,
+                data: postdata,
                 type: "POST"
-            }).done($.proxy(function (data, status, xhr) {
+            }).done($.proxy(function (data, status, xhr)
+            {
                 // TODO: handle errors
                 // TODO: go back to first page?
-                var griddly = this.$element.closest("[data-role=griddly]");
                 griddly.griddly("refresh");
 
-                $(this.$element).triggerHandler("afterExecute", [data, status, xhr]);
+                button.triggerHandler("afterExecute", [data, status, xhr]);
             }, this));
-        },
-
-        post: function (url, ids) {
-            var inputs = "";
-
-            var token = $("input[name^=__RequestVerificationToken]").first();
-
-            if (token.length)
-                inputs += '<input type="hidden" name="' + token.attr("name") + '" value="' + token.val() + '" />';
-
-            $.each(ids, function () {
-                inputs += "<input name=\"ids\" value=\"" + this + "\" />";
-            });
-
-            $("<form action=\"" + url + "\" method=\"post\">" + inputs + "</form>")
-                .appendTo("body").submit().remove();
-
-            return false;
-        },
-
-        postCriteria: function (url, request) {
-            var inputs = "";
-
-            var token = $("input[name^=__RequestVerificationToken]").first();
-
-            if (token.length)
-                inputs += '<input type="hidden" name="' + token.attr("name") + '" value="' + token.val() + '" />';
-
-            for (var key in request)
-                inputs += '<input name="' + key + '" value="' + request[key] + '" />';
-
-            $("<form action=\"" + url + "\" method=\"post\">" + inputs + "</form>")
-                .appendTo("body").submit().remove();
-        },
-
-        ajax: function (url, ids) {
-            for (var i = 0; i < ids.length; i++) {
-                $.ajax(url,
-                {
-                    data: { id: ids[i] },
-                    type: "POST"
-                }).done($.proxy(function (data, status, xhr) {
-                    // TODO: handle errors
-                    // TODO: go back to first page?
-                    var griddly = this.$element.closest("[data-role=griddly]");
-                    griddly.griddly("refresh");
-
-                    $(this.$element).triggerHandler("afterExecute", [data, status, xhr]);
-                }, this));
-            }
-        },
-    };
-
-    $.fn.griddlyButton = function (option, parameter) {
-        var value;
-        var args = arguments;
-
-        this.each(function () {
-            var data = $(this).data('griddly'),
-                options = typeof option == 'object' && option;
-
-            // initialize griddly button
-            if (!data) {
-                var instanceOptions = $.extend({}, $.fn.griddlyButton.defaults, options);
-
-                $(this).data('griddly', (data = new GriddlyButton(this, instanceOptions)));
-            }
-
-            // call griddly method
-            if (typeof option == 'string') {
-                value = data[option].apply(data, Array.prototype.slice.call(args, 1));
-            }
-
-        });
-
-        if (value !== undefined)
-            return value;
-        else
-            return this;
-    };
-
-    $.fn.griddlyButton.defaults =
-    {
+        }
     };
 
     $(function()
     {
         $("[data-role=griddly]").griddly();
-        $("[data-role=griddly-button]").griddlyButton();
+        $(document).on("click", "[data-role=griddly-button]", GriddlyButton.handleClick);
 
         // patch stupid bootstrap js so it doesn't .empty() our inline filter dropdowns
         // remove once bs fixes: https://github.com/twbs/bootstrap/pull/14244

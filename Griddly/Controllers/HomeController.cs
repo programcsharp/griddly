@@ -92,15 +92,11 @@ namespace Griddly.Controllers
 
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page.";
-
             return View();
         }
 
-        public ActionResult Contact()
+        public ActionResult Examples()
         {
-            ViewBag.Message = "Your contact page.";
-
             return View();
         }
 
@@ -115,6 +111,7 @@ namespace Griddly.Controllers
             {
                 items.Add(new TestGridItem()
                 {
+                    Id = (long)i,
                     FirstName = Name.GetFirstName(),
                     LastName = Name.GetLastName(),
                     Company = Company.GetName(),
@@ -122,10 +119,75 @@ namespace Griddly.Controllers
                     City = Address.GetCity(),
                     State = Address.GetUSState(),
                     PostalCode = Address.GetZipCode(),
+                    Test = (decimal)(r.NextDouble() * 10000),
+                    NullThing = (string)null,
                 });
             }
 
             return items;
+        }
+
+        public ActionResult IndexGrid(string item, int? quantityStart, int? quantityEnd, decimal? totalStart, decimal? totalEnd, string firstName, string lastName, bool? isApproved)
+        {
+            this.SetGriddlyDefault(ref isApproved, "isApproved", true);
+
+            IQueryable<SimpleOrder> query = _indexTestData;
+
+            if (!string.IsNullOrWhiteSpace(item))
+                query = query.Where(x => x.Item.ToLower().Contains(item.ToLower()));
+
+            if (quantityStart != null && quantityEnd != null)
+                query = query.Where(x => x.Quantity >= quantityStart && x.Quantity <= quantityEnd);
+            if (quantityStart != null)
+                query = query.Where(x => x.Quantity >= quantityStart);
+            if (quantityEnd != null)
+                query = query.Where(x => x.Quantity <= quantityEnd);
+
+            if (totalStart != null && totalEnd != null)
+                query = query.Where(x => x.Total >= totalStart && x.Total <= totalEnd);
+            if (totalStart != null)
+                query = query.Where(x => x.Total >= totalStart);
+            if (totalEnd != null)
+                query = query.Where(x => x.Total <= totalEnd);
+
+            if (!string.IsNullOrWhiteSpace(firstName))
+                query = query.Where(x => x.Person.FirstName.ToLower().Contains(firstName.ToLower()));
+            if (!string.IsNullOrWhiteSpace(lastName))
+                query = query.Where(x => x.Person.LastName.ToLower().Contains(lastName.ToLower()));
+
+            if (isApproved != null)
+                query = query.Where(x => x.IsApproved == isApproved);
+
+            return new GriddlyResult<SimpleOrder>(query);
+        }
+
+        static readonly IQueryable<SimpleOrder> _indexTestData = BuildIndexTestData().ToList().AsQueryable();
+
+        static IEnumerable<SimpleOrder> BuildIndexTestData()
+        {
+            List<SimpleOrder> items = new List<SimpleOrder>();
+
+            Random r = new Random();
+
+            int count = r.Next(10000);
+
+            for (int i = 0; i < count; i++)
+            {
+                yield return new SimpleOrder()
+                {
+                    Id = i,
+                    Item = Lorem.GetWord(),
+                    Quantity = 1 + r.Next(10),
+                    Total = 1 + (decimal)(r.NextDouble() * 10000),
+                    IsApproved = r.Next(10) > 3,
+                    Person = new SimplePerson()
+                    {
+                        Id = r.Next(10000),
+                        FirstName = Name.GetFirstName(),
+                        LastName = Name.GetLastName(),
+                    }
+                };
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿@*
  * GriddlyButton button strip renderer using Bootstrap html and styles
  * http://griddly.com
- * Copyright 2013-2014 Chris Hynes and Data Research Group, Inc.
+ * Copyright 2013-2015 Chris Hynes and Data Research Group, Inc.
  * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
  *
  * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
@@ -11,62 +11,81 @@
  
 @model IList<GriddlyButton>
 
+@functions{
+    IEnumerable<IEnumerable<GriddlyButton>> GetGroups(IEnumerable<GriddlyButton> buttons)
+    {
+        List<IEnumerable<GriddlyButton>> groups = new List<IEnumerable<GriddlyButton>>();
+
+        List<GriddlyButton> currentList = null;
+        foreach (var b in buttons)
+        {
+            if (currentList == null)
+            {
+                currentList = new List<GriddlyButton>();
+                groups.Add(currentList);
+            }
+
+            if (b.IsSeparator)
+            {
+                currentList = null;
+            }
+            else
+            {
+                currentList.Add(b);
+            }
+        }
+
+        groups.RemoveAll(x => x.Count() == 0);
+
+        return groups;
+    }
+}
+
 @{
-    var leftButtons = Model.Where(x => !x.AlignRight && ViewBag.AlignRight != true);
-    var rightButtons = Model.Where(x => x.AlignRight || ViewBag.AlignRight == true);
+    var leftGroups = GetGroups(Model.Where(x => !x.AlignRight && ViewBag.AlignRight != true));
+    var rightGroups = GetGroups(Model.Where(x => x.AlignRight || ViewBag.AlignRight == true));
 }
 
 @if (Model.Any())
 {
-    if (rightButtons.Any())
+    if (rightGroups.Any())
     {
         <div class="btn-toolbar @ViewBag.ClassName pull-right">
-            @if (rightButtons.Count() > 1)
+            @foreach (var group in rightGroups)
             {
-            @:<div class="btn-group">
-            }
-                @foreach (GriddlyButton button in rightButtons)
+                if (group.Count() > 1 || group.First().Buttons.Count() == 0)
+                {
+                    @:<div class="btn-group">
+                }
+                foreach (GriddlyButton button in group)
                 {
                     button.AlignRight = true;
-
-                    if (button.IsSeparator)
-                    {
-                        @:</div>
-                        @:<div class="btn-group">
-                    }
-                    else
-                    {
-                        @Html.Partial(GriddlySettings.ButtonTemplate, button);
-                    }
+                    @Html.Partial(GriddlySettings.ButtonTemplate, button);
                 }
-            @if (rightButtons.Count() > 1)
-            {
-            @:</div>
+                if (group.Count() > 1 || group.First().Buttons.Count() == 0)
+                {
+                    @:</div>
+                }
             }
         </div>
     }
-    if (leftButtons.Any())
+    if (leftGroups.Any())
     {
         <div class="btn-toolbar @ViewBag.ClassName">
-            @if (leftButtons.Count() > 1)
+            @foreach (var group in leftGroups)
             {
-                @:<div class="btn-group">
-            }
-            @foreach (GriddlyButton button in leftButtons)
-            {
-                if (button.IsSeparator)
+                if (group.Count() > 1 || group.First().Buttons.Count() == 0)
                 {
-                    @:</div>
                     @:<div class="btn-group">
                 }
-                else
+                foreach (GriddlyButton button in group)
                 {
                     @Html.Partial(GriddlySettings.ButtonTemplate, button);
                 }
-            }
-            @if (leftButtons.Count() > 1)
-            {
-            @:</div>
+                if (group.Count() > 1 || group.First().Buttons.Count() == 0)
+                {
+                    @:</div>
+                }
             }
         </div>
     }
