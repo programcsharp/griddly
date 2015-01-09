@@ -20,7 +20,7 @@ namespace Griddly.Mvc
         public static HtmlString BoolTrueHtml = null;
         public static HtmlString BoolFalseHtml = null;
         public static int? DefaultPageSize = null;
-        //public static FilterMode? DefaultInitialFilterMode = FilterMode.Inline;
+        public static FilterMode? DefaultInitialFilterMode = FilterMode.Inline;
         //public static FilterMode? DefaultAllowedFilterModes = FilterMode.Inline;
         public static bool DefaultShowRowSelectCount = true;
 
@@ -49,7 +49,7 @@ namespace Griddly.Mvc
             TableClassName = DefaultTableClassName;
             FooterTemplate = DefaultFooterTemplate;
             PageSize = DefaultPageSize;
-            //InitialFilterMode = DefaultInitialFilterMode;
+            InitialFilterMode = DefaultInitialFilterMode;
             //AllowedFilterModes = DefaultAllowedFilterModes;
             ShowRowSelectCount = DefaultShowRowSelectCount;
         }
