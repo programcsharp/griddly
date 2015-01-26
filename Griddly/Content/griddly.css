@@ -172,3 +172,13 @@
 {
     display:block;
 }
+
+.griddly-selection 
+{
+    white-space:nowrap;
+    vertical-align:top;
+}
+    .griddly-selection-count
+    {
+        font-weight:bold;
+    }
