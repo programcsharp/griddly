@@ -44,12 +44,12 @@
 
             if (!$.isEmptyObject(this.options.selectedRows))
             {
-                this.$element.find("span.griddly-selection:not(:visible)").show("slow");
+                this.$element.find("span.griddly-selection:not(:visible)").animate({ width: "show" }, 350);
                 $(this.$element).find("[data-enable-on-selection=true]").removeClass("disabled");
             }
             else
             {
-                this.$element.find("span.griddly-selection:visible").hide("slow");
+                this.$element.find("span.griddly-selection:visible").animate({ width: "hide" }, 350);
                 $(this.$element).find("[data-enable-on-selection=true]").addClass("disabled");
             }
 
@@ -329,9 +329,7 @@
 
                 onRowChange();
             }, this);
-
-            $(this.$element).on("change", "input[name=_rowselect]", onRowChange);
-
+            
             $(this.$element).on("click", "td.griddly-select", $.proxy(function (event)
             {
                 var $target = $(event.target);
@@ -366,14 +364,11 @@
                     this.$element.find("input[name=_rowselect]").prop("checked", false).each(function() { setRowSelect($(this)); });
                 else
                     this.$element.find("input[name=_rowselect]").prop("checked", true).each(function () { setRowSelect($(this)); });
-
-                onRowChange();
             }, this));
             
             $(this.$element).on("click", "thead tr .griddly-selection-clear", $.proxy(function (event)
             {
                 this.clearSelected();
-                onRowChange();
             }, this));
 
             $("a.export-xlsx", this.$element).on("click", $.proxy(function (e) {
