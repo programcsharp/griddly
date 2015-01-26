@@ -123,7 +123,16 @@
         @if (!string.IsNullOrWhiteSpace(settings.Title))
         {
             <tr class="header">
-                <td colspan="@settings.Columns.Count">@settings.Title</td>
+                <td colspan="@settings.Columns.Count">@settings.Title
+                    
+                    @if (settings.ShowRowSelectCount)
+                    {
+                        <span class="griddly-selection" style="display:none;">
+                            <span><label class="griddly-selection-count">0</label> rows selected</span>
+                            <span><a class="griddly-selection-clear" href="javascript:;">Clear</a></span>
+                        </span>
+                    }
+                </td>
             </tr>
         }
         @if (settings.AllowedFilterModes != FilterMode.None && settings.AllowedFilterModes.Value.HasFlag(FilterMode.Form))
@@ -160,15 +169,6 @@
         @if (settings.AllowedFilterModes != FilterMode.None && settings.AllowedFilterModes.Value.HasFlag(FilterMode.Inline))
         {
             <tr class="griddly-filters griddly-filters-inline" style="@(settings.InitialFilterMode == FilterMode.Inline ? null : "display:none")">@settings.InlineFilterTemplate(settings)</tr>
-        }
-        @if (settings.ShowRowSelectCount)
-        {
-            <tr class="griddly-selection" style="display:none;">
-                <td colspan="@settings.Columns.Count">
-                    <span><label class="griddly-selection-count">0</label> rows selected</span>
-                    <span><a class="griddly-selection-clear" href="javascript:;">Clear</a></span>
-                </td>
-            </tr>
         }
     </thead>
 }
