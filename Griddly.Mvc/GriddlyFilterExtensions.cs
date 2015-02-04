@@ -7,7 +7,7 @@ namespace Griddly.Mvc
 {
     public static class GriddlyFilterExtensions
     {
-        public static GriddlyFilterBox FilterBox(this GriddlyColumn column, FilterDataType dataType = FilterDataType.Decimal, string field = null, string caption = null, string htmlClass = null)
+        public static GriddlyFilterBox FilterBox(this GriddlyColumn column, FilterDataType dataType = FilterDataType.Decimal, string field = null, string caption = null, string htmlClass = null, string captionPlural = null)
         {
             if (caption == null)
                 caption = column.Caption;
@@ -20,16 +20,21 @@ namespace Griddly.Mvc
             if (string.IsNullOrWhiteSpace(field))
                 throw new ArgumentNullException("field", "Field must be specified.");
 
-            return new GriddlyFilterBox()
+            var filter = new GriddlyFilterBox()
             {
                 Field = field,
                 Caption = caption,
                 DataType = dataType,
                 HtmlClass = htmlClass
             };
+
+            if (captionPlural != null)
+                filter.CaptionPlural = captionPlural;
+
+            return filter;
         }
 
-        public static GriddlyFilterRange FilterRange(this GriddlyColumn column, FilterDataType dataType = FilterDataType.Decimal, string field = null, string fieldEnd = null, string caption = null, string htmlClass = null)
+        public static GriddlyFilterRange FilterRange(this GriddlyColumn column, FilterDataType dataType = FilterDataType.Decimal, string field = null, string fieldEnd = null, string caption = null, string htmlClass = null, string captionPlural = null)
         {
             if (caption == null)
                 caption = column.Caption;
@@ -46,7 +51,7 @@ namespace Griddly.Mvc
             if (string.IsNullOrWhiteSpace(fieldEnd))
                 throw new ArgumentNullException("fieldEnd", "End field must be specified.");
 
-            return new GriddlyFilterRange()
+            var filter = new GriddlyFilterRange()
             {
                 Field = field,
                 FieldEnd = fieldEnd,
@@ -54,9 +59,14 @@ namespace Griddly.Mvc
                 DataType = dataType,
                 HtmlClass = htmlClass
             };
+
+            if (captionPlural != null)
+                filter.CaptionPlural = captionPlural;
+
+            return filter;
         }
 
-        public static GriddlyFilterList FilterList(this GriddlyColumn column, IEnumerable<SelectListItem> items, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null, string htmlClass = null)
+        public static GriddlyFilterList FilterList(this GriddlyColumn column, IEnumerable<SelectListItem> items, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null, string htmlClass = null, string captionPlural = null)
         {
             if (caption == null)
                 caption = column.Caption;
@@ -81,7 +91,7 @@ namespace Griddly.Mvc
             selectableItemsList.AddRange(itemsList.Where(x => !(x is SelectListItemGroup)));
             selectableItemsList.AddRange(itemsList.Where(x => x is SelectListItemGroup).SelectMany(x => ((SelectListItemGroup)x).Items));
 
-            return new GriddlyFilterList()
+            var filter = new GriddlyFilterList()
             {
                 Field = field,
                 Items = itemsList,
@@ -93,6 +103,11 @@ namespace Griddly.Mvc
                 DefaultSelectAll = defaultSelectAll,
                 HtmlClass = htmlClass
             };
+
+            if (captionPlural != null)
+                filter.CaptionPlural = captionPlural;
+
+            return filter;
         }
 
         static string GetField(GriddlyColumn column)
@@ -110,21 +125,21 @@ namespace Griddly.Mvc
             return value;
         }
 
-        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null, string htmlClass = null)
+        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null, string htmlClass = null, string captionPlural = null)
             where T : struct
         {
-            return column.FilterList(Extensions.ToSelectListItems<T>().OrderBy(x => x.Text), isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption);
+            return column.FilterList(Extensions.ToSelectListItems<T>().OrderBy(x => x.Text), isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural);
         }
 
-        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, IEnumerable<T> items, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null, string htmlClass = null)
+        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, IEnumerable<T> items, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null, string htmlClass = null, string captionPlural = null)
             where T : struct
         {
-            return column.FilterList(Extensions.ToSelectListItems(items).OrderBy(x => x.Text), isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass);
+            return column.FilterList(Extensions.ToSelectListItems(items).OrderBy(x => x.Text), isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural);
         }
 
-        public static GriddlyFilterList FilterBool(this GriddlyColumn column, string trueLabel = "Yes", string falseLabel = "No", string nullItemText = null, bool isMultiple = false, bool defaultSelectAll = false, bool isNoneAll = false, string field = null, string caption = null, string htmlClass = null)
+        public static GriddlyFilterList FilterBool(this GriddlyColumn column, string trueLabel = "Yes", string falseLabel = "No", string nullItemText = null, bool isMultiple = false, bool defaultSelectAll = false, bool isNoneAll = false, string field = null, string caption = null, string htmlClass = null, string captionPlural = null)
         {
-            return column.FilterList(BuildBoolItems(trueLabel, falseLabel), isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass);
+            return column.FilterList(BuildBoolItems(trueLabel, falseLabel), isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural);
         }
 
         static List<SelectListItem> BuildBoolItems(string trueLabel, string falseLabel)
