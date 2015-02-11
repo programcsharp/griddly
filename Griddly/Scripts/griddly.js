@@ -289,6 +289,7 @@
             var onRowChange = $.proxy(function (event)
             {
                 this.setSelectedCount();
+                var self = this;
 
                 this.$element.find("[data-append-rowids-to-url]").each(function ()
                 {
@@ -296,15 +297,16 @@
 
                     if (template)
                     {
-                        var selection = this.getSelected($(this).data["rowids"]);
+                        var selection = self.getSelected($(this).data("rowids"));
                         var query = [];
+
                         for (var k in selection)
                         {
                             query[query.length] = k + "=" + selection[k].join(",");
                         }
 
                         $(this).attr("href", template + (template.indexOf("?") > -1 ? "&" : "?") + query.join("&"));
-                    }            
+                    }
                 });
             }, this);
 
