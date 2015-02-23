@@ -536,8 +536,11 @@
                         filter.find(".filter-trigger").popover("hide");
 
                     var allItems = content.find("li:not(.griddly-list-group-header)");
-                    var selectedItems = allItems.filter(".griddly-filter-selected");
+                    var selectedItems = allItems.filter(":has(:checked)");
                     var displayItemCount = parseInt(filter.data("griddly-filter-displayitemcount"));
+
+                    allItems.removeClass("griddly-filter-selected");
+                    selectedItems.addClass("griddly-filter-selected");
 
                     if (selectedItems.length == allItems.length || (selectedItems.length == 0 && filter.data("griddly-filter-isnoneall")))
                         display = (allItems.length == 2 ? "Both " : "All ") + filter.data("filter-name-plural");
@@ -701,12 +704,15 @@
         {
             if (this.options.allowedFilterModes.indexOf(mode) > -1)
             {
-                this.options.filterMode = mode;
-
+                var currentFilters = this.getFilterValues();
                 var request1 = this.buildRequest();
+
+                this.options.filterMode = mode;
 
                 this.$element.find("tr.griddly-filters:not(tr.griddly-filters-" + this.options.filterMode.toLowerCase() + ")").hide();
                 this.$element.find("tr.griddly-filters-" + this.options.filterMode.toLowerCase()).show();
+
+                this.setFilterValues(currentFilters, true);
 
                 var request2 = this.buildRequest();
 
@@ -725,21 +731,37 @@
             }
         },
 
-        getFilterValues: function()
+        getAllFilters: function() 
         {
             var allFilters;
 
             if (this.options.filterMode == "Inline")
+            {
                 allFilters = this.$inlineFilters;
+            }
             else
+            {
                 allFilters = $(".griddly-filters-form input, .griddly-filters-form select", this.$element);
+            }
 
-            return serializeObject(allFilters);
+            return allFilters;
+        },
+
+        getFilterValues: function()
+        {
+            return serializeObject(this.getAllFilters());
         },
 
         setFilterValue: function(field, value)
         {
-            var input = $(field);
+            if (typeof (field) === "string")
+            {
+                var input = this.getAllFilters().filter(field);
+            }
+            else
+            {
+                var input = $(field);
+            }
             
             if (value)
             {
@@ -757,30 +779,26 @@
                 }
             }
 
-            input.val(value).change();
+            input.val([].concat(value));
+            $(input[0]).change();
         },
 
         setFilterValues: function(filters, isPatch)
         {
             this.options.autoRefreshOnFilter = false;
 
-            if (isPatch !== true)
-            {
-                var allFilters = $(".griddly-filters input, .griddly-filters select", this.$element).add(this.$inlineFilters);
+            var allFilters = this.getAllFilters();
 
-                allFilters.each($.proxy(function (i, e)
-                {
-                    this.setFilterValue(e, filters[e.name]);
-                }, this));
-            }
-            else
+            if (isPatch === true)
             {
-                for (var key in filters)
-                {
-                    this.setFilterValue("[name='" + key + "']", filters[key]);
-                }
+                allFilters = allFilters.filter(function (i, e) { return typeof (filters[e.name]) !== "undefined"; });
             }
 
+            allFilters.each($.proxy(function (i, e)
+            {
+                this.setFilterValue(e, filters[e.name]);
+            }, this));
+            
             this.options.autoRefreshOnFilter = true;
             this.refresh(true);
         },
