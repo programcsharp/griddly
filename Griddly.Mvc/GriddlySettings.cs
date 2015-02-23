@@ -142,6 +142,13 @@ namespace Griddly.Mvc
             return this;
         }
 
+        public GriddlySettings Add(GriddlyFilter filter)
+        {
+            Filters.Add(filter);
+
+            return this;
+        }
+
         /*public GriddlySettings Button(string url, string caption, string icon = null)
         {
             return Add(new GriddlyButton()

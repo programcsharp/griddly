@@ -18,4 +18,11 @@
     .Column(x => x.State, "State", filter: x => x.FilterRange(FilterDataType.Date))
     .Column(x => x.PostalCode, "Zip", filter: x => x.FilterBool(nullItemText: "Both"))
     .Add(new GriddlyButton("btn-search") { Text = "Show Filter Form" })
+    .Add(new GriddlyHtmlFilter()
+    {
+        Caption = "Custom Html Filter",
+        Field = "htmlFilter",
+        HtmlTemplate = @<text><input class="form-control @item.HtmlClass" id="griddly-filter-@item.Field" type="text" name="@item.Field" value="@item.GetEditValue(this.GetGriddlyDefault(item.Field))"
+            data-griddly-filter-data-type="@item.DataType" /></text>
+    })
 )
