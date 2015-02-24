@@ -10,12 +10,13 @@
 *@
 
 @model GriddlySettings
-    
+
 @foreach (GriddlyFilter filter in Model.Filters)
 {
     GriddlyFilterBox filterBox = filter as GriddlyFilterBox;
     GriddlyFilterRange filterRange = filter as GriddlyFilterRange;
     GriddlyFilterList filterList = filter as GriddlyFilterList;
+    GriddlyHtmlFilter filterHtml = filter as GriddlyHtmlFilter;
 
     object defaultValue = this.GetGriddlyDefault(filter.Field);
     object defaultValueEnd = filterRange != null ? this.GetGriddlyDefault(filterRange.FieldEnd) : null;
@@ -38,7 +39,7 @@
                     }
                 }
                 <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@filter.Field" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
-                    data-griddly-filter-data-type="@filter.DataType" />
+                       data-griddly-filter-data-type="@filter.DataType" />
                 @if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
                 {
                     @*@if (filter.DataType == FilterDataType.Percent)
@@ -65,7 +66,7 @@
                     }
                 }
                 <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@filter.Field" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
-                    data-griddly-filter-data-type="@filter.DataType" />
+                       data-griddly-filter-data-type="@filter.DataType" />
                 @if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
                 {
                     @*@if (filter.DataType == FilterDataType.Percent)
@@ -89,8 +90,8 @@
                         <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
                     }
                 }
-                          <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@(filter.Field)-to" name="@filterRange.FieldEnd" type="text" value="@filter.GetEditValue(defaultValueEnd)"
-                                 data-griddly-filter-data-type="@filter.DataType" />
+                <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@(filter.Field)-to" name="@filterRange.FieldEnd" type="text" value="@filter.GetEditValue(defaultValueEnd)"
+                       data-griddly-filter-data-type="@filter.DataType" />
                 @if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
                 {
                     @*@if (filter.DataType == FilterDataType.Percent)
@@ -107,12 +108,18 @@
 
             <div class="col-sm-3">
                 <select class="form-control col-sm-3" id="griddly-filter-@filter.Field" name="@filter.Field" @(filterList.IsMultiple ? "multiple" : null)
-                    data-griddly-filter-data-type="@filter.DataType">
+                        data-griddly-filter-data-type="@filter.DataType">
                     @foreach (SelectListItem item in filterList.Items)
                     {
                         <option value="@item.Value" @(item.Selected ? "selected" : null)>@item.Text</option>
                     }
                 </select>
+            </div>
+        }
+        else if (filterHtml != null)
+        {
+            <div class="col-sm-3">
+                @filterHtml.HtmlTemplate(filter)
             </div>
         }
     </div>

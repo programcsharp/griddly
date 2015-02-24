@@ -92,6 +92,7 @@
     <Compile Include="DapperGriddlyResult.cs" />
     <Compile Include="DynamicLinq.cs" />
     <Compile Include="GriddlyFilterExtensions.cs" />
+    <Compile Include="GriddlyHtmlFilter.cs" />
     <Compile Include="InternalExtensions.cs" />
     <Compile Include="GriddlyButton.cs" />
     <Compile Include="GriddlyColumn.cs" />

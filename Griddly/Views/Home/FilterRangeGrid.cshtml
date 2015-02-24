@@ -11,11 +11,18 @@
         ClassName = "filter-range-grid",
         AllowedFilterModes = FilterMode.Both
     }
-    .Column(x => x.FirstName, "First Name", defaultSort: SortDirection.Ascending)
-    .Column(x => x.LastName, "Last Name")
+    .Column(x => x.FirstName, "First Name", defaultSort: SortDirection.Ascending, defaultSortOrder: 2)
+    .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending, defaultSortOrder: 1)
     .Column(x => x.Company, "Company", filter: x => x.FilterList(enumList, defaultSelectAll: true))
     .Column(x => x.Address, "Address", filter: x => x.FilterRange(FilterDataType.Integer))
     .Column(x => x.State, "State", filter: x => x.FilterRange(FilterDataType.Date))
     .Column(x => x.PostalCode, "Zip", filter: x => x.FilterBool(nullItemText: "Both"))
     .Add(new GriddlyButton("btn-search") { Text = "Show Filter Form" })
+    .Add(new GriddlyHtmlFilter()
+    {
+        Caption = "Custom Html Filter",
+        Field = "htmlFilter",
+        HtmlTemplate = @<text><input class="form-control @item.HtmlClass" id="griddly-filter-@item.Field" type="text" name="@item.Field" value="@item.GetEditValue(this.GetGriddlyDefault(item.Field))"
+            data-griddly-filter-data-type="@item.DataType" /></text>
+    })
 )
