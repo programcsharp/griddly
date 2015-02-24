@@ -243,6 +243,8 @@ namespace Griddly.Mvc
                 if (_defaultSort == null)
                     _defaultSort = Columns
                         .Where(x => x.DefaultSort != null)
+                        .OrderBy(x => x.DefaultSortOrder)
+                        .ThenBy(x => Columns.IndexOf(x))
                         .Select(x => new SortField() { Field = x.ExpressionString, Direction = x.DefaultSort.Value }).ToArray();
 
                 return _defaultSort;
@@ -313,7 +315,7 @@ namespace Griddly.Mvc
             return this;
         }
 
-        public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> expression, string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
+        public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> expression, string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null, int defaultSortOrder = 0)
         {
             ModelMetadata metadata = null;
 
@@ -371,6 +373,7 @@ namespace Griddly.Mvc
                 SummaryFunction = summaryFunction,
                 SummaryValue = summaryValue,
                 DefaultSort = defaultSort,
+                DefaultSortOrder = defaultSortOrder,
                 ClassName = className,
                 IsExportOnly = isExportOnly,
                 Width = width
@@ -379,26 +382,10 @@ namespace Griddly.Mvc
             return this;
         }
 
-        public GriddlySettings<TRow> Column(string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
+        public GriddlySettings<TRow> Column(string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null, int defaultSortOrder = 0)
         {
-            return Column<object>(null, caption, format, expressionString, defaultSort, className, isExportOnly, width, summaryFunction, summaryValue, template, filter);
+            return Column<object>(null, caption, format, expressionString, defaultSort, className, isExportOnly, width, summaryFunction, summaryValue, template, filter, defaultSortOrder);
         }
-        //public GriddlySettings<TRow> TemplateColumn(Func<TRow, object> template, string caption, string format = null, string sortField = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, Func<GriddlyColumn, GriddlyFilter> filter = null)
-        //{
-        //    Add(new GriddlyColumn<TRow>()
-        //    {
-        //        Template = template,
-        //        Caption = caption,
-        //        Format = format,
-        //        SortField = sortField,
-        //        DefaultSort = defaultSort,
-        //        ClassName = className,
-        //        IsExportOnly = isExportOnly,
-        //        Width = width
-        //    }, filter);
-
-        //    return this;
-        //}
 
         public GriddlySettings<TRow> SelectColumn(Expression<Func<TRow, object>> id, object summaryValue = null)
         {

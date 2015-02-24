@@ -14,6 +14,7 @@ namespace Griddly.Mvc
         public string ExpressionString { get; set; }
         public string Format { get; set; }
         public SortDirection? DefaultSort { get; set; }
+        public int DefaultSortOrder { get; set; }
         public string ClassName { get; set; }
         public string Width { get; set; }
         public bool IsExportOnly { get; set; }
