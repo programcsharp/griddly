@@ -1,6 +1,34 @@
 ﻿
 @{
     ViewBag.Title = "TestGrid";
+
+    List<SelectListItem> groupedList = new List<SelectListItem>()
+    {
+        new SelectListItemGroup()
+        {
+            Text = "Group1",
+            Items = new List<SelectListItem>()
+            {
+                new SelectListItem() { Text = "Item1", Value = "Item1" },
+                new SelectListItem() { Text = "Item2", Value = "Item2" },
+                new SelectListItem() { Text = "Item3", Value = "Item3" },
+                new SelectListItem() { Text = "Item4", Value = "Item4" },
+                new SelectListItem() { Text = "Item5", Value = "Item5" },
+            }
+        },
+        new SelectListItemGroup()
+        {
+            Text = "Group2",
+            Items = new List<SelectListItem>()
+            {
+                new SelectListItem() { Text = "Item6", Value = "Item6" },
+                new SelectListItem() { Text = "Item7", Value = "Item7" },
+                new SelectListItem() { Text = "Item8", Value = "Item8" },
+                new SelectListItem() { Text = "Item9", Value = "Item9" },
+                new SelectListItem() { Text = "Item10", Value = "Item10" },
+            }
+        }
+    };
 }
 
 @Html.Griddly(new GriddlySettings<TestGridItem>()
@@ -16,10 +44,18 @@
     }
     .Column("test", template: @<a href="http://google.com">google</a>, summaryValue: "Total")
     .Column(x => x.Test, "Sum", format: "c", summaryFunction: SummaryAggregateFunction.Sum)
-        .Column(x => x.Test, "Min", format: "c", summaryFunction: SummaryAggregateFunction.Min)
-        .Column(x => x.Test, "Max", format: "c", summaryFunction: SummaryAggregateFunction.Max)
-        .Column(x => x.Test, "Avg", format: "c", summaryFunction: SummaryAggregateFunction.Average)
-    .Column(x => x.FirstName, "First Name")
+    .Column(x => x.Test, "Min", format: "c", summaryFunction: SummaryAggregateFunction.Min)
+    .Column(x => x.Test, "Max", format: "c", summaryFunction: SummaryAggregateFunction.Max)
+    .Column(x => x.Test, "Avg", format: "c", summaryFunction: SummaryAggregateFunction.Average, filter: x => x.FilterList(groupedList))
+    .Column(x => x.FirstName, "First Name", filter: x =>
+        {
+            GriddlyFilterList filter = x.FilterList(TestGridItem.UsStates);
+                    
+            filter.CaptionPlural = "State";
+            filter.DisplayItemCount = 2;
+                    
+            return filter;
+        })
     .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending, filter: x => x.FilterBox(FilterDataType.String))
     .Column(x => x.Company, "Company", filter: x => x.FilterBox(FilterDataType.Decimal))
     .Column(x => x.Address, "Address", filter: x => x.FilterBox(FilterDataType.Currency))
