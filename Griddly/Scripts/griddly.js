@@ -602,7 +602,7 @@
                     // TODO: figure out how to have griddly in modal and still use body container. as it is, something about the modal
                     // blocks inputs in popovers from getting focus. so as a fallback I put it back in the bouding container, 
                     // which will work but means it will get cut off if griddly is scrollable
-                    container: el, // this.$element.parents(".modal").length ? null : "body",
+                    container: null, // this.$element.parents(".modal").length ? null : "body",
                     template: '<div class="popover griddly-filter-popover"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>',
                     content: function ()
                     {
