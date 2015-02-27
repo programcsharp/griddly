@@ -1211,9 +1211,9 @@
         $("[data-role=griddly]").griddly();
         $(document).on("click", "[data-role=griddly-button]", GriddlyButton.handleClick);
 
-        // patch stupid bootstrap js so it doesn't .empty() our inline filter dropdowns
-        // remove once bs fixes: https://github.com/twbs/bootstrap/pull/14244
-        var setContent = $.fn.popover.Constructor.prototype.setContent;
+        // patch bootstrap js so it doesn't .empty() our inline filter dropdowns
+        // include if using bootstrap < 3.3.0
+        //var setContent = $.fn.popover.Constructor.prototype.setContent;
 
         $.fn.popover.Constructor.prototype.setContent = function ()
         {
