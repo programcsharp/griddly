@@ -1215,13 +1215,13 @@
         // include if using bootstrap < 3.3.0
         //var setContent = $.fn.popover.Constructor.prototype.setContent;
 
-        $.fn.popover.Constructor.prototype.setContent = function ()
-        {
-            var $tip = this.tip();
+        //$.fn.popover.Constructor.prototype.setContent = function ()
+        //{
+        //    var $tip = this.tip();
 
-            $tip.find('.popover-content').children().detach();
+        //    $tip.find('.popover-content').children().detach();
 
-            setContent.call(this);
-        };
+        //    setContent.call(this);
+        //};
     });
 }(window.jQuery);
