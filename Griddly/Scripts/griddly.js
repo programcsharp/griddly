@@ -704,6 +704,8 @@
         {
             if (this.options.allowedFilterModes.indexOf(mode) > -1)
             {
+                this.$element.trigger("setfiltermode.griddly", { mode: mode });
+
                 var currentFilters = this.getFilterValues();
                 var request1 = this.buildRequest();
 
