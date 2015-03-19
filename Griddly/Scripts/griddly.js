@@ -700,7 +700,7 @@
             return this.options.filterMode;
         },
 
-        setFilterMode: function(mode)
+        setFilterMode: function(mode, noRefresh)
         {
             if (this.options.allowedFilterModes.indexOf(mode) > -1)
             {
@@ -718,7 +718,7 @@
 
                 var request2 = this.buildRequest();
 
-                if (JSON.stringify(request1) !== JSON.stringify(request2))
+                if (!noRefresh && JSON.stringify(request1) !== JSON.stringify(request2))
                 {
                     this.refresh(true);
                 }
@@ -800,6 +800,8 @@
             {
                 this.setFilterValue(e, filters[e.name]);
             }, this));
+
+            this.$element.trigger("setfilters.griddly", filters);
             
             this.options.autoRefreshOnFilter = true;
             this.refresh(true);
