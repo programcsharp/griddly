@@ -1,52 +1,22 @@
 ﻿
 @{
     ViewBag.Title = "TestGrid";
-
-    List<SelectListItem> groupedList = new List<SelectListItem>()
-    {
-        new SelectListItemGroup()
-        {
-            Text = "Group1",
-            Items = new List<SelectListItem>()
-            {
-                new SelectListItem() { Text = "Item1", Value = "Item1" },
-                new SelectListItem() { Text = "Item2", Value = "Item2" },
-                new SelectListItem() { Text = "Item3", Value = "Item3" },
-                new SelectListItem() { Text = "Item4", Value = "Item4" },
-                new SelectListItem() { Text = "Item5", Value = "Item5" },
-            }
-        },
-        new SelectListItemGroup()
-        {
-            Text = "Group2",
-            Items = new List<SelectListItem>()
-            {
-                new SelectListItem() { Text = "Item6", Value = "Item6" },
-                new SelectListItem() { Text = "Item7", Value = "Item7" },
-                new SelectListItem() { Text = "Item8", Value = "Item8" },
-                new SelectListItem() { Text = "Item9", Value = "Item9" },
-                new SelectListItem() { Text = "Item10", Value = "Item10" },
-            }
-        }
-    };
 }
 
 @Html.Griddly(new GriddlySettings<TestGridItem>()
     {
-        PageSize = 5
+        PageSize = 5,
+        ClassName = "filter-list-grid"
     }
+    
     .Column(x => x.FirstName, "First Name")
-        .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending)
-            .Column(x => x.City, "City", filter: x => x.FilterEnum<Title>())
-            .Column(x => x.State, "State", filter: x =>
-                {
-                    GriddlyFilterList filter = x.FilterList(TestGridItem.UsStates);
-                    
-                    filter.CaptionPlural = "State";
-                    filter.DisplayItemCount = 2;
-                    
-                    return filter;
-                })
-                    .Column(x => x.Address, "Address", filter: x => x.FilterList(groupedList))
-            .Column(x => x.PostalCode, "Gender", filter: x => x.FilterBool("YEAHH", "Naw", "what?"))
+    .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending)
+    .Column(x => x.City, "City")
+    .Column(x => x.State, "State")
+    .Column(x => x.Address, "Address")
+    .Column(x => x.PostalCode, "Gender")
+    .Column(x => x.PostalCode, "Gender")
+    .Column(x => x.PostalCode, "Gender")
+    
+    .Button("Scrolly", "Scrollify with floatThead.js", action: GriddlyButtonAction.Javascript)
 )

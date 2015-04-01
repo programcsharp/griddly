@@ -14,12 +14,6 @@
     border-radius: 4px;
 }
 
-    .griddly-scrollable-container
-    {
-        overflow-x:auto;
-        clear:both;
-    }
-
     .griddly table
     {
         border-collapse: collapse;
@@ -92,7 +86,7 @@
         background-color: #f0f0f0;
     }
 
-.griddly-scrollable-container::-webkit-scrollbar {  
+/*.griddly-scrollable-container::-webkit-scrollbar {  
     width: 8px;  
     height:8px;
 }  
@@ -104,12 +98,12 @@
 }  
 .griddly-scrollable-container::-webkit-scrollbar-thumb:hover {  
     background-color: #aaa;  
-}
+}*/
 
 .griddly-filter-popover .popover-content
 {
     padding:0;
-    max-width:200px;
+    width:200px;
 }
 
 .filter-content
@@ -172,3 +166,13 @@
 {
     display:block;
 }
+
+.griddly-selection 
+{
+    white-space:nowrap;
+    vertical-align:top;
+}
+    .griddly-selection-count
+    {
+        font-weight:bold;
+    }

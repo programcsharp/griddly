@@ -1,0 +1,126 @@
+﻿@*
+    * GriddlyFilter form renderer using Bootstrap html and styles
+    * http://griddly.com
+    * Copyright 2013-2015 Chris Hynes and Data Research Group, Inc.
+    * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
+    *
+    * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
+    *          Use the static properties on GriddlySettings to make config changes.
+    *
+*@
+
+@model GriddlySettings
+
+@foreach (GriddlyFilter filter in Model.Filters)
+{
+    GriddlyFilterBox filterBox = filter as GriddlyFilterBox;
+    GriddlyFilterRange filterRange = filter as GriddlyFilterRange;
+    GriddlyFilterList filterList = filter as GriddlyFilterList;
+    GriddlyHtmlFilter filterHtml = filter as GriddlyHtmlFilter;
+
+    object defaultValue = this.GetGriddlyDefault(filter.Field);
+    object defaultValueEnd = filterRange != null ? this.GetGriddlyDefault(filterRange.FieldEnd) : null;
+
+    <div class="griddly-filter-form-group form-group form-group-sm">
+        <label for="griddly-filter-@filter.Field" class="col-sm-2 control-label">@filter.Caption</label>
+        @if (filterBox != null)
+        {
+            <div class="col-sm-3">
+                @if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
+                {
+                    @:<div class="input-group input-group-sm">
+                    if (filter.DataType == FilterDataType.Currency)
+                    {
+                        <span class="input-group-addon">$</span>
+                    }
+                    else if (filter.DataType == FilterDataType.Date)
+                    {
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                    }
+                }
+                <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@filter.Field" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
+                       data-griddly-filter-data-type="@filter.DataType" />
+                @if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
+                {
+                    @*@if (filter.DataType == FilterDataType.Percent)
+                        {
+                            <span class="input-group-addon">%</span>
+                        }*@
+                    @:</div>
+                }
+            </div>
+        }
+        else if (filterRange != null)
+        {
+            <div class="col-sm-3">
+                @if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
+                {
+                    @:<div class="input-group input-group-sm">
+                    if (filter.DataType == FilterDataType.Currency)
+                    {
+                        <span class="input-group-addon">$</span>
+                    }
+                    else if (filter.DataType == FilterDataType.Date)
+                    {
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                    }
+                }
+                <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@filter.Field" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
+                       data-griddly-filter-data-type="@filter.DataType" />
+                @if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
+                {
+                    @*@if (filter.DataType == FilterDataType.Percent)
+                        {
+                            <span class="input-group-addon">%</span>
+                        }*@
+                    @:</div>
+                }
+            </div>
+            <div class="col-sm-1 control-label" style="width:40px">to</div>
+            <div class="col-sm-3">
+                @if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
+                {
+                    @:<div class="input-group input-group-sm">
+                    if (filter.DataType == FilterDataType.Currency)
+                    {
+                        <span class="input-group-addon">$</span>
+                    }
+                    else if (filter.DataType == FilterDataType.Date)
+                    {
+                        <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                    }
+                }
+                <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@(filter.Field)-to" name="@filterRange.FieldEnd" type="text" value="@filter.GetEditValue(defaultValueEnd)"
+                       data-griddly-filter-data-type="@filter.DataType" />
+                @if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
+                {
+                    @*@if (filter.DataType == FilterDataType.Percent)
+                        {
+                            <span class="input-group-addon">%</span>
+                        }*@
+                    @:</div>
+                }
+            </div>
+        }
+        else if (filterList != null)
+        {
+            filterList.SetSelectedItems(defaultValue);
+
+            <div class="col-sm-3">
+                <select class="form-control col-sm-3" id="griddly-filter-@filter.Field" name="@filter.Field" @(filterList.IsMultiple ? "multiple" : null)
+                        data-griddly-filter-data-type="@filter.DataType">
+                    @foreach (SelectListItem item in filterList.Items)
+                    {
+                        <option value="@item.Value" @(item.Selected ? "selected" : null)>@item.Text</option>
+                    }
+                </select>
+            </div>
+        }
+        else if (filterHtml != null)
+        {
+            <div class="col-sm-3">
+                @filterHtml.HtmlTemplate(filter)
+            </div>
+        }
+    </div>
+}

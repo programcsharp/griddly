@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
+using System.Text;
 using System.Web.Helpers;
 
 namespace Griddly.Mvc
@@ -19,6 +19,7 @@ namespace Griddly.Mvc
 
         long? _overallCount = null;
         bool _fixedSort;
+        static readonly bool _hasOverallCount = typeof(IHasOverallCount).IsAssignableFrom(typeof(T));
 
         public DapperGriddlyResult(Func<IDbConnection> getConnection, string sql, object param, Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map = null, Action<IDbConnection, IDbTransaction, IList<T>> massage = null, bool fixedSort = false, Func<IDbTransaction> getTransaction = null)
             : base(null)
@@ -35,6 +36,46 @@ namespace Griddly.Mvc
             _massage = massage;
             _fixedSort = fixedSort;
             _getTransaction = getTransaction;
+
+        }
+
+        public override void PopulateSummaryValues(GriddlySettings<T> settings)
+        {
+            List<GriddlyColumn> summaryColumns = settings.Columns.Where(x => x.SummaryFunction != null).ToList();
+
+            if (summaryColumns.Any())
+            {
+                StringBuilder aggregateExpression = new StringBuilder();
+
+                aggregateExpression.Append("SELECT ");
+
+                for (int i = 0; i < summaryColumns.Count; i++)
+                {
+                    if (i > 0)
+                        aggregateExpression.Append(", ");
+
+                    GriddlyColumn col = summaryColumns[i];
+
+                    aggregateExpression.AppendFormat("{0}({1}) AS _a{2}", col.SummaryFunction, col.ExpressionString, i);
+                }
+
+                string sql = string.Format("{0} FROM ({1}) [_proj]", aggregateExpression.ToString(), _sql);
+
+                try
+                {
+                    IDbConnection cn = _getConnection();
+                    IDbTransaction tx = _getTransaction != null ? _getTransaction() : null;
+
+                    IDictionary<string, object> item = cn.Query(sql, _param, tx).Single();
+
+                    for (int i = 0; i < summaryColumns.Count; i++)
+                        summaryColumns[i].SummaryValue = item["_a" + i];
+                }
+                catch (Exception ex)
+                {
+                    throw new DapperGriddlyException("Error populating summary values.", sql, _param, ex);
+                }
+            }
         }
 
         public override long GetCount()
@@ -62,7 +103,22 @@ namespace Griddly.Mvc
 
         public override IList<T> GetPage(int pageNumber, int pageSize, SortField[] sortFields)
         {
-            string sql = string.Format("{0} " + (_fixedSort ? "" : "ORDER BY {1}") + " OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY", _sql, BuildSortClause(sortFields), pageNumber * pageSize, pageSize);
+            string format;
+
+            if (!_hasOverallCount || _sql.IndexOf("OverallCount", StringComparison.InvariantCultureIgnoreCase) != -1)
+                format = "{0} " + (_fixedSort ? "" : "ORDER BY {1}") + " OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY";
+            else
+                // TODO: use dapper multimap Query<T, Dictionary<string, object>> to map all summary values in one go
+                format = @"
+;WITH _data AS (
+    {0}
+),
+    _count AS (
+        SELECT COUNT(0) AS OverallCount FROM _data
+)
+SELECT * FROM _data CROSS APPLY _count " + (_fixedSort ? "" : "ORDER BY {1}") + " OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY";
+
+            string sql = string.Format(format, _sql, BuildSortClause(sortFields), pageNumber * pageSize, pageSize);
 
             return ExecuteQuery(sql, _param);
         }
@@ -88,10 +144,14 @@ namespace Griddly.Mvc
             try
             {
                 IEnumerable<T> result = _map(_getConnection(), _getTransaction != null ? _getTransaction() : null, sql, param);
-                IHasOverallCount overallCount = result as IHasOverallCount;
 
-                if (overallCount != null)
-                    _overallCount = overallCount.OverallCount;
+                if (_hasOverallCount)
+                {
+                    IHasOverallCount overallCount = result as IHasOverallCount;
+
+                    if (overallCount != null)
+                        _overallCount = overallCount.OverallCount;
+                }
 
                 IList<T> results = result.ToList();
 
@@ -110,7 +170,7 @@ namespace Griddly.Mvc
         {
             IEnumerable<T> result = cn.Query<T>(sql, param, tx);
 
-            if (typeof(IHasOverallCount).IsAssignableFrom(typeof(T)))
+            if (_hasOverallCount)
             {
                 IHasOverallCount firstRow = result.FirstOrDefault() as IHasOverallCount;
                 ListPage<T> lp = new ListPage<T>();

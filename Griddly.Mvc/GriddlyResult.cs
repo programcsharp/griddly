@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Griddly.Mvc.Linq.Dynamic;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -15,7 +16,7 @@ namespace Griddly.Mvc
         public SortField[] GetSortFields(NameValueCollection items)
         {
             return items.AllKeys
-                .Where(x => x.StartsWith("sortFields["))
+                .Where(x => x != null && x.StartsWith("sortFields["))
                 .Select(x =>
                 {
                     int pos = x.IndexOf(']', "sortFields[".Length);
@@ -82,7 +83,7 @@ namespace Griddly.Mvc
                 settings = GriddlySettingsResult.GetSettings(context, ViewName);
 
                 if (GriddlySettings.OnGriddlyResultExecuting != null)
-                    GriddlySettings.OnGriddlyResultExecuting(settings);
+                    GriddlySettings.OnGriddlyResultExecuting(settings, context);
 
                 // TODO: should we always pull sort fields?
                 if (!sortFields.Any())
@@ -107,7 +108,8 @@ namespace Griddly.Mvc
                     Total = GetCount(),
                     PageSize = pageSize,
                     SortFields = sortFields,
-                    Settings = settings
+                    Settings = settings,
+                    PopulateSummaryValues = PopulateSummaryValues
                 };
 
                 context.RequestContext.HttpContext.Response.Headers["X-Griddly-Count"] = result.Total.ToString();
@@ -149,8 +151,7 @@ namespace Griddly.Mvc
                 var records = GetAll(sortFields);
                 if (exportFormat == GriddlyExportFormat.Custom)
                 {
-                    string report = items["reportType"];
-                    result = GriddlySettings.HandleCustomReport(report, records);
+                    result = GriddlySettings.HandleCustomExport(records, items);
                 }
                 else if (exportFormat == GriddlyExportFormat.Xlsx)
                 {
@@ -169,6 +170,9 @@ namespace Griddly.Mvc
         {
             IQueryable<T> sortedQuery = ApplySortFields(_result, sortFields);
 
+            if (_massage != null)
+                sortedQuery = _massage(sortedQuery);
+
             return sortedQuery;
         }
 
@@ -182,12 +186,62 @@ namespace Griddly.Mvc
             return sortedQuery.Skip(pageNumber * pageSize).Take(pageSize).ToList();
         }
 
+        public virtual void PopulateSummaryValues(GriddlySettings<T> settings)
+        {
+            // Only works for linq to objects
+            //List<GriddlyColumn> summaryColumns = settings.Columns.Where(x => x.SummaryFunction != null).ToList();
+
+            //if (summaryColumns.Any())
+            //{
+            //    StringBuilder aggregateExpression = new StringBuilder();
+
+            //    aggregateExpression.Append("new (");
+
+            //    for (int i = 0; i < summaryColumns.Count; i++)
+            //    {
+            //        if (i > 0)
+            //            aggregateExpression.Append(", ");
+
+            //        GriddlyColumn col = summaryColumns[i];
+
+            //        aggregateExpression.AppendFormat("{0}({1}) AS _a{2}", col.SummaryFunction, col.ExpressionString, i);
+            //    }
+
+            //    aggregateExpression.Append(")");
+
+            //    var query = _result.GroupBy(x => 1).Select(aggregateExpression.ToString());
+            //    var item = query.Cast<object>().Single();
+            //    var type = item.GetType();
+
+            //    for (int i = 0; i < summaryColumns.Count; i++)
+            //        summaryColumns[i].SummaryValue = type.GetProperty("_a" + i).GetValue(item);
+            //}
+
+            // TODO: figure out how to get this in one query
+            foreach (GriddlyColumn c in settings.Columns.Where(x => x.SummaryFunction != null))
+            {
+                switch (c.SummaryFunction.Value)
+                {
+                    case SummaryAggregateFunction.Sum:
+                    case SummaryAggregateFunction.Average:
+                    case SummaryAggregateFunction.Min:
+                    case SummaryAggregateFunction.Max:
+                        c.SummaryValue = _result.Aggregate(c.SummaryFunction.Value.ToString(), c.ExpressionString);
+
+                        break;
+
+                    default:
+                        throw new InvalidOperationException(string.Format("Unknown summary function {0} for column {1}.", c.SummaryFunction, c.ExpressionString));
+                }
+            }
+        }
+
         public virtual long GetCount()
         {
             return _result.Count();
         }
 
-        static IQueryable<T> ApplySortFields(IQueryable<T> source, SortField[] sortFields)
+        protected static IQueryable<T> ApplySortFields(IQueryable<T> source, SortField[] sortFields)
         {
             IOrderedQueryable<T> sortedQuery = null;
 

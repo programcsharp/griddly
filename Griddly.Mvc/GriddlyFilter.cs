@@ -31,6 +31,8 @@ namespace Griddly.Mvc
 
         public string CaptionPlural { get; set; }
 
+        public string HtmlClass { get; set; }
+
         public string Field { get; set; }
         public virtual FilterDataType DataType { get; set; }
 
