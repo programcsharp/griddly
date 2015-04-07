@@ -714,7 +714,7 @@
                 this.$element.find("tr.griddly-filters:not(tr.griddly-filters-" + this.options.filterMode.toLowerCase() + ")").hide();
                 this.$element.find("tr.griddly-filters-" + this.options.filterMode.toLowerCase()).show();
 
-                this.setFilterValues(currentFilters, true);
+                this.setFilterValues(currentFilters, true, true);
 
                 var request2 = this.buildRequest();
 
@@ -725,11 +725,11 @@
             }
         },
 
-        toggleFilterMode: function()
+        toggleFilterMode: function(noRefresh)
         {
             if (this.options.allowedFilterModes.length > 1)
             {
-                this.setFilterMode(this.options.filterMode == "Inline" ? "Form" : "Inline");
+                this.setFilterMode(this.options.filterMode == "Inline" ? "Form" : "Inline", noRefresh);
             }
         },
 
@@ -785,7 +785,7 @@
             $(input[0]).change();
         },
 
-        setFilterValues: function(filters, isPatch)
+        setFilterValues: function(filters, isPatch, noRefresh)
         {
             this.options.autoRefreshOnFilter = false;
 
@@ -804,7 +804,11 @@
             this.$element.trigger("setfilters.griddly", filters);
             
             this.options.autoRefreshOnFilter = true;
-            this.refresh(true);
+
+            if (!noRefresh)
+            {
+                this.refresh(true);
+            }
         },
 
         resetFilterValues: function ()
