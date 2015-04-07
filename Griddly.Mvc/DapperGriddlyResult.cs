@@ -13,6 +13,7 @@ namespace Griddly.Mvc
         Func<IDbConnection> _getConnection;
         Func<IDbTransaction> _getTransaction;
         string _sql;
+        string _outerSqlTemplate;
         object _param;
         Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> _map;
         Action<IDbConnection, IDbTransaction, IList<T>> _massage;
@@ -21,12 +22,13 @@ namespace Griddly.Mvc
         bool _fixedSort;
         static readonly bool _hasOverallCount = typeof(IHasOverallCount).IsAssignableFrom(typeof(T));
 
-        public DapperGriddlyResult(Func<IDbConnection> getConnection, string sql, object param, Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map = null, Action<IDbConnection, IDbTransaction, IList<T>> massage = null, bool fixedSort = false, Func<IDbTransaction> getTransaction = null)
+        public DapperGriddlyResult(Func<IDbConnection> getConnection, string sql, object param, Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map = null, Action<IDbConnection, IDbTransaction, IList<T>> massage = null, bool fixedSort = false, Func<IDbTransaction> getTransaction = null, string outerSqlTemplate = "{0}")
             : base(null)
         {
             _getConnection = getConnection;
             _sql = sql;
             _param = param;
+            _outerSqlTemplate = outerSqlTemplate;
 
             if (map == null)
                 _map = DefaultMap;
@@ -59,7 +61,8 @@ namespace Griddly.Mvc
                     aggregateExpression.AppendFormat("{0}({1}) AS _a{2}", col.SummaryFunction, col.ExpressionString, i);
                 }
 
-                string sql = string.Format("{0} FROM ({1}) [_proj]", aggregateExpression.ToString(), _sql);
+                string sql = string.Format(_outerSqlTemplate,
+                    string.Format("{0} FROM ({1}) [_proj]", aggregateExpression.ToString(), _sql));
 
                 try
                 {
@@ -82,7 +85,8 @@ namespace Griddly.Mvc
         {
             if (_overallCount == null)
             {
-                string sql = string.Format("SELECT CAST(COUNT(*) as bigint) FROM ({0}) [_proj]", _sql);
+                string sql = string.Format(_outerSqlTemplate,
+                    string.Format("SELECT CAST(COUNT(*) as bigint) FROM ({0}) [_proj]", _sql));
 
                 try
                 {
@@ -118,14 +122,16 @@ namespace Griddly.Mvc
 )
 SELECT * FROM _data CROSS APPLY _count " + (_fixedSort ? "" : "ORDER BY {1}") + " OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY";
 
-            string sql = string.Format(format, _sql, BuildSortClause(sortFields), pageNumber * pageSize, pageSize);
+            string sql = string.Format(_outerSqlTemplate,
+                string.Format(format, _sql, BuildSortClause(sortFields), pageNumber * pageSize, pageSize));
 
             return ExecuteQuery(sql, _param);
         }
 
         public override IEnumerable<T> GetAll(SortField[] sortFields)
         {
-            string sql = _fixedSort ? _sql : string.Format("{0} ORDER BY {1}", _sql, BuildSortClause(sortFields));
+            string sql = string.Format(_outerSqlTemplate,
+                _fixedSort ? _sql : string.Format("{0} ORDER BY {1}", _sql, BuildSortClause(sortFields)));
 
             return ExecuteQuery(sql, _param);
         }
