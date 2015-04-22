@@ -26,6 +26,7 @@ namespace Griddly.Mvc
 
         public static Func<GriddlyButton, object> IconTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
+        public static Func<GriddlyResultPage, object> DefaultHeaderTemplate = null;
 
         /// <summary>
         /// Defines an event handler for custom export requests.
@@ -48,6 +49,7 @@ namespace Griddly.Mvc
             ClassName = DefaultClassName;
             TableClassName = DefaultTableClassName;
             FooterTemplate = DefaultFooterTemplate;
+            HeaderTemplate = DefaultHeaderTemplate;
             PageSize = DefaultPageSize;
             InitialFilterMode = DefaultInitialFilterMode;
             //AllowedFilterModes = DefaultAllowedFilterModes;
@@ -80,6 +82,7 @@ namespace Griddly.Mvc
         public Func<object, object> RowClass { get; set; }
 
         public Func<GriddlyResultPage, object> FooterTemplate { get; set; }
+        public Func<GriddlyResultPage, object> HeaderTemplate { get; set; }
 
         public Dictionary<string, Func<object, object>> RowIds { get; protected set; }
 
