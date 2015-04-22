@@ -170,6 +170,16 @@
         {
             <tr class="griddly-filters griddly-filters-inline" style="@(settings.InitialFilterMode == FilterMode.Inline ? null : "display:none")">@settings.InlineFilterTemplate(settings)</tr>
         }
+        @if (settings.HeaderTemplate != null)
+        {
+            <tr>
+                <td colspan="@settings.Columns.Count">
+                    <div class="griddly-header">
+                       @settings.HeaderTemplate(Model)
+                    </div>
+                </td>
+            </tr>
+        }
     </thead>
 }
 <tbody class="data">

@@ -80,6 +80,7 @@ namespace Griddly.Mvc
         public Func<object, object> RowClass { get; set; }
 
         public Func<GriddlyResultPage, object> FooterTemplate { get; set; }
+        public Func<GriddlyResultPage, object> HeaderTemplate { get; set; }
 
         public Dictionary<string, Func<object, object>> RowIds { get; protected set; }
 
