@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -169,7 +170,8 @@ namespace Griddly.Mvc
                     else if (t.HasCastOperator<DateTime>())
                         // values[value.Key] = (DateTime)value.Value; -- BAD: can't unbox a value type as a different type
                         values[value.Key] = Convert.ChangeType(value.Value, typeof(DateTime));
-
+                    else if (t.IsArray || t.IsSubclassOf(typeof(IEnumerable)))
+                        values[value.Key] = string.Join(",", ((IEnumerable)value.Value).Cast<object>()); 
                 }
             }
 
