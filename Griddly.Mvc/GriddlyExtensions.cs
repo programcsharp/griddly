@@ -107,26 +107,41 @@ namespace Griddly.Mvc
         public static void SetGriddlyDefault<T>(this Controller controller, ref T parameter, string field, T value)
         {
             if (controller.ControllerContext.IsChildAction)
-                parameter = value;
+            {
+                if (EqualityComparer<T>.Default.Equals(parameter, default(T)))
+                    parameter = value;
 
-            controller.ViewData["_griddlyDefault_" + field] = value;
+                controller.ViewData["_griddlyDefault_" + field] = parameter;
+            }
+            else
+                controller.ViewData["_griddlyDefault_" + field] = value;
         }
 
         public static void SetGriddlyDefault<T>(this Controller controller, ref T[] parameter, string field, IEnumerable<T> value)
         {
             if (controller.ControllerContext.IsChildAction)
-                parameter = value.ToArray();
+            {
+                if (parameter == null)
+                    parameter = value.ToArray();
 
-            controller.ViewData["_griddlyDefault_" + field] = value;
+                controller.ViewData["_griddlyDefault_" + field] = parameter;
+            }
+            else
+                controller.ViewData["_griddlyDefault_" + field] = value;
         }
 
         public static void SetGriddlyDefault<T>(this Controller controller, ref T?[] parameter, string field, IEnumerable<T> value)
             where T : struct
         {
             if (controller.ControllerContext.IsChildAction)
-                parameter = value.Cast<T?>().ToArray();
+            {
+                if (parameter == null)
+                    parameter = value.Cast<T?>().ToArray();
 
-            controller.ViewData["_griddlyDefault_" + field] = value;
+                controller.ViewData["_griddlyDefault_" + field] = parameter;
+            }
+            else
+                controller.ViewData["_griddlyDefault_" + field] = value;
         }
 
         public static object GetGriddlyDefault(this WebViewPage page, string field)
