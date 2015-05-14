@@ -45,6 +45,8 @@ namespace Griddly.Mvc
             else
                 value = value.ToString();
 
+            if (value == null)
+                return null;
             if (value is HtmlString)
                 return (HtmlString)value;
             else if (encode)

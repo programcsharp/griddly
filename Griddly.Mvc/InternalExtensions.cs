@@ -80,8 +80,10 @@ namespace Griddly.Mvc
 
         internal static string ToStringDescription(Enum value)
         {
-            if (value == null || !Enum.IsDefined(value.GetType(), value))
+            if (value == null)
                 return null;
+            else if (!Enum.IsDefined(value.GetType(), value))
+                return "[Undefined " + value.GetType().Name + " Value: " + value + "]";
 
             return GetEnumDescription(value.GetType().GetField(value.ToString()));
         }
