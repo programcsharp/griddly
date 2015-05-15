@@ -7,6 +7,9 @@ namespace Griddly.Mvc
 {
     public static class GriddlyFilterExtensions
     {
+        // ********
+        // NOTE: these methods can be called with null column by the ones on GriddlySettings
+        // ********
         public static GriddlyFilterBox FilterBox(this GriddlyColumn column, FilterDataType dataType = FilterDataType.Decimal, string field = null, string caption = null, string htmlClass = null, string captionPlural = null)
         {
             if (caption == null)
