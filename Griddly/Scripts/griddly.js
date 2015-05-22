@@ -30,6 +30,38 @@
             count: this.options.count
         });
 
+        if (history.state && history.state.griddly)
+        {
+            var state = history.state.griddly[this.options.url];
+
+            if (state && state.filterValues)
+            {
+                this.options.pageNumber = state.pageNumber;
+                this.options.pageSize = state.pageSize;
+                this.options.sortFields = state.sortFields;
+                this.setFilterMode(state.filterMode, true);
+                this.setFilterValues(state.filterValues, false, true);
+
+                $("[data-griddly-sortfield], .griddly-filters-inline td", this.$element).removeClass("sorted_a sorted_d");
+
+                if (this.options.sortFields)
+                {
+                    for (var i = 0; i < this.options.sortFields.length; i++)
+                    {
+                        var sort = this.options.sortFields[i];
+
+                        var header = $("th[data-griddly-sortfield='" + sort.Field + "']", this.$element);
+                        var inlineFilter = $(".griddly-filters-inline")[0].cells[header[0].cellIndex];
+
+                        header.addClass(sort.Direction == "Ascending" ? "sorted_a" : "sorted_d");
+                        $(inlineFilter).addClass(sort.Direction == "Ascending" ? "sorted_a" : "sorted_d");
+                    }
+                }
+
+                this.refresh();
+            }
+        }
+
         $("html").on("click", $.proxy(function (event)
         {
             if ($(event.target).parents('.popover.in').length == 0 && $(event.target).parents(".filter-trigger").length == 0 && !$(event.target).hasClass("filter-trigger"))
@@ -780,7 +812,7 @@
                         value = date.toLocaleDateString();
                         break;
                     case "Currency":
-                        value = value.toFixed(2);
+                        value = parseFloat(value).toFixed(2);
                         break;
                 }
             }
@@ -870,6 +902,24 @@
             this.options.lastSelectedRow = null;
 
             var postData = this.buildRequest();
+
+            var state =
+            {
+                pageNumber: this.options.pageNumber,
+                pageSize: this.options.pageSize,
+                sortFields: this.options.sortFields,
+                filterMode: this.getFilterMode(),
+                filterValues: this.getFilterValues()
+            };
+
+            var globalState = history.state || {};
+
+            if (!globalState.griddly)
+                globalState.griddly = {};
+
+            globalState.griddly[this.options.url] = state;
+
+            history.replaceState(globalState);
 
             // TODO: cancel any outstanding calls
 
