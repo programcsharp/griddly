@@ -15,6 +15,11 @@ namespace Griddly.Controllers
             return View();
         }
 
+        public ActionResult HistoryTest()
+        {
+            return View();
+        }
+
         public GriddlyResult TestGrid(string firstName, int? zipStart, int? zipEnd)
         {
             IQueryable<TestGridItem> query = _testData;
