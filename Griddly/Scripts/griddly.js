@@ -946,7 +946,7 @@
 
             globalState.griddly[this.options.url] = state;
 
-            history.replaceState(globalState);
+            history.replaceState(globalState, document.title);
 
             // TODO: cancel any outstanding calls
 
