@@ -78,7 +78,7 @@
                     // user refreshed page, go back to defaults
                     delete history.state.griddly[this.options.url];
 
-                    history.replaceState(history.state);
+                    history.replaceState(history.state, document.title);
                 }
             }
         }
