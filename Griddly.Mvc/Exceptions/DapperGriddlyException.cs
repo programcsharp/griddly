@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Griddly.Mvc
+namespace Griddly.Mvc.Exceptions
 {
     public class DapperGriddlyException : Exception
     {
