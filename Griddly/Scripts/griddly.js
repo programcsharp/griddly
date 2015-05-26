@@ -32,7 +32,7 @@
 
         var isLoadingHistory = false;
 
-        if (history.state && history.state.griddly)
+        if (window.history && history.replaceState && history.state && history.state.griddly)
         {
             var state = history.state.griddly[this.options.url];
 
@@ -930,23 +930,26 @@
 
             var postData = this.buildRequest();
 
-            var state =
+            if (window.history && history.replaceState)
             {
-                pageNumber: this.options.pageNumber,
-                pageSize: this.options.pageSize,
-                sortFields: this.options.sortFields,
-                filterMode: this.getFilterMode(),
-                filterValues: this.getFilterValues()
-            };
+                var state =
+                {
+                    pageNumber: this.options.pageNumber,
+                    pageSize: this.options.pageSize,
+                    sortFields: this.options.sortFields,
+                    filterMode: this.getFilterMode(),
+                    filterValues: this.getFilterValues()
+                };
 
-            var globalState = history.state || {};
+                var globalState = history.state || {};
 
-            if (!globalState.griddly)
-                globalState.griddly = {};
+                if (!globalState.griddly)
+                    globalState.griddly = {};
 
-            globalState.griddly[this.options.url] = state;
+                globalState.griddly[this.options.url] = state;
 
-            history.replaceState(globalState, document.title);
+                history.replaceState(globalState, document.title);
+            }
 
             // TODO: cancel any outstanding calls
 

@@ -17,6 +17,21 @@
 
         <h3>Other Random Examples/Tests</h3>
         @Html.Griddly("TestGrid")
+
+@* TODO:
+Columns
+Buttons
+Filters
+Selection
+Grid settings
+Exports
+LINQ results
+Dapper results
+Templating
+Server hooks
+Client events
+Client methods
+*@
     </div>
 </div>
 <script>
@@ -54,7 +69,7 @@
         var grid = $(".griddly.filter-list-grid");
         var table = grid.find("table");
 
-       
+
         // some basic changes to make the grid more conducive to scrolling
         grid.find(".griddly-scrollable-container").css({ "overflow": "auto", "height": "250px" });
         grid.find("thead td").css({ "background-color": "white" });
@@ -72,7 +87,7 @@
 
         grid.griddly("pageSize", 20);
         grid.griddly("refresh");
-        
+
         return false;
     }
 </script>
