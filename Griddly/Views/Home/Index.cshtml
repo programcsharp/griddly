@@ -65,7 +65,6 @@
                 public string FirstName { get; set; }
                 public string LastName { get; set; }
             }
-
             public class SimpleOrder
             {
                 public int Id { get; set; }
@@ -78,7 +77,6 @@
         <h3>Sample Data</h3>
         <pre class="brush: csharp">
             static readonly IQueryable&lt;SimpleOrder&gt; _indexTestData = BuildIndexTestData().AsQueryable();
-
             static IEnumerable&lt;SimpleOrder&gt; BuildIndexTestData()
             {
                 List&lt;SimpleOrder&gt; items = new List&lt;SimpleOrder&gt;();
@@ -132,34 +130,27 @@
             public ActionResult IndexGrid(string item, int? quantityStart, int? quantityEnd, decimal? totalStart, decimal? totalEnd, string firstName, string lastName, bool? isApproved)
             {
                 this.SetGriddlyDefault(ref isApproved, "isApproved", true);
-
                 IQueryable&lt;SimpleOrder&gt; query = _indexTestData;
-
                 if (!string.IsNullOrWhiteSpace(item))
                     query = query.Where(x => x.Item.ToLower().Contains(item.ToLower()));
-
                 if (quantityStart != null && quantityEnd != null)
                     query = query.Where(x => x.Quantity >= quantityStart && x.Quantity <= quantityEnd);
                 if (quantityStart != null)
                     query = query.Where(x => x.Quantity >= quantityStart);
                 if (quantityEnd != null)
                     query = query.Where(x => x.Quantity <= quantityEnd);
-
                 if (totalStart != null && totalEnd != null)
                     query = query.Where(x => x.Total >= totalStart && x.Total <= totalEnd);
                 if (totalStart != null)
                     query = query.Where(x => x.Total >= totalStart);
                 if (totalEnd != null)
                     query = query.Where(x => x.Total <= totalEnd);
-
                 if (!string.IsNullOrWhiteSpace(firstName))
                     query = query.Where(x => x.Person.FirstName.ToLower().Contains(firstName.ToLower()));
                 if (!string.IsNullOrWhiteSpace(lastName))
                     query = query.Where(x => x.Person.LastName.ToLower().Contains(lastName.ToLower()));
-
                 if (isApproved != null)
                     query = query.Where(x => x.IsApproved == isApproved);
-
                 return new GriddlyResult&lt;SimpleOrder&gt;(query);
             }
         </pre>
@@ -171,5 +162,49 @@
         <h3>Live Demo</h3>
         <p>And here's what it looks like after that's all set up.</p>
         @Html.Griddly("IndexGrid")
+        <form>            
+            <div class="form-group">
+                <input id="edit-item" class="form-control" type="text" style="display:none" data-val="true" data-val-number="This field must be a number." data-val-range="This field must be greater than or equal to 0.01" data-val-range-min="0.01" data-val-required="This field is required." />
+                <select id="edit-number" class="form-control" style="display:none">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select>
+                <div id="edit-currency" class="input-group" style="display:none;">
+                    <span class="input-group-addon">$</span>
+                    <input type="text" class="form-control" />
+                </div>
+                <input id="edit-firstname" class="form-control" type="text" style="display:none" data-val="true" data-val-number="This field must be a number." data-val-range="This field must be greater than or equal to 0.01" data-val-range-min="0.01" data-val-required="This field is required." />
+                <input id="edit-lastname" class="form-control" type="text" style="display:none" data-val="true" data-val-number="This field must be a number." data-val-range="This field must be greater than or equal to 0.01" data-val-range-min="0.01" data-val-required="This field is required." />
+                <select id="edit-bool" class="form-control" style="display:none">
+                    <option>True</option>
+                    <option>False</option>
+                </select>
+            </div>
+        </form>
     </div>
 </div>
+
+@section scripts
+{
+    <script>
+        $(".index-grid table").editly(
+        {
+            editors: [
+                $("#edit-item"),
+                $("#edit-number"),
+                $("#edit-currency"),
+                $("#edit-firstname"),
+                $("#edit-lastname"),
+                $("#edit-bool")
+            ]
+        });
+    </script>
+}

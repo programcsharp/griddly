@@ -4,7 +4,7 @@
 
 @Html.Griddly(new GriddlySettings<SimpleOrder>()
     {
-        ClassName = "index-grid"
+        ClassName = "index-grid",        
     }
     .Column(x => x.Item,
         filter: x => x.FilterBox(FilterDataType.String), summaryValue: "Total")
