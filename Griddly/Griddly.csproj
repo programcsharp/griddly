@@ -255,6 +255,8 @@
     <Content Include="Views\Home\IndexGrid.cshtml" />
     <Content Include="Views\Shared\Griddly\GriddlyFilterInline.cshtml" />
     <Content Include="Views\Shared\Griddly\GriddlyFilterForm.cshtml" />
+    <Content Include="Views\Home\Editly.cshtml" />
+    <Content Include="Views\Home\EditlyGrid.cshtml" />
     <Content Include="Views\Home\HistoryTest.cshtml" />
   </ItemGroup>
   <ItemGroup>
