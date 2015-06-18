@@ -102,61 +102,136 @@
                     //    }).popover("show");
                     //};
 
+                    var hideValidation = function ()
+                    {
+                        validator.settings.unhighlight(editor);
+
+                        // TODO: do we need this if app has proper bs highlight method?
+                        editor.parents(".form-group").removeClass("has-error");
+
+                        template.popover("hide");
+                    };
+
+                    var hideEditor = function ()
+                    {
+                        template.hide();
+
+                        hideValidation();
+                    };
+
+                    var doValidation = function ()
+                    {
+                        var isValid = editor.valid();
+
+                        if (isValid)
+                        {
+                            hideValidation();
+                        }
+                        else
+                        {
+                            validator.settings.highlight(editor);
+
+                            // TODO: do we need this if app has proper bs highlight method?
+                            editor.parents(".form-group").addClass("has-error");
+
+                            window.setTimeout(function ()
+                            {
+                                $(template)
+                                    .popover(
+                                    {
+                                        container: "body",
+                                        content: function () { return validator.errorList[0].message; }
+                                    })
+                                    .popover("show");
+                            }, 100);
+                        }
+
+                        return isValid;
+                    };
+
+                    var handleBlur = function ()
+                    {
+                        // TODO: is there a more efficient way for this?
+                        if (!$(document.activeElement).parents().is(template))
+                        {
+                            if (editor.valid())
+                            {
+                                active.text(editor.val());
+
+                                hideEditor();
+                            }
+                            else
+                            {
+                                editor.focus();
+
+                                doValidation();
+                            }
+                        }
+                    };
+
                     template
                         .show()
                         .offset(active.offset())
                         .width(template == editor ? active.width() : active.outerWidth())
-                        .height(template == editor ? active.height() : active.outerHeight());
+                        .height(template == editor ? active.height() : active.outerHeight())
+                        .off("blur")
+                        .on("blur", function()
+                        {
+                            setTimeout(handleBlur, 1);
+                        });
 
                     editor.val(active.text())
                         .removeClass('error')
                         .css(active.css(self.options.cloneProperties))
                         .height(active.height())
                         .focus()
-                        .off("blur")
-                        .on("blur", function()
-                        {
-                            active.text(editor.val());
-                            template.hide();
-                            template.popover("hide");
-                        })
                         .off("keydown")
                         .on("keydown", function (e)
                         {
                             if (e.which === ENTER)
                             {
-                                //active.text(editor.val());
-                                //setActiveText();
+                                if (doValidation())
+                                {
+                                    template.hide();
+                                    active.focus();
 
-                                template.hide();
-                                active.focus();
+                                    var possibleMove = movement(active, e.shiftKey ? ARROW_UP : ARROW_DOWN);
 
-                                e.preventDefault();
-                                e.stopPropagation();
+                                    if (possibleMove.length > 0)
+                                    {
+                                        possibleMove.focus();
+
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                    }
+                                }
                             }
                             else if (e.which === ESC)
                             {
-                                editor.val(active.text());
+                                template.off("blur");
 
-                                e.preventDefault();
-                                e.stopPropagation();
+                                hideEditor();
+                                //editor.val(active.text());
 
-                                template.hide();
-                                active.focus();
+                                //template.hide();
+                                //active.focus();
                             }
                             else if (e.which === TAB)
                             {
-                                active.focus();
-
-                                // Have to move here because dropdown eats it somehow if not
-                                var possibleMove = movement(active, e.shiftKey ? ARROW_LEFT : ARROW_RIGHT);
-
-                                if (possibleMove.length > 0)
+                                if (doValidation())
                                 {
-                                    possibleMove.focus();
+                                    active.focus();
 
-                                    e.preventDefault();
-                                    e.stopPropagation();
+                                    // Have to move here because dropdown eats it somehow if not
+                                    var possibleMove = movement(active, e.shiftKey ? ARROW_LEFT : ARROW_RIGHT);
+
+                                    if (possibleMove.length > 0)
+                                    {
+                                        possibleMove.focus();
+
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                    }
                                 }
                             }
                             else if (this.selectionEnd - this.selectionStart === this.value.length ||
@@ -176,32 +251,6 @@
 
                     if (template == editor)
                         editor.width(active.width());
-
-                    if (editor.valid())
-                    {
-                        validator.settings.unhighlight(editor);
-
-                        // TODO: do we need this if app has proper bs highlight method?
-                        editor.parents(".form-group").removeClass("has-error");
-                    }
-                    else
-                    {
-                        validator.settings.highlight(editor);
-
-                        // TODO: do we need this if app has proper bs highlight method?
-                        editor.parents(".form-group").addClass("has-error");
-
-                        window.setTimeout(function ()
-                        {
-                            $(template)
-                                .popover(
-                                {
-                                    container: "body",
-                                    content: function () { return validator.errorList[0].message; }
-                                })
-                                .popover("show");
-                        }, 100);
-                    }
 
                     if (select)
                     {
