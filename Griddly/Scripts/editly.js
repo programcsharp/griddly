@@ -174,8 +174,8 @@
                         .offset(active.offset())
                         .width(template == editor ? active.width() : active.outerWidth())
                         .height(template == editor ? active.height() : active.outerHeight())
-                        .off("blur")
-                        .on("blur", function()
+                        .off("blur change")
+                        .on("blur change", function()
                         {
                             setTimeout(handleBlur, 1);
                         });
