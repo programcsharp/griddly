@@ -1,6 +1,7 @@
 ﻿using Faker;
 using Griddly.Models;
 using Griddly.Mvc;
+using Griddly.Mvc.Results;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +30,7 @@ namespace Griddly.Controllers
             else if (zipEnd != null)
                 query = query.Where(x => x.PostalCodePrefix <= zipEnd.Value);
 
-            return new GriddlyResult<TestGridItem>(query);
+            return new QueryableResult<TestGridItem>(query);
         }
 
         public GriddlyResult FilterBoxGrid(string lastName, DateTime? city)
@@ -51,7 +52,7 @@ namespace Griddly.Controllers
             //else if (zipEnd != null)
             //    query = query.Where(x => x.PostalCodePrefix <= zipEnd.Value);
 
-            return new GriddlyResult<TestGridItem>(query);
+            return new QueryableResult<TestGridItem>(query);
         }
 
         public GriddlyResult FilterRangeGrid(DateTime? stateStart)
@@ -70,7 +71,7 @@ namespace Griddly.Controllers
             //else if (zipEnd != null)
             //    query = query.Where(x => x.PostalCodePrefix <= zipEnd.Value);
 
-            return new GriddlyResult<TestGridItem>(query);
+            return new QueryableResult<TestGridItem>(query);
         }
 
         public GriddlyResult FilterListGrid()
@@ -87,7 +88,7 @@ namespace Griddly.Controllers
             //else if (zipEnd != null)
             //    query = query.Where(x => x.PostalCodePrefix <= zipEnd.Value);
 
-            return new GriddlyResult<TestGridItem>(query);
+            return new QueryableResult<TestGridItem>(query);
         }
 
         public ActionResult About()
@@ -158,7 +159,7 @@ namespace Griddly.Controllers
             if (isApproved != null)
                 query = query.Where(x => x.IsApproved == isApproved);
 
-            return new GriddlyResult<SimpleOrder>(query);
+            return new QueryableResult<SimpleOrder>(query);
         }
 
         static readonly IQueryable<SimpleOrder> _indexTestData = BuildIndexTestData().ToList().AsQueryable();
