@@ -88,9 +88,8 @@
     <Compile Include="..\Build\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="DapperGriddlyException.cs" />
-    <Compile Include="DapperGriddlyResult.cs" />
     <Compile Include="DynamicLinq.cs" />
+    <Compile Include="Exceptions\DapperGriddlyException.cs" />
     <Compile Include="GriddlyFilterExtensions.cs" />
     <Compile Include="GriddlyHtmlFilter.cs" />
     <Compile Include="InternalExtensions.cs" />
@@ -109,6 +108,10 @@
     <Compile Include="IHasOverallCount.cs" />
     <Compile Include="ListPage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Results\DapperResult.cs" />
+    <Compile Include="Results\DapperSql2008Result.cs" />
+    <Compile Include="Results\DapperSql2012Result.cs" />
+    <Compile Include="Results\QueryableResult.cs" />
     <Compile Include="SelectListItemGroup.cs" />
     <Compile Include="SortField.cs" />
   </ItemGroup>

@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Griddly.Mvc.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -6,23 +7,23 @@ using System.Linq;
 using System.Text;
 using System.Web.Helpers;
 
-namespace Griddly.Mvc
+namespace Griddly.Mvc.Results
 {
-    public class DapperGriddlyResult<T> : GriddlyResult<T>
+    public abstract class DapperResult<T> : GriddlyResult<T>
     {
         Func<IDbConnection> _getConnection;
         Func<IDbTransaction> _getTransaction;
-        string _sql;
-        string _outerSqlTemplate;
         object _param;
         Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> _map;
         Action<IDbConnection, IDbTransaction, IList<T>> _massage;
-
         long? _overallCount = null;
-        bool _fixedSort;
-        static readonly bool _hasOverallCount = typeof(IHasOverallCount).IsAssignableFrom(typeof(T));
 
-        public DapperGriddlyResult(Func<IDbConnection> getConnection, string sql, object param, Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map = null, Action<IDbConnection, IDbTransaction, IList<T>> massage = null, bool fixedSort = false, Func<IDbTransaction> getTransaction = null, string outerSqlTemplate = "{0}")
+        protected string _outerSqlTemplate;
+        protected string _sql;
+        protected bool _fixedSort;
+        protected static readonly bool _hasOverallCount = typeof(IHasOverallCount).IsAssignableFrom(typeof(T));
+
+        public DapperResult(Func<IDbConnection> getConnection, string sql, object param, Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map, Action<IDbConnection, IDbTransaction, IList<T>> massage, bool fixedSort, Func<IDbTransaction> getTransaction, string outerSqlTemplate)
             : base(null)
         {
             _getConnection = getConnection;
@@ -66,10 +67,7 @@ namespace Griddly.Mvc
 
                 try
                 {
-                    IDbConnection cn = _getConnection();
-                    IDbTransaction tx = _getTransaction != null ? _getTransaction() : null;
-
-                    IDictionary<string, object> item = cn.Query(sql, _param, tx).Single();
+                    IDictionary<string, object> item = ExecuteSingle<dynamic>(sql);
 
                     for (int i = 0; i < summaryColumns.Count; i++)
                         summaryColumns[i].SummaryValue = item["_a" + i];
@@ -90,11 +88,7 @@ namespace Griddly.Mvc
 
                 try
                 {
-                    IDbConnection cn = _getConnection();
-                    IDbTransaction tx = _getTransaction != null ? _getTransaction() : null;
-
-                    _overallCount = cn.Query<long>(sql, _param, tx).Single();
-
+                    _overallCount = ExecuteSingle<long>(sql);
                 }
                 catch (Exception ex)
                 {
@@ -104,52 +98,31 @@ namespace Griddly.Mvc
 
             return _overallCount.Value;
         }
-
-        public override IList<T> GetPage(int pageNumber, int pageSize, SortField[] sortFields)
-        {
-            string format;
-
-            if (!_hasOverallCount || _sql.IndexOf("OverallCount", StringComparison.InvariantCultureIgnoreCase) != -1)
-                format = "{0} " + (_fixedSort ? "" : "ORDER BY {1}") + " OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY";
-            else
-                // TODO: use dapper multimap Query<T, Dictionary<string, object>> to map all summary values in one go
-                format = @"
-;WITH _data AS (
-    {0}
-),
-    _count AS (
-        SELECT COUNT(0) AS OverallCount FROM _data
-)
-SELECT * FROM _data CROSS APPLY _count " + (_fixedSort ? "" : "ORDER BY {1}") + " OFFSET {2} ROWS FETCH NEXT {3} ROWS ONLY";
-
-            string sql = string.Format(_outerSqlTemplate,
-                string.Format(format, _sql, BuildSortClause(sortFields), pageNumber * pageSize, pageSize));
-
-            return ExecuteQuery(sql, _param);
-        }
-
-        public override IEnumerable<T> GetAll(SortField[] sortFields)
-        {
-            string sql = string.Format(_outerSqlTemplate,
-                _fixedSort ? _sql : string.Format("{0} ORDER BY {1}", _sql, BuildSortClause(sortFields)));
-
-            return ExecuteQuery(sql, _param);
-        }
-
+        
         protected string BuildSortClause(SortField[] sortFields)
         {
             if (sortFields != null && sortFields.Length > 0)
                 return string.Join(",", sortFields.Select(x => x.Field + " " + (x.Direction == SortDirection.Ascending ? "ASC" : "DESC")));
             else
-                return "CURRENT_TIMESTAMP";
+                return null;
+        }
+
+        protected virtual X ExecuteSingle<X>(string sql)
+        {
+            
+                IDbConnection cn = _getConnection();
+                IDbTransaction tx = _getTransaction != null ? _getTransaction() : null;
+
+                return cn.Query<X>(sql, _param, tx).Single();
+            
         }
 
         // TODO: return IEnumerable so we don't have to .ToList()
-        IList<T> ExecuteQuery(string sql, object param)
+        protected virtual IList<T> ExecuteQuery(string sql)
         {
             try
             {
-                IEnumerable<T> result = _map(_getConnection(), _getTransaction != null ? _getTransaction() : null, sql, param);
+                IEnumerable<T> result = _map(_getConnection(), _getTransaction != null ? _getTransaction() : null, sql, _param);
 
                 if (_hasOverallCount)
                 {
@@ -168,7 +141,7 @@ SELECT * FROM _data CROSS APPLY _count " + (_fixedSort ? "" : "ORDER BY {1}") + 
             }
             catch (Exception ex)
             {
-                throw new DapperGriddlyException("Error executing list query.", sql, param, ex);
+                throw new DapperGriddlyException("Error executing list query.", sql, _param, ex);
             }
         }
 

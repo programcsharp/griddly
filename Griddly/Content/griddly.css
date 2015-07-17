@@ -127,7 +127,8 @@
     display:block;border:none;box-shadow:none;position:relative;margin:0;
     width: 100%;
     max-height:400px;
-    overflow-y:auto
+    overflow-y:auto;
+    top:auto;
 }
 
 .filter-content .dropdown-menu li a
