@@ -26,6 +26,11 @@
             white-space:nowrap;
         }
 
+        .griddly-init-flag[value=loaded] + .griddly.griddly-init
+        {
+            display:none
+        }
+
     .griddly th
     {
         background-color: #c8c8c8;

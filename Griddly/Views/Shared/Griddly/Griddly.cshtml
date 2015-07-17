@@ -87,8 +87,8 @@
 @if (isFirstRender)
 {
     SortField[] defaultSort = settings.DefaultSort;
-
-    @:<div class="griddly @settings.ClassName" data-role="griddly"
+    <input class="griddly-init-flag" type="hidden" />
+    @:<div class="griddly griddly-init @settings.ClassName" data-role="griddly"
         @: @Html.AttributeNullable("data-griddly-url", !simple ? Url.Current() : null)
         @: data-griddly-count="@Model.Total"
         @: @Html.AttributeNullable("data-griddly-filtermode", settings.InitialFilterMode != FilterMode.None ? settings.InitialFilterMode.ToString() : null)
