@@ -844,7 +844,11 @@
                 }
             }
 
-            input.val([].concat(value));
+            if (input.parents(".griddly-filter").data("griddly-filter-isnoneall") && value == null)
+                input.prop("checked", false);
+            else
+                input.val([].concat(value));
+
             $(input[0]).change();
         },
 
@@ -1111,7 +1115,7 @@
             return this;
     };
 
-    $.fn.griddly.defaults =
+    $.fn.griddly.defaults = $.extend({},
     {
         pageNumber: 0,
         pageSize: 20,
@@ -1123,7 +1127,7 @@
         autoRefreshOnFilter: true,
         filterMode: null,
         allowedFilterModes: []
-    };
+    }, $.fn.griddlyGlobalDefaults);
 
     function GriddlyButton()
     { }
