@@ -1305,7 +1305,7 @@
         }
     };
 
-    $("[data-role=griddly]").griddly();
+    // $("[data-role=griddly]").griddly();
 
     $(function ()
     {
