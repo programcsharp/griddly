@@ -99,16 +99,28 @@
 
         this.setSelectedCount = $.proxy(function ()
         {
-            $("thead tr td span .griddly-selection-count", this.$element).text(Object.keys(this.options.selectedRows).length);
+            $(".griddly-selection-count", this.$element).text(Object.keys(this.options.selectedRows).length);
 
             if (!$.isEmptyObject(this.options.selectedRows))
             {
-                this.$element.find("span.griddly-selection:not(:visible)").animate({ width: "show" }, 350);
+                var el = this.$element.find(".griddly-selection:not(:visible)");
+                
+                if (el.is("span"))
+                    el.animate({ width: "show" }, 350);
+                else
+                    el.show(350);
+                    
                 $(this.$element).find("[data-enable-on-selection=true]").removeClass("disabled");
             }
             else
             {
-                this.$element.find("span.griddly-selection:visible").animate({ width: "hide" }, 350);
+                var el = this.$element.find(".griddly-selection:visible");
+
+                if (el.is("span"))
+                    el.animate({ width: "hide" }, 350);
+                else
+                    el.hide(350);
+
                 $(this.$element).find("[data-enable-on-selection=true]").addClass("disabled");
             }
 
@@ -431,7 +443,7 @@
                     this.$element.find("input[name=_rowselect]").prop("checked", true).each(function () { setRowSelect($(this)); });
             }, this));
             
-            $(this.$element).on("click", "thead tr .griddly-selection-clear", $.proxy(function (event)
+            $(this.$element).on("click", ".griddly-selection-clear", $.proxy(function (event)
             {
                 this.clearSelected();
             }, this));
@@ -1305,7 +1317,7 @@
         }
     };
 
-    // $("[data-role=griddly]").griddly();
+    $("[data-role=griddly]").griddly();
 
     $(function ()
     {
