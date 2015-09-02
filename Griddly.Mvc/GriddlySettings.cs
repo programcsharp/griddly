@@ -223,7 +223,7 @@ namespace Griddly.Mvc
                 });
         }*/
 
-        public GriddlySettings Button(Func<object, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null, string[] rowIds = null, object htmlAttributes = null, bool appendRowIdsToUrl = false)
+        public GriddlySettings Button(Func<object, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null, string[] rowIds = null, object htmlAttributes = null, bool appendRowIdsToUrl = false, string confirmMessage = null)
         {
             if (enableOnSelection == null)
                 enableOnSelection = (action == GriddlyButtonAction.Ajax || action == GriddlyButtonAction.AjaxBulk || action == GriddlyButtonAction.Post);
@@ -237,7 +237,8 @@ namespace Griddly.Mvc
                 EnableOnSelection = enableOnSelection.Value,
                 Target = target,
                 RowIds = rowIds,
-                AppendRowIdsToUrl = appendRowIdsToUrl
+                AppendRowIdsToUrl = appendRowIdsToUrl,
+                ConfirmMessage = confirmMessage
             };
 
             if (htmlAttributes != null)
@@ -246,7 +247,7 @@ namespace Griddly.Mvc
             return Add(button);
         }
 
-        public GriddlySettings Button(string argument, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null, string[] rowIds = null, object htmlAttributes = null, bool appendRowIdsToUrl = false)
+        public GriddlySettings Button(string argument, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null, string[] rowIds = null, object htmlAttributes = null, bool appendRowIdsToUrl = false, string confirmMessage = null)
         {
             if (enableOnSelection == null)
                 enableOnSelection = (action == GriddlyButtonAction.Ajax || action == GriddlyButtonAction.AjaxBulk || action == GriddlyButtonAction.Post);
@@ -260,7 +261,8 @@ namespace Griddly.Mvc
                 EnableOnSelection = enableOnSelection.Value,
                 Target = target,
                 RowIds = rowIds,
-                AppendRowIdsToUrl = appendRowIdsToUrl
+                AppendRowIdsToUrl = appendRowIdsToUrl,
+                ConfirmMessage = confirmMessage
             };
 
             if (htmlAttributes != null)

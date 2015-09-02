@@ -1156,7 +1156,33 @@
         var clearSelectionOnAction = button.data("clear-selection-on-action");
         var rowIds = button.data("rowids");
 
-        if ((typeof confirmMessage === "undefined" || confirm(confirmMessage)))
+        var selection = {};
+
+        if (griddly.length)
+        {
+            selection = griddly.griddly("getSelected", rowIds);
+
+            if (selection.value)
+            {
+                selection.ids = selection.value;
+                delete selection.value;
+            }
+        }
+
+        var selectedCount = Object.keys(selection).length ? selection[Object.keys(selection)[0]].length : 0;
+        var templatedConfirmMessage;
+
+        if (typeof confirmMessage !== "undefined")
+        {
+            templatedConfirmMessage = confirmMessage.replace("${count}", selectedCount);
+
+            if (selectedCount == 1)
+                templatedConfirmMessage = templatedConfirmMessage.replace(/\${plural:.*?}/, "").replace(/\${singular:(.*)?}/, "$1");
+            else
+                templatedConfirmMessage = templatedConfirmMessage.replace(/\${singular:.*?}/, "").replace(/\${plural:(.*)?}/, "$1");;
+        }
+
+        if ((typeof confirmMessage === "undefined" || confirm(templatedConfirmMessage)))
         {
             if (button.triggerHandler("beforeExecute") !== false)
             {
@@ -1164,18 +1190,6 @@
                 {
                     if (!url)
                         url = button.attr("href");
-
-                    var selection = {};
-                    if (griddly.length)
-                    {
-                        selection = griddly.griddly("getSelected", rowIds);
-
-                        if (selection.value)
-                        {
-                            selection.ids = selection.value;
-                            delete selection.value;
-                        }
-                    }
 
                     if (clearSelectionOnAction && griddly.length)
                     {
@@ -1185,13 +1199,13 @@
                     switch (toggle)
                     {
                         case "ajaxbulk":
-                            if (Object.keys(selection).length && selection[Object.keys(selection)[0]].length == 0 && enableOnSelection)
+                            if (selectedCount == 0 && enableOnSelection)
                                 return;
 
                             return this.ajaxBulk(url, selection, button, griddly);
 
                         case "post":
-                            if (Object.keys(selection).length && selection[Object.keys(selection)[0]].length == 0 && enableOnSelection)
+                            if (selectedCount == 0 && enableOnSelection)
                                 return;
 
                             return this.post(url, selection, button, griddly);
@@ -1203,7 +1217,7 @@
                             return this.postCriteria(url, griddly.griddly("buildRequest"));
 
                         case "ajax":
-                            if (Object.keys(selection).length && selection[Object.keys(selection)[0]].length == 0 && enableOnSelection)
+                            if (selectedCount == 0 && enableOnSelection)
                                 return;
 
                             return this.ajax(url, selection, button, griddly);
