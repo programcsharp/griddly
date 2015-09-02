@@ -1177,9 +1177,9 @@
             templatedConfirmMessage = confirmMessage.replace("${count}", selectedCount);
 
             if (selectedCount == 1)
-                templatedConfirmMessage = templatedConfirmMessage.replace(/\${plural:.*?}/, "").replace(/\${singular:(.*)?}/, "$1");
+                templatedConfirmMessage = templatedConfirmMessage.replace(/\${plural:.*?}/g, "").replace(/\${singular:(.*?)}/g, "$1");
             else
-                templatedConfirmMessage = templatedConfirmMessage.replace(/\${singular:.*?}/, "").replace(/\${plural:(.*)?}/, "$1");;
+                templatedConfirmMessage = templatedConfirmMessage.replace(/\${singular:.*?}/g, "").replace(/\${plural:(.*?)}/g, "$1");;
         }
 
         if ((typeof confirmMessage === "undefined" || confirm(templatedConfirmMessage)))
