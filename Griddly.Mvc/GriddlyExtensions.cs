@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
@@ -102,6 +103,22 @@ namespace Griddly.Mvc
                 return new HtmlString(name + "=\"" + value + "\"");
             else
                 return null;
+        }
+
+        // http://stackoverflow.com/a/18618808/8037
+        public static IHtmlString ToHtmlAttributes(this IDictionary<string, object> dictionary)
+        {
+            if (dictionary == null || dictionary.Count == 0)
+                return null;
+
+            var sb = new StringBuilder();
+
+            foreach (var kvp in dictionary)
+            {
+                sb.Append(string.Format("{0}=\"{1}\" ", HttpUtility.HtmlEncode(kvp.Key), HttpUtility.HtmlAttributeEncode(kvp.Value != null ? kvp.Value.ToString() : null)));
+            }
+
+            return new HtmlString(sb.ToString());
         }
 
         public static void SetGriddlyDefault<T>(this Controller controller, ref T parameter, string field, T value)

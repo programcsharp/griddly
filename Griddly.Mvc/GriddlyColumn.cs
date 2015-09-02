@@ -4,12 +4,19 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Helpers;
+using System.Web.Mvc;
+using System.Web.Routing;
 using System.Web.WebPages;
 
 namespace Griddly.Mvc
 {
     public abstract class GriddlyColumn
     {
+        public GriddlyColumn()
+        {
+            HeaderHtmlAttributes = new RouteValueDictionary();
+        }
+
         public string Caption { get; set; }
         public string ExpressionString { get; set; }
         public string Format { get; set; }
@@ -20,12 +27,22 @@ namespace Griddly.Mvc
         public bool IsExportOnly { get; set; }
         public SummaryAggregateFunction? SummaryFunction { get; set; }
         public object SummaryValue { get; set; }
+        public IDictionary<string, object> HeaderHtmlAttributes { get; set; }
 
         public GriddlyFilter Filter { get; set; }
 
         public abstract HtmlString RenderCell(object row, GriddlySettings settings, bool encode = true);
         public abstract object RenderCellValue(object row, bool stripHtml = false);
-        public abstract string RenderClassName(object row, GriddlyResultPage page);
+
+        public virtual string RenderClassName(object row, GriddlyResultPage page)
+        {
+            return ClassName;
+        }
+
+        public virtual IDictionary<string, object> GenerateHtmlAttributes(object row, GriddlyResultPage page)
+        {
+            return null;
+        }
 
         public virtual HtmlString RenderValue(object value, bool encode = true)
         {
@@ -60,6 +77,7 @@ namespace Griddly.Mvc
     {
         public Func<TRow, object> Template { get; set; }
         public Func<TRow, string> ClassNameTemplate { get; set; }
+        public Func<TRow, object> HtmlAttributesTemplate { get; set; }
 
         static readonly Regex _htmlMatch = new Regex(@"<[^>]*>", RegexOptions.Compiled);
 
@@ -87,6 +105,27 @@ namespace Griddly.Mvc
                 return string.Join(" ", classes);
             else
                 return null;
+        }
+
+        public override IDictionary<string, object> GenerateHtmlAttributes(object row, GriddlyResultPage page)
+        {
+            if (HtmlAttributesTemplate == null)
+                return null;
+
+            RouteValueDictionary attributes = new RouteValueDictionary();
+
+            object value = HtmlAttributesTemplate((TRow)row);
+
+            if (value != null)
+            {
+                if (!(value is IDictionary<string, object>))
+                    value = HtmlHelper.AnonymousObjectToHtmlAttributes(value);
+
+                foreach (KeyValuePair<string, object> entry in (IDictionary<string, object>)value)
+                    attributes.Add(entry.Key, entry.Value);
+            }
+
+            return attributes;
         }
 
         public override HtmlString RenderCell(object row, GriddlySettings settings, bool encode = true)

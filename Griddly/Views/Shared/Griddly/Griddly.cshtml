@@ -97,7 +97,8 @@
         @: @Html.AttributeNullable("data-griddly-rowclickmodal", settings.RowClickModal)
         @: data-griddly-defaultrowids="@Json.Encode(settings.DefaultRowIds != null ? settings.DefaultRowIds.Select(x => x.ToLower()).ToArray() : new[] { "value" })"
         @: data-griddly-filter-defaults="@Newtonsoft.Json.JsonConvert.SerializeObject(this.GetGriddlyDefaults())"
-        @: @Html.AttributeIf("data-griddly-defaultsort", defaultSort != null && defaultSort.Any(), Html.AttributeEncode(Json.Encode(defaultSort.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))))>
+        @: @Html.AttributeIf("data-griddly-defaultsort", defaultSort != null && defaultSort.Any(), Html.AttributeEncode(Json.Encode(defaultSort.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))))
+        @: @settings.HtmlAttributes.ToHtmlAttributes()>
     if (settings.Buttons.Any())
     {
         <div class="buttons">
@@ -112,7 +113,7 @@
         @settings.BeforeTemplate(null)
     }
     @:<div class="griddly-scrollable-container">
-        @:<table class="@settings.TableClassName">
+        @:<table class="@settings.TableClassName" @settings.TableHtmlAttributes.ToHtmlAttributes()>
             <colgroup>
                 @foreach (GriddlyColumn column in settings.Columns)
                 {
@@ -150,7 +151,7 @@
             @foreach (GriddlyColumn column in settings.Columns)
             {
                 bool isSortable = !simple && !string.IsNullOrWhiteSpace(column.ExpressionString);
-                <th class="@column.ClassName @(isSortable ? "sortable" : null) @(column is GriddlySelectColumn ? "select" : null) @(column.DefaultSort != null ? (column.DefaultSort == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.ExpressionString)>
+                <th class="@column.ClassName @(isSortable ? "sortable" : null) @(column is GriddlySelectColumn ? "select" : null) @(column.DefaultSort != null ? (column.DefaultSort == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.ExpressionString) @column.HeaderHtmlAttributes.ToHtmlAttributes()>
                     @if (isSortable)
                     {
                         <text>@column.Caption<span class="icon">&nbsp;</span></text>
@@ -190,10 +191,11 @@
             {
                 @: data-rowid-@(x.Key)="@(x.Value(row))"
             }
-            data-rowkey="@("_" + string.Join("_", settings.RowIds.Select(x => { var val = x.Value(row); return val == null ? "" : val.ToString(); }).ToArray()))">
+            data-rowkey="@("_" + string.Join("_", settings.RowIds.Select(x => { var val = x.Value(row); return val == null ? "" : val.ToString(); }).ToArray()))"
+            @settings.GenerateRowHtmlAttributes(row).ToHtmlAttributes()>
             @foreach (GriddlyColumn column in settings.Columns)
             {
-                <td class="@column.RenderClassName(row, Model)">@column.RenderCell(row, settings)</td>
+                <td class="@column.RenderClassName(row, Model)" @column.GenerateHtmlAttributes(row, Model).ToHtmlAttributes()>@column.RenderCell(row, settings)</td>
             }
         </tr>
     }
