@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
@@ -15,6 +16,14 @@ namespace Griddly.Mvc
 {
     public static class GriddlyExtensions
     {
+        public static string CurrencySymbol
+        {
+            get
+            {
+                return Thread.CurrentThread.CurrentCulture.NumberFormat.CurrencySymbol;
+            }
+        }
+
         public static MvcHtmlString Griddly(this HtmlHelper htmlHelper, string actionName)
         {
             return htmlHelper.Griddly(actionName, null);
@@ -203,7 +212,7 @@ namespace Griddly.Mvc
                         // values[value.Key] = (DateTime)value.Value; -- BAD: can't unbox a value type as a different type
                         values[value.Key] = Convert.ChangeType(value.Value, typeof(DateTime));
                     else if (t.IsArray || t.IsSubclassOf(typeof(IEnumerable)))
-                        values[value.Key] = string.Join(",", ((IEnumerable)value.Value).Cast<object>()); 
+                        values[value.Key] = string.Join(",", ((IEnumerable)value.Value).Cast<object>());
                 }
             }
 
