@@ -65,6 +65,8 @@ else
     {
         href = "#" + button.Argument;
     }
+    
+    bool clearSelectionOnAction = button.ClearSelectionOnAction ?? (button.Action == GriddlyButtonAction.Ajax || button.Action == GriddlyButtonAction.AjaxBulk);
 
     <a data-role="griddly-button" class="@(!isMenuItem ? "btn btn-default" : null) @(isDropdown && !button.IsSplitDropdown ? "dropdown-toggle" : null) @(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null) @button.ClassName @(!string.IsNullOrWhiteSpace(button.Icon) ? "btn-with-icon" : null)"
         @*onclick="@(button.Action == GriddlyButtonAction.Javascript ? button.Argument : null)"*@
@@ -77,7 +79,7 @@ else
         @Html.AttributeIf("data-url", button.Action == GriddlyButtonAction.Ajax || button.Action == GriddlyButtonAction.AjaxBulk || button.Action == GriddlyButtonAction.Post || button.Action == GriddlyButtonAction.PostCriteria, button.Argument)
         @Html.AttributeIf("data-target", button.Action != GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
         @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())
-        @Html.AttributeIf("data-clear-selection-on-action", button.ClearSelectionOnAction, button.ClearSelectionOnAction.ToString().ToLower())
+        @Html.AttributeIf("data-clear-selection-on-action", clearSelectionOnAction, clearSelectionOnAction.ToString().ToLower())
         @Html.AttributeIf("data-confirm-message", button.ConfirmMessage != null, button.ConfirmMessage)
         @Html.AttributeIf("data-rowids", button.RowIds != null, button.RowIds != null ? Html.AttributeEncode(Json.Encode(button.RowIds.Select(x => x.ToLower()).ToArray())) : null)
         @Html.AttributeIf("data-append-rowids-to-url", (button.Action == GriddlyButtonAction.Modal || button.Action == GriddlyButtonAction.Navigate) && button.AppendRowIdsToUrl, "")
