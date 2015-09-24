@@ -523,7 +523,7 @@
                         //else if (dataType == "Percent")
                         //    val += "%";
 
-                        if (val.indexOf(".00", val.length - 3) !== -1)
+                        if (val && val.indexOf(".00", val.length - 3) !== -1)
                             val = val.substr(0, val.length - 3);
 
                         return val;
