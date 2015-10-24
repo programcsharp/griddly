@@ -5,4 +5,6 @@ Griddly is an extremely configurable MVC/AJAX grid that separates render and dat
 
 First render is done server side during the containing page render. Subsequent paging/filtering requests are done via AJAX to the same MVC action method using a hybrid approach.
 
+![example](http://programcsharp.github.io/griddly/content/griddlyscreenshot.png)
+
 Project Site: http://griddly.com
