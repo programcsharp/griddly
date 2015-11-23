@@ -16,6 +16,9 @@
         filter: x => x.FilterBox(FilterDataType.String))
     .Column(x => x.Person.LastName, "Last Name",
         filter: x => x.FilterBox(FilterDataType.String))
-    .Column(x => x.IsApproved, "Approved?",
-        filter: x => x.FilterBool(nullItemText: "Both"))
+    .Column("Approved?",
+        filter: x => x.FilterBool(nullItemText: "Both", field:"IsApproved"),
+        template: @<text>@(item.IsApproved?"Yes":"No")</text>,
+        expressionString: "IsApproved",
+        value:x=>x.IsApproved)
 )

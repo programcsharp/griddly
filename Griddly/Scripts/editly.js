@@ -50,20 +50,35 @@
         // create and bind
         create: function ()
         {
+            this.bind();
+        },
+        
+        // destroy and unbind
+        destroy: function ()
+        {
+            this.unbind();
+        },
+
+        unbind: function()
+        {
+            this.$element.unbind(".editly");
+            this.$element.find("tbody td").each(function () {
+                $(this).removeAttr("tabindex");
+            });
+            for (var i = 0; i < this.options.editors.length; i++) {
+                $(this.options.editors[i]).hide();
+                $(this.options.editors[i]).popover("hide");
+            }
+        },
+
+        bind: function () {
             var self = this;
             var active = null;
-            //var url = this.$element.data("griddly-url");
+            var template = null;
+            var editor = null;
+            var validator = null;
 
-            //this.options.url = url;
-
-            this.$element.find("tbody td").each(function ()
-            {
-                if (!this.tabIndex || this.tabIndex < 0)
-                    this.tabIndex = 0;
-            });
-
-            var movement = function (element, keycode)
-            {
+            var movement = function (element, keycode) {
                 if (keycode === ARROW_RIGHT)
                     return element.next('td');
                 else if (keycode === ARROW_LEFT)
@@ -76,92 +91,88 @@
                 return [];
             };
 
-            var showEditor = function (select)
-            {
-                active = self.$element.find('td:focus');
+            var doValidation = function () {
+                if (validator) {
+                    var isValid = editor.valid();
 
-                if (active.length)
-                {
-                    var template = self.options.editors[active[0].cellIndex];
-                    var editor = template.is(":input") ? template : template.find(":input");
-                    
-                    var validator = editor.parents("form").data('validator')
-
-                    //validator.settings.showErrors = function (errorMap, errorList)
-                    //{
-
-                    //};
-
-                    //validator.settings.errorPlacement = function (error, element)
-                    //{
-                    //    $(template).popover(
-                    //    {
-                    //        container: "body",
-                    //        content: error.html(),
-                    //        html: true
-                    //    }).popover("show");
-                    //};
-
-                    var hideValidation = function ()
-                    {
-                        validator.settings.unhighlight(editor);
+                    if (isValid) {
+                        hideValidation();
+                    }
+                    else if (validator) {
+                        validator.settings.highlight(editor);
 
                         // TODO: do we need this if app has proper bs highlight method?
-                        editor.parents(".form-group").removeClass("has-error");
+                        editor.parents(".form-group").addClass("has-error");
 
-                        template.popover("hide");
-                    };
+                        window.setTimeout(function () {
+                            var message = validator.errorList[0].message;
+                            $(template)
+                                .popover(
+                                {
+                                    container: "body",
+                                    content: message
+                                })
+                                .popover("show");
+                        }, 100);
+                    }
+                    return isValid;
+                }
+                else {
+                    return true;
+                }
+            };
+            var hideValidation = function () {
+                if (validator) {
+                    validator.settings.unhighlight(editor);
 
-                    var hideEditor = function ()
+                    // TODO: do we need this if app has proper bs highlight method?
+                    editor.parents(".form-group").removeClass("has-error");
+
+                    template.popover("hide");
+                }
+            };
+
+            var hideEditor = function () {
+                template.hide();
+                hideValidation();
+            };
+
+            var saveActive = function () {
+                var oldValue = active.data("value");
+                if (oldValue === undefined) oldValue = self.options.parseText(active.text(), template);
+                var newValue = editor.val();
+                
+                if (oldValue != newValue) {
+                    var newText = editor[0].tagName=="SELECT"?(editor.find("option:selected").text()):editor.val();
+                    active.text(self.options.formatText(newText, template));
+                    active.data("value", newValue);
+                    self.options.save(
                     {
-                        template.hide();
+                        id: active.parents("tr:first").data("id"),
+                        field: $(active.parents("table:first").find("col")[active[0].cellIndex]).data("field"),
+                        value: newValue
+                    });
+                }
+            };
 
-                        hideValidation();
-                    };
+            var showEditor = function (select) {
+                var last = active;
+                active = self.$element.find('td:focus');
 
-                    var doValidation = function ()
-                    {
-                        var isValid = editor.valid();
+                if (active.length) {
+                    template = self.options.editors[active[0].cellIndex];
+                    editor = template.is(":input") ? template : template.find(":input");
+                    validator = editor.parents("form").data('validator');
 
-                        if (isValid)
-                        {
-                            hideValidation();
-                        }
-                        else
-                        {
-                            validator.settings.highlight(editor);
-
-                            // TODO: do we need this if app has proper bs highlight method?
-                            editor.parents(".form-group").addClass("has-error");
-
-                            window.setTimeout(function ()
-                            {
-                                $(template)
-                                    .popover(
-                                    {
-                                        container: "body",
-                                        content: function () { return validator.errorList[0].message; }
-                                    })
-                                    .popover("show");
-                            }, 100);
-                        }
-
-                        return isValid;
-                    };
-
-                    var handleBlur = function ()
-                    {
+                    var handleBlur = function () {
                         // TODO: is there a more efficient way for this?
-                        if (!$(document.activeElement).parents().is(template))
-                        {
-                            if (editor.valid())
-                            {
-                                active.text(editor.val());
+                        if (!$(document.activeElement).parents().is(template)) {
+                            if (editor.valid()) {
+                                saveActive();
 
                                 hideEditor();
                             }
-                            else
-                            {
+                            else {
                                 editor.focus();
 
                                 doValidation();
@@ -169,36 +180,45 @@
                         }
                     };
 
+                    if (last != null) {
+                        var lastTemplate = self.options.editors[last[0].cellIndex];
+
+                        if (lastTemplate != template) {
+                            lastTemplate.hide();
+                        }
+                    }
+
                     template
                         .show()
                         .offset(active.offset())
                         .width(template == editor ? active.width() : active.outerWidth())
                         .height(template == editor ? active.height() : active.outerHeight())
-                        .off("blur change")
-                        .on("blur change", function()
-                        {
+                        .off("blur change");
+                    if(template.tagName=="INPUT")
+                        template.on("blur change", function () {
                             setTimeout(handleBlur, 1);
                         });
 
-                    editor.val(active.text())
+                    var value = active.data("value");
+                    if (value === undefined)
+                        value = self.options.parseText(active.text(), template);
+
+                    editor.val(value)
                         .removeClass('error')
                         .css(active.css(self.options.cloneProperties))
                         .height(active.height())
                         .focus()
                         .off("keydown")
-                        .on("keydown", function (e)
-                        {
-                            if (e.which === ENTER)
-                            {
-                                if (doValidation())
-                                {
-                                    template.hide();
+                        .on("keydown", function (e) {
+                            if (e.which === ENTER) {
+                                if (doValidation()) {
+                                    saveActive();
+                                    hideEditor();
                                     active.focus();
-
+                                    
                                     var possibleMove = movement(active, e.shiftKey ? ARROW_UP : ARROW_DOWN);
 
-                                    if (possibleMove.length > 0)
-                                    {
+                                    if (possibleMove.length > 0) {
                                         possibleMove.focus();
 
                                         e.preventDefault();
@@ -206,27 +226,29 @@
                                     }
                                 }
                             }
-                            else if (e.which === ESC)
-                            {
-                                template.off("blur");
+                            else if (e.which === ESC) {
+                                //Reset to original value
+                                var value = active.data("value");
+                                if (value === undefined)
+                                    value = self.options.parseText(active.text(), template);
+                                editor.val(value);
 
                                 hideEditor();
-                                //editor.val(active.text());
+                                active.focus();
 
-                                //template.hide();
-                                //active.focus();
+                                e.preventDefault();
+                                e.stopPropagation();
                             }
-                            else if (e.which === TAB)
-                            {
-                                if (doValidation())
-                                {
+                            else if (e.which === TAB) {
+                                if (doValidation()) {
+                                    saveActive();
+                                    hideEditor();
                                     active.focus();
 
                                     // Have to move here because dropdown eats it somehow if not
                                     var possibleMove = movement(active, e.shiftKey ? ARROW_LEFT : ARROW_RIGHT);
+                                    if (possibleMove.length > 0) {
 
-                                    if (possibleMove.length > 0)
-                                    {
                                         possibleMove.focus();
 
                                         e.preventDefault();
@@ -234,72 +256,89 @@
                                     }
                                 }
                             }
-                            else if (this.selectionEnd - this.selectionStart === this.value.length ||
-                                (this.tagName == "SELECT" && (e.which == ARROW_RIGHT || e.which === ARROW_LEFT)))
-                            {
+                            else if (this.tagName == "INPUT" && this.selectionEnd - this.selectionStart === this.value.length ||
+                                (this.tagName == "SELECT" && (e.which == ARROW_RIGHT || e.which === ARROW_LEFT)) ||
+                                (this.tagName == "INPUT" && (e.which == ARROW_UP || e.which === ARROW_DOWN))
+                            ) {
                                 var possibleMove = movement(active, e.which);
 
-                                if (possibleMove.length > 0)
-                                {
-                                    possibleMove.focus();
+                                if (possibleMove.length > 0) {
+                                    if (doValidation()) {
+                                        saveActive();
+                                        hideEditor();
+                                        possibleMove.focus();
 
-                                    e.preventDefault();
-                                    e.stopPropagation();
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                    }
                                 }
                             }
                         });
-
+    
                     if (template == editor)
                         editor.width(active.width());
 
                     if (select)
-                    {
                         editor.select();
-                    }
                 }
             };
 
-            $(this.$element).on("click keypress dblclick", $.proxy(function (e)
-            {
-                showEditor(true);
-            }, this));
+            this.$element.find("tbody td").each(function () {
+                if (!this.tabIndex || this.tabIndex < 0)
+                    this.tabIndex = 0;
+            });
 
-            $(this.$element).on("keydown", $.proxy(function (e)
-            {
-                var prevent = true,
-                    possibleMove = movement($(e.target), e.which);
-
-                if (possibleMove.length > 0)
-                {
-                    possibleMove.focus();
-                }
-                else if (e.which === ENTER)
-                {
-                    showEditor(false);
-                }
-                else if (e.which === 17 || e.which === 91 || e.which === 93)
-                {
+            $(this.$element).on("click.editly keypress.editly dblclick.editly", $.proxy(function (e) {
+                if (doValidation()) {
+                    if(active)
+                        saveActive();
                     showEditor(true);
-                    prevent = false;
-                }
-                else
-                {
-                    prevent = false;
-                }
-
-                if (prevent)
-                {
+                } else {
                     e.stopPropagation();
                     e.preventDefault();
                 }
             }, this));
-        },
-        
-        // destroy and unbind
-        destroy: function ()
-        {
 
+            $(this.$element).on("keydown.editly", $.proxy(function (e) {
+                var prevent = true,
+                    possibleMove = movement($(e.target), e.which);
+
+                if (possibleMove.length > 0) {
+                    possibleMove.focus();
+                }
+                else if (e.which === ENTER) {
+                    if (active != null && active.tagName == "INPUT") {
+                        possibleMove = movement($(e.target), e.shiftKey ? ARROW_UP : ARROW_DOWN)
+                        if (possibleMove.length > 0) {
+                            possibleMove.focus();
+                        }
+                    }
+                    else {
+                        showEditor(false);
+                    }
+                }
+                else if (e.which === 113) {
+                    showEditor(false);
+                }
+                else if (e.which === 17 || e.which === 91 || e.which === 93) {
+                    showEditor(true);
+                    prevent = false;
+                }
+                else if (e.which === 32) {
+                    showEditor(true);
+                    prevent = true;
+                }
+                else {
+                    prevent = false;
+                }
+
+                if (prevent) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }
+            }, this));
         }
+
     };
 
     $.fn.editly = function (option, parameter)
@@ -335,10 +374,12 @@
 
     $.fn.editly.defaults =
     {
+        save: function (id, field, value) { },
+        parseText: function (val, editor) { return val; },
+        formatText: function (val, editor) { return val; },
         cloneProperties: ['padding', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right',
                   'text-align', 'font', 'font-size', 'font-family', 'font-weight']//,
-                  //'border', 'border-top', 'border-bottom', 'border-left', 'border-right']
-
+        //'border', 'border-top', 'border-bottom', 'border-left', 'border-right']
     };
 
     $(function()

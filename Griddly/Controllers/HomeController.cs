@@ -58,7 +58,7 @@ namespace Griddly.Controllers
             if (isApproved != null)
                 query = query.Where(x => x.IsApproved == isApproved);
 
-            return new GriddlyResult<SimpleOrder>(query);
+            return new QueryableResult<SimpleOrder>(query);
         }
 
         public GriddlyResult TestGrid(string firstName, int? zipStart, int? zipEnd)
