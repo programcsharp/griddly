@@ -72,6 +72,11 @@
                     $(this).css("cursor", "");
                 
             });
+            this.$element.find("tbody tr").each(function () {
+                $(this).data("griddly-url", $(this).data("griddly-url-inactive"));
+                $(this).data("griddly-url-inactive", "");
+            });
+
             for (var i = 0; i < this.options.editors.length; i++) {
                 $(this.options.editors[i]).hide();
                 $(this.options.editors[i]).popover("hide");
@@ -300,6 +305,10 @@
                 }
                 else
                     $(this).css("cursor", "default");
+            });
+            this.$element.find("tbody tr").each(function () {
+                $(this).data("griddly-url-inactive", $(this).data("griddly-url"));
+                $(this).data("griddly-url", "");
             });
 
             $(this.$element).on("click.editly keypress.editly dblclick.editly", $.proxy(function (e) {

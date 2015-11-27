@@ -5,6 +5,7 @@
 @Html.Griddly(new GriddlySettings<SimpleOrder>()
     {
         ClassName = "editly-grid",        
+        RowClickUrl=@<text>asdfasdf</text>
     }
     .Column(x => x.Item,
         filter: x => x.FilterBox(FilterDataType.String), summaryValue: "Total")
