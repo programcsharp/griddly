@@ -66,6 +66,7 @@
             this.$element.find("tbody td").each(function () {
                 if (self.options.editors[this.cellIndex] != null) {
                     $(this).removeAttr("tabindex");
+                    $(this).removeClass("editly-editable");
                 }
                 else
                     $(this).css("cursor", "");
@@ -292,8 +293,10 @@
 
             this.$element.find("tbody td").each(function () {
                 if (self.options.editors[this.cellIndex] != null) {
-                    if (!this.tabIndex || this.tabIndex < 0)
+                    if (!this.tabIndex || this.tabIndex < 0) {
                         this.tabIndex = 0;
+                        $(this).addClass("editly-editable");
+                    }
                 }
                 else
                     $(this).css("cursor", "default");
