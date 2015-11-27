@@ -61,9 +61,15 @@
 
         unbind: function()
         {
+            var self = this;
             this.$element.unbind(".editly");
             this.$element.find("tbody td").each(function () {
-                $(this).removeAttr("tabindex");
+                if (self.options.editors[this.cellIndex] != null) {
+                    $(this).removeAttr("tabindex");
+                }
+                else
+                    $(this).css("cursor", "");
+                
             });
             for (var i = 0; i < this.options.editors.length; i++) {
                 $(this.options.editors[i]).hide();
@@ -80,9 +86,9 @@
 
             var movement = function (element, keycode) {
                 if (keycode === ARROW_RIGHT)
-                    return element.next('td');
+                    return element.next('td:tabindex');
                 else if (keycode === ARROW_LEFT)
-                    return element.prev('td');
+                    return element.prev('td:tabindex');
                 else if (keycode === ARROW_UP)
                     return element.parent().prev().children().eq(element.index());
                 else if (keycode === ARROW_DOWN)
@@ -157,9 +163,10 @@
 
             var showEditor = function (select) {
                 var last = active;
-                active = self.$element.find('td:focus');
+                var newActive = self.$element.find('td:focus');
 
-                if (active.length) {
+                if (newActive.length) {
+                    active = newActive;
                     template = self.options.editors[active[0].cellIndex];
                     editor = template.is(":input") ? template : template.find(":input");
                     validator = editor.parents("form").data('validator');
@@ -180,7 +187,7 @@
                         }
                     };
 
-                    if (last != null) {
+                    if (last != null && last.length > 0) {
                         var lastTemplate = self.options.editors[last[0].cellIndex];
 
                         if (lastTemplate != template) {
@@ -284,13 +291,17 @@
             };
 
             this.$element.find("tbody td").each(function () {
-                if (!this.tabIndex || this.tabIndex < 0)
-                    this.tabIndex = 0;
+                if (self.options.editors[this.cellIndex] != null) {
+                    if (!this.tabIndex || this.tabIndex < 0)
+                        this.tabIndex = 0;
+                }
+                else
+                    $(this).css("cursor", "default");
             });
 
             $(this.$element).on("click.editly keypress.editly dblclick.editly", $.proxy(function (e) {
                 if (doValidation()) {
-                    if(active)
+                    if(active&&active.length>0)
                         saveActive();
                     showEditor(true);
                 } else {
@@ -307,7 +318,7 @@
                     possibleMove.focus();
                 }
                 else if (e.which === ENTER) {
-                    if (active != null && active.tagName == "INPUT") {
+                    if (active != null && active.length > 0 && active[0].tagName == "INPUT") {
                         possibleMove = movement($(e.target), e.shiftKey ? ARROW_UP : ARROW_DOWN)
                         if (possibleMove.length > 0) {
                             possibleMove.focus();
