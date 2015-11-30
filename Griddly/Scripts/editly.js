@@ -92,9 +92,9 @@
 
             var movement = function (element, keycode) {
                 if (keycode === ARROW_RIGHT)
-                    return element.next('td:tabindex');
+                    return element.nextAll('td[tabindex]:first');
                 else if (keycode === ARROW_LEFT)
-                    return element.prev('td:tabindex');
+                    return element.prevAll('td[tabindex]:first');
                 else if (keycode === ARROW_UP)
                     return element.parent().prev().children().eq(element.index());
                 else if (keycode === ARROW_DOWN)
