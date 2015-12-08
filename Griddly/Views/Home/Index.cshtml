@@ -65,6 +65,7 @@
                 public string FirstName { get; set; }
                 public string LastName { get; set; }
             }
+
             public class SimpleOrder
             {
                 public int Id { get; set; }
@@ -77,6 +78,7 @@
         <h3>Sample Data</h3>
         <pre class="brush: csharp">
             static readonly IQueryable&lt;SimpleOrder&gt; _indexTestData = BuildIndexTestData().AsQueryable();
+
             static IEnumerable&lt;SimpleOrder&gt; BuildIndexTestData()
             {
                 List&lt;SimpleOrder&gt; items = new List&lt;SimpleOrder&gt;();
@@ -130,27 +132,34 @@
             public ActionResult IndexGrid(string item, int? quantityStart, int? quantityEnd, decimal? totalStart, decimal? totalEnd, string firstName, string lastName, bool? isApproved)
             {
                 this.SetGriddlyDefault(ref isApproved, "isApproved", true);
+
                 IQueryable&lt;SimpleOrder&gt; query = _indexTestData;
+
                 if (!string.IsNullOrWhiteSpace(item))
                     query = query.Where(x => x.Item.ToLower().Contains(item.ToLower()));
+
                 if (quantityStart != null && quantityEnd != null)
                     query = query.Where(x => x.Quantity >= quantityStart && x.Quantity <= quantityEnd);
                 if (quantityStart != null)
                     query = query.Where(x => x.Quantity >= quantityStart);
                 if (quantityEnd != null)
                     query = query.Where(x => x.Quantity <= quantityEnd);
+
                 if (totalStart != null && totalEnd != null)
                     query = query.Where(x => x.Total >= totalStart && x.Total <= totalEnd);
                 if (totalStart != null)
                     query = query.Where(x => x.Total >= totalStart);
                 if (totalEnd != null)
                     query = query.Where(x => x.Total <= totalEnd);
+
                 if (!string.IsNullOrWhiteSpace(firstName))
                     query = query.Where(x => x.Person.FirstName.ToLower().Contains(firstName.ToLower()));
                 if (!string.IsNullOrWhiteSpace(lastName))
                     query = query.Where(x => x.Person.LastName.ToLower().Contains(lastName.ToLower()));
+
                 if (isApproved != null)
                     query = query.Where(x => x.IsApproved == isApproved);
+
                 return new GriddlyResult&lt;SimpleOrder&gt;(query);
             }
         </pre>
