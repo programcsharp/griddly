@@ -159,6 +159,8 @@ namespace Griddly.Mvc
 
         public override HtmlString RenderUnderlyingValue(object row)
         {
+            if (UnderlyingValueTemplate == null) return null;
+
             object value = null;
 
             try
