@@ -113,7 +113,7 @@ namespace Griddly.Mvc
             return filter;
         }
 
-        static string GetField(GriddlyColumn column)
+        public static string GetField(GriddlyColumn column)
         {
             string value = null;
 

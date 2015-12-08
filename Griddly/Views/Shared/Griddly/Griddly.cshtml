@@ -117,7 +117,7 @@
             <colgroup>
                 @foreach (GriddlyColumn column in settings.Columns)
                 {
-                    <col @Html.AttributeIf("style", column.Width != null, "width:" + column.Width) />
+                    <col @Html.AttributeIf("style", column.Width != null, "width:" + column.Width) data-field="@Griddly.Mvc.GriddlyFilterExtensions.GetField(column)" />
                 }
             </colgroup>
     <thead>
@@ -195,7 +195,8 @@
             @settings.GenerateRowHtmlAttributes(row).ToHtmlAttributes()>
             @foreach (GriddlyColumn column in settings.Columns)
             {
-                <td class="@column.RenderClassName(row, Model)" @column.GenerateHtmlAttributes(row, Model).ToHtmlAttributes()>@column.RenderCell(row, settings)</td>
+                var underlyingValue = column.RenderUnderlyingValue(row);
+                <td class="@column.RenderClassName(row, Model)" @column.GenerateHtmlAttributes(row, Model).ToHtmlAttributes()  @if (underlyingValue != null) { <text>data-value="@underlyingValue"</text> }>@column.RenderCell(row, settings)</td>
             }
         </tr>
     }

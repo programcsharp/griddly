@@ -1,0 +1,112 @@
+﻿@{
+    //ViewBag.Title = "Home Page";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1>Editly</h1>
+        @Html.Griddly("EditlyGrid")
+
+        <h2>Save events</h2>
+        <div id="events"></div>
+
+        <div class="templates">
+            <div id="edit-text" style="display:none">
+                <input class="form-control" type="text" />
+            </div>
+            <form>
+                <div id="edit-date" style="display:none">
+                    <input class="form-control" type="text" />
+                </div>
+            </form>
+            <form>
+                <div class="form-group">
+                    <div id="edit-number" class="btn-group" style="display:none">
+                        <a class="btn btn-default" data-toggle="dropdown">Select</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="btn btn-default">1</a></li>
+                            <li><a class="btn btn-default">2</a></li>
+                            <li><a class="btn btn-default">3</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </form>
+            @*<select id="edit-number" class="form-control" style="display:none">
+                    <option>1</option>
+                    <option>2</option>
+                    <option>3</option>
+                    <option>4</option>
+                    <option>5</option>
+                    <option>6</option>
+                    <option>7</option>
+                    <option>8</option>
+                    <option>9</option>
+                    <option>10</option>
+                </select>*@
+            <form>
+                <div class="form-group">
+                    <div id="edit-currency" class="input-group" style="display:none;">
+                        <span class="input-group-addon">$</span>
+                        <input type="text" class="form-control" data-val="true" data-val-number="This field must be a number." />
+                    </div>
+                </div>
+            </form>
+            @*<input id="edit-firstname" class="form-control" type="text" style="display:none" data-val="true" data-val-number="This field must be a number." data-val-range="This field must be greater than or equal to 0.01" data-val-range-min="0.01" data-val-required="This field is required." />
+                <input id="edit-lastname" class="form-control" type="text" style="display:none" data-val="true" data-val-number="This field must be a number." data-val-range="This field must be greater than or equal to 0.01" data-val-range-min="0.01" data-val-required="This field is required." />*@
+            <select id="edit-bool" class="form-control" style="display:none">
+                <option value="True">Yes</option>
+                <option value="False">No</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+@section head
+{
+    @Styles.Render("~/content/bootstrap-datepicker3.css")
+}
+
+@section scripts
+{
+    @Scripts.Render("~/scripts/bootstrap-datepicker.js")
+    <script>
+        $(".editly-grid table").editly(
+        {
+            editors: [
+                $("#edit-text"),
+                $("#edit-text"),
+                $("#edit-currency"),
+                null,
+                $("#edit-text"),
+                $("#edit-bool")
+            ],
+            parseText: function (val, template) {
+                if (template.is("#edit-currency")) {
+                    return val.replace("$", "");
+                } else return val;
+            },
+            formatText: function (val, template) {
+                if (template.is("#edit-currency")) {
+                    return "$" + val;
+                } else return val;
+            },
+            save: function (o) {
+                $("#events").append($("<div>{id: "+o.id+", field: "+o.field+", value: "+o.value +"}</div>"));
+            },
+        });
+
+        $('#edit-date input').datepicker({
+            format: "mm/yyyy",
+            startView: 2,
+            minViewMode: 1,
+            autoclose: true
+        });
+
+        $(".griddly").on('beforerefresh.griddly', function () {
+            $(".editly-grid table").editly('unbind');
+        });
+        $(".griddly").on('refresh.griddly', function () {
+            $(".editly-grid table").editly('bind');
+        });
+    </script>
+}

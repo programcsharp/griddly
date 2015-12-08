@@ -170,6 +170,7 @@
     <Content Include="Scripts\bootstrap-multiselect.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\editly.js" />
     <Content Include="Scripts\griddly.js" />
     <Content Include="Scripts\bootstrap.min.js.map">
       <DependentUpon>bootstrap.min.js</DependentUpon>
@@ -187,6 +188,11 @@
     <None Include="Scripts\jquery-2.1.0.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.0.js" />
     <Content Include="Scripts\jquery-2.1.0.min.js" />
+    <None Include="Scripts\jquery.validate-vsdoc.js" />
+    <Content Include="Scripts\jquery.validate.js" />
+    <Content Include="Scripts\jquery.validate.min.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.js" />
+    <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.7.1.js" />
     <Content Include="Scripts\npm.js" />
     <Content Include="Scripts\respond.js" />
@@ -249,6 +255,8 @@
     <Content Include="Views\Home\IndexGrid.cshtml" />
     <Content Include="Views\Shared\Griddly\GriddlyFilterInline.cshtml" />
     <Content Include="Views\Shared\Griddly\GriddlyFilterForm.cshtml" />
+    <Content Include="Views\Home\Editly.cshtml" />
+    <Content Include="Views\Home\EditlyGrid.cshtml" />
     <Content Include="Views\Home\HistoryTest.cshtml" />
   </ItemGroup>
   <ItemGroup>
