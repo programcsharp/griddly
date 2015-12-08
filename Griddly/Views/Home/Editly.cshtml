@@ -54,7 +54,7 @@
             },
             formatText: function (val, template) {
                 if (template.is("#edit-currency")) {
-                    return "$" + val;
+                    return "$" + parseFloat(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 } else return val;
             },
             save: function (o) {
