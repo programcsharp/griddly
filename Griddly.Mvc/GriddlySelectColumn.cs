@@ -52,5 +52,10 @@ namespace Griddly.Mvc
         {
             return null;
         }
+
+        public override HtmlString RenderUnderlyingValue(object row)
+        {
+            return null;
+        }
     }
 }

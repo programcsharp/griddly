@@ -394,7 +394,7 @@ namespace Griddly.Mvc
             return this;
         }
 
-        public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> expression, string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0)
+        public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> expression, string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0, Expression<Func<TRow, object>> value = null)
         {
             ModelMetadata metadata = null;
 
@@ -446,6 +446,7 @@ namespace Griddly.Mvc
             if (headerHtmlAttributes != null && !(headerHtmlAttributes is IDictionary<string, object>))
                 headerHtmlAttributes = HtmlHelper.AnonymousObjectToHtmlAttributes(headerHtmlAttributes);
 
+            var valueTemplate = value == null ? null : value.Compile();
             Add(new GriddlyColumn<TRow>()
             {
                 Template = template,
@@ -460,15 +461,16 @@ namespace Griddly.Mvc
                 IsExportOnly = isExportOnly,
                 Width = width,
                 HtmlAttributesTemplate = htmlAttributes,
-                HeaderHtmlAttributes = (IDictionary<string, object>)headerHtmlAttributes
+                HeaderHtmlAttributes = (IDictionary<string, object>)headerHtmlAttributes,
+                UnderlyingValueTemplate = valueTemplate
             }, filter);
 
             return this;
         }
 
-        public GriddlySettings<TRow> Column(string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0)
+        public GriddlySettings<TRow> Column(string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, bool isExportOnly = false, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0, Expression<Func<TRow, object>> value = null)
         {
-            return Column<object>(null, caption, format, expressionString, defaultSort, className, isExportOnly, width, summaryFunction, summaryValue, template, filter, htmlAttributes, headerHtmlAttributes, defaultSortOrder);
+            return Column<object>(null, caption, format, expressionString, defaultSort, className, isExportOnly, width, summaryFunction, summaryValue, template, filter, htmlAttributes, headerHtmlAttributes, defaultSortOrder, value);
         }
 
         public GriddlySettings<TRow> SelectColumn(Expression<Func<TRow, object>> id, object summaryValue = null)

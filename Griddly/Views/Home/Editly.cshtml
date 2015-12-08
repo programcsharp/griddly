@@ -1,0 +1,72 @@
+﻿@{
+    //ViewBag.Title = "Home Page";
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1>Editly</h1>
+        @Html.Griddly("EditlyGrid")
+
+        <h2>Save events</h2>
+        <div id="events"></div>
+
+        <div class="templates">
+            <div id="edit-text" style="display:none">
+                <input class="form-control" type="text" />
+            </div>
+            <form>
+                <div class="form-group">
+                    <div id="edit-currency" class="input-group" style="display:none;">
+                        <span class="input-group-addon">$</span>
+                        <input type="text" class="form-control" data-val="true" data-val-number="This field must be a number." />
+                    </div>
+                </div>
+            </form>
+            <select id="edit-bool" class="form-control" style="display:none">
+                <option value="True">Yes</option>
+                <option value="False">No</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+@section head
+{
+}
+
+@section scripts
+{
+    <script>
+        $(".editly-grid table").editly(
+        {
+            editors: [
+                $("#edit-text"),
+                $("#edit-text"),
+                $("#edit-currency"),
+                null,
+                $("#edit-text"),
+                $("#edit-bool")
+            ],
+            parseText: function (val, template) {
+                if (template.is("#edit-currency")) {
+                    return val.replace("$", "");
+                } else return val;
+            },
+            formatText: function (val, template) {
+                if (template.is("#edit-currency")) {
+                    return "$" + parseFloat(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                } else return val;
+            },
+            save: function (o) {
+                $("#events").append($("<div>{id: "+o.id+", field: "+o.field+", value: "+o.value +"}</div>"));
+            },
+        });
+
+        $(".griddly").on('beforerefresh.griddly', function () {
+            $(".editly-grid table").editly('unbind');
+        });
+        $(".griddly").on('refresh.griddly', function () {
+            $(".editly-grid table").editly('bind');
+        });
+    </script>
+}
