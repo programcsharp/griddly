@@ -180,7 +180,7 @@
                     var handleBlur = function () {
                         // TODO: is there a more efficient way for this?
                         if (!$(document.activeElement).parents().is(template)) {
-                            if (editor.valid()) {
+                            if (!validator || editor.valid()) {
                                 saveActive();
 
                                 hideEditor();
@@ -207,10 +207,8 @@
                         .width(template == editor ? active.width() : active.outerWidth())
                         .height(template == editor ? active.height() : active.outerHeight())
                         .off("blur change");
-                    if(template.tagName=="INPUT")
-                        template.on("blur change", function () {
-                            setTimeout(handleBlur, 1);
-                        });
+
+                    editor.on("blur change", handleBlur);
 
                     var value = active.data("value");
                     if (value === undefined)
