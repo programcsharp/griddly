@@ -5,9 +5,16 @@ $scriptpath = split-path -parent $MyInvocation.MyCommand.Path
 msbuild $scriptpath/build.proj
 
 Function Get-DropBox() {
-  $hostFile = Join-Path (Split-Path (Get-ItemProperty HKCU:\Software\Dropbox).InstallPath) "host.db"
-  $encodedPath = [System.Convert]::FromBase64String((Get-Content $hostFile)[1])
-  [System.Text.Encoding]::UTF8.GetString($encodedPath)
+  if (Test-Path "$HOMEPATH\Dropbox")
+  {
+      "$HOMEPATH\Dropbox"
+  }
+  else
+  {
+    $hostFile = Join-Path (Split-Path (Get-ItemProperty HKCU:\Software\Dropbox).InstallPath) "host.db"
+    $encodedPath = [System.Convert]::FromBase64String((Get-Content $hostFile)[1])
+    [System.Text.Encoding]::UTF8.GetString($encodedPath)
+  }
 }
 
 $dropbox = Get-DropBox
