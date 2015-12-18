@@ -37,7 +37,11 @@ else
         <ul class="dropdown-menu @(Model.AlignRight ? "pull-right" : "")">
             @foreach (GriddlyButton button in Model.Buttons)
             {
-                if (!button.IsSeparator)
+                if (button is GriddlyHtmlButton)
+                {
+                    <li>@(((GriddlyHtmlButton)button).HtmlTemplate(button))</li>
+                }
+                else if (!button.IsSeparator)
                 {
                     <li>@RenderLink(button, false, true)</li>
                 }
