@@ -169,11 +169,14 @@
                         if (filterList.IsMultiple)
                         {
                             <div class="input-group griddly-filter-buttons">
+                                @if (!filterList.IsNoneAll)
+                                {
                                 <span class="input-group-btn">
                                     <a class="btn btn-default griddly-select-all"><i class="glyphicon glyphicon-check"></i> Select All</a>
                                 </span>
+                                }
                                 <span class="input-group-btn">
-                                    <a class="btn btn-default  griddly-clear"><i class="glyphicon glyphicon-ban-circle"></i> Clear</a>
+                                    <a class="btn btn-default griddly-clear"><i class="glyphicon glyphicon-ban-circle"></i> Clear</a>
                                 </span>
                             </div>
                         }
