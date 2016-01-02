@@ -13,7 +13,7 @@
     }
     .Column(x => x.FirstName, "First Name", defaultSort: SortDirection.Ascending, defaultSortOrder: 2)
     .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending, defaultSortOrder: 1)
-    .Column(x => x.Company, "Company", filter: x => x.FilterList(enumList, defaultSelectAll: true))
+    .Column(x => x.Company, "Company", filter: x => x.FilterList(enumList))
     .Column(x => x.Address, "Address", filter: x => x.FilterRange(FilterDataType.Integer))
     .Column(x => x.State, "State", filter: x => x.FilterRange(FilterDataType.Date))
     .Column(x => x.PostalCode, "Zip", filter: x => x.FilterBool(nullItemText: "Both"))
