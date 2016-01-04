@@ -171,7 +171,7 @@
                 var last = active;
                 var newActive = self.$element.find('td:focus');
 
-                if (newActive.length) {
+                if (newActive.length && self.options.editors[newActive[0].cellIndex]) {
                     active = newActive;
                     template = self.options.editors[active[0].cellIndex];
                     editor = template.is(":input") ? template : template.find(":input");
