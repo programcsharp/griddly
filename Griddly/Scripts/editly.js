@@ -152,6 +152,7 @@
             var saveActive = function () {
                 var oldValue = active.data("value");
                 if (oldValue === undefined) oldValue = self.options.parseText(active.text(), template);
+                var oldText = active.text();
                 var newValue = editor.val();
                 
                 if (oldValue != newValue) {
@@ -162,7 +163,10 @@
                     {
                         id: active.parents("tr:first").data("id"),
                         field: $(active.parents("table:first").find("col")[active[0].cellIndex]).data("field"),
-                        value: newValue
+                        value: newValue,
+                        oldValue: oldValue,
+                        oldText: oldText,
+                        cell: active
                     });
                 }
             };
@@ -395,7 +399,7 @@
 
     $.fn.editly.defaults =
     {
-        save: function (id, field, value) { },
+        save: function () { },
         parseText: function (val, editor) { return val; },
         formatText: function (val, editor) { return val; },
         cloneProperties: ['padding', 'padding-top', 'padding-bottom', 'padding-left', 'padding-right',

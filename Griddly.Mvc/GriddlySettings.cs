@@ -45,6 +45,7 @@ namespace Griddly.Mvc
             Columns = new List<GriddlyColumn>();
             Filters = new List<GriddlyFilter>();
             Buttons = new List<GriddlyButton>();
+            Exports = new List<GriddlyExport>();
             RowIds = new Dictionary<string, Func<object, object>>();
             HtmlAttributes = new RouteValueDictionary();
             TableHtmlAttributes = new RouteValueDictionary();
@@ -76,6 +77,7 @@ namespace Griddly.Mvc
         public List<GriddlyColumn> Columns { get; set; }
         public List<GriddlyFilter> Filters { get; set; }
         public List<GriddlyButton> Buttons { get; set; }
+        public List<GriddlyExport> Exports { get; set; }
 
         public Func<object, object> BeforeTemplate { get; set; }
         public Func<object, object> AfterTemplate { get; set; }
@@ -170,6 +172,13 @@ namespace Griddly.Mvc
         public GriddlySettings Add(GriddlyButton button)
         {
             Buttons.Add(button);
+
+            return this;
+        }
+
+        public GriddlySettings Add(GriddlyExport export)
+        {
+            Exports.Add(export);
 
             return this;
         }

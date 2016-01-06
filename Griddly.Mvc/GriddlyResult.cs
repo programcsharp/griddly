@@ -150,11 +150,11 @@ namespace Griddly.Mvc
                 }
                 else if (exportFormat == GriddlyExportFormat.Xlsx)
                 {
-                    result = new GriddlyExcelResult<T>(records, settings, fileName);
+                    result = new GriddlyExcelResult<T>(records, settings, fileName, items["exportName"]);
                 }
                 else // if (exportFormat == GriddlyExportFormat.Csv || exportFormat == GriddlyExportFormat.Tsv)
                 {
-                    result = new GriddlyCsvResult<T>(records, settings, fileName, exportFormat.Value);
+                    result = new GriddlyCsvResult<T>(records, settings, fileName, exportFormat.Value, items["exportName"]);
                 }
 
                 result.ExecuteResult(context);
