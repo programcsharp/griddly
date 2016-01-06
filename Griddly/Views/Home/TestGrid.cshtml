@@ -4,12 +4,12 @@
 }
 
 @Html.Griddly(new GriddlySettings<TestGridItem>()
-    {
-        PageSize = 5,
-        ShowRowSelectCount = true,
-        Title = "Row Select Test",
-        ClassName = "test-grid"
-    }
+{
+    PageSize = 5,
+    ShowRowSelectCount = true,
+    Title = "Row Select Test",
+    ClassName = "test-grid"
+}
     .SelectColumn(x => x.Id)
     .RowId(x => x.FirstName)
     .RowId(x => x.LastName)
@@ -21,8 +21,8 @@
     .Column(x => x.City, "City")
     .Column(x => x.State, "State")
     .Column(x => x.PostalCode, "Zip", template: x => Html.ActionLink("&" + x.PostalCode, "Profile"))
-
     .Button("", "export", action: GriddlyButtonAction.Javascript, className: "export-xlsx")
+    .Button("", "named export", action: GriddlyButtonAction.Javascript, className: "export-xlsx", htmlAttributes: new { data_export_name="test-export" })
     .Add(new GriddlyButton() { Text = "Confirm", Argument = "http://google.com", Action = GriddlyButtonAction.PostCriteria, ConfirmMessage = "Please confirm" })
     .Add(new GriddlyButton() { IsSeparator = true })
     .Add(new GriddlyButton() { IsSeparator = true })
@@ -36,7 +36,7 @@
         {
             new GriddlyButton() { Text = "1" },
             new GriddlyButton() { Text = "2" },
-            new GriddlyButton() { Text = "3" }            
+            new GriddlyButton() { Text = "3" }
         }
     })
     .Add(new GriddlyButton() { IsSeparator = true })
@@ -47,7 +47,9 @@
         {
             new GriddlyButton() { Text = "1" },
             new GriddlyButton() { Text = "2" },
-            new GriddlyButton() { Text = "3" }            
+            new GriddlyButton() { Text = "3" }
         }
     })
+    .Add(new GriddlyExport<TestGridItem>("test-export", true)
+        .Column("City/State/Zip", template:x=>x.City+" " +x.State+" " + x.PostalCode))
 )

@@ -2,6 +2,7 @@
 using CsvHelper.Configuration;
 using System.Collections.Generic;
 using System.Web.Mvc;
+using System.Linq;
 
 namespace Griddly.Mvc
 {
@@ -11,13 +12,15 @@ namespace Griddly.Mvc
         GriddlySettings _settings;
         string _name;
         GriddlyExportFormat _format;
+        string _exportName;
 
-        public GriddlyCsvResult(IEnumerable<T> data, GriddlySettings settings, string name, GriddlyExportFormat format = GriddlyExportFormat.Csv)
+        public GriddlyCsvResult(IEnumerable<T> data, GriddlySettings settings, string name, GriddlyExportFormat format = GriddlyExportFormat.Csv, string exportName = null)
         {
             _data = data;
             _settings = settings;
             _name = name;
             _format = format;
+            _exportName = exportName;
         }
 
         public override void ExecuteResult(ControllerContext context)
@@ -29,8 +32,13 @@ namespace Griddly.Mvc
 
             using (CsvWriter w = new CsvWriter(context.HttpContext.Response.Output, new CsvConfiguration() { HasHeaderRecord = true, Delimiter = _format == GriddlyExportFormat.Tsv ? "\t" : "," }))
             {
-                for (int i = 0; i < _settings.Columns.Count; i++)
-                    w.WriteField(_settings.Columns[i].Caption);
+                var export = _settings.Exports.FirstOrDefault(x => x.Name == _exportName);
+                var columns = export == null ? _settings.Columns : export.Columns;
+                if (export != null && export.UseGridColumns) columns.InsertRange(0, _settings.Columns);
+
+
+                for (int i = 0; i < columns.Count; i++)
+                    w.WriteField(columns[i].Caption);
 
                 w.NextRecord();
 
@@ -38,9 +46,9 @@ namespace Griddly.Mvc
 
                 foreach (T row in _data)
                 {
-                    for (int x = 0; x < _settings.Columns.Count; x++)
+                    for (int x = 0; x < columns.Count; x++)
                     {
-                        object renderedValue = _settings.Columns[x].RenderCellValue(row, true);
+                        object renderedValue = columns[x].RenderCellValue(row, true);
 
                         w.WriteField(renderedValue);
                     }

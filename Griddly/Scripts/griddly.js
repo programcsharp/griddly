@@ -449,15 +449,15 @@
             }, this));
 
             $("a.export-xlsx", this.$element).on("click", $.proxy(function (e) {
-                this.exportFile("xlsx");
+                this.exportFile("xlsx", null, { exportName: $(e.target).data("export-name") });
                 e.preventDefault();
             }, this));
             $("a.export-csv", this.$element).on("click", $.proxy(function (e) {
-                this.exportFile("csv");
+                this.exportFile("csv", null, { exportName: $(e.target).data("export-name") });
                 e.preventDefault();
             }, this));
             $("a.export-tsv", this.$element).on("click", $.proxy(function (e) {
-                this.exportFile("tsv");
+                this.exportFile("tsv", null, { exportName: $(e.target).data("export-name") });
                 e.preventDefault();
             }, this));
 
@@ -757,15 +757,15 @@
             var params = this.buildRequest();
             
             params.exportFormat = type;
-
+            $.extend(params, data);
             if (exec)
             {
-                $.extend(params, data);
                 exec(this.options.url, params)
             }
             else
             {
                 var url = this.options.url + (this.options.url.indexOf("?") == -1 ? "?" : "&") + $.param(params, true);
+                alert(url);
                 window.location = url;
             }
         },

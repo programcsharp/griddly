@@ -75,7 +75,7 @@ else
         @Html.AttributeIf("href", href != null, href)
         @Html.AttributeIf("data-toggle", button.Action != GriddlyButtonAction.Navigate && button.Action != GriddlyButtonAction.Javascript, button.Action.ToString().ToLower())
         @Html.AttributeIf("data-toggle", isDropdown && !button.IsSplitDropdown, "dropdown")
-        @Html.AttributeIf("data-onclick", button.Action == GriddlyButtonAction.Javascript && button.Argument != null, button.Argument)
+        @Html.AttributeIf("data-onclick", button.Action == GriddlyButtonAction.Javascript && !string.IsNullOrWhiteSpace(button.Argument), button.Argument)
         @Html.AttributeIf("data-url", button.Action == GriddlyButtonAction.Ajax || button.Action == GriddlyButtonAction.AjaxBulk || button.Action == GriddlyButtonAction.Post || button.Action == GriddlyButtonAction.PostCriteria, button.Argument)
         @Html.AttributeIf("data-target", button.Action != GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
         @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())
