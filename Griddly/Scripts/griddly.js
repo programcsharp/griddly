@@ -775,7 +775,6 @@
             else
             {
                 var url = this.options.url + (this.options.url.indexOf("?") == -1 ? "?" : "&") + $.param(params, true);
-                alert(url);
                 window.location = url;
             }
         },
