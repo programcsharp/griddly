@@ -17,13 +17,27 @@
         this.$element = $(element);
         this.options = options;
         this.create();
+        this.isConstructed = false;
+        this.eventQueue = [];
+
+        this.triggerOrQueue = function ()
+        {
+            if (this.isConstructed)
+            {
+                arguments[0].trigger.apply(arguments[0], Array.prototype.slice.call(arguments, 1));
+            }
+            else
+            {
+                this.eventQueue[this.eventQueue.length] = arguments;
+            }
+        };
 
         $(this.$element).find("[data-enable-on-selection=true]").addClass("disabled");
 
         if (this.options.onRefresh)
             this.options.onRefresh(this, 0, this.options.count > this.options.pageSize ? this.options.pageSize : this.options.count, this.options.count, null);
 
-        this.$element.trigger("init.griddly",
+        this.triggerOrQueue(this.$element, "init.griddly",
         {
             start: 0,
             pageSize: this.options.count > this.options.pageSize ? this.options.pageSize : this.options.count,
@@ -125,6 +139,8 @@
             }
 
         }, this);
+
+        this.isConstructed = true;
     };
 
     var serializeObject = function ($elements)
@@ -646,7 +662,7 @@
 
             $(".griddly-filters-inline input, .griddly-filters-inline select", this.$element).on("change", $.proxy(function (event)
             {
-                this.$element.trigger("filterchange.griddly", this.$element, event.target);
+                this.triggerOrQueue(this.$element, "filterchange.griddly", this.$element, event.target);
 
                 if (this.options.autoRefreshOnFilter)
                     this.refresh(true);
@@ -792,7 +808,7 @@
         {
             if (this.options.allowedFilterModes.indexOf(mode) > -1)
             {
-                this.$element.trigger("setfiltermode.griddly", { mode: mode });
+                this.triggerOrQueue(this.$element, "setfiltermode.griddly", { mode: mode });
 
                 var currentFilters = this.getFilterValues();
                 var request1 = this.buildRequest();
@@ -925,7 +941,7 @@
                 this.setFilterValue(e, filters[e.name]);
             }, this));
 
-            this.$element.trigger("setfilters.griddly", filters);
+            this.triggerOrQueue(this.$element, "setfilters.griddly", filters);
             
             this.options.autoRefreshOnFilter = true;
 
@@ -942,7 +958,7 @@
 
             this.setFilterValues(this.options.filterDefaults);
 
-            this.$element.trigger("resetfilters.griddly");
+            this.triggerOrQueue(this.$element, "resetfilters.griddly");
 
             this.refresh(true);
         },
@@ -975,7 +991,7 @@
 
         refresh: function(resetPage)
         {
-            this.$element.trigger("beforerefresh.griddly");
+            this.triggerOrQueue(this.$element, "beforerefresh.griddly");
 
             if (!this.options.url)
             {
@@ -1066,7 +1082,7 @@
                         $(e).prop("checked", true);
                 });
 
-                this.$element.trigger("refresh.griddly",
+                this.triggerOrQueue(this.$element, "refresh.griddly",
                 {
                     start: startRecord,
                     pageSize: currentPageSize,
@@ -1091,7 +1107,7 @@
                     window.location = url;
                 }
 
-                this.$element.trigger("error.griddly", { xhr: xhr, status: status, error: errorThrown });
+                this.triggerOrQueue(this.$element, "error.griddly", { xhr: xhr, status: status, error: errorThrown });
             }, this));
         },
 
@@ -1157,6 +1173,13 @@
                 var instanceOptions = $.extend({}, $.fn.griddly.defaults, options);
 
                 $(this).data('griddly', (data = new Griddly(this, instanceOptions)));
+
+                var event = data.eventQueue.pop();
+                while (event)
+                {
+                    event[0].trigger.apply(event[0], Array.prototype.slice.call(event, 1))
+                    event = data.eventQueue.pop();
+                }
             }
 
             // call griddly method
