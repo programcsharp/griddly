@@ -915,7 +915,7 @@
                 }
             }
 
-            if (input.data("griddly-filter").data("griddly-filter-isnoneall") &&
+            if (input.data("griddly-filter") && input.data("griddly-filter").data("griddly-filter-isnoneall") &&
                 (value == null ||
                 (input.data("griddly-filter").data("griddly-filter-ismultiple") && $.isArray(value) && $("input", input.data("griddly-filter").data("griddly-filter-content")).length === value.length)))
                 input.prop("checked", false);
