@@ -655,9 +655,6 @@
 
                 if (display)
                     displayEl.text(display);
-
-                // TODO: remove below once M3 compat fixed
-                // this.refresh(true);
             }, this));
 
             $(".griddly-filters-inline input, .griddly-filters-inline select", this.$element).on("change", $.proxy(function (event)
@@ -1094,20 +1091,23 @@
             }, this))
             .fail($.proxy(function (xhr, status, errorThrown)
             {
-                if (this.options.onError)
+                if (xhr.status != 0)
                 {
-                    this.options.onError(xhr, status, errorThrown);
+                    if (this.options.onError)
+                    {
+                        this.options.onError(xhr, status, errorThrown);
+                    }
+                    else
+                    {
+                        var url = this.options.url + (this.options.url.indexOf('?') == -1 ? "?" : "&");
+
+                        url += $.param(postData);
+
+                        window.location = url;
+                    }
+
+                    this.triggerOrQueue(this.$element, "error.griddly", { xhr: xhr, status: status, error: errorThrown });
                 }
-                else
-                {
-                    var url = this.options.url + (this.options.url.indexOf('?') == -1 ? "?" : "&");
-
-                    url += $.param(postData);
-
-                    window.location = url;
-                }
-
-                this.triggerOrQueue(this.$element, "error.griddly", { xhr: xhr, status: status, error: errorThrown });
             }, this));
         },
 

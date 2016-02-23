@@ -105,7 +105,7 @@ namespace Griddly.Mvc
 
         public void SetSelectedItems(object value)
         {
-            if (IsMultiple && DefaultSelectAll && value == null)
+            if (IsMultiple && DefaultSelectAll && !IsNoneAll && value == null)
             {
                 // TODO: set default value to all selected
                 foreach (SelectListItem item in SelectableItems)

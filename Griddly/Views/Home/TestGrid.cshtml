@@ -14,7 +14,7 @@
     .RowId(x => x.FirstName)
     .RowId(x => x.LastName)
     .RowId(x => x.NullThing)
-    .Column(x => x.FirstName, "First Name")
+    .Column(x => x.FirstName, "First Name", filter: x => x.FilterList(new List<SelectListItem>() { new SelectListItem() { Text = "Blah", Value = "0" } }, defaultSelectAll: true))
     .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending)
     .Column(x => x.Company, "Company")
     .Column(x => x.Address, "Address")
