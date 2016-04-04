@@ -1405,7 +1405,7 @@
     {
         $("[data-role=griddly]").griddly();
 
-        $(document).on("click", "[data-role=griddly-button]", GriddlyButton.handleClick);
+        $(document).on("click", "[data-role=griddly-button]:not(.griddly table a[data-toggle=ajax],.griddly table a[data-toggle=post])", GriddlyButton.handleClick);
 
         // patch bootstrap js so it doesn't .empty() our inline filter dropdowns
         // include if using bootstrap < 3.3.0
