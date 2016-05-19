@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Routing;
 
 namespace Griddly.Mvc
 {
@@ -13,7 +14,12 @@ namespace Griddly.Mvc
         {
             ClassName = "griddly-select align-center";
         }
-        
+
+        public virtual IDictionary<string, object> GenerateInputHtmlAttributes(object row)
+        {
+            return null;
+        }
+                
         public override HtmlString RenderCell(object row, GriddlySettings settings, bool encode = true)
         {
             TagBuilder input = new TagBuilder("input");
@@ -45,6 +51,13 @@ namespace Griddly.Mvc
                 input.Attributes["data-rowkey"] = key;
             }
 
+            var inputAttributes = GenerateInputHtmlAttributes(row);
+
+            if (inputAttributes != null)
+            {
+                input.MergeAttributes(inputAttributes);
+            }
+
             return new HtmlString(input.ToString(TagRenderMode.SelfClosing));
         }
 
@@ -56,6 +69,32 @@ namespace Griddly.Mvc
         public override HtmlString RenderUnderlyingValue(object row)
         {
             return null;
+        }
+    }
+
+    public class GriddlySelectColumn<TRow> : GriddlySelectColumn
+    {
+        public Func<TRow, object>  InputHtmlAttributesTemplate { get; set; }
+
+        public override IDictionary<string, object> GenerateInputHtmlAttributes(object row)
+        {
+            if (InputHtmlAttributesTemplate == null)
+                return null;
+
+            RouteValueDictionary attributes = new RouteValueDictionary();
+
+            object value = InputHtmlAttributesTemplate((TRow)row);
+
+            if (value != null)
+            {
+                if (!(value is IDictionary<string, object>))
+                    value = HtmlHelper.AnonymousObjectToHtmlAttributes(value);
+
+                foreach (KeyValuePair<string, object> entry in (IDictionary<string, object>)value)
+                    attributes.Add(entry.Key, entry.Value);
+            }
+
+            return attributes;
         }
     }
 }

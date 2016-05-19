@@ -10,7 +10,7 @@
     Title = "Row Select Test",
     ClassName = "test-grid"
 }
-    .SelectColumn(x => x.Id)
+    .SelectColumn(x => x.Id, inputHtmlAttributesTemplate: x => new { data_testattr = x.Id })
     .RowId(x => x.FirstName)
     .RowId(x => x.LastName)
     .RowId(x => x.NullThing)

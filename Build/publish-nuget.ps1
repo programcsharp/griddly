@@ -11,9 +11,8 @@ Function Get-DropBox() {
   }
   else
   {
-    $hostFile = Join-Path (Split-Path (Get-ItemProperty HKCU:\Software\Dropbox).InstallPath) "host.db"
-    $encodedPath = [System.Convert]::FromBase64String((Get-Content $hostFile)[1])
-    [System.Text.Encoding]::UTF8.GetString($encodedPath)
+    $hostFile = Get-Content -raw -path "$env:LOCALAPPDATA\Dropbox\info.json" | ConvertFrom-Json
+    $hostFile.personal.path
   }
 }
 
