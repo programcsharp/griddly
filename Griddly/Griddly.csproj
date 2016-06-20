@@ -22,6 +22,7 @@
     <IISExpressUseClassicPipelineMode />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -185,9 +186,6 @@
     <Content Include="Scripts\jquery-1.11.0.js" />
     <Content Include="Scripts\jquery-1.11.0.min.js" />
     <Content Include="Scripts\jquery-1.11.0.min.map" />
-    <None Include="Scripts\jquery-2.1.0.intellisense.js" />
-    <Content Include="Scripts\jquery-2.1.0.js" />
-    <Content Include="Scripts\jquery-2.1.0.min.js" />
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
@@ -247,7 +245,6 @@
     <Content Include="Views\Shared\Griddly\ButtonStrip.cshtml" />
     <Content Include="Views\Shared\Griddly\Griddly.cshtml" />
     <Content Include="Views\Home\TestGrid.cshtml" />
-    <Content Include="Scripts\jquery-2.1.0.min.map" />
     <Content Include="Views\Home\FilterRangeGrid.cshtml" />
     <Content Include="Views\Home\FilterBoxGrid.cshtml" />
     <Content Include="Views\Home\FilterListGrid.cshtml" />

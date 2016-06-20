@@ -482,13 +482,14 @@ namespace Griddly.Mvc
             return Column<object>(null, caption, format, expressionString, defaultSort, className, isExportOnly, width, summaryFunction, summaryValue, template, filter, htmlAttributes, headerHtmlAttributes, defaultSortOrder, value);
         }
 
-        public GriddlySettings<TRow> SelectColumn(Expression<Func<TRow, object>> id, object summaryValue = null)
+        public GriddlySettings<TRow> SelectColumn(Expression<Func<TRow, object>> id, object summaryValue = null, Func<TRow, object> inputHtmlAttributesTemplate = null)
         {
             RowId(id, "id");
 
-            Add(new GriddlySelectColumn()
+            Add(new GriddlySelectColumn<TRow>()
             {
-                SummaryValue = summaryValue
+                SummaryValue = summaryValue,
+                InputHtmlAttributesTemplate = inputHtmlAttributesTemplate
             });
 
             return this;

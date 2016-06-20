@@ -43,7 +43,7 @@
     <Copy SourceFiles="@(Content)" DestinationFolder="$(PackageDir)\Griddly\content\%(RecursiveDir)" />
     <Copy SourceFiles="@(Libs)" DestinationFolder="$(PackageDir)\Griddly.Core\lib\net45\%(RecursiveDir)" />
 
-    <!-- Get the version number of the main FV assembly to insert into the nuspec files -->
+    <!-- Get the version number of the main assembly to insert into the nuspec files -->
     <GetAssemblyIdentity AssemblyFiles="$(PackageDir)\Griddly.Core\lib\net45\Griddly.Mvc.dll">
       <Output TaskParameter="Assemblies" ItemName="AsmInfo" />
     </GetAssemblyIdentity>
