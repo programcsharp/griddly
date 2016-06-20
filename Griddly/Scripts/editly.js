@@ -63,7 +63,7 @@
         {
             var self = this;
             this.$element.unbind(".editly");
-            this.$element.find("tbody td").each(function () {
+            this.$element.find("tbody td[editable!=\"False\"][editable!=\"false\"]").each(function () {
                 if (self.options.editors[this.cellIndex] != null) {
                     $(this).removeAttr("tabindex");
                     $(this).removeClass("editly-editable");
@@ -294,7 +294,7 @@
                 }
             };
 
-            this.$element.find("tbody td").each(function () {
+            this.$element.find("tbody td[editable!=\"False\"][editable!=\"false\"]").each(function () {
                 if (self.options.editors[this.cellIndex] != null) {
                     if (!this.tabIndex || this.tabIndex < 0) {
                         this.tabIndex = 0;
