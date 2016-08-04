@@ -570,7 +570,7 @@
                     return str;
             }
 
-            this.$inlineFilters = $(".griddly-filters-inline .filter-content input", this.$element);
+            this.$inlineFilters = $(".griddly-filters-inline .filter-content input, .griddly-filters-inline .griddly-filter.griddly-html-filter input", this.$element);
 
             $(".griddly-filters-inline .filter-content input", this.$element).on("change", $.proxy(function (event, dontHide)
             {

@@ -22,8 +22,9 @@
             GriddlyFilterBox filterBox = filter as GriddlyFilterBox;
             GriddlyFilterRange filterRange = filter as GriddlyFilterRange;
             GriddlyFilterList filterList = filter as GriddlyFilterList;
+            GriddlyHtmlFilter filterHtml = filter as GriddlyHtmlFilter;
 
-            <div class="btn-group griddly-filter @(filterBox != null ? "griddly-filter-box" : null) @(filterRange != null ? "griddly-filter-range" : null) @(filterList != null ? "griddly-filter-list" : null)"
+            <div class="btn-group griddly-filter @(filterBox != null ? "griddly-filter-box" : null) @(filterRange != null ? "griddly-filter-range" : null) @(filterList != null ? "griddly-filter-list" : null) @(filterHtml != null ? "griddly-html-filter" : null)"
                     data-filter-name="@filter.Caption" data-filter-name-plural="@filter.CaptionPlural"
                     data-filter-datatype="@filter.DataType.ToString()"
                     @Html.AttributeIf("data-griddly-filter-ismultiple", filterList != null, x => filterList.IsMultiple.ToString().ToLower())
@@ -33,6 +34,12 @@
                     object defaultValue = this.GetGriddlyDefault(filter.Field);
                     object defaultValueEnd = filterRange != null ? this.GetGriddlyDefault(filterRange.FieldEnd) : null;
                 }
+                @if (filterHtml != null)
+                {
+                    @filterHtml.HtmlTemplate(filterHtml)
+                }
+                else
+                {
                 <a class="btn btn-link btn-xs filter-trigger">
                     <span class="griddly-filter-display">
                         @if (filterBox != null)
@@ -198,6 +205,7 @@
                         </ul>
                     }
                 </div>
+                }
             </div>
         }
     </td>
