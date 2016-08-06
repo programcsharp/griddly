@@ -1030,7 +1030,8 @@
             $.ajax(this.options.url,
             {
                 data: postData,
-                traditional: true
+                traditional: true,
+                cache: false
             }).done($.proxy(function (data, status, xhr)
             {
                 var count = parseInt(xhr.getResponseHeader("X-Griddly-Count"));
