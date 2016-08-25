@@ -53,8 +53,8 @@
             if (state && state.filterValues)
             {
                 if (this.$element.prev(".griddly-init-flag").val() == "loaded"
-                    //Workaround for IE when header cache-control: no-store is present
-                    //See https://developer.mozilla.org/en-US/Firefox/Releases/1.5/Using_Firefox_1.5_caching and https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigation
+                    // Workaround for IE when header cache-control: no-store is present. Form method works in Chrome, window.performance method works in IE and FF.
+                    // See https://developer.mozilla.org/en-US/Firefox/Releases/1.5/Using_Firefox_1.5_caching and https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigation
                     || (window.performance && window.performance.navigation && window.performance.navigation.type == 2)) 
                 {
                     try
