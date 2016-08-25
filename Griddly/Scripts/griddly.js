@@ -498,7 +498,7 @@
                 {
                     case "Integer":
                     {
-                        val = new String(val).replace(/[^0-9]/g, "")
+                        val = String(val).replace(/[^0-9]/g, "")
 
                         val = parseInt(val);
 
@@ -510,7 +510,7 @@
                     case "Decimal":
                     case "Currency":
                     //case "Percent":
-                        val = new String(val).replace(/,/g, "").replace(/\$/g, "");
+                        val = String(val).replace(/[^0-9,.-]/g, "").replace(/,/g, "").replace(/\$/g, "");
 
                         // TODO: filter down to one decimal point
                         // TODO: filter out non numerics
@@ -549,7 +549,7 @@
                         return val;
                     case "Date":
                         // TODO: handle bad formats
-                        val = new Date(val);
+                        val = new Date(String(val).replace(/[^0-9a-zA-Z-\/]/g, ""));
 
                         return (val.getMonth() + 1) + "/" + val.getDate() + "/" + val.getFullYear();
                     default:
@@ -570,7 +570,7 @@
                     return str;
             }
 
-            this.$inlineFilters = $(".griddly-filters-inline .filter-content input", this.$element);
+            this.$inlineFilters = $(".griddly-filters-inline .filter-content input, .griddly-filters-inline .griddly-filter.griddly-html-filter input", this.$element);
 
             $(".griddly-filters-inline .filter-content input", this.$element).on("change", $.proxy(function (event, dontHide)
             {
@@ -1030,7 +1030,8 @@
             $.ajax(this.options.url,
             {
                 data: postData,
-                traditional: true
+                traditional: true,
+                cache: false
             }).done($.proxy(function (data, status, xhr)
             {
                 var count = parseInt(xhr.getResponseHeader("X-Griddly-Count"));

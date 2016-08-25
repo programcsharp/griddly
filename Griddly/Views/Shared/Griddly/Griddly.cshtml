@@ -173,11 +173,16 @@
         }
         @if (settings.HeaderTemplate != null)
         {
-            <tr class="griddly-header">
-                <td colspan="@settings.Columns.Count">
-                    @settings.HeaderTemplate(Model)
-                </td>
-            </tr>
+            var template = settings.HeaderTemplate(Model);
+
+            if (template != null)
+            {
+                <tr class="griddly-header">
+                    <td colspan="@settings.Columns.Count">
+                        @template
+                    </td>
+                </tr>
+            }
         }
     </thead>
 }
