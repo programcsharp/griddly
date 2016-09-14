@@ -22,7 +22,7 @@ namespace Griddly.Mvc
         public bool Enabled { get; set; }
         public bool EnableOnSelection { get; set; }
         public bool IsSeparator { get; set; }
-        public bool IsSplitDropdown { get; set; }
+        public GriddlyDropdownCaret DropdownCaret { get; set; }
 
         /// <summary>
         /// Clear the current row selections after this button is activated (default: null). If null, will be determined during render -- true for ajax buttons and false otherwise.
@@ -89,5 +89,12 @@ namespace Griddly.Mvc
         Post,
         Modal,
         PostCriteria
+    }
+
+    public enum GriddlyDropdownCaret
+    {
+        Inline = 0,
+        Split,
+        None
     }
 }
