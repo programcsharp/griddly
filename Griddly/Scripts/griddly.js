@@ -1219,6 +1219,10 @@
     GriddlyButton.handleClick = $.proxy(function (event)
     {
         var button = $(event.currentTarget);
+
+        if (button.hasClass("disabled"))
+            return false;
+
         var griddly = button.closest("[data-role=griddly]");
         var url = button.data("url");
         var toggle = button.data("toggle");

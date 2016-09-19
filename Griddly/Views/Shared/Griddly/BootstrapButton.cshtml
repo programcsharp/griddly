@@ -39,11 +39,11 @@ else
             {
                 if (button is GriddlyHtmlButton)
                 {
-                    <li>@(((GriddlyHtmlButton)button).HtmlTemplate(button))</li>
+                    <li class="@(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null)" @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())>@(((GriddlyHtmlButton)button).HtmlTemplate(button))</li>
                 }
                 else if (!button.IsSeparator)
                 {
-                    <li>@RenderLink(button, false, true)</li>
+                    <li class="@(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null)" @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())>@RenderLink(button, false, true)</li>
                 }
                 else
                 {
