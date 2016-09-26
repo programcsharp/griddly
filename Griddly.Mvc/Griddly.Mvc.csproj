@@ -113,6 +113,7 @@
     <Compile Include="Results\DapperResult.cs" />
     <Compile Include="Results\DapperSql2008Result.cs" />
     <Compile Include="Results\DapperSql2012Result.cs" />
+    <Compile Include="Results\MapQueryableResult.cs" />
     <Compile Include="Results\QueryableResult.cs" />
     <Compile Include="SelectListItemGroup.cs" />
     <Compile Include="SortField.cs" />
