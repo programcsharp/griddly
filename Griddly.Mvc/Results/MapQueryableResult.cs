@@ -15,9 +15,9 @@ namespace Griddly.Mvc.Results
     {
         QueryableResult<TIn> _result;
 
-        Func<IEnumerable<TIn>, IQueryable<TOut>> _map = null;
+        Func<IEnumerable<TIn>, IEnumerable<TOut>> _map = null;
 
-        public MapQueryableResult(IQueryable<TIn> result, Func<IEnumerable<TIn>, IQueryable<TOut>> map, string viewName = null, Func<IQueryable<TIn>, IQueryable<TIn>> massage = null)
+        public MapQueryableResult(IQueryable<TIn> result, Func<IEnumerable<TIn>, IEnumerable<TOut>> map, string viewName = null, Func<IQueryable<TIn>, IQueryable<TIn>> massage = null)
             : base(viewName)
         {
             _result = new QueryableResult<TIn>(result, massage: massage);
