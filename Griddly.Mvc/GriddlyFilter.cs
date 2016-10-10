@@ -12,6 +12,9 @@ namespace Griddly.Mvc
     {
         string _caption;
 
+        static readonly PluralizationService _pluralizationService
+            = PluralizationService.CreateService(CultureInfo.GetCultureInfo("en-US"));
+
         public string Caption
         {
             get
@@ -20,10 +23,14 @@ namespace Griddly.Mvc
             }
             set
             {
-                if (!string.IsNullOrWhiteSpace(value))
-                    CaptionPlural = PluralizationService.CreateService(CultureInfo.CurrentUICulture).Pluralize(value);
+                if (CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "en" && !string.IsNullOrWhiteSpace(value))
+                {
+                    CaptionPlural = _pluralizationService.Pluralize(value);
+                }
                 else
-                    CaptionPlural = null;
+                {
+                    CaptionPlural = Caption;
+                }
 
                 _caption = value;
             }
