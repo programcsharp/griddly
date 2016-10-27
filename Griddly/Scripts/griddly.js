@@ -641,7 +641,7 @@
                     selectedItems.addClass("griddly-filter-selected");
 
                     if (selectedItems.length == allItems.length || (selectedItems.length == 0 && filter.data("griddly-filter-isnoneall")))
-                        display = (allItems.length == 2 ? "Both " : "All ") + filter.data("filter-name-plural");
+                        display = (allItems.length == 2 && !filter.data("griddly-filter-isnullable") ? "Both " : "All ") + filter.data("filter-name-plural");
                     else if (selectedItems.length > displayItemCount)
                         display = selectedItems.length + " " + filter.data("filter-name-plural");
                     else if (selectedItems.length > 0 && selectedItems.length <= displayItemCount)

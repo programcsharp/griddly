@@ -29,6 +29,7 @@
                     data-filter-datatype="@filter.DataType.ToString()"
                     @Html.AttributeIf("data-griddly-filter-ismultiple", filterList != null, x => filterList.IsMultiple.ToString().ToLower())
                     @Html.AttributeIf("data-griddly-filter-isnoneall", filterList != null, x => filterList.IsNoneAll.ToString().ToLower())
+                    @Html.AttributeIf("data-griddly-filter-isnullable", filterList != null, x => filterList.IsNullable.ToString().ToLower())
                     @Html.AttributeIf("data-griddly-filter-displayitemcount", filterList != null, x => filterList.DisplayItemCount)>
                 @{
                     object defaultValue = this.GetGriddlyDefault(filter.Field);
@@ -88,7 +89,7 @@
                                                                 
                             if (selectedCount == allCount || (selectedCount == 0 && filterList.IsNoneAll))
                             {
-                                <text>@(allCount == 2 ? "Both " : "All ") @filter.CaptionPlural</text>
+                                <text>@(allCount == 2 && !filterList.IsNullable ? "Both " : "All ") @filter.CaptionPlural</text>
                             }
                             else if (selectedCount > filterList.DisplayItemCount)
                             {
