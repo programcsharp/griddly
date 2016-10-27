@@ -587,7 +587,7 @@
                     else if (valEnd != null)
                         display = (dataType == "Date" ? "Before " : "<= ") + this.getFormattedValue(valEnd, dataType);
 
-                    if (display == null || (dataType == "String" && display.indexOf("null") != -1))
+                    if (display == null || (dataType != "String" && display.indexOf("null") != -1))
                     {
                         display = "All " + filter.data("filter-name-plural");
 
