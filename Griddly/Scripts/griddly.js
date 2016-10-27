@@ -558,7 +558,9 @@
                     if (!dontHide)
                         filter.find(".filter-trigger").popover("hide");
 
-                    var val = trimToNull(content.find("input").first().val());
+                    var val = trimToNull(this.getCleanedValue(content.find("input").first().val(), dataType));
+
+                    content.find("input").first().val(val)
 
                     if (val != null)
                     {
@@ -577,8 +579,11 @@
                 }
                 else if (filter.hasClass("griddly-filter-range"))
                 {
-                    var val = trimToNull(content.find("input").first().val());
-                    var valEnd = trimToNull(content.find("input").last().val());
+                    var val = trimToNull(this.getCleanedValue(content.find("input").first().val(), dataType));
+                    var valEnd = trimToNull(this.getCleanedValue(content.find("input").last().val(), dataType));
+
+                    content.find("input").first().val(val)
+                    content.find("input").last().val(valEnd)
 
                     if (val != null && valEnd != null)
                         display = this.getFormattedValue(val, dataType) + " - " + this.getFormattedValue(valEnd, dataType);
@@ -963,25 +968,53 @@
             this.refresh(true);
         },
 
-        getFormattedValue: function (val, dataType)
+        getCleanedValue: function (val, dataType)
         {
             switch (dataType)
             {
                 case "Integer":
-                    {
-                        val = String(val).replace(/[^0-9]/g, "")
+                    val = String(val).replace(/[^0-9-]/g, "")
 
-                        val = parseInt(val);
+                    if (val.length > 1)
+                        val = val.substr(0, 1) + val.substr(1).replace(/-/g, "");
+                    else if (val == '-')
+                        return null;
 
-                        if (!isFinite(val))
-                            val = null;
-
-                        return val;
-                    }
+                    return val;
                 case "Decimal":
                 case "Currency":
                     //case "Percent":
-                    val = String(val).replace(/[^0-9,.-]/g, "").replace(/,/g, "").replace(/\$/g, "");
+                    val = String(val).replace(/[^0-9,.-]/g, "").replace(/,/g, "");
+
+                    if (val.length > 1)
+                        val = val.substr(0, 1) + val.substr(1).replace(/-/g, "");
+                    else if (val == '-')
+                        return null;
+
+                    return val;
+                case "Date":
+                    return String(val).replace(/[^0-9a-zA-Z-\/]/g, "");
+                default:
+                    return val;
+            }
+        },
+
+        getFormattedValue: function (val, dataType)
+        {
+            val = this.getCleanedValue(val, dataType);
+
+            switch (dataType)
+            {
+                case "Integer":
+                    val = parseInt(val);
+
+                    if (!isFinite(val))
+                        val = null;
+
+                    return val;
+                case "Decimal":
+                case "Currency":
+                    //case "Percent":
 
                     // TODO: filter down to one decimal point
                     // TODO: filter out non numerics
@@ -1019,7 +1052,7 @@
 
                     return val;
                 case "Date":
-                    val = parseForValidDate(String(val).replace(/[^0-9a-zA-Z-\/]/g, ""));
+                    val = parseForValidDate(val);
                     
                     if (val == null || !isFinite(val))
                         return null;
