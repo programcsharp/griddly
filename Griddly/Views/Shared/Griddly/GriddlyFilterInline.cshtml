@@ -192,7 +192,19 @@
 
                                 if (group != null)
                                 {
-                                    <li class="griddly-list-group-header"><b>@group.Text</b></li>
+                                    <li class="griddly-list-group-header @(filterList.IsMultiple && group.Items.All(x => x.Selected) ? "griddly-filter-selected" : null)">
+                                        @if (filterList.IsMultiple)
+                                        {
+                                            <a>
+                                                <b>@group.Text</b>
+                                                <i class="glyphicon glyphicon-ok griddly-filter-selected-indicator"></i>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <b>@group.Text</b>
+                                        }
+                                    </li>
                                     foreach (SelectListItem childItem in group.Items)
                                     {
                                         @RenderListItem(filterList, childItem, true)

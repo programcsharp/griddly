@@ -702,26 +702,49 @@
 
                 $("a", el).click(function()
                 {
-                    var checkbox = $(this).find("input");
                     var item = $(this).parents("li");
 
-                    var filter = checkbox.data("griddly-filter");
-
-                    if (filter.data("griddly-filter-ismultiple"))
+                    if (item.hasClass("griddly-list-group-header"))
                     {
-                        item.toggleClass("griddly-filter-selected");
+                        var children = item.nextUntil(".griddly-list-group-header");
 
-                        checkbox.prop("checked", item.hasClass("griddly-filter-selected")).change();
+                        if (children.length != children.filter(".griddly-filter-selected").length)
+                        {
+                            item.addClass("griddly-filter-selected");
+
+                            children.addClass("griddly-filter-selected");
+                            children.find("input").prop("checked", true).first().change();
+                        }
+                        else
+                        {
+                            item.removeClass("griddly-filter-selected");
+
+                            children.removeClass("griddly-filter-selected");
+                            children.find("input").prop("checked", false).first().change();
+                        }
                     }
                     else
                     {
-                        var content = filter.data("griddly-filter-content");
+                        var checkbox = $(this).find("input");
 
-                        content.find(".dropdown-menu li:not(.griddly-list-group-header)").not(item).removeClass("griddly-filter-selected");
-                        content.find("input").not(checkbox).prop("checked", false);
+                        var filter = checkbox.data("griddly-filter");
 
-                        item.addClass("griddly-filter-selected");
-                        checkbox.prop("checked", true).change();
+                        if (filter.data("griddly-filter-ismultiple"))
+                        {
+                            item.toggleClass("griddly-filter-selected");
+
+                            checkbox.prop("checked", item.hasClass("griddly-filter-selected")).change();
+                        }
+                        else
+                        {
+                            var content = filter.data("griddly-filter-content");
+
+                            content.find(".dropdown-menu li:not(.griddly-list-group-header)").not(item).removeClass("griddly-filter-selected");
+                            content.find("input").not(checkbox).prop("checked", false);
+
+                            item.addClass("griddly-filter-selected");
+                            checkbox.prop("checked", true).change();
+                        }
                     }
                 });
             }, this));
@@ -730,9 +753,14 @@
             {
                 var self = this;
 
+                var checkbox = $(el).parents(".filter-content").find("input:first");
+                var filter = checkbox.data("griddly-filter");
+
+                var selector = ".dropdown-menu li" + (!filter.data("griddly-filter-ismultiple") ? ":not(.griddly-list-group-header)" : "");
+
                 $(el).click(function ()
                 {
-                    $(this).parents(".filter-content").find(".dropdown-menu li:not(.griddly-list-group-header)").addClass("griddly-filter-selected");
+                    $(this).parents(".filter-content").find(selector).addClass("griddly-filter-selected");
                     $(this).parents(".filter-content").find("input").prop("checked", true).first().change();
                 });
             }, this));
@@ -741,9 +769,14 @@
             {
                 var self = this;
 
+                var checkbox = $(el).parents(".filter-content").find("input:first");
+                var filter = checkbox.data("griddly-filter");
+
+                var selector = ".dropdown-menu li" + (!filter.data("griddly-filter-ismultiple") ? ":not(.griddly-list-group-header)" : "");
+
                 $(el).click(function ()
                 {
-                    $(this).parents(".filter-content").find(".dropdown-menu li:not(.griddly-list-group-header)").removeClass("griddly-filter-selected");
+                    $(this).parents(".filter-content").find(selector).removeClass("griddly-filter-selected");
                     $(this).parents(".filter-content").find("input").prop("checked", false).first().change();
                 });
             }, this));
