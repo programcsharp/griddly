@@ -169,6 +169,32 @@
         return data;
     };
 
+    // http://stackoverflow.com/q/8098202
+    var parseForValidDate = function (text)
+    {
+
+        var date = Date.parse(text);
+
+        if (isNaN(date))
+            return null;
+
+        var comp = text.split('/');
+
+        if (comp.length !== 3)
+            return null;
+
+        var m = parseInt(comp[0], 10);
+        var d = parseInt(comp[1], 10);
+        var y = parseInt(comp[2], 10);
+
+        date = new Date(y, m - 1, d);
+
+        if (date.getFullYear() == y && date.getMonth() + 1 == m && date.getDate() == d)
+            return date;
+        else
+            return null;
+    };
+
     Griddly.prototype = {
         constructor: Griddly,
 
@@ -186,6 +212,7 @@
             var filterMode = this.$element.data("griddly-filtermode");
             var allowedFilterModes = this.$element.data("griddly-allowedfiltermodes");
             var filterDefaults = this.$element.data("griddly-filter-defaults");
+            var currencySymbol = this.$element.data("griddly-currency-symbol");
 
             this.options.url = url;
             this.options.defaultRowIds = defaultRowIds;
@@ -210,6 +237,9 @@
             this.options.filterMode = filterMode;
             this.options.allowedFilterModes = allowedFilterModes != null ? allowedFilterModes : null;
             this.options.filterDefaults = filterDefaults;
+
+            if (currencySymbol)
+                this.options.currencySymbol = currencySymbol;
 
             // TODO: should we do this later on so we handle dynamically added buttons?
             this.$element.find("[data-append-rowids-to-url]").each(function ()
@@ -495,71 +525,6 @@
                 });*/
             });
 
-            var getFormattedValue = function (val, dataType)
-            {
-                switch (dataType)
-                {
-                    case "Integer":
-                    {
-                        val = String(val).replace(/[^0-9]/g, "")
-
-                        val = parseInt(val);
-
-                        if (!isFinite(val))
-                            val = null;
-
-                        return val;
-                    }
-                    case "Decimal":
-                    case "Currency":
-                    //case "Percent":
-                        val = String(val).replace(/[^0-9,.-]/g, "").replace(/,/g, "").replace(/\$/g, "");
-
-                        // TODO: filter down to one decimal point
-                        // TODO: filter out non numerics
-                        val = parseFloat(val);
-
-                        if (!isFinite(val))
-                            val = null;
-                        else
-                        {
-                            val = val.toFixed(2)
-
-                            var x = val.split('.');
-
-                            var x1 = x[0];
-
-                            var x2 = x.length > 1 ? '.' + x[1] : '';
-
-                            var rgx = /(\d+)(\d{3})/;
-
-                            while (rgx.test(x1))
-                            {
-                                x1 = x1.replace(rgx, '$1' + ',' + '$2');
-                            }
-
-                            val = x1 + x2;
-                        }
-
-                        if (dataType == "Currency")
-                            val = "$" + val;
-                        //else if (dataType == "Percent")
-                        //    val += "%";
-
-                        if (val && val.indexOf(".00", val.length - 3) !== -1)
-                            val = val.substr(0, val.length - 3);
-
-                        return val;
-                    case "Date":
-                        // TODO: handle bad formats
-                        val = new Date(String(val).replace(/[^0-9a-zA-Z-\/]/g, ""));
-
-                        return (val.getMonth() + 1) + "/" + val.getDate() + "/" + val.getFullYear();
-                    default:
-                        return val;
-                }
-            };
-
             var isNullOrWhiteSpace = function (str)
             {
                 return str == null || str.match(/^ *$/) !== null;
@@ -598,11 +563,12 @@
                     if (val != null)
                     {
                         if (dataType == "String")
-                            display = 'Contains "' + getFormattedValue(val, dataType) + '"';
+                            display = 'Contains "' + this.getFormattedValue(val, dataType) + '"';
                         else
-                            display = getFormattedValue(val, dataType);
+                            display = this.getFormattedValue(val, dataType);
                     }
-                    else
+
+                    if (display == null)
                     {
                         display = "Any " + filter.data("filter-name");
 
@@ -615,12 +581,13 @@
                     var valEnd = trimToNull(content.find("input").last().val());
 
                     if (val != null && valEnd != null)
-                        display = getFormattedValue(val, dataType) + " - " + getFormattedValue(valEnd, dataType);
+                        display = this.getFormattedValue(val, dataType) + " - " + this.getFormattedValue(valEnd, dataType);
                     else if (val != null)
-                        display = (dataType == "Date" ? "After " : ">= ") + getFormattedValue(val, dataType);
+                        display = (dataType == "Date" ? "After " : ">= ") + this.getFormattedValue(val, dataType);
                     else if (valEnd != null)
-                        display = (dataType == "Date" ? "Before " : "<= ") + getFormattedValue(valEnd, dataType);
-                    else
+                        display = (dataType == "Date" ? "Before " : "<= ") + this.getFormattedValue(valEnd, dataType);
+
+                    if (display == null || (dataType == "String" && display.indexOf("null") != -1))
                     {
                         display = "All " + filter.data("filter-name-plural");
 
@@ -963,6 +930,73 @@
             this.refresh(true);
         },
 
+        getFormattedValue: function (val, dataType)
+        {
+            switch (dataType)
+            {
+                case "Integer":
+                    {
+                        val = String(val).replace(/[^0-9]/g, "")
+
+                        val = parseInt(val);
+
+                        if (!isFinite(val))
+                            val = null;
+
+                        return val;
+                    }
+                case "Decimal":
+                case "Currency":
+                    //case "Percent":
+                    val = String(val).replace(/[^0-9,.-]/g, "").replace(/,/g, "").replace(/\$/g, "");
+
+                    // TODO: filter down to one decimal point
+                    // TODO: filter out non numerics
+                    val = parseFloat(val);
+
+                    if (!isFinite(val))
+                        val = null;
+                    else
+                    {
+                        val = val.toFixed(2)
+
+                        var x = val.split('.');
+
+                        var x1 = x[0];
+
+                        var x2 = x.length > 1 ? '.' + x[1] : '';
+
+                        var rgx = /(\d+)(\d{3})/;
+
+                        while (rgx.test(x1))
+                        {
+                            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+                        }
+
+                        val = x1 + x2;
+                    }
+
+                    if (dataType == "Currency")
+                        val = this.options.currencySymbol + val;
+                    //else if (dataType == "Percent")
+                    //    val += "%";
+
+                    if (val && val.indexOf(".00", val.length - 3) !== -1)
+                        val = val.substr(0, val.length - 3);
+
+                    return val;
+                case "Date":
+                    val = parseForValidDate(String(val).replace(/[^0-9a-zA-Z-\/]/g, ""));
+                    
+                    if (val == null || !isFinite(val))
+                        return null;
+                    else
+                        return (val.getMonth() + 1) + "/" + val.getDate() + "/" + val.getFullYear();
+                default:
+                    return val;
+            }
+        },
+
         buildRequest: function(paging)
         {
             var postData = this.getFilterValues();
@@ -1210,7 +1244,8 @@
         selectedRows: null,
         autoRefreshOnFilter: true,
         filterMode: null,
-        allowedFilterModes: []
+        allowedFilterModes: [],
+        currencySymbol: "$"
     }, $.fn.griddlyGlobalDefaults);
 
     function GriddlyButton()

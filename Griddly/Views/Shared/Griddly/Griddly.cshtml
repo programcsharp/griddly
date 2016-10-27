@@ -97,6 +97,7 @@
         @: @Html.AttributeNullable("data-griddly-rowclickmodal", settings.RowClickModal)
         @: data-griddly-defaultrowids="@Json.Encode(settings.DefaultRowIds != null ? settings.DefaultRowIds.Select(x => x.ToLower()).ToArray() : new[] { "value" })"
         @: data-griddly-filter-defaults="@Newtonsoft.Json.JsonConvert.SerializeObject(this.GetGriddlyDefaults())"
+        @: data-griddly-currency-symbol="@Griddly.Mvc.GriddlyExtensions.CurrencySymbol"
         @: @Html.AttributeIf("data-griddly-defaultsort", defaultSort != null && defaultSort.Any(), Html.AttributeEncode(Json.Encode(defaultSort.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))))
         @: @settings.HtmlAttributes.ToHtmlAttributes()>
     if (settings.Buttons.Any())
