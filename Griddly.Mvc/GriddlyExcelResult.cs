@@ -32,7 +32,11 @@ namespace Griddly.Mvc
 
                 var export = _settings.Exports.FirstOrDefault(x => x.Name == _exportName);
                 var columns = export == null ? _settings.Columns : export.Columns;
-                if (export != null && export.UseGridColumns) columns.InsertRange(0, _settings.Columns);
+
+                if (export != null && export.UseGridColumns)
+                    columns.InsertRange(0, _settings.Columns);
+
+                columns.RemoveAll(x => !x.RenderMode.HasFlag(ColumnRenderMode.Export));
 
                 for (int i = 0; i < columns.Count; i++)
                 {

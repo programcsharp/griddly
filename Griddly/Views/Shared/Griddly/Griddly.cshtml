@@ -14,7 +14,7 @@
 @{
     GriddlySettings settings = (GriddlySettings)ViewBag.settings;
 
-    settings.Columns.RemoveAll(x => x.IsExportOnly);
+    settings.Columns.RemoveAll(x => !x.RenderMode.HasFlag(ColumnRenderMode.View));
 
     bool simple = ViewBag.isSimpleGriddly == true;
     bool isFirstRender = ViewContext.Controller.ControllerContext.IsChildAction || simple;

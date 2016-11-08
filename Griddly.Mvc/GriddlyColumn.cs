@@ -15,6 +15,8 @@ namespace Griddly.Mvc
         public GriddlyColumn()
         {
             HeaderHtmlAttributes = new RouteValueDictionary();
+
+            RenderMode = ColumnRenderMode.Both;
         }
 
         public string Caption { get; set; }
@@ -24,7 +26,7 @@ namespace Griddly.Mvc
         public int DefaultSortOrder { get; set; }
         public string ClassName { get; set; }
         public string Width { get; set; }
-        public bool IsExportOnly { get; set; }
+        public ColumnRenderMode RenderMode { get; set; }
         public SummaryAggregateFunction? SummaryFunction { get; set; }
         public object SummaryValue { get; set; }
         public IDictionary<string, object> HeaderHtmlAttributes { get; set; }
@@ -227,5 +229,12 @@ namespace Griddly.Mvc
         Average = 2,
         Min = 3,
         Max = 4
+    }
+
+    public enum ColumnRenderMode
+    {
+        View = 1 << 0,
+        Export = 1 << 1,
+        Both = View | Export
     }
 }
