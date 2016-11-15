@@ -1476,8 +1476,11 @@
         if (token.length)
             inputs += '<input type="hidden" name="' + token.attr("name") + '" value="' + token.val() + '" />';
 
-        for (var key in request)
-            inputs += '<input name="' + key + '" value="' + request[key] + '" />';
+        for (var key in request) {
+            var vals = [].concat(request[key]);
+            for (var v in vals)
+                inputs += '<input name="' + key + '" value="' + vals[v] + '" />';
+        }
 
         $("<form action=\"" + url + "\" method=\"post\">" + inputs + "</form>")
             .appendTo("body").submit().remove();
