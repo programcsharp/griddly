@@ -1477,7 +1477,17 @@
             inputs += '<input type="hidden" name="' + token.attr("name") + '" value="' + token.val() + '" />';
 
         for (var key in request)
-            inputs += '<input name="' + key + '" value="' + request[key] + '" />';
+        {
+            var value = request[key];
+
+            if (value.constructor === Array)
+            {
+                for (var i = 0; i < value.length; i++)
+                    inputs += '<input name="' + key + '" value="' + value[i] + '" />';
+            }
+            else
+                inputs += '<input name="' + key + '" value="' + value + '" />';
+        }
 
         $("<form action=\"" + url + "\" method=\"post\">" + inputs + "</form>")
             .appendTo("body").submit().remove();
