@@ -813,8 +813,6 @@
         {
             if (this.options.allowedFilterModes.indexOf(mode) > -1)
             {
-                this.triggerOrQueue(this.$element, "setfiltermode.griddly", { mode: mode });
-
                 var currentFilters = this.getFilterValues();
                 var request1 = this.buildRequest();
 
@@ -825,6 +823,8 @@
 
                 this.setFilterValues(currentFilters, true, true);
 
+                this.triggerOrQueue(this.$element, "setfiltermode.griddly", { mode: mode });
+                
                 var request2 = this.buildRequest();
 
                 if (!noRefresh && JSON.stringify(request1) !== JSON.stringify(request2))
