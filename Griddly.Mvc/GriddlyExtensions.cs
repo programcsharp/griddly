@@ -199,7 +199,7 @@ namespace Griddly.Mvc
         public static string Current(this UrlHelper helper, object routeValues = null, bool includeQueryString = false)
         {
             RouteValueDictionary values = new RouteValueDictionary();
-
+            StringBuilder arrayVals = new StringBuilder();
             foreach (KeyValuePair<string, object> value in helper.RequestContext.RouteData.Values)
             {
                 if (value.Value != null)
@@ -212,7 +212,9 @@ namespace Griddly.Mvc
                         // values[value.Key] = (DateTime)value.Value; -- BAD: can't unbox a value type as a different type
                         values[value.Key] = Convert.ChangeType(value.Value, typeof(DateTime));
                     else if (t.IsArray || t.IsSubclassOf(typeof(IEnumerable)))
-                        values[value.Key] = string.Join(",", ((IEnumerable)value.Value).Cast<object>());
+                    {
+                        arrayVals.Append(string.Join("&", ((IEnumerable)value.Value).Cast<object>().Select(x=> value.Key + "=" + x.ToString())));
+                    }
                 }
             }
 
@@ -239,7 +241,12 @@ namespace Griddly.Mvc
                 }
             }
 
-            return helper.RouteUrl(values);
+            var route = helper.RouteUrl(values);
+            if(arrayVals.Length>0)
+            {
+                route += (route.Contains("?") ? "&" : "?") + arrayVals.ToString();
+            }
+            return route;
         }
 
         static readonly PropertyInfo _instrumentationService = typeof(WebPageExecutingBase).GetProperty("InstrumentationService", BindingFlags.NonPublic | BindingFlags.Instance);
