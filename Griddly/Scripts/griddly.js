@@ -305,7 +305,7 @@
                 event.preventDefault();
             }, this));
 
-            $("form .grid_searchreset", this.$element).on("click", $.proxy(function (event)
+            $("form .griddly-search-reset", this.$element).on("click", $.proxy(function (event)
             {
                 this.resetFilterValues();
             }, this));

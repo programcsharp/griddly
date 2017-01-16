@@ -259,16 +259,15 @@
 
 @helper RenderFormFilters(GriddlySettings settings)
 {
-    <form class="filterForm novalidate form-horizontal">
+    <form class="form-horizontal">
         @Html.Partial("Griddly/GriddlyFilterForm", settings)
 
         <div class="form-group form-group-sm">
             <div class="col-sm-offset-2 col-sm-10">
                 <button type="submit" class="btn btn-primary">Search</button>
+                <button type="reset" class="btn btn-default griddly-search-reset">Reset</button>
             </div>
         </div>
-
-        <input type="hidden" name="query" value="true" />
     </form>
 }
 
