@@ -198,6 +198,8 @@
     Griddly.prototype = {
         constructor: Griddly,
 
+        _isUpdatingFilters: false,
+
         // create and bind
         create: function ()
         {
@@ -634,10 +636,19 @@
 
             $(".griddly-filters-inline input, .griddly-filters-inline select", this.$element).on("change", $.proxy(function (event)
             {
-                this.triggerOrQueue(this.$element, "filterchange.griddly", this.$element, event.target);
+                if (!this._isUpdatingFilters)
+                {
+                    this.triggerOrQueue(this.$element, "filterchange.griddly", this.$element, event.target);
+ 
+                    if (this.options.autoRefreshOnFilter)
+                        this.refresh(true);
+                }
+            }, this));
 
-                if (this.options.autoRefreshOnFilter)
-                    this.refresh(true);
+            $(this.$element).on("change", ".griddly-filters-form input, .griddly-filters-form select", $.proxy(function (event)
+            {
+                if (!this._isUpdatingFilters)
+                    this.triggerOrQueue(this.$element, "filterchange.griddly", this.$element, event.target);
             }, this));
 
             $(".griddly-filters-inline .filter-content input", this.$element).keyup(function (event)
@@ -895,14 +906,12 @@
 
         setFilterValue: function(field, value)
         {
+            var input;
+
             if (typeof (field) === "string")
-            {
-                var input = this.getAllFilters().filter(field);
-            }
+                input = this.getAllFilters().filter(field);
             else
-            {
-                var input = $(field);
-            }
+                input = $(field);
             
             if (value)
             {
@@ -932,14 +941,12 @@
 
         setFilterValues: function(filters, isPatch, noRefresh)
         {
-            this.options.autoRefreshOnFilter = false;
+            this._isUpdatingFilters = true;
 
             var allFilters = this.getAllFilters();
 
             if (isPatch === true)
-            {
                 allFilters = allFilters.filter(function (i, e) { return typeof (filters[e.name]) !== "undefined"; });
-            }
 
             allFilters.each($.proxy(function (i, e)
             {
@@ -948,12 +955,10 @@
 
             this.triggerOrQueue(this.$element, "setfilters.griddly", filters);
             
-            this.options.autoRefreshOnFilter = true;
+            this._isUpdatingFilters = false;
 
             if (!noRefresh)
-            {
                 this.refresh(true);
-            }
         },
 
         resetFilterValues: function ()
