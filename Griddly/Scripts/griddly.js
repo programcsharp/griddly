@@ -108,9 +108,15 @@
 
         $("html").on("click", $.proxy(function (event)
         {
-            if ($(event.target).parents('.popover.in').length == 0 && $(event.target).parents(".filter-trigger").length == 0 && !$(event.target).hasClass("filter-trigger"))
+            if (this.options.filterMode == "Inline" && $(event.target).parents('.popover.in').length == 0 && $(event.target).parents(".filter-trigger").length == 0 && !$(event.target).hasClass("filter-trigger"))
             {
-                $(".griddly-filters-inline .filter-trigger").popover("hide");
+                $(".griddly-filters-inline .filter-trigger").each(function ()
+                {
+                    var filter = $(this);
+
+                    if (filter.data('bs.popover').tip().hasClass('in'))
+                        filter.popover("hide");
+                });
             }
         }, this));
 
