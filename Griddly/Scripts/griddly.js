@@ -776,15 +776,19 @@
                 var self = this;
 
                 var checkbox = $(el).parents(".filter-content").find("input:first");
-                var filter = checkbox.data("griddly-filter");
 
-                var selector = ".dropdown-menu li" + (!filter.data("griddly-filter-ismultiple") ? ":not(.griddly-list-group-header)" : "");
-
-                $(el).click(function ()
+                if (checkbox.length)
                 {
-                    $(this).parents(".filter-content").find(selector).addClass("griddly-filter-selected");
-                    $(this).parents(".filter-content").find("input").prop("checked", true).first().change();
-                });
+                    var filter = checkbox.data("griddly-filter");
+
+                    var selector = ".dropdown-menu li" + (!filter.data("griddly-filter-ismultiple") ? ":not(.griddly-list-group-header)" : "");
+
+                    $(el).click(function ()
+                    {
+                        $(this).parents(".filter-content").find(selector).addClass("griddly-filter-selected");
+                        $(this).parents(".filter-content").find("input").prop("checked", true).first().change();
+                    });
+                }
             }, this));
 
             $(".griddly-filters-inline .filter-content .griddly-clear", this.$element).each($.proxy(function (i, el)
@@ -792,15 +796,19 @@
                 var self = this;
 
                 var checkbox = $(el).parents(".filter-content").find("input:first");
-                var filter = checkbox.data("griddly-filter");
 
-                var selector = ".dropdown-menu li" + (!filter.data("griddly-filter-ismultiple") ? ":not(.griddly-list-group-header)" : "");
-
-                $(el).click(function ()
+                if (checkbox.length)
                 {
-                    $(this).parents(".filter-content").find(selector).removeClass("griddly-filter-selected");
-                    $(this).parents(".filter-content").find("input").prop("checked", false).first().change();
-                });
+                    var filter = checkbox.data("griddly-filter");
+
+                    var selector = ".dropdown-menu li" + (!filter.data("griddly-filter-ismultiple") ? ":not(.griddly-list-group-header)" : "");
+
+                    $(el).click(function ()
+                    {
+                        $(this).parents(".filter-content").find(selector).removeClass("griddly-filter-selected");
+                        $(this).parents(".filter-content").find("input").prop("checked", false).first().change();
+                    });
+                }
             }, this));
         },
 

@@ -41,7 +41,7 @@
                 }
                 else
                 {
-                <a class="btn btn-link btn-xs filter-trigger">
+                <a class="btn btn-xs @(filterList == null || filterList.Items.Count > 0 ? "btn-link filter-trigger" : "disabled")">
                     <span class="griddly-filter-display">
                         @if (filterBox != null)
                         {
@@ -105,7 +105,10 @@
                             }
                         }
                     </span>
+                    @if (filterList == null || filterList.Items.Count > 0)
+                    {
                     <span class="caret"></span>
+                    }
                 </a>
                 <div class="filter-content">
                     @if (filterBox != null)
