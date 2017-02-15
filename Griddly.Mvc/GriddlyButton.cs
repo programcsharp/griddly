@@ -38,6 +38,11 @@ namespace Griddly.Mvc
         public bool AlignRight { get; set; }
 
         /// <summary>
+        /// A function name to use to show the confirm message. Takes two parameters, message and callback. Callback is a function to call to continue the button click if the confirm was accepted.
+        /// </summary>
+        public string ConfirmPromptFunction { get; set; }
+
+        /// <summary>
         /// The row ids to include in the button action (default uses grid default)
         /// </summary>
         public string[] RowIds { get; set; }
