@@ -1400,7 +1400,7 @@
                 templatedConfirmMessage = templatedConfirmMessage.replace(/\${singular:.*?}/g, "").replace(/\${plural:(.*?)}/g, "$1");;
         }
 
-        var execute = function ()
+        var execute = $.proxy(function ()
         {
             if (button.triggerHandler("beforeExecute") !== false)
             {
@@ -1462,7 +1462,7 @@
                     // we do not support eval cause it's insecure
                 }
             }
-        };
+        }, this);
 
         if (typeof confirmMessage === "undefined")
         {
