@@ -940,8 +940,26 @@
                 switch (datatype)
                 {
                     case "Date":
-                        var date = new Date(value);
+                        var date;
+                        var pos;
+
+                        if (typeof (value) === "string" && (pos = value.indexOf("T")) != -1)
+                        {
+                            value = value.substr(0, pos);
+
+                            // Strip time, we only want date
+                            var parts = value.split('-');
+
+                            // new Date(year, month [, day [, hours[, minutes[, seconds[, ms]]]]])
+                            date = new Date(parts[0], parts[1] - 1, parts[2]); // Note: months are 0-based
+                        }
+                        else
+                            date = new Date(value);
+
+                        date.setHours(0, 0, 0, 0);
+
                         value = date.toLocaleDateString();
+
                         break;
                     case "Currency":
                         value = parseFloat(value).toFixed(2);
@@ -986,7 +1004,7 @@
             this.$element.find("form .transient").remove();
             this.$element.find("form")[0].reset();
 
-            this.setFilterValues(this.options.filterDefaults);
+            this.setFilterValues(this.options.filterDefaults, null, true);
 
             // clear any none's that were inadvertently reset
             this.$element.find(".griddly-filters-form [data-griddly-filter-isnoneall=true] [multiple] option[value=]").prop("selected", false);
@@ -1442,7 +1460,7 @@
                             return this.ajax(url, selection, button, griddly);
                     }
                 }
-                else if (!toggle && url)
+                else if (!toggle && url && typeof confirmMessage !== "undefined")
                     window.location = url;
 
                 if (onclick)
