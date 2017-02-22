@@ -126,7 +126,7 @@ namespace Griddly.Mvc
 
                     if (defaultValues == null || value is string)
                     {
-                        string valueString = value.ToString();// GetValueString(value);
+                        string valueString = GetValueString(value);
 
                         foreach (SelectListItem item in SelectableItems)
                             item.Selected = item.Value == valueString;
@@ -137,7 +137,7 @@ namespace Griddly.Mvc
                         {
                             if (valueObject != null)
                             {
-                                string valueString = valueObject.ToString();// GetValueString(valueObject);
+                                string valueString = GetValueString(valueObject);
 
                                 foreach (SelectListItem item in SelectableItems.Where(x => x.Value == valueString))
                                     item.Selected = true;
@@ -159,6 +159,15 @@ namespace Griddly.Mvc
             }
         }
 
+        string GetValueString(object value)
+        {
+            string result = value.ToString();
+
+            if (value is bool)
+                result = result.ToLower();
+
+            return result;
+        }
         //string GetValueString(object value)
         //{
         //    Type valueType = Nullable.GetUnderlyingType(value.GetType()) ?? value.GetType();
