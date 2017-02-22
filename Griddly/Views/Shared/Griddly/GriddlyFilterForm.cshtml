@@ -21,7 +21,13 @@
     object defaultValue = this.GetGriddlyDefault(filter.Field);
     object defaultValueEnd = filterRange != null ? this.GetGriddlyDefault(filterRange.FieldEnd) : null;
 
-    <div class="griddly-filter-form-group form-group form-group-sm">
+    <div class="griddly-filter-form-group form-group form-group-sm"
+                    data-filter-name="@filter.Caption" data-filter-name-plural="@filter.CaptionPlural"
+                    data-filter-datatype="@filter.DataType.ToString()"
+                    @Html.AttributeIf("data-griddly-filter-ismultiple", filterList != null, x => filterList.IsMultiple.ToString().ToLower())
+                    @Html.AttributeIf("data-griddly-filter-isnoneall", filterList != null, x => filterList.IsNoneAll.ToString().ToLower())
+                    @Html.AttributeIf("data-griddly-filter-isnullable", filterList != null, x => filterList.IsNullable.ToString().ToLower())
+                    @Html.AttributeIf("data-griddly-filter-displayitemcount", filterList != null, x => filterList.DisplayItemCount)>
         <label for="griddly-filter-@filter.Field" class="col-sm-2 control-label">@filter.Caption</label>
         @if (filterBox != null)
         {
@@ -107,11 +113,24 @@
             filterList.SetSelectedItems(defaultValue);
 
             <div class="col-sm-3">
-                <select class="form-control col-sm-3" id="griddly-filter-@filter.Field" name="@filter.Field" @(filterList.IsMultiple ? "multiple" : null)
-                        data-griddly-filter-data-type="@filter.DataType">
+                <select class="form-control col-sm-3" id="griddly-filter-@filter.Field" name="@filter.Field" @(filterList.IsMultiple ? "multiple" : null)>
                     @foreach (SelectListItem item in filterList.Items)
                     {
-                        <option value="@item.Value" @(item.Selected ? "selected" : null)>@item.Text</option>
+                        SelectListItemGroup group = item as SelectListItemGroup;
+
+                        if (group != null)
+                        {
+                            <optgroup label="@group.Text">
+                                @foreach (SelectListItem childItem in group.Items)
+                                {
+                                    @RenderListItem(childItem)
+                                }
+                            </optgroup>
+                        }
+                        else
+                        {
+                            @RenderListItem(item)
+                        }
                     }
                 </select>
             </div>
@@ -123,4 +142,9 @@
             </div>
         }
     </div>
+}
+
+@helper RenderListItem(SelectListItem item)
+{
+    <option value="@item.Value" @(item.Selected ? "selected" : null)>@item.Text</option>
 }
