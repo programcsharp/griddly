@@ -79,6 +79,23 @@ namespace Griddly.Mvc.Results
             }
         }
 
+        public override IEnumerable<P> GetAllForProperty<P>(string propertyName)
+        {
+            string sql = string.Format("SELECT {0} as _val FROM ({1}) [_proj]", propertyName, _sql);
+
+            try
+            {
+                IDbConnection cn = _getConnection();
+                IDbTransaction tx = _getTransaction != null ? _getTransaction() : null;
+
+                return cn.Query<P>(sql, _param, tx);
+            }
+            catch (Exception ex)
+            {
+                throw new DapperGriddlyException($"Error selecting property: {propertyName}.", sql, _param, ex: ex);
+            }
+        }
+
         public override long GetCount()
         {
             if (_overallCount == null)
@@ -109,12 +126,10 @@ namespace Griddly.Mvc.Results
 
         protected virtual X ExecuteSingle<X>(string sql)
         {
-            
-                IDbConnection cn = _getConnection();
-                IDbTransaction tx = _getTransaction != null ? _getTransaction() : null;
+            IDbConnection cn = _getConnection();
+            IDbTransaction tx = _getTransaction != null ? _getTransaction() : null;
 
-                return cn.Query<X>(sql, _param, tx).Single();
-            
+            return cn.Query<X>(sql, _param, tx).Single();
         }
 
         // TODO: return IEnumerable so we don't have to .ToList()

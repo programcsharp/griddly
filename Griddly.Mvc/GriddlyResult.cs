@@ -37,6 +37,8 @@ namespace Griddly.Mvc
                 })
                 .ToArray();
         }
+        
+        public abstract IEnumerable<P> GetAllForProperty<P>(string propertyName);
     }
 
     public abstract class GriddlyResult<T> : GriddlyResult

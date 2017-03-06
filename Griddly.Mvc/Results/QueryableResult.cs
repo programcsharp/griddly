@@ -93,6 +93,11 @@ namespace Griddly.Mvc.Results
             }
         }
 
+        public override IEnumerable<P> GetAllForProperty<P>(string propertyName)
+        {
+            return _result.Select<P>(propertyName, null);
+        }
+
         public override long GetCount()
         {
             return _result.Count();

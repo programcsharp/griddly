@@ -4,6 +4,7 @@ using Griddly.Mvc;
 using Griddly.Mvc.Results;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -11,6 +12,15 @@ namespace Griddly.Controllers
 {
     public class HomeController : Controller
     {
+        public static ActionResult HandleCustomExport(GriddlyResult result, NameValueCollection form)
+        {
+            return new JsonResult()
+            {
+                Data = result.GetAllForProperty<long?>("Id"),
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+            };
+        }
+
         public ActionResult Index()
         {
             return View();
