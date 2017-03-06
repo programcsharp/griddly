@@ -173,6 +173,11 @@ namespace Griddly.Mvc
         public abstract void PopulateSummaryValues(GriddlySettings<T> settings);
 
         public abstract long GetCount();
+
+        public override IEnumerable<P> GetAllForProperty<P>(string propertyName)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public enum GriddlyExportFormat
