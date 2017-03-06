@@ -33,8 +33,8 @@ namespace Griddly.Mvc
         /// Defines an event handler for custom export requests.
         /// 
         /// First argument is the record set. Second argument is the posted form values.
-        /// </summary>s
-        public static Func<IEnumerable, NameValueCollection, ActionResult> HandleCustomExport = null;
+        /// </summary>
+        public static Func<GriddlyResult, NameValueCollection, ActionResult> HandleCustomExport = null;
         public static Action<GriddlySettings, HtmlHelper> BeforeRender = null;
         public static Action<GriddlySettings, ControllerContext> OnGriddlyResultExecuting = null;
 
