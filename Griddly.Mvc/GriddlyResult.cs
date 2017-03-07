@@ -37,7 +37,15 @@ namespace Griddly.Mvc
                 })
                 .ToArray();
         }
-        
+
+        public abstract IEnumerable GetAllNonGeneric(SortField[] sortFields);
+
+        public abstract IList GetPageNonGeneric(int pageNumber, int pageSize, SortField[] sortFields);
+
+        public abstract void PopulateSummaryValuesNonGeneric(GriddlySettings settings);
+
+        public abstract long GetCount();
+
         public abstract IEnumerable<P> GetAllForProperty<P>(string propertyName);
     }
 
@@ -172,11 +180,24 @@ namespace Griddly.Mvc
         
         public abstract void PopulateSummaryValues(GriddlySettings<T> settings);
 
-        public abstract long GetCount();
-
         public override IEnumerable<P> GetAllForProperty<P>(string propertyName)
         {
             throw new NotImplementedException();
+        }
+
+        public override IEnumerable GetAllNonGeneric(SortField[] sortFields)
+        {
+            return GetAll(sortFields);
+        }
+               
+        public override IList GetPageNonGeneric(int pageNumber, int pageSize, SortField[] sortFields)
+        {
+            return (IList)(GetPage(pageNumber, pageSize, sortFields).ToList());
+        }
+               
+        public override void PopulateSummaryValuesNonGeneric(GriddlySettings settings)
+        {
+            PopulateSummaryValues((GriddlySettings<T>)settings);
         }
     }
 
