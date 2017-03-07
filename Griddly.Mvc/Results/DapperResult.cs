@@ -81,6 +81,9 @@ namespace Griddly.Mvc.Results
 
         public override IEnumerable<P> GetAllForProperty<P>(string propertyName)
         {
+            if (propertyName.Contains("."))
+                throw new ArgumentException($"Property name may not contain a period. \"{propertyName}\"", "propertyName");
+
             string sql = string.Format("SELECT {0} as _val FROM ({1}) [_proj]", propertyName, _sql);
 
             try
@@ -92,7 +95,7 @@ namespace Griddly.Mvc.Results
             }
             catch (Exception ex)
             {
-                throw new DapperGriddlyException($"Error selecting property: {propertyName}.", sql, _param, ex: ex);
+                throw new DapperGriddlyException($"Error selecting property: {propertyName}.", sql, _param, ex);
             }
         }
 
