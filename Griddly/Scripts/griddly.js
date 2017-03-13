@@ -1192,7 +1192,9 @@
 
                 var html = $(data);
 
-                this.$element.find("tbody.data").replaceWith(html.filter("tbody"));
+                // replaceWith is more performant, but using inner html allows us to maintain the tbody element which is potentially important for some other libraries
+                // https://github.com/programcsharp/griddly/issues/79
+                this.$element.find("tbody.data").html(html.filter("tbody").html());
 
                 var tfoot = this.$element.find("tfoot");
 
