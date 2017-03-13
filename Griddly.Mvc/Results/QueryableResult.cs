@@ -93,9 +93,10 @@ namespace Griddly.Mvc.Results
             }
         }
 
-        public override IEnumerable<P> GetAllForProperty<P>(string propertyName)
+        public override IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields)
         {
-            return _result.Select<P>(propertyName, null);
+            return ApplySortFields(_result, sortFields)
+                .Select<P>(propertyName, null);
         }
 
         public override long GetCount()

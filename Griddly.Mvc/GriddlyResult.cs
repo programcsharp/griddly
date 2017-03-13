@@ -46,7 +46,7 @@ namespace Griddly.Mvc
 
         public abstract long GetCount();
 
-        public abstract IEnumerable<P> GetAllForProperty<P>(string propertyName);
+        public abstract IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields);
     }
 
     public abstract class GriddlyResult<T> : GriddlyResult
@@ -180,7 +180,7 @@ namespace Griddly.Mvc
         
         public abstract void PopulateSummaryValues(GriddlySettings<T> settings);
 
-        public override IEnumerable<P> GetAllForProperty<P>(string propertyName)
+        public override IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields)
         {
             throw new NotImplementedException();
         }

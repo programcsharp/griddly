@@ -79,12 +79,12 @@ namespace Griddly.Mvc.Results
             }
         }
 
-        public override IEnumerable<P> GetAllForProperty<P>(string propertyName)
+        public override IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields)
         {
             if (propertyName.Contains("."))
                 throw new ArgumentException($"Property name may not contain a period. \"{propertyName}\"", "propertyName");
 
-            string sql = string.Format("SELECT {0} as _val FROM ({1}) [_proj]", propertyName, _sql);
+            string sql = $"SELECT {propertyName} as _val FROM ({_sql}) [_proj] {(_fixedSort ? "" : $"ORDER BY {BuildSortClause(sortFields) ?? "CURRENT_TIMESTAMP"}")}";
 
             try
             {

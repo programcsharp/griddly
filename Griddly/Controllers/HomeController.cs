@@ -16,7 +16,7 @@ namespace Griddly.Controllers
         {
             return new JsonResult()
             {
-                Data = result.GetAllForProperty<long?>("Id"),
+                Data = result.GetAllForProperty<long?>("Id", null),
                 JsonRequestBehavior = JsonRequestBehavior.AllowGet,
             };
         }
