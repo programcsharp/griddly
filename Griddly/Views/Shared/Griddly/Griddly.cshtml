@@ -1,7 +1,7 @@
 ﻿@*
     * Griddly renderer
     * http://griddly.com
-    * Copyright 2013-2015 Chris Hynes and Data Research Group, Inc.
+    * Copyright 2013-2017 Chris Hynes and Data Research Group, Inc.
     * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
     *
     * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
@@ -259,16 +259,15 @@
 
 @helper RenderFormFilters(GriddlySettings settings)
 {
-    <form class="filterForm novalidate form-horizontal">
+    <form class="form-horizontal">
         @Html.Partial("Griddly/GriddlyFilterForm", settings)
 
         <div class="form-group form-group-sm">
             <div class="col-sm-offset-2 col-sm-10">
                 <button type="submit" class="btn btn-primary">Search</button>
+                <button type="reset" class="btn btn-default griddly-search-reset">Reset</button>
             </div>
         </div>
-
-        <input type="hidden" name="query" value="true" />
     </form>
 }
 

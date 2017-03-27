@@ -1,7 +1,7 @@
 ﻿/*
  * Editly script
  * http://griddly.com
- * Copyright 2013-2015 Chris Hynes and Data Research Group, Inc.
+ * Copyright 2013-2017 Chris Hynes and Data Research Group, Inc.
  * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
  *
  * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.

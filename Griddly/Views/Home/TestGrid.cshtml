@@ -1,55 +1,59 @@
 ﻿
 @{
     ViewBag.Title = "TestGrid";
+
+    var grid = new GriddlySettings<TestGridItem>()
+    {
+        PageSize = 5,
+        ShowRowSelectCount = true,
+        Title = "Row Select Test",
+        ClassName = "test-grid",
+    };
+
+    grid.SelectColumn(x => x.Id, inputHtmlAttributesTemplate: x => new { data_testattr = x.Id })
+        .RowId(x => x.FirstName)
+        .RowId(x => x.LastName)
+        .RowId(x => x.NullThing)
+        .Column(x => x.FirstName, "First Name", filter: x => x.FilterList(new List<SelectListItem>() { new SelectListItem() { Text = "Blah", Value = "0" } }, defaultSelectAll: true))
+        .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending)
+        .Column(x => x.Company, "Company")
+        .Column(x => x.Address, "Address")
+        .Column(x => x.City, "City")
+        .Column(x => x.State, "State")
+        .Column(x => x.PostalCode, "Zip", template: x => Html.ActionLink("&" + x.PostalCode, "Profile"))
+        .Column("City/State/Zip", template: x => x.City + " " + x.State + " " + x.PostalCode);
+
+    grid.Button("", "export", action: GriddlyButtonAction.Javascript, className: "export-xlsx")
+        .Button("", "named export", action: GriddlyButtonAction.Javascript, className: "export-xlsx", htmlAttributes: new { data_export_name = "test-export" })
+        .Button("", "Custom Export", action: GriddlyButtonAction.Javascript, className: "export-custom")
+        .Add(new GriddlyButton() { Text = "Confirm", Argument = "http://google.com", Action = GriddlyButtonAction.PostCriteria, ConfirmMessage = "Please confirm" })
+        .Add(new GriddlyButton() { IsSeparator = true })
+        .Add(new GriddlyButton() { IsSeparator = true })
+        .Button("AlertSelectedIds", "Alert Selected", action: GriddlyButtonAction.Javascript, enableOnSelection: true, htmlAttributes: new { data_test = "hello world" })
+        .Add(new GriddlyButton() { IsSeparator = true })
+        .Button("TestPost", "Post Selected", action: GriddlyButtonAction.AjaxBulk, enableOnSelection: true)
+        .Add(new GriddlyButton()
+        {
+            Text = "A dropdown in a group",
+            Buttons = new List<GriddlyButton>()
+            {
+                        new GriddlyButton() { Text = "1" },
+                        new GriddlyButton() { Text = "2" },
+                        new GriddlyButton() { Text = "3" }
+            }
+        })
+        .Add(new GriddlyButton() { IsSeparator = true })
+        .Add(new GriddlyButton()
+        {
+            Text = "A dropdown alone",
+            Buttons = new List<GriddlyButton>()
+            {
+                        new GriddlyButton() { Text = "1" },
+                        new GriddlyButton() { Text = "2" },
+                        new GriddlyButton() { Text = "3" }
+            }
+        })
+        .Add(new GriddlyExport<TestGridItem>("test-export", true));
 }
 
-@Html.Griddly(new GriddlySettings<TestGridItem>()
-{
-    PageSize = 5,
-    ShowRowSelectCount = true,
-    Title = "Row Select Test",
-    ClassName = "test-grid"
-}
-    .SelectColumn(x => x.Id, inputHtmlAttributesTemplate: x => new { data_testattr = x.Id })
-    .RowId(x => x.FirstName)
-    .RowId(x => x.LastName)
-    .RowId(x => x.NullThing)
-    .Column(x => x.FirstName, "First Name", filter: x => x.FilterList(new List<SelectListItem>() { new SelectListItem() { Text = "Blah", Value = "0" } }, defaultSelectAll: true))
-    .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending)
-    .Column(x => x.Company, "Company")
-    .Column(x => x.Address, "Address")
-    .Column(x => x.City, "City")
-    .Column(x => x.State, "State")
-    .Column(x => x.PostalCode, "Zip", template: x => Html.ActionLink("&" + x.PostalCode, "Profile"))
-    .Button("", "export", action: GriddlyButtonAction.Javascript, className: "export-xlsx")
-    .Button("", "named export", action: GriddlyButtonAction.Javascript, className: "export-xlsx", htmlAttributes: new { data_export_name="test-export" })
-    .Add(new GriddlyButton() { Text = "Confirm", Argument = "http://google.com", Action = GriddlyButtonAction.PostCriteria, ConfirmMessage = "Please confirm" })
-    .Add(new GriddlyButton() { IsSeparator = true })
-    .Add(new GriddlyButton() { IsSeparator = true })
-    .Button("AlertSelectedIds", "Alert Selected", action: GriddlyButtonAction.Javascript, enableOnSelection: true, htmlAttributes: new { data_test = "hello world" })
-    .Add(new GriddlyButton() { IsSeparator = true })
-    .Button("TestPost", "Post Selected", action: GriddlyButtonAction.AjaxBulk, enableOnSelection: true)
-    .Add(new GriddlyButton()
-    {
-        Text = "A dropdown in a group",
-        Buttons = new List<GriddlyButton>()
-        {
-            new GriddlyButton() { Text = "1" },
-            new GriddlyButton() { Text = "2" },
-            new GriddlyButton() { Text = "3" }
-        }
-    })
-    .Add(new GriddlyButton() { IsSeparator = true })
-    .Add(new GriddlyButton()
-    {
-        Text = "A dropdown alone",
-        Buttons = new List<GriddlyButton>()
-        {
-            new GriddlyButton() { Text = "1" },
-            new GriddlyButton() { Text = "2" },
-            new GriddlyButton() { Text = "3" }
-        }
-    })
-    .Add(new GriddlyExport<TestGridItem>("test-export", true)
-        .Column("City/State/Zip", template:x=>x.City+" " +x.State+" " + x.PostalCode))
-)
+@Html.Griddly(grid)

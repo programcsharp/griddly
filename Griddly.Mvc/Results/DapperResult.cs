@@ -79,6 +79,26 @@ namespace Griddly.Mvc.Results
             }
         }
 
+        public override IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields)
+        {
+            if (propertyName.Contains("."))
+                throw new ArgumentException($"Property name may not contain a period. \"{propertyName}\"", "propertyName");
+
+            string sql = $"SELECT {propertyName} as _val FROM ({_sql}) [_proj] {(_fixedSort ? "" : $"ORDER BY {BuildSortClause(sortFields) ?? "CURRENT_TIMESTAMP"}")}";
+
+            try
+            {
+                IDbConnection cn = _getConnection();
+                IDbTransaction tx = _getTransaction != null ? _getTransaction() : null;
+
+                return cn.Query<P>(sql, _param, tx);
+            }
+            catch (Exception ex)
+            {
+                throw new DapperGriddlyException($"Error selecting property: {propertyName}.", sql, _param, ex);
+            }
+        }
+
         public override long GetCount()
         {
             if (_overallCount == null)
@@ -109,12 +129,10 @@ namespace Griddly.Mvc.Results
 
         protected virtual X ExecuteSingle<X>(string sql)
         {
-            
-                IDbConnection cn = _getConnection();
-                IDbTransaction tx = _getTransaction != null ? _getTransaction() : null;
+            IDbConnection cn = _getConnection();
+            IDbTransaction tx = _getTransaction != null ? _getTransaction() : null;
 
-                return cn.Query<X>(sql, _param, tx).Single();
-            
+            return cn.Query<X>(sql, _param, tx).Single();
         }
 
         // TODO: return IEnumerable so we don't have to .ToList()

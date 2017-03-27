@@ -1,7 +1,7 @@
 ﻿@*
  * GriddlyButton renderer using Bootstrap html and styles
  * http://griddly.com
- * Copyright 2013-2015 Chris Hynes and Data Research Group, Inc.
+ * Copyright 2013-2017 Chris Hynes and Data Research Group, Inc.
  * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
  *
  * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
@@ -85,6 +85,7 @@ else
         @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())
         @Html.AttributeIf("data-clear-selection-on-action", clearSelectionOnAction, clearSelectionOnAction.ToString().ToLower())
         @Html.AttributeIf("data-confirm-message", button.ConfirmMessage != null, button.ConfirmMessage)
+        @Html.AttributeIf("data-confirm-prompt-function", button.ConfirmPromptFunction != null, button.ConfirmPromptFunction)
         @Html.AttributeIf("data-rowids", button.RowIds != null, button.RowIds != null ? Html.AttributeEncode(Json.Encode(button.RowIds.Select(x => x.ToLower()).ToArray())) : null)
         @Html.AttributeIf("data-append-rowids-to-url", (button.Action == GriddlyButtonAction.Modal || button.Action == GriddlyButtonAction.Navigate) && button.AppendRowIdsToUrl, "")
         @if (button.HtmlAttributes != null)
