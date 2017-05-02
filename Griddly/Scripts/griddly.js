@@ -1007,7 +1007,7 @@
             this.setFilterValues(this.options.filterDefaults, null, true);
 
             // clear any none's that were inadvertently reset
-            this.$element.find(".griddly-filters-form [data-griddly-filter-isnoneall=true] [multiple] option[value=]").prop("selected", false);
+            this.$element.find(".griddly-filters-form [data-griddly-filter-isnoneall=true] [multiple] option[value='']").prop("selected", false);
 
             this.triggerOrQueue(this.$element, "resetfilters.griddly");
 
