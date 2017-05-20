@@ -17,7 +17,7 @@
     settings.Columns.RemoveAll(x => !x.RenderMode.HasFlag(ColumnRenderMode.View));
 
     bool simple = ViewBag.isSimpleGriddly == true;
-    bool isFirstRender = ViewContext.Controller.ControllerContext.IsChildAction || simple;
+    bool isFirstRender = simple || ViewContext.Controller.ControllerContext.IsChildAction;
 
     if (isFirstRender)
     {
