@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Griddly.Mvc.Linq.Dynamic;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +53,29 @@ namespace Griddly.Mvc
 
         public static MvcHtmlString SimpleGriddly<T>(this HtmlHelper htmlHelper, GriddlySettings<T> settings, IEnumerable<T> data)
         {
+            // TODO: figure out how to get this in one query
+            foreach (GriddlyColumn c in settings.Columns.Where(x => x.SummaryFunction != null))
+                PopulateSummaryValue(data, c);
+
             return htmlHelper.Griddly(new GriddlyResultPage<T>(data), settings, true);
+        }
+
+        static void PopulateSummaryValue<T>(IEnumerable<T> data, GriddlyColumn c)
+        {
+            // NOTE: Also in QueryableResult.PopulateSummaryValue
+            switch (c.SummaryFunction.Value)
+            {
+                case SummaryAggregateFunction.Sum:
+                case SummaryAggregateFunction.Average:
+                case SummaryAggregateFunction.Min:
+                case SummaryAggregateFunction.Max:
+                    c.SummaryValue = data.AsQueryable().Aggregate(c.SummaryFunction.Value.ToString(), c.ExpressionString);
+
+                    break;
+
+                default:
+                    throw new InvalidOperationException(string.Format("Unknown summary function {0} for column {1}.", c.SummaryFunction, c.ExpressionString));
+            }
         }
 
         public static MvcHtmlString Griddly(this HtmlHelper htmlHelper, GriddlyResultPage model, GriddlySettings settings, bool isSimpleGriddly = false)

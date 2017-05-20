@@ -78,6 +78,7 @@ namespace Griddly.Mvc.Results
 
         internal void PopulateSummaryValue(GriddlyColumn c)
         {
+            // NOTE: Also in GriddlyExtensions.SimpleGriddly
             switch (c.SummaryFunction.Value)
             {
                 case SummaryAggregateFunction.Sum:
