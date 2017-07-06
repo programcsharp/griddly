@@ -37,6 +37,16 @@ namespace Griddly.Mvc
                 })
                 .ToArray();
         }
+
+        public abstract IEnumerable GetAllNonGeneric(SortField[] sortFields);
+
+        public abstract IList GetPageNonGeneric(int pageNumber, int pageSize, SortField[] sortFields);
+
+        public abstract void PopulateSummaryValuesNonGeneric(GriddlySettings settings);
+
+        public abstract long GetCount();
+
+        public abstract IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields);
     }
 
     public abstract class GriddlyResult<T> : GriddlyResult
@@ -143,20 +153,23 @@ namespace Griddly.Mvc
                         fileName = fileName.Replace(c, '_');
                 }
 
-                var records = GetAll(sortFields);
                 if (exportFormat == GriddlyExportFormat.Custom)
                 {
-                    result = GriddlySettings.HandleCustomExport(records, items);
+                    result = GriddlySettings.HandleCustomExport(this, items);
                 }
-                else if (exportFormat == GriddlyExportFormat.Xlsx)
+                else
                 {
-                    result = new GriddlyExcelResult<T>(records, settings, fileName);
+                    var records = GetAll(sortFields);
+                    if (exportFormat == GriddlyExportFormat.Xlsx)
+                    {
+                        result = new GriddlyExcelResult<T>(records, settings, fileName, items["exportName"]);
+                    }
+                    else // if (exportFormat == GriddlyExportFormat.Csv || exportFormat == GriddlyExportFormat.Tsv)
+                    {
+                        result = new GriddlyCsvResult<T>(records, settings, fileName, exportFormat.Value, items["exportName"]);
+                    }
                 }
-                else // if (exportFormat == GriddlyExportFormat.Csv || exportFormat == GriddlyExportFormat.Tsv)
-                {
-                    result = new GriddlyCsvResult<T>(records, settings, fileName, exportFormat.Value);
-                }
-
+                
                 result.ExecuteResult(context);
             }
         }
@@ -167,7 +180,25 @@ namespace Griddly.Mvc
         
         public abstract void PopulateSummaryValues(GriddlySettings<T> settings);
 
-        public abstract long GetCount();
+        public override IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IEnumerable GetAllNonGeneric(SortField[] sortFields)
+        {
+            return GetAll(sortFields);
+        }
+               
+        public override IList GetPageNonGeneric(int pageNumber, int pageSize, SortField[] sortFields)
+        {
+            return (IList)(GetPage(pageNumber, pageSize, sortFields).ToList());
+        }
+               
+        public override void PopulateSummaryValuesNonGeneric(GriddlySettings settings)
+        {
+            PopulateSummaryValues((GriddlySettings<T>)settings);
+        }
     }
 
     public enum GriddlyExportFormat

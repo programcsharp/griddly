@@ -3,6 +3,7 @@ using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
+using System.Linq;
 
 namespace Griddly.Mvc
 {
@@ -11,12 +12,14 @@ namespace Griddly.Mvc
         IEnumerable<T> _data;
         GriddlySettings _settings;
         string _name;
+        string _exportName;
 
-        public GriddlyExcelResult(IEnumerable<T> data, GriddlySettings settings, string name)
+        public GriddlyExcelResult(IEnumerable<T> data, GriddlySettings settings, string name, string exportName = null)
         {
             _data = data;
             _settings = settings;
             _name = name;
+            _exportName = exportName;
         }
 
         // static readonly Regex _aMatch = new Regex(@"<a\s[^>]*\s?href=""(.*?)"">(.*?)</a>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -27,9 +30,17 @@ namespace Griddly.Mvc
             {
                 ExcelWorksheet ws = p.Workbook.Worksheets.Add(_name);
 
-                for (int i = 0; i < _settings.Columns.Count; i++)
+                var export = _settings.Exports.FirstOrDefault(x => x.Name == _exportName);
+                var columns = export == null ? _settings.Columns : export.Columns;
+
+                if (export != null && export.UseGridColumns)
+                    columns.InsertRange(0, _settings.Columns);
+
+                columns.RemoveAll(x => !x.RenderMode.HasFlag(ColumnRenderMode.Export));
+
+                for (int i = 0; i < columns.Count; i++)
                 {
-                    ws.Cells[1, i + 1].Value = _settings.Columns[i].Caption;
+                    ws.Cells[1, i + 1].Value = columns[i].Caption;
                     ws.Cells[1, i + 1].Style.Font.Bold = true;
                 }
 
@@ -37,9 +48,9 @@ namespace Griddly.Mvc
 
                 foreach (T row in _data)
                 {
-                    for (int x = 0; x < _settings.Columns.Count; x++)
+                    for (int x = 0; x < columns.Count; x++)
                     {
-                        object renderedValue = _settings.Columns[x].RenderCellValue(row, true);
+                        object renderedValue = columns[x].RenderCellValue(row, true);
 
                         ExcelRange cell = ws.Cells[y + 2, x + 1];
 
@@ -50,7 +61,7 @@ namespace Griddly.Mvc
                             cell.Style.Numberformat.Format = "mm/dd/yyyy";
                             cell.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                         }
-                        else if (_settings.Columns[x].Format == "c")
+                        else if (columns[x].Format == "c")
                         {
                             cell.Style.Numberformat.Format = "\"$\"#,##0.00_);(\"$\"#,##0.00)";
                             cell.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
@@ -60,7 +71,7 @@ namespace Griddly.Mvc
                     y++;
                 }
 
-                for (int i = 0; i < _settings.Columns.Count; i++)
+                for (int i = 0; i < columns.Count; i++)
                     ws.Column(i + 1).AutoFit();
 
                 context.HttpContext.Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";

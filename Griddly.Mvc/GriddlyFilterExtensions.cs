@@ -113,7 +113,7 @@ namespace Griddly.Mvc
             return filter;
         }
 
-        static string GetField(GriddlyColumn column)
+        public static string GetField(GriddlyColumn column)
         {
             string value = null;
 
@@ -149,8 +149,8 @@ namespace Griddly.Mvc
         {
             return new List<SelectListItem>()
             {
-                new SelectListItem() { Value = "True", Text = trueLabel },
-                new SelectListItem() { Value = "False", Text = falseLabel },
+                new SelectListItem() { Value = "true", Text = trueLabel },
+                new SelectListItem() { Value = "false", Text = falseLabel },
             };
         }
     }

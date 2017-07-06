@@ -1,8 +1,11 @@
-﻿using System;
+﻿using Griddly.Mvc.Linq.Dynamic;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
@@ -14,6 +17,14 @@ namespace Griddly.Mvc
 {
     public static class GriddlyExtensions
     {
+        public static string CurrencySymbol
+        {
+            get
+            {
+                return Thread.CurrentThread.CurrentCulture.NumberFormat.CurrencySymbol;
+            }
+        }
+
         public static MvcHtmlString Griddly(this HtmlHelper htmlHelper, string actionName)
         {
             return htmlHelper.Griddly(actionName, null);
@@ -42,7 +53,29 @@ namespace Griddly.Mvc
 
         public static MvcHtmlString SimpleGriddly<T>(this HtmlHelper htmlHelper, GriddlySettings<T> settings, IEnumerable<T> data)
         {
+            // TODO: figure out how to get this in one query
+            foreach (GriddlyColumn c in settings.Columns.Where(x => x.SummaryFunction != null))
+                PopulateSummaryValue(data, c);
+
             return htmlHelper.Griddly(new GriddlyResultPage<T>(data), settings, true);
+        }
+
+        static void PopulateSummaryValue<T>(IEnumerable<T> data, GriddlyColumn c)
+        {
+            // NOTE: Also in QueryableResult.PopulateSummaryValue
+            switch (c.SummaryFunction.Value)
+            {
+                case SummaryAggregateFunction.Sum:
+                case SummaryAggregateFunction.Average:
+                case SummaryAggregateFunction.Min:
+                case SummaryAggregateFunction.Max:
+                    c.SummaryValue = data.AsQueryable().Aggregate(c.SummaryFunction.Value.ToString(), c.ExpressionString);
+
+                    break;
+
+                default:
+                    throw new InvalidOperationException(string.Format("Unknown summary function {0} for column {1}.", c.SummaryFunction, c.ExpressionString));
+            }
         }
 
         public static MvcHtmlString Griddly(this HtmlHelper htmlHelper, GriddlyResultPage model, GriddlySettings settings, bool isSimpleGriddly = false)
@@ -102,6 +135,22 @@ namespace Griddly.Mvc
                 return new HtmlString(name + "=\"" + value + "\"");
             else
                 return null;
+        }
+
+        // http://stackoverflow.com/a/18618808/8037
+        public static IHtmlString ToHtmlAttributes(this IDictionary<string, object> dictionary)
+        {
+            if (dictionary == null || dictionary.Count == 0)
+                return null;
+
+            var sb = new StringBuilder();
+
+            foreach (var kvp in dictionary)
+            {
+                sb.Append(string.Format("{0}=\"{1}\" ", HttpUtility.HtmlEncode(kvp.Key), HttpUtility.HtmlAttributeEncode(kvp.Value != null ? kvp.Value.ToString() : null)));
+            }
+
+            return new HtmlString(sb.ToString());
         }
 
         public static void SetGriddlyDefault<T>(this Controller controller, ref T parameter, string field, T value)
@@ -173,7 +222,7 @@ namespace Griddly.Mvc
         public static string Current(this UrlHelper helper, object routeValues = null, bool includeQueryString = false)
         {
             RouteValueDictionary values = new RouteValueDictionary();
-
+            StringBuilder arrayVals = new StringBuilder();
             foreach (KeyValuePair<string, object> value in helper.RequestContext.RouteData.Values)
             {
                 if (value.Value != null)
@@ -186,7 +235,9 @@ namespace Griddly.Mvc
                         // values[value.Key] = (DateTime)value.Value; -- BAD: can't unbox a value type as a different type
                         values[value.Key] = Convert.ChangeType(value.Value, typeof(DateTime));
                     else if (t.IsArray || t.IsSubclassOf(typeof(IEnumerable)))
-                        values[value.Key] = string.Join(",", ((IEnumerable)value.Value).Cast<object>()); 
+                    {
+                        arrayVals.Append(string.Join("&", ((IEnumerable)value.Value).Cast<object>().Select(x=> value.Key + "=" + x.ToString())));
+                    }
                 }
             }
 
@@ -213,7 +264,12 @@ namespace Griddly.Mvc
                 }
             }
 
-            return helper.RouteUrl(values);
+            var route = helper.RouteUrl(values);
+            if(arrayVals.Length>0)
+            {
+                route += (route.Contains("?") ? "&" : "?") + arrayVals.ToString();
+            }
+            return route;
         }
 
         static readonly PropertyInfo _instrumentationService = typeof(WebPageExecutingBase).GetProperty("InstrumentationService", BindingFlags.NonPublic | BindingFlags.Instance);

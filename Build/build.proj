@@ -1,5 +1,5 @@
 <!-- http://www.jeremyskinner.co.uk/2011/01/12/automating-nuget-package-creation-with-msbuild-and-powershell/ -->
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0" DefaultTargets="default">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0" DefaultTargets="default">
   <PropertyGroup>
     <BaseDir>$(MSBuildProjectDirectory)\..</BaseDir>
     <Configuration Condition="'$(Configuration)'==''" >Release</Configuration>
@@ -7,6 +7,7 @@
     <PackageDir>$(BuildDir)\Packages</PackageDir>
     <SolutionFile>$(BaseDir)\Griddly.sln</SolutionFile>
     <MSBuildExtensions>$(BaseDir)\.build\MSBuild.Community.Tasks.dll</MSBuildExtensions>
+    <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
  
   <UsingTask AssemblyFile="$(MSBuildExtensions)" TaskName="MSBuild.Community.Tasks.XmlUpdate" />
@@ -14,7 +15,7 @@
   <Target Name="default" DependsOnTargets="Compile; Package" />
  
   <Target Name="Compile">
-    <MSBuild Projects="$(SolutionFile)" Properties="Configuration=$(Configuration)"  />
+    <MSBuild Projects="$(SolutionFile)" Properties="Configuration=$(Configuration);VisualStudioVersion=$(VisualStudioVersion)"  />
   </Target>
  
   <Target Name="Package">
@@ -24,8 +25,9 @@
     <ItemGroup>
       <Libs Include="$(BaseDir)\Griddly.Mvc\bin\$(Configuration)\Griddly.Mvc.dll" />
       <Content Include="$(BaseDir)\Griddly\**\griddly.js" />
+      <Content Include="$(BaseDir)\Griddly\**\editly.js" />
       <Content Include="$(BaseDir)\Griddly\**\griddly.css" />
-      <Content Include="$(BaseDir)\Griddly\**\Griddly\*.*" />      
+      <Content Include="$(BaseDir)\Griddly\**\Views\Shared\Griddly\*.*" />
     </ItemGroup>
  
     <Exec Command="rd $(PackageDir) /s /q" />
@@ -41,28 +43,35 @@
     <Copy SourceFiles="@(Content)" DestinationFolder="$(PackageDir)\Griddly\content\%(RecursiveDir)" />
     <Copy SourceFiles="@(Libs)" DestinationFolder="$(PackageDir)\Griddly.Core\lib\net45\%(RecursiveDir)" />
 
-    <!-- Get the version number of the main FV assembly to insert into the nuspec files -->
+    <!-- Get the version number of the main assembly to insert into the nuspec files -->
     <GetAssemblyIdentity AssemblyFiles="$(PackageDir)\Griddly.Core\lib\net45\Griddly.Mvc.dll">
       <Output TaskParameter="Assemblies" ItemName="AsmInfo" />
     </GetAssemblyIdentity>
+    <GetAssemblyInformationalVersion AssemblyFile="$(PackageDir)\Griddly.Core\lib\net45\Griddly.Mvc.dll">
+      <Output TaskParameter="Value" ItemName="AssemblyVersion" />
+    </GetAssemblyInformationalVersion>
+    <PropertyGroup>
+      <AssemblyVersion Condition="@(AssemblyVersion) != ''">@(AssemblyVersion)</AssemblyVersion>
+      <AssemblyVersion Condition="$(AssemblyVersion) == ''">%(AsmInfo.Version)</AssemblyVersion>
+    </PropertyGroup>
 
     <!-- insert the version number into the nuspec files -->
     <XmlUpdate
       Namespace="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"
       XmlFileName="$(PackageDir)\Griddly\Griddly.nuspec"
       XPath="/package/metadata/version"
-      Value="%(AsmInfo.Version)" />
+      Value="$(AssemblyVersion)" />
     <XmlUpdate
       Namespace="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"
       XmlFileName="$(PackageDir)\Griddly.Core\Griddly.Core.nuspec"
       XPath="/package/metadata/version"
-      Value="%(AsmInfo.Version)" />
+      Value="$(AssemblyVersion)" />
 
     <XmlUpdate
       Namespace="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"
       XmlFileName="$(PackageDir)\Griddly\Griddly.nuspec"
       XPath="/package/metadata/dependencies/group/dependency[@id='Griddly.Core']/@version"
-      Value="%(AsmInfo.Version)" />
+      Value="$(AssemblyVersion)" />
 
     <Exec WorkingDirectory="$(PackageDir)" 
           Command="$(BaseDir)\.nuget\nuget.exe pack $(PackageDir)\Griddly\Griddly.nuspec" />
@@ -75,4 +84,26 @@
 
     <Copy SourceFiles="@(OutputPackages)" DestinationFolder="$(PackageDir)"/>
   </Target>
+
+  <UsingTask TaskName="GetAssemblyInformationalVersion" TaskFactory="CodeTaskFactory"
+      AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+    <ParameterGroup>
+      <AssemblyFile ParameterType="System.String" Required="true" />
+      <Value ParameterType="System.String" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.Core" />
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Diagnostics" />
+      <Using Namespace="System.Reflection" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+            var attr = Attribute.GetCustomAttribute(Assembly.LoadFile(Path.GetFullPath(AssemblyFile)), typeof(AssemblyInformationalVersionAttribute)) as AssemblyInformationalVersionAttribute;
+            
+            Value = attr != null ? attr.InformationalVersion : null;
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
 </Project>

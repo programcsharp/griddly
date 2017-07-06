@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyProduct("Griddly")]
-[assembly: AssemblyCopyright("Copyright © 2015 Chris Hynes and Data Research Group")]
+[assembly: AssemblyCopyright("Copyright © 2013-2017 Chris Hynes and Data Research Group")]
 
 [assembly: ComVisible(false)]
 
@@ -15,5 +15,6 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Revision and Build Numbers
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("1.2.4")]
-[assembly: AssemblyFileVersion("1.2.4")]
+[assembly: AssemblyVersion("1.8.1")]
+[assembly: AssemblyFileVersion("1.8.1")]
+//[assembly: AssemblyInformationalVersion("1.4.5-editlyalpha2")]

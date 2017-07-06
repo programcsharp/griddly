@@ -1,13 +1,10 @@
-﻿using Griddly.Mvc.Linq.Dynamic;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Web.Helpers;
-using System.Web.Mvc;
+using Griddly.Mvc.Linq.Dynamic;
 
 namespace Griddly.Mvc.Results
 {
@@ -76,21 +73,31 @@ namespace Griddly.Mvc.Results
 
             // TODO: figure out how to get this in one query
             foreach (GriddlyColumn c in settings.Columns.Where(x => x.SummaryFunction != null))
+                PopulateSummaryValue(c);
+        }
+
+        internal void PopulateSummaryValue(GriddlyColumn c)
+        {
+            // NOTE: Also in GriddlyExtensions.SimpleGriddly
+            switch (c.SummaryFunction.Value)
             {
-                switch (c.SummaryFunction.Value)
-                {
-                    case SummaryAggregateFunction.Sum:
-                    case SummaryAggregateFunction.Average:
-                    case SummaryAggregateFunction.Min:
-                    case SummaryAggregateFunction.Max:
-                        c.SummaryValue = _result.Aggregate(c.SummaryFunction.Value.ToString(), c.ExpressionString);
+                case SummaryAggregateFunction.Sum:
+                case SummaryAggregateFunction.Average:
+                case SummaryAggregateFunction.Min:
+                case SummaryAggregateFunction.Max:
+                    c.SummaryValue = _result.Aggregate(c.SummaryFunction.Value.ToString(), c.ExpressionString);
 
-                        break;
+                    break;
 
-                    default:
-                        throw new InvalidOperationException(string.Format("Unknown summary function {0} for column {1}.", c.SummaryFunction, c.ExpressionString));
-                }
+                default:
+                    throw new InvalidOperationException(string.Format("Unknown summary function {0} for column {1}.", c.SummaryFunction, c.ExpressionString));
             }
+        }
+
+        public override IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields)
+        {
+            return ApplySortFields(_result, sortFields)
+                .Select<P>(propertyName, null);
         }
 
         public override long GetCount()

@@ -1,7 +1,7 @@
 ﻿@*
     * GriddlyFilter inline renderer
     * http://griddly.com
-    * Copyright 2013-2015 Chris Hynes and Data Research Group, Inc.
+    * Copyright 2013-2017 Chris Hynes and Data Research Group, Inc.
     * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
     *
     * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
@@ -22,18 +22,26 @@
             GriddlyFilterBox filterBox = filter as GriddlyFilterBox;
             GriddlyFilterRange filterRange = filter as GriddlyFilterRange;
             GriddlyFilterList filterList = filter as GriddlyFilterList;
+            GriddlyHtmlFilter filterHtml = filter as GriddlyHtmlFilter;
 
-            <div class="btn-group griddly-filter @(filterBox != null ? "griddly-filter-box" : null) @(filterRange != null ? "griddly-filter-range" : null) @(filterList != null ? "griddly-filter-list" : null)"
+            <div class="btn-group griddly-filter @(filterBox != null ? "griddly-filter-box" : null) @(filterRange != null ? "griddly-filter-range" : null) @(filterList != null ? "griddly-filter-list" : null) @(filterHtml != null ? "griddly-html-filter" : null)"
                     data-filter-name="@filter.Caption" data-filter-name-plural="@filter.CaptionPlural"
                     data-filter-datatype="@filter.DataType.ToString()"
                     @Html.AttributeIf("data-griddly-filter-ismultiple", filterList != null, x => filterList.IsMultiple.ToString().ToLower())
                     @Html.AttributeIf("data-griddly-filter-isnoneall", filterList != null, x => filterList.IsNoneAll.ToString().ToLower())
+                    @Html.AttributeIf("data-griddly-filter-isnullable", filterList != null, x => filterList.IsNullable.ToString().ToLower())
                     @Html.AttributeIf("data-griddly-filter-displayitemcount", filterList != null, x => filterList.DisplayItemCount)>
                 @{
                     object defaultValue = this.GetGriddlyDefault(filter.Field);
                     object defaultValueEnd = filterRange != null ? this.GetGriddlyDefault(filterRange.FieldEnd) : null;
                 }
-                <a class="btn btn-link btn-xs filter-trigger">
+                @if (filterHtml != null)
+                {
+                    @filterHtml.HtmlTemplate(filterHtml)
+                }
+                else
+                {
+                <a class="btn btn-xs @(filterList == null || filterList.Items.Count > 0 ? "btn-link filter-trigger" : "disabled")">
                     <span class="griddly-filter-display">
                         @if (filterBox != null)
                         {
@@ -81,7 +89,7 @@
                                                                 
                             if (selectedCount == allCount || (selectedCount == 0 && filterList.IsNoneAll))
                             {
-                                <text>@(allCount == 2 ? "Both " : "All ") @filter.CaptionPlural</text>
+                                <text>@(allCount == 2 && !filterList.IsNullable ? "Both " : "All ") @filter.CaptionPlural</text>
                             }
                             else if (selectedCount > filterList.DisplayItemCount)
                             {
@@ -97,7 +105,10 @@
                             }
                         }
                     </span>
+                    @if (filterList == null || filterList.Items.Count > 0)
+                    {
                     <span class="caret"></span>
+                    }
                 </a>
                 <div class="filter-content">
                     @if (filterBox != null)
@@ -105,7 +116,7 @@
                         <div class="input-group input-group-sm">
                             @if (filter.DataType == FilterDataType.Currency)
                             {
-                                <span class="input-group-addon">$</span>
+                                <span class="input-group-addon">@Griddly.Mvc.GriddlyExtensions.CurrencySymbol</span>
                             }
                             else if (filter.DataType == FilterDataType.Date)
                             {
@@ -127,7 +138,7 @@
                         <div class="input-group input-group-sm">
                             @if (filter.DataType == FilterDataType.Currency)
                             {
-                                <span class="input-group-addon">$</span>
+                                <span class="input-group-addon">@Griddly.Mvc.GriddlyExtensions.CurrencySymbol</span>
                             }
                             else if (filter.DataType == FilterDataType.Date)
                             {
@@ -147,7 +158,7 @@
                         <div class="input-group input-group-sm">
                             @if (filter.DataType == FilterDataType.Currency)
                             {
-                                <span class="input-group-addon">$</span>
+                                <span class="input-group-addon">@Griddly.Mvc.GriddlyExtensions.CurrencySymbol</span>
                             }
                             else if (filter.DataType == FilterDataType.Date)
                             {
@@ -173,7 +184,7 @@
                                     <a class="btn btn-default griddly-select-all"><i class="glyphicon glyphicon-check"></i> Select All</a>
                                 </span>
                                 <span class="input-group-btn">
-                                    <a class="btn btn-default  griddly-clear"><i class="glyphicon glyphicon-ban-circle"></i> Clear</a>
+                                    <a class="btn btn-default griddly-clear"><i class="glyphicon glyphicon-ban-circle"></i> Clear</a>
                                 </span>
                             </div>
                         }
@@ -184,7 +195,19 @@
 
                                 if (group != null)
                                 {
-                                    <li class="griddly-list-group-header"><b>@group.Text</b></li>
+                                    <li class="griddly-list-group-header @(filterList.IsMultiple && group.Items.All(x => x.Selected) ? "griddly-filter-selected" : null)">
+                                        @if (filterList.IsMultiple)
+                                        {
+                                            <a>
+                                                <b>@group.Text</b>
+                                                <i class="glyphicon glyphicon-ok griddly-filter-selected-indicator"></i>
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <b>@group.Text</b>
+                                        }
+                                    </li>
                                     foreach (SelectListItem childItem in group.Items)
                                     {
                                         @RenderListItem(filterList, childItem, true)
@@ -198,6 +221,7 @@
                         </ul>
                     }
                 </div>
+                }
             </div>
         }
     </td>

@@ -1,7 +1,7 @@
 ﻿@*
     * Griddly renderer
     * http://griddly.com
-    * Copyright 2013-2015 Chris Hynes and Data Research Group, Inc.
+    * Copyright 2013-2017 Chris Hynes and Data Research Group, Inc.
     * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
     *
     * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
@@ -14,10 +14,10 @@
 @{
     GriddlySettings settings = (GriddlySettings)ViewBag.settings;
 
-    settings.Columns.RemoveAll(x => x.IsExportOnly);
+    settings.Columns.RemoveAll(x => !x.RenderMode.HasFlag(ColumnRenderMode.View));
 
     bool simple = ViewBag.isSimpleGriddly == true;
-    bool isFirstRender = ViewContext.Controller.ControllerContext.IsChildAction || simple;
+    bool isFirstRender = simple || ViewContext.Controller.ControllerContext.IsChildAction;
 
     if (isFirstRender)
     {
@@ -97,7 +97,9 @@
         @: @Html.AttributeNullable("data-griddly-rowclickmodal", settings.RowClickModal)
         @: data-griddly-defaultrowids="@Json.Encode(settings.DefaultRowIds != null ? settings.DefaultRowIds.Select(x => x.ToLower()).ToArray() : new[] { "value" })"
         @: data-griddly-filter-defaults="@Newtonsoft.Json.JsonConvert.SerializeObject(this.GetGriddlyDefaults())"
-        @: @Html.AttributeIf("data-griddly-defaultsort", defaultSort != null && defaultSort.Any(), Html.AttributeEncode(Json.Encode(defaultSort.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))))>
+        @: data-griddly-currency-symbol="@Griddly.Mvc.GriddlyExtensions.CurrencySymbol"
+        @: @Html.AttributeIf("data-griddly-defaultsort", defaultSort != null && defaultSort.Any(), Html.AttributeEncode(Json.Encode(defaultSort.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))))
+        @: @settings.HtmlAttributes.ToHtmlAttributes()>
     if (settings.Buttons.Any())
     {
         <div class="buttons">
@@ -112,11 +114,11 @@
         @settings.BeforeTemplate(null)
     }
     @:<div class="griddly-scrollable-container">
-        @:<table class="@settings.TableClassName">
+        @:<table class="@settings.TableClassName" @settings.TableHtmlAttributes.ToHtmlAttributes()>
             <colgroup>
                 @foreach (GriddlyColumn column in settings.Columns)
                 {
-                    <col @Html.AttributeIf("style", column.Width != null, "width:" + column.Width) />
+                    <col @Html.AttributeIf("style", column.Width != null, "width:" + column.Width) data-field="@Griddly.Mvc.GriddlyFilterExtensions.GetField(column)" />
                 }
             </colgroup>
     <thead>
@@ -150,7 +152,7 @@
             @foreach (GriddlyColumn column in settings.Columns)
             {
                 bool isSortable = !simple && !string.IsNullOrWhiteSpace(column.ExpressionString);
-                <th class="@column.ClassName @(isSortable ? "sortable" : null) @(column is GriddlySelectColumn ? "select" : null) @(column.DefaultSort != null ? (column.DefaultSort == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.ExpressionString)>
+                <th class="@column.ClassName @(isSortable ? "sortable" : null) @(column is GriddlySelectColumn ? "select" : null) @(column.DefaultSort != null ? (column.DefaultSort == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.ExpressionString) @column.HeaderHtmlAttributes.ToHtmlAttributes()>
                     @if (isSortable)
                     {
                         <text>@column.Caption<span class="icon">&nbsp;</span></text>
@@ -172,11 +174,16 @@
         }
         @if (settings.HeaderTemplate != null)
         {
-            <tr class="griddly-header">
-                <td colspan="@settings.Columns.Count">
-                    @settings.HeaderTemplate(Model)
-                </td>
-            </tr>
+            var template = settings.HeaderTemplate(Model);
+
+            if (template != null)
+            {
+                <tr class="griddly-header">
+                    <td colspan="@settings.Columns.Count">
+                        @template
+                    </td>
+                </tr>
+            }
         }
     </thead>
 }
@@ -190,10 +197,12 @@
             {
                 @: data-rowid-@(x.Key)="@(x.Value(row))"
             }
-            data-rowkey="@("_" + string.Join("_", settings.RowIds.Select(x => { var val = x.Value(row); return val == null ? "" : val.ToString(); }).ToArray()))">
+            data-rowkey="@("_" + string.Join("_", settings.RowIds.Select(x => { var val = x.Value(row); return val == null ? "" : val.ToString(); }).ToArray()))"
+            @settings.GenerateRowHtmlAttributes(row).ToHtmlAttributes()>
             @foreach (GriddlyColumn column in settings.Columns)
             {
-                <td class="@column.RenderClassName(row, Model)">@column.RenderCell(row, settings)</td>
+                var underlyingValue = column.RenderUnderlyingValue(row);
+                <td class="@column.RenderClassName(row, Model)" @column.GenerateHtmlAttributes(row, Model).ToHtmlAttributes()  @if (underlyingValue != null) { <text>data-value="@underlyingValue"</text> }>@column.RenderCell(row, settings)</td>
             }
         </tr>
     }
@@ -250,16 +259,15 @@
 
 @helper RenderFormFilters(GriddlySettings settings)
 {
-    <form class="filterForm novalidate form-horizontal">
+    <form class="form-horizontal">
         @Html.Partial("Griddly/GriddlyFilterForm", settings)
 
         <div class="form-group form-group-sm">
             <div class="col-sm-offset-2 col-sm-10">
                 <button type="submit" class="btn btn-primary">Search</button>
+                <button type="reset" class="btn btn-default griddly-search-reset">Reset</button>
             </div>
         </div>
-
-        <input type="hidden" name="query" value="true" />
     </form>
 }
 

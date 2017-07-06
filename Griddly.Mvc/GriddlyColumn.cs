@@ -4,12 +4,21 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Helpers;
+using System.Web.Mvc;
+using System.Web.Routing;
 using System.Web.WebPages;
 
 namespace Griddly.Mvc
 {
     public abstract class GriddlyColumn
     {
+        public GriddlyColumn()
+        {
+            HeaderHtmlAttributes = new RouteValueDictionary();
+
+            RenderMode = ColumnRenderMode.Both;
+        }
+
         public string Caption { get; set; }
         public string ExpressionString { get; set; }
         public string Format { get; set; }
@@ -17,15 +26,26 @@ namespace Griddly.Mvc
         public int DefaultSortOrder { get; set; }
         public string ClassName { get; set; }
         public string Width { get; set; }
-        public bool IsExportOnly { get; set; }
+        public ColumnRenderMode RenderMode { get; set; }
         public SummaryAggregateFunction? SummaryFunction { get; set; }
         public object SummaryValue { get; set; }
+        public IDictionary<string, object> HeaderHtmlAttributes { get; set; }
 
         public GriddlyFilter Filter { get; set; }
 
+        public abstract HtmlString RenderUnderlyingValue(object row);
         public abstract HtmlString RenderCell(object row, GriddlySettings settings, bool encode = true);
         public abstract object RenderCellValue(object row, bool stripHtml = false);
-        public abstract string RenderClassName(object row, GriddlyResultPage page);
+
+        public virtual string RenderClassName(object row, GriddlyResultPage page)
+        {
+            return ClassName;
+        }
+
+        public virtual IDictionary<string, object> GenerateHtmlAttributes(object row, GriddlyResultPage page)
+        {
+            return null;
+        }
 
         public virtual HtmlString RenderValue(object value, bool encode = true)
         {
@@ -59,7 +79,9 @@ namespace Griddly.Mvc
     public class GriddlyColumn<TRow> : GriddlyColumn
     {
         public Func<TRow, object> Template { get; set; }
+        public Func<TRow, object> UnderlyingValueTemplate { get; set; }
         public Func<TRow, string> ClassNameTemplate { get; set; }
+        public Func<TRow, object> HtmlAttributesTemplate { get; set; }
 
         static readonly Regex _htmlMatch = new Regex(@"<[^>]*>", RegexOptions.Compiled);
 
@@ -89,6 +111,27 @@ namespace Griddly.Mvc
                 return null;
         }
 
+        public override IDictionary<string, object> GenerateHtmlAttributes(object row, GriddlyResultPage page)
+        {
+            if (HtmlAttributesTemplate == null)
+                return null;
+
+            RouteValueDictionary attributes = new RouteValueDictionary();
+
+            object value = HtmlAttributesTemplate((TRow)row);
+
+            if (value != null)
+            {
+                if (!(value is IDictionary<string, object>))
+                    value = HtmlHelper.AnonymousObjectToHtmlAttributes(value);
+
+                foreach (KeyValuePair<string, object> entry in (IDictionary<string, object>)value)
+                    attributes.Add(entry.Key, entry.Value);
+            }
+
+            return attributes;
+        }
+
         public override HtmlString RenderCell(object row, GriddlySettings settings, bool encode = true)
         {
             object value = null;
@@ -114,6 +157,33 @@ namespace Griddly.Mvc
                 return new HtmlString(((HelperResult)value).ToString());
             else
                 return RenderValue(value, encode);
+        }
+
+        public override HtmlString RenderUnderlyingValue(object row)
+        {
+            if (UnderlyingValueTemplate == null) return null;
+
+            object value = null;
+
+            try
+            {
+                value = UnderlyingValueTemplate((TRow)row);
+            }
+            catch (NullReferenceException)
+            {
+                // Eat
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Error rendering underlying value or column \"" + Caption + "\"", ex);
+            }
+
+            if (value == null)
+                return null;
+            else if (value is HtmlString)
+                return (HtmlString)value;
+            else
+                return new HtmlString(value.ToString());
         }
 
         public override object RenderCellValue(object row, bool stripHtml = false)
@@ -159,5 +229,12 @@ namespace Griddly.Mvc
         Average = 2,
         Min = 3,
         Max = 4
+    }
+
+    public enum ColumnRenderMode
+    {
+        View = 1 << 0,
+        Export = 1 << 1,
+        Both = View | Export
     }
 }

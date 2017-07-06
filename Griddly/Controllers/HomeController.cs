@@ -4,6 +4,7 @@ using Griddly.Mvc;
 using Griddly.Mvc.Results;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Web.Mvc;
 
@@ -11,6 +12,15 @@ namespace Griddly.Controllers
 {
     public class HomeController : Controller
     {
+        public static ActionResult HandleCustomExport(GriddlyResult result, NameValueCollection form)
+        {
+            return new JsonResult()
+            {
+                Data = result.GetAllForProperty<long?>("Id", null),
+                JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+            };
+        }
+
         public ActionResult Index()
         {
             return View();
@@ -19,6 +29,46 @@ namespace Griddly.Controllers
         public ActionResult HistoryTest()
         {
             return View();
+        }
+
+
+        public ActionResult Editly()
+        {
+            return View();
+        }
+
+        public ActionResult EditlyGrid(string item, int? quantityStart, int? quantityEnd, decimal? totalStart, decimal? totalEnd, string firstName, string lastName, bool? isApproved)
+        {
+            this.SetGriddlyDefault(ref isApproved, "isApproved", true);
+
+            IQueryable<SimpleOrder> query = _indexTestData;
+
+            if (!string.IsNullOrWhiteSpace(item))
+                query = query.Where(x => x.Item.ToLower().Contains(item.ToLower()));
+
+            if (quantityStart != null && quantityEnd != null)
+                query = query.Where(x => x.Quantity >= quantityStart && x.Quantity <= quantityEnd);
+            if (quantityStart != null)
+                query = query.Where(x => x.Quantity >= quantityStart);
+            if (quantityEnd != null)
+                query = query.Where(x => x.Quantity <= quantityEnd);
+
+            if (totalStart != null && totalEnd != null)
+                query = query.Where(x => x.Total >= totalStart && x.Total <= totalEnd);
+            if (totalStart != null)
+                query = query.Where(x => x.Total >= totalStart);
+            if (totalEnd != null)
+                query = query.Where(x => x.Total <= totalEnd);
+
+            if (!string.IsNullOrWhiteSpace(firstName))
+                query = query.Where(x => x.Person.FirstName.ToLower().Contains(firstName.ToLower()));
+            if (!string.IsNullOrWhiteSpace(lastName))
+                query = query.Where(x => x.Person.LastName.ToLower().Contains(lastName.ToLower()));
+
+            if (isApproved != null)
+                query = query.Where(x => x.IsApproved == isApproved);
+
+            return new QueryableResult<SimpleOrder>(query);
         }
 
         public GriddlyResult TestGrid(string firstName, int? zipStart, int? zipEnd)

@@ -12,7 +12,6 @@ namespace Griddly.Mvc
 
             Enabled = true;
             Action = GriddlyButtonAction.Navigate;
-            ClearSelectionOnAction = true;
 
             ClassName = ((GriddlySettings.DefaultButtonClassName ?? "") + " " + (additionalClassName ?? "")).Trim();
         }
@@ -23,12 +22,12 @@ namespace Griddly.Mvc
         public bool Enabled { get; set; }
         public bool EnableOnSelection { get; set; }
         public bool IsSeparator { get; set; }
-        public bool IsSplitDropdown { get; set; }
+        public GriddlyDropdownCaret DropdownCaret { get; set; }
 
         /// <summary>
-        /// Clear the current row selections after this button is activated (default: true)
+        /// Clear the current row selections after this button is activated (default: null). If null, will be determined during render -- true for ajax buttons and false otherwise.
         /// </summary>
-        public bool ClearSelectionOnAction { get; set; }
+        public bool? ClearSelectionOnAction { get; set; }
 
         public string Text { get; set; }
         public string Title { get; set; }
@@ -37,7 +36,12 @@ namespace Griddly.Mvc
         public string Target { get; set; }
         public string ConfirmMessage { get; set; }
         public bool AlignRight { get; set; }
-        
+
+        /// <summary>
+        /// A function name to use to show the confirm message. Takes two parameters, message and callback. Callback is a function to call to continue the button click if the confirm was accepted.
+        /// </summary>
+        public string ConfirmPromptFunction { get; set; }
+
         /// <summary>
         /// The row ids to include in the button action (default uses grid default)
         /// </summary>
@@ -90,5 +94,12 @@ namespace Griddly.Mvc
         Post,
         Modal,
         PostCriteria
+    }
+
+    public enum GriddlyDropdownCaret
+    {
+        Inline = 0,
+        Split,
+        None
     }
 }
