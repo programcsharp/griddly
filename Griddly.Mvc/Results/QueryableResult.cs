@@ -85,8 +85,14 @@ namespace Griddly.Mvc.Results
                 case SummaryAggregateFunction.Average:
                 case SummaryAggregateFunction.Min:
                 case SummaryAggregateFunction.Max:
-                    c.SummaryValue = _result.Aggregate(c.SummaryFunction.Value.ToString(), c.ExpressionString);
-
+                    try
+                    {
+                        c.SummaryValue = _result.Aggregate(c.SummaryFunction.Value.ToString(), c.ExpressionString);
+                    }
+                    catch (Exception ex) when (ex.InnerException is ArgumentNullException)
+                    {
+                        c.SummaryValue = null;
+                    }
                     break;
 
                 default:

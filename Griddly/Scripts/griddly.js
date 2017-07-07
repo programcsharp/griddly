@@ -1474,7 +1474,7 @@
 
                     if ($.isFunction(f))
                     {
-                        var result = f.call(button, rowIds);
+                        var result = f.call(button, rowIds, event);
 
                         if (clearSelectionOnAction && griddly.length)
                         {
