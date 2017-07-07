@@ -331,7 +331,7 @@
                     if (this.options.rowClickModal)
                     {
                         $(this.options.rowClickModal).removeData("bs.modal").modal({ show: false });
-                        $(".modal-content", this.options.rowClickModal).load(url, $.proxy(function (event)
+                        $(".modal-content", this.options.rowClickModal).load($.trim(url), $.proxy(function (event)
                         {
                             $(this.options.rowClickModal).modal("show");
                         }, this));
@@ -1181,6 +1181,7 @@
 
             $.ajax(this.options.url,
             {
+                type: "post",
                 data: postData,
                 traditional: true,
                 cache: false
