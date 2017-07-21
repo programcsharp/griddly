@@ -280,11 +280,12 @@ namespace Griddly.Mvc
             return Add(button);
         }
 
-        public GriddlySettings ButtonSeparator()
+        public GriddlySettings ButtonSeparator(bool alignRight = false)
         {
             return Add(new GriddlyButton()
             {
-                IsSeparator = true
+                IsSeparator = true,
+                AlignRight = alignRight
             });
         }
 

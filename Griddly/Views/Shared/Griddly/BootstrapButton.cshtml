@@ -101,6 +101,10 @@ else
             @GriddlySettings.IconTemplate(button)
         }
 
+        @if (button.TextTemplate != null)
+        {
+            @button.TextTemplate(button)
+        }
         @button.Text
 
         @if (isDropdown && button.DropdownCaret == GriddlyDropdownCaret.Inline)
