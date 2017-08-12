@@ -888,7 +888,7 @@
             }
             else
             {
-                allFilters = $(".griddly-filters-form input, .griddly-filters-form select", this.$element);
+                allFilters = $(".griddly-filters-form input[name], .griddly-filters-form select[name]", this.$element);
             }
 
             return allFilters;
