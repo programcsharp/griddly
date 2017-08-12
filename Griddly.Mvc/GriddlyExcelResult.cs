@@ -58,10 +58,11 @@ namespace Griddly.Mvc
 
                         if (renderedValue as DateTime? != null)
                         {
-                            if (columns[x].Format == "d")
-                                cell.Style.Numberformat.Format = "mm/dd/yyyy";
-                            else
+                            if (columns[x].Format == "f" || columns[x].Format == "F"
+                                || columns[x].Format == "g" || columns[x].Format == "G")
                                 cell.Style.Numberformat.Format = "mm/dd/yyyy hh:mm";
+                            else
+                                cell.Style.Numberformat.Format = "mm/dd/yyyy";
 
                             cell.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                         }
