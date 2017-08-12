@@ -60,6 +60,8 @@ namespace Griddly.Mvc
                         {
                             if (columns[x].Format == "d")
                                 cell.Style.Numberformat.Format = "mm/dd/yyyy";
+                            else
+                                cell.Style.Numberformat.Format = "mm/dd/yyyy hh:mm";
 
                             cell.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                         }
