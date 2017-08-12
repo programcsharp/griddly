@@ -24,6 +24,7 @@ namespace Griddly.Mvc
         public static FilterMode? DefaultInitialFilterMode = FilterMode.Inline;
         //public static FilterMode? DefaultAllowedFilterModes = FilterMode.Inline;
         public static bool DefaultShowRowSelectCount = true;
+        public static bool ExportCurrencySymbol = true;
 
         public static Func<GriddlyButton, object> IconTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;

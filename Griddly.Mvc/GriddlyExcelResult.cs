@@ -58,12 +58,16 @@ namespace Griddly.Mvc
 
                         if (renderedValue as DateTime? != null)
                         {
-                            cell.Style.Numberformat.Format = "mm/dd/yyyy";
+                            if (columns[x].Format == "d")
+                                cell.Style.Numberformat.Format = "mm/dd/yyyy";
+
                             cell.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                         }
                         else if (columns[x].Format == "c")
                         {
-                            cell.Style.Numberformat.Format = "\"$\"#,##0.00_);(\"$\"#,##0.00)";
+                            if (GriddlySettings.ExportCurrencySymbol)
+                                cell.Style.Numberformat.Format = "\"" + GriddlyExtensions.CurrencySymbol + "\"#,##0.00_);(\"" + GriddlyExtensions.CurrencySymbol + "\"#,##0.00)";
+
                             cell.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                         }
                     }
