@@ -315,6 +315,8 @@
             $("form .griddly-search-reset", this.$element).on("click", $.proxy(function (event)
             {
                 this.resetFilterValues();
+
+                event.preventDefault();
             }, this));
 
             $("a.btn-search, button.btn-search", this.$element).on("click", $.proxy(function (event)
