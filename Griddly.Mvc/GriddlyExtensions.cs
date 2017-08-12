@@ -201,9 +201,31 @@ namespace Griddly.Mvc
         public static Dictionary<string, object> GetGriddlyDefaults(this WebViewPage page)
         {
             Dictionary<string, object> defaults = new Dictionary<string, object>();
+
             foreach (var key in page.ViewData.Keys.Where(k => k.StartsWith("_griddlyDefault_")))
             {
-                defaults[key.Substring("_griddlyDefault_".Length)] = page.ViewData[key];
+                var value = page.ViewData[key];
+                string stringValue = null;
+
+                Type t = null;
+
+                if (value != null)
+                {
+                    t = value.GetType();
+
+                    if (t.IsArray)
+                    { 
+                        t = t.GetElementType();
+
+                        if ((Nullable.GetUnderlyingType(t) ?? t).IsEnum)
+                            value = ((Array)value).Cast<object>().Select(x => x?.ToString()).ToArray();
+                    }
+
+                    if (stringValue == null)
+                        stringValue = value.ToString();
+                }
+
+                defaults[key.Substring("_griddlyDefault_".Length)] = value;
             }
 
             return defaults;
