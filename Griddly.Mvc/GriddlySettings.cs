@@ -80,6 +80,8 @@ namespace Griddly.Mvc
         public List<GriddlyButton> Buttons { get; set; }
         public List<GriddlyExport> Exports { get; set; }
 
+        public Action<GriddlySettings, GriddlyResultPage, HtmlHelper> BeforeRenderThis = null;
+
         public Func<object, object> BeforeTemplate { get; set; }
         public Func<object, object> AfterTemplate { get; set; }
         public Func<GriddlySettings, object> FilterTemplate { get; set; }

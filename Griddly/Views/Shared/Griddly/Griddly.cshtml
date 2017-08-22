@@ -25,7 +25,12 @@
         {
             GriddlySettings.BeforeRender(settings, Model, Html);
         }
-        
+
+        if (settings.BeforeRenderThis != null)
+        {
+            settings.BeforeRenderThis(settings, Model, Html);
+        }
+
         if (settings.AllowedFilterModes == null)
         {
             FilterMode allowedModes = FilterMode.None;
@@ -42,12 +47,12 @@
 
             settings.AllowedFilterModes = allowedModes;
         }
-        
+
         if (settings.AllowedFilterModes != FilterMode.None)
         {
             if (settings.InitialFilterMode == null)
             {
-                if (settings.AllowedFilterModes.Value.HasFlag(FilterMode.Inline))  
+                if (settings.AllowedFilterModes.Value.HasFlag(FilterMode.Inline))
                 {
                     settings.InitialFilterMode = FilterMode.Inline;
                 }
@@ -55,13 +60,13 @@
                 {
                     settings.InitialFilterMode = FilterMode.Form;
                 }
-                
+
                 if (settings.InitialFilterMode == null || settings.InitialFilterMode == FilterMode.Both)
                 {
                     throw new InvalidOperationException("Invalid InitialFilterMode: " + settings.InitialFilterMode + ".");
-                }                
+                }
             }
-            
+
             if (settings.AllowedFilterModes.Value.HasFlag(FilterMode.Inline) && settings.InlineFilterTemplate == null && settings.Columns.Any(x => x.Filter != null))
             {
                 settings.InlineFilterTemplate = (x) => RenderInlineFilters(x);
