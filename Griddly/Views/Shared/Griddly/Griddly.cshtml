@@ -23,7 +23,7 @@
     {
         if (GriddlySettings.BeforeRender != null)
         {
-            GriddlySettings.BeforeRender(settings, Html);
+            GriddlySettings.BeforeRender(settings, Model, Html);
         }
         
         if (settings.AllowedFilterModes == null)
