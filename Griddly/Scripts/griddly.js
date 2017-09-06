@@ -1196,16 +1196,16 @@
                 this.options.pageCount = Math.ceil(this.options.count / this.options.pageSize);
                 // TODO: handle smaller count
 
-                var html = $(data);
+                var html = $("<table>" + data + "</table>");
 
                 // replaceWith is more performant, but using inner html allows us to maintain the tbody element which is potentially important for some other libraries
                 // https://github.com/programcsharp/griddly/issues/79
-                this.$element.find("tbody.data").html(html.filter("tbody").html());
+                this.$element.find("tbody.data").html(html.children("tbody").html());
 
                 var tfoot = this.$element.find("tfoot");
 
-                if (tfoot.length && html.is("tfoot"))
-                    tfoot.replaceWith(html.filter("tfoot"));
+                if (tfoot.length && html.children("tfoot").length)
+                    tfoot.replaceWith(html.children("tfoot"));
 
                 var startRecord = this.options.pageNumber * this.options.pageSize;
                 this.$element.find(".griddly-summary").html('<span class="hidden-xs">Records</span> ' + (startRecord + (this.options.count ? 1 : 0)) + ' <span class="hidden-xs">through</span><span class="visible-xs">-</span> ' + (startRecord + currentPageSize) + " of " + this.options.count);
