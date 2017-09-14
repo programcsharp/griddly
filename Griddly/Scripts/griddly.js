@@ -325,6 +325,7 @@
             $(this.$element).on("mouseup", "tbody.data tr td:not(:has(input))", $.proxy(function (e)
             {
                 var url = $.trim($(e.target).parents("tr").data("griddly-url"));
+                var target = $.trim($(e.target).parents("tr").data("griddly-urltarget"));
 
                 if (url && $(e.target).closest("a").length == 0)
                 {
@@ -338,7 +339,7 @@
                     }
                     else
                     {
-                        if (e.which == 2 || e.ctrlKey)
+                        if (e.which == 2 || e.ctrlKey || target == "_blank")
                             window.open(url);
                         else if (e.which != 3)
                             window.location = url;

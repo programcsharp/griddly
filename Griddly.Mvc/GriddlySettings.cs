@@ -85,6 +85,11 @@ namespace Griddly.Mvc
         public Func<GriddlySettings, object> InlineFilterTemplate { get; set; }
 
         public Func<object, object> RowClickUrl { get; set; }
+
+        /// <summary>
+        /// The anchor tag target for the <seealso cref="RowClickUrl"/>
+        /// </summary>
+        public string RowClickTarget { get; set; }
         public string RowClickModal { get; set; }
         public Func<object, object> RowClass { get; set; }
         public Func<object, object> RowHtmlAttributes { get; set; }
@@ -97,6 +102,11 @@ namespace Griddly.Mvc
         public virtual bool HasRowClickUrl
         {
             get { return RowClickUrl != null; }
+        }
+
+        public virtual bool HasRowClickTarget
+        {
+            get { return !string.IsNullOrWhiteSpace(RowClickTarget); }
         }
 
         public virtual bool HasRowClass
