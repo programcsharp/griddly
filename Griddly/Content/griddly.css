@@ -49,17 +49,17 @@
             cursor: pointer;
         }
 
-            .griddly th.sortable span.icon
-            {
-                width: 0;
-                height: 0;
-                vertical-align: top;
-                border-right: 4px solid transparent;
-                border-left: 4px solid transparent;
-                content: "";
-                margin-top: 7px;
-                display: none;
-            }
+        .griddly th.sorted_a span.icon,
+        .griddly th.sorted_a span.icon {
+            width: 0;
+            height: 0;
+            vertical-align: top;
+            border-right: 4px solid transparent;
+            border-left: 4px solid transparent;
+            content: "";
+            margin-top: 7px;
+            display: none;
+        }
 
         .griddly th.sorted_a span.icon
         {
