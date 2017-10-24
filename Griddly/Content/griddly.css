@@ -10,14 +10,13 @@
 
 .griddly
 {
-    border: 1px solid #ccc;
-    border-radius: 4px;
 }
 
     .griddly table
     {
         border-collapse: collapse;
         margin-bottom: 0;
+        /*overflow-y:hidden*/
     }
 
         .griddly table tbody tr td
@@ -47,18 +46,40 @@
         .griddly th.sortable
         {
             cursor: pointer;
+            position:relative;
         }
 
-        .griddly th.sorted_a span.icon,
-        .griddly th.sorted_a span.icon {
-            width: 0;
-            height: 0;
-            vertical-align: top;
-            border-right: 4px solid transparent;
-            border-left: 4px solid transparent;
-            content: "";
-            margin-top: 7px;
-            display: none;
+            .griddly th.sortable span.icon,
+            .griddly th.sorted_a span.icon,
+            .griddly th.sorted_a span.icon {
+                width: 0;
+                height: 0;
+                vertical-align: top;
+                border-right: 4px solid transparent;
+                border-left: 4px solid transparent;
+                content: "";
+                margin-top: 7px;
+                display: none;
+            }
+
+        .griddly th.sortable:hover {
+            color: black;
+            background-color: #bbb
+        }
+
+            .griddly th.sortable:hover span.icon {
+                border-bottom-color: #000
+            }
+
+            .griddly th.sortable.sorted_a:hover span.icon,
+            .griddly th.sortable:hover span.icon {
+                border-top: none;
+                border-bottom: 4px solid #000;
+            }
+
+        .griddly th.sortable.sorted_d:hover span.icon {
+            border-top: 4px solid #000;
+            border-bottom: none;
         }
 
         .griddly th.sorted_a span.icon
@@ -86,12 +107,34 @@
         background-color: #f0f0f0;
     }
 
+/* https://css-tricks.com/simple-css-row-column-highlighting/ */
+/*.griddly th.sortable:hover::after {
+    content: "";
+    position: absolute;
+    background-color: #ffa;
+    left: 0;
+    top: 0;
+    height: 10000px;
+    width: 100%;
+    z-index: -1;
+}*/
     .griddly .griddly-footer
     {
         background-color: #f0f0f0;
+        border: 2px solid #ccc;
+        border-top-width:1px;
+        border-radius: 0 0 4px 4px;
     }
 
-/*.griddly-scrollable-container::-webkit-scrollbar {  
+.griddly-filter-form .griddly-scrollable-container {
+    overflow-x: auto;
+    clear: both;
+    border: 2px solid #ccc;
+    border-bottom:none;
+    border-radius: 4px 4px 0 0;
+}
+
+.griddly-scrollable-container::-webkit-scrollbar {  
     width: 8px;  
     height:8px;
 }  
@@ -103,7 +146,7 @@
 }  
 .griddly-scrollable-container::-webkit-scrollbar-thumb:hover {  
     background-color: #aaa;  
-}*/
+}
 
 .griddly-filter-popover .popover-content
 {

@@ -319,6 +319,25 @@
                 event.preventDefault();
             }, this));
 
+            $(".griddly-filter-invoke", this.$element).on("click", $.proxy(function (event)
+            {
+                var self = this;
+
+                $(".griddly-filter-modal", this.$element)
+                    .on("show.bs.modal", function ()
+                    {
+                        var values = self.getFilterValues();
+
+                        $(".griddly-filter-cancel", this).off("click").on("click", function ()
+                        {
+                            self.setFilterValues(values);
+                        });
+                    })
+                    .modal("show");
+
+                event.preventDefault();
+            }, this));
+
             $("a.btn-search, button.btn-search", this.$element).on("click", $.proxy(function (event)
             {
                 this.toggleFilterMode();
@@ -855,8 +874,11 @@
 
                 this.options.filterMode = mode;
 
-                this.$element.find("tr.griddly-filters:not(tr.griddly-filters-" + this.options.filterMode.toLowerCase() + ")").hide();
-                this.$element.find("tr.griddly-filters-" + this.options.filterMode.toLowerCase()).show();
+                this.$element.toggleClass("griddly-filter-inline", mode == "Inline");
+                this.$element.toggleClass("griddly-filter-form", mode == "Form");
+
+                this.$element.find(".griddly-filters:not(tr.griddly-filters-" + this.options.filterMode.toLowerCase() + ")").hide();
+                this.$element.find(".griddly-filters-" + this.options.filterMode.toLowerCase()).show();
 
                 this.setFilterValues(currentFilters, true, true);
 

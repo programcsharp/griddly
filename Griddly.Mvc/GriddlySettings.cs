@@ -21,7 +21,7 @@ namespace Griddly.Mvc
         public static HtmlString BoolTrueHtml = null;
         public static HtmlString BoolFalseHtml = null;
         public static int? DefaultPageSize = null;
-        public static FilterMode? DefaultInitialFilterMode = FilterMode.Inline;
+        public static FilterMode? DefaultInitialFilterMode = FilterMode.Form;
         //public static FilterMode? DefaultAllowedFilterModes = FilterMode.Inline;
         public static bool DefaultShowRowSelectCount = true;
         public static bool ExportCurrencySymbol = true;
