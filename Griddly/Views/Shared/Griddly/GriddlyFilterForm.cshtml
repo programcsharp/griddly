@@ -24,6 +24,7 @@
     <div class="griddly-filter-form-group form-group form-group-sm griddly-filter @(filterBox != null ? "griddly-filter-box" : null) @(filterRange != null ? "griddly-filter-range" : null) @(filterList != null ? "griddly-filter-list" : null) @(filterHtml != null ? "griddly-html-filter" : null)"
                     data-filter-name="@filter.Caption" data-filter-name-plural="@filter.CaptionPlural"
                     data-filter-field="@filter.Field"
+                    @Html.AttributeIf("data-filter-fieldend", filterRange != null, x => filterRange.FieldEnd)
                     data-filter-datatype="@filter.DataType.ToString()"
                     @Html.AttributeIf("data-griddly-filter-ismultiple", filterList != null, x => filterList.IsMultiple.ToString().ToLower())
                     @Html.AttributeIf("data-griddly-filter-isnoneall", filterList != null, x => filterList.IsNoneAll.ToString().ToLower())

@@ -940,6 +940,46 @@
                     });
                 }
             }, this));
+
+            $(".griddly-filter-values", this.$element).on("click", ".griddly-remove-filter-value", $.proxy(function (event)
+            {
+                var value = $(event.target).closest(".filter-display-value");
+                var fieldValue = value.data("filter-fieldvalue");
+                var field = value.closest(".filter-display").data("filter-field");
+                var filter = this.getFilterElement(field).closest(".griddly-filter");;
+
+                var values = {};
+
+                if (filter.hasClass("griddly-filter-list") && fieldValue)
+                {
+                    var remainingValues = filter.find("select :checked:not([value='" + fieldValue + "'])");
+
+                    if (remainingValues.length)
+                    {
+                        var replacementValues = [];
+
+                        remainingValues.each(function ()
+                        {
+                            replacementValues.push($(this).val());
+                        });
+
+                        values[field] = replacementValues;
+                    }
+                    else
+                        values[field] = null;
+                }
+                else
+                    values[field] = null;
+
+                if (filter.hasClass("griddly-filter-range"))
+                {
+                    var fieldEnd = filter.data("filter-fieldend");
+
+                    values[fieldEnd] = null;
+                }
+
+                this.setFilterValues(values, true);
+            }, this));
         },
 
         exportFile: function (type, exec, data)
@@ -1000,7 +1040,7 @@
             }
         },
 
-        getAllFilters: function ()
+        getAllFilterElements: function ()
         {
             var allFilters;
 
@@ -1016,9 +1056,19 @@
             return allFilters;
         },
 
+        getFilterElement: function (name)
+        {
+            var filter = "[name='" + name + "']";
+
+            if (this.options.filterMode == "Inline")
+                return this.$inlineFilters.filter(filter);
+            else
+                return $(".griddly-filters-form input" + filter + ", .griddly-filters-form select" + filter, this.$element);
+        },
+
         getFilterValues: function ()
         {
-            var allFilters = this.getAllFilters();
+            var allFilters = this.getAllFilterElements();
 
             if (this.options.filterMode == "Inline")
             {
@@ -1056,7 +1106,7 @@
             var input;
 
             if (typeof (field) === "string")
-                input = this.getAllFilters().filter(field);
+                input = this.getAllFilterElements().filter(field);
             else
                 input = $(field);
 
@@ -1108,7 +1158,7 @@
         {
             this._isUpdatingFilters = true;
 
-            var allFilters = this.getAllFilters();
+            var allFilters = this.getAllFilterElements();
 
             if (isPatch === true)
                 allFilters = allFilters.filter(function (i, e) { return typeof (filters[e.name]) !== "undefined"; });
@@ -1150,7 +1200,7 @@
             if (this.options.filterMode != "Form")
                 return;
 
-            var filters = this.getAllFilters().closest(".griddly-filter-form-group");
+            var filters = this.getAllFilterElements().closest(".griddly-filter");
             var self = this;
 
             this.$element.find(".griddly-filter-values .filter-display").each(function ()
@@ -1230,7 +1280,7 @@
                     {
                         var item = displayItems[i];
 
-                        $(this).append(self.options.renderFilterDisplay(item.content, item.fieldValue));
+                        $(this).append(self.options.renderFilterDisplay(item.content, item.fieldValue) + " ");
                     }
                     $(this).show();
                 }

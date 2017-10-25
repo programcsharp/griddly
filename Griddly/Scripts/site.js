@@ -31,4 +31,10 @@
         });
 });
 
+$(".griddly").on("setfilters.griddly resetfilters.griddly", function ()
+{
+    $(".griddly-filters-form [multiple]").multiselect("refresh");
+});
+
+
 $(".griddly-filters-form select:not([multiple])").multiselect();
