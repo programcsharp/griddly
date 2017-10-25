@@ -12,6 +12,163 @@
 {
     "use strict"; // jshint ;_;
 
+    var isNullOrWhiteSpace = function (str)
+    {
+        return str == null || str.match(/^ *$/) !== null;
+    };
+
+    var trimToNull = function (str)
+    {
+        if (isNullOrWhiteSpace(str))
+            return null;
+        else
+            return str;
+    };
+
+    var getCleanedValue = function (val, dataType)
+    {
+        switch (dataType)
+        {
+            case "Integer":
+                val = String(val).replace(/[^0-9-]/g, "")
+
+                if (val.length > 1)
+                    val = val.substr(0, 1) + val.substr(1).replace(/-/g, "");
+                else if (val == '-')
+                    return null;
+
+                return val;
+            case "Decimal":
+            case "Currency":
+                //case "Percent":
+                val = String(val).replace(/[^0-9,.-]/g, "").replace(/,/g, "");
+
+                if (val.length > 1)
+                    val = val.substr(0, 1) + val.substr(1).replace(/-/g, "");
+                else if (val == '-')
+                    return null;
+
+                return val;
+            case "Date":
+                return String(val).replace(/[^0-9a-zA-Z-\/]/g, "");
+            default:
+                return val;
+        }
+    };
+
+    var getFormattedValue = function (val, dataType, currencySymbol)
+    {
+        val = getCleanedValue(val, dataType);
+
+        switch (dataType)
+        {
+            case "Integer":
+                val = parseInt(val);
+
+                if (!isFinite(val))
+                    val = null;
+
+                return val;
+            case "Decimal":
+            case "Currency":
+                //case "Percent":
+
+                // TODO: filter down to one decimal point
+                // TODO: filter out non numerics
+                val = parseFloat(val);
+
+                if (!isFinite(val))
+                    val = null;
+                else
+                {
+                    val = val.toFixed(2)
+
+                    var x = val.split('.');
+
+                    var x1 = x[0];
+
+                    var x2 = x.length > 1 ? '.' + x[1] : '';
+
+                    var rgx = /(\d+)(\d{3})/;
+
+                    while (rgx.test(x1))
+                    {
+                        x1 = x1.replace(rgx, '$1' + ',' + '$2');
+                    }
+
+                    val = x1 + x2;
+                }
+
+                if (dataType == "Currency")
+                    val = currencySymbol + val;
+                //else if (dataType == "Percent")
+                //    val += "%";
+
+                if (val && val.indexOf(".00", val.length - 3) !== -1)
+                    val = val.substr(0, val.length - 3);
+
+                return val;
+            case "Date":
+                val = parseForValidDate(val);
+
+                if (val == null || !isFinite(val))
+                    return null;
+                else
+                    return (val.getMonth() + 1) + "/" + val.getDate() + "/" + val.getFullYear();
+            default:
+                return val;
+        }
+    };
+
+    var serializeObject = function ($elements)
+    {
+        // http://stackoverflow.com/a/1186309/8037
+        var data = {};
+
+        $.each($elements.serializeArray(), function ()
+        {
+            if (data[this.name] !== undefined)
+            {
+                if (!data[this.name].push)
+                    data[this.name] = [data[this.name]];
+
+                data[this.name].push(this.value || '');
+            }
+            else
+            {
+                data[this.name] = this.value || '';
+            }
+        });
+
+        return data;
+    };
+
+    // http://stackoverflow.com/q/8098202
+    var parseForValidDate = function (text)
+    {
+
+        var date = Date.parse(text);
+
+        if (isNaN(date))
+            return null;
+
+        var comp = text.split('/');
+
+        if (comp.length !== 3)
+            return null;
+
+        var m = parseInt(comp[0], 10);
+        var d = parseInt(comp[1], 10);
+        var y = parseInt(comp[2], 10);
+
+        date = new Date(y, m - 1, d);
+
+        if (date.getFullYear() == y && date.getMonth() + 1 == m && date.getDate() == d)
+            return date;
+        else
+            return null;
+    };
+
     var Griddly = function (element, options)
     {
         this.$element = $(element);
@@ -152,55 +309,6 @@
         this.isConstructed = true;
     };
 
-    var serializeObject = function ($elements)
-    {
-        // http://stackoverflow.com/a/1186309/8037
-        var data = {};
-
-        $.each($elements.serializeArray(), function ()
-        {
-            if (data[this.name] !== undefined)
-            {
-                if (!data[this.name].push)
-                    data[this.name] = [data[this.name]];
-
-                data[this.name].push(this.value || '');
-            }
-            else
-            {
-                data[this.name] = this.value || '';
-            }
-        });
-
-        return data;
-    };
-
-    // http://stackoverflow.com/q/8098202
-    var parseForValidDate = function (text)
-    {
-
-        var date = Date.parse(text);
-
-        if (isNaN(date))
-            return null;
-
-        var comp = text.split('/');
-
-        if (comp.length !== 3)
-            return null;
-
-        var m = parseInt(comp[0], 10);
-        var d = parseInt(comp[1], 10);
-        var y = parseInt(comp[2], 10);
-
-        date = new Date(y, m - 1, d);
-
-        if (date.getFullYear() == y && date.getMonth() + 1 == m && date.getDate() == d)
-            return date;
-        else
-            return null;
-    };
-
     Griddly.prototype = {
         constructor: Griddly,
 
@@ -331,6 +439,10 @@
                         $(".griddly-filter-cancel", this).off("click").on("click", function ()
                         {
                             self.setFilterValues(values);
+                        });
+                        $("[type=submit]", this).off("click").on("click", function ()
+                        {
+                            $(".griddly-filter-modal", this.$element).modal("hide");
                         });
                     })
                     .modal("show");
@@ -564,19 +676,6 @@
                 });*/
             });
 
-            var isNullOrWhiteSpace = function (str)
-            {
-                return str == null || str.match(/^ *$/) !== null;
-            }
-
-            var trimToNull = function (str)
-            {
-                if (isNullOrWhiteSpace(str))
-                    return null;
-                else
-                    return str;
-            }
-
             this.$inlineFilters = $(".griddly-filters-inline .filter-content input, .griddly-filters-inline .griddly-filter.griddly-html-filter input", this.$element);
 
             $(".griddly-filters-inline .filter-content input", this.$element).on("change", $.proxy(function (event, dontHide)
@@ -597,16 +696,16 @@
                     if (!dontHide)
                         filter.find(".filter-trigger").popover("hide");
 
-                    var val = trimToNull(this.getCleanedValue(content.find("input").first().val(), dataType));
+                    var val = trimToNull(getCleanedValue(content.find("input").first().val(), dataType));
 
                     content.find("input").first().val(val)
 
                     if (val != null)
                     {
                         if (dataType == "String")
-                            display = 'Contains "' + this.getFormattedValue(val, dataType) + '"';
+                            display = 'Contains "' + getFormattedValue(val, dataType, this.options.currencySymbol) + '"';
                         else
-                            display = this.getFormattedValue(val, dataType);
+                            display = getFormattedValue(val, dataType, this.options.currencySymbol);
                     }
 
                     if (display == null)
@@ -618,18 +717,18 @@
                 }
                 else if (filter.hasClass("griddly-filter-range"))
                 {
-                    var val = trimToNull(this.getCleanedValue(content.find("input").first().val(), dataType));
-                    var valEnd = trimToNull(this.getCleanedValue(content.find("input").last().val(), dataType));
+                    var val = trimToNull(getCleanedValue(content.find("input").first().val(), dataType));
+                    var valEnd = trimToNull(getCleanedValue(content.find("input").last().val(), dataType));
 
                     content.find("input").first().val(val)
                     content.find("input").last().val(valEnd)
 
                     if (val != null && valEnd != null)
-                        display = this.getFormattedValue(val, dataType) + " - " + this.getFormattedValue(valEnd, dataType);
+                        display = getFormattedValue(val, dataType, this.options.currencySymbol) + " - " + getFormattedValue(valEnd, dataType, this.options.currencySymbol);
                     else if (val != null)
-                        display = (dataType == "Date" ? "After " : ">= ") + this.getFormattedValue(val, dataType);
+                        display = (dataType == "Date" ? "After " : ">= ") + getFormattedValue(val, dataType, this.options.currencySymbol);
                     else if (valEnd != null)
-                        display = (dataType == "Date" ? "Before " : "<= ") + this.getFormattedValue(valEnd, dataType);
+                        display = (dataType == "Date" ? "Before " : "<= ") + getFormattedValue(valEnd, dataType, this.options.currencySymbol);
 
                     if (display == null || (dataType != "String" && display.indexOf("null") != -1))
                     {
@@ -1023,6 +1122,8 @@
 
             this._isUpdatingFilters = false;
 
+            this.updateFilterDisplay();
+
             if (!noRefresh)
                 this.refresh(true);
         },
@@ -1039,102 +1140,103 @@
 
             this.triggerOrQueue(this.$element, "resetfilters.griddly");
 
+            this.updateFilterDisplay();
+
             this.refresh(true);
         },
 
-        getCleanedValue: function (val, dataType)
+        updateFilterDisplay: function ()
         {
-            switch (dataType)
+            if (this.options.filterMode != "Form")
+                return;
+
+            var filters = this.getAllFilters().closest(".griddly-filter-form-group");
+            var self = this;
+
+            this.$element.find(".griddly-filter-values .filter-display").each(function ()
             {
-                case "Integer":
-                    val = String(val).replace(/[^0-9-]/g, "")
+                var field = $(this).data("filter-field");
+                var filter = filters.filter("[data-filter-field='" + field + "']");
+                var content = filter;
+                //var key = $(this).data("griddly-filter-field");
+                //var endKey = $(this).data("griddly-filter-fieldend");
 
-                    if (val.length > 1)
-                        val = val.substr(0, 1) + val.substr(1).replace(/-/g, "");
-                    else if (val == '-')
-                        return null;
+                var dataType = filter.data("filter-datatype");
+                var displayItems = [];
 
-                    return val;
-                case "Decimal":
-                case "Currency":
-                    //case "Percent":
-                    val = String(val).replace(/[^0-9,.-]/g, "").replace(/,/g, "");
+                // TODO: shove formatted values back into boxes to ensure post is correct?
+                // TODO: for numbers, do correctly shredded numeric (no symbols, but numbers and decimals etc.)
+                // TODO: for dates, push actual formatted date
+                if (!filter.hasClass("griddly-filter-list"))
+                {
+                    var display = null;
+                    var val = trimToNull(getCleanedValue(content.find("input").first().val(), dataType));
+                    var valEnd = trimToNull(getCleanedValue(content.find("input").last().val(), dataType));
 
-                    if (val.length > 1)
-                        val = val.substr(0, 1) + val.substr(1).replace(/-/g, "");
-                    else if (val == '-')
-                        return null;
-
-                    return val;
-                case "Date":
-                    return String(val).replace(/[^0-9a-zA-Z-\/]/g, "");
-                default:
-                    return val;
-            }
-        },
-
-        getFormattedValue: function (val, dataType)
-        {
-            val = this.getCleanedValue(val, dataType);
-
-            switch (dataType)
-            {
-                case "Integer":
-                    val = parseInt(val);
-
-                    if (!isFinite(val))
-                        val = null;
-
-                    return val;
-                case "Decimal":
-                case "Currency":
-                    //case "Percent":
-
-                    // TODO: filter down to one decimal point
-                    // TODO: filter out non numerics
-                    val = parseFloat(val);
-
-                    if (!isFinite(val))
-                        val = null;
-                    else
+                    if (val != null || valEnd != null)
                     {
-                        val = val.toFixed(2)
+                        display = filter.data("filter-name") + " ";
 
-                        var x = val.split('.');
-
-                        var x1 = x[0];
-
-                        var x2 = x.length > 1 ? '.' + x[1] : '';
-
-                        var rgx = /(\d+)(\d{3})/;
-
-                        while (rgx.test(x1))
+                        if (filter.hasClass("griddly-filter-box"))
                         {
-                            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+                            if (dataType == "String")
+                                display += 'contains "' + getFormattedValue(val, dataType, self.options.currencySymbol) + '"';
+                            else
+                                display += ' = ' + getFormattedValue(val, dataType, self.options.currencySymbol);
                         }
-
-                        val = x1 + x2;
+                        else if (filter.hasClass("griddly-filter-range"))
+                        {
+                            if (val != null && valEnd != null)
+                                display += 'from ' + getFormattedValue(val, dataType, self.options.currencySymbol) + " to " + getFormattedValue(valEnd, dataType, self.options.currencySymbol);
+                            else if (val != null)
+                                display += (dataType == "Date" ? "after " : ">= ") + getFormattedValue(val, dataType, self.options.currencySymbol);
+                            else if (valEnd != null)
+                                display += (dataType == "Date" ? "before " : "<= ") + getFormattedValue(valEnd, dataType, self.options.currencySymbol);
+                        }
                     }
 
-                    if (dataType == "Currency")
-                        val = this.options.currencySymbol + val;
-                    //else if (dataType == "Percent")
-                    //    val += "%";
+                    if (display != null)
+                        displayItems.push({ content: display });
+                }
+                else
+                {
+                    var allItems = content.find("select option");
+                    var selectedItems = allItems.filter(":checked");
+                    var displayItemCount = parseInt(filter.data("griddly-filter-displayitemcount"));
+                    var displayIncludeCaption = filter.data("griddly-filter-displayincludecaption");
 
-                    if (val && val.indexOf(".00", val.length - 3) !== -1)
-                        val = val.substr(0, val.length - 3);
+                    if (selectedItems.length == allItems.length
+                        || (filter.data("griddly-filter-isnoneall") && selectedItems.length == 0)
+                        || (!filter.data("griddly-filter-ismultiple") && content.find("select").val().length == 0))
+                    {
 
-                    return val;
-                case "Date":
-                    val = parseForValidDate(val);
+                    }
+                    else if (selectedItems.length > displayItemCount)
+                    {
+                        displayItems.push({ content: selectedItems.length + " " + filter.data("filter-name-plural") });
+                    }
+                    else if (selectedItems.length > 0 && selectedItems.length <= displayItemCount)
+                    {
+                        for (var i = 0; i < selectedItems.length ; i++)
+                            displayItems.push({ content: (displayIncludeCaption ? filter.data("filter-name") + ": " : "") + $.trim($(selectedItems[i]).text()), fieldValue: $(selectedItems[i]).val() });
+                    }
+                }
 
-                    if (val == null || !isFinite(val))
-                        return null;
-                    else
-                        return (val.getMonth() + 1) + "/" + val.getDate() + "/" + val.getFullYear();
-                default:
-                    return val;
-            }
+                if (displayItems.length)
+                {
+                    $(this).empty();
+
+                    for (var i = 0; i < displayItems.length; i++)
+                    {
+                        var item = displayItems[i];
+
+                        $(this).append(self.options.renderFilterDisplay(item.content, item.fieldValue));
+                    }
+                    $(this).show();
+                }
+                else
+                    $(this).hide();
+            });
         },
 
         buildRequest: function (paging)
@@ -1201,6 +1303,8 @@
 
                 history.replaceState(globalState, document.title);
             }
+
+            this.updateFilterDisplay();
 
             // TODO: cancel any outstanding calls
 
@@ -1390,7 +1494,14 @@
         filterMode: null,
         allowedFilterModes: [],
         currencySymbol: "$",
-        confirmPromptFunction: null
+        confirmPromptFunction: null,
+        renderFilterDisplay: function (content, fieldValue)
+        {
+            return '<span class="filter-display-value" ' + (fieldValue != null ? 'data-filter-fieldvalue="' + fieldValue + '"' : "") + '>' +
+                content +
+                ' <a href="javascript:void(0)" class="griddly-remove-filter-value"><i class="glyphicon glyphicon-remove"></i></a>' +
+                '</span>';
+        }
     }, $.fn.griddlyGlobalDefaults);
 
     function GriddlyButton()

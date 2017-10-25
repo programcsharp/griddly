@@ -265,6 +265,7 @@
 @helper RenderFormFilters(GriddlySettings settings)
 {
     <a class="btn btn-default griddly-filter-invoke"><i class="glyphicon glyphicon-filter"></i> Filter</a>
+    @Html.Partial("Griddly/GriddlyFilterValues", settings)
     <div class="modal griddly-filter-modal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -279,7 +280,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default griddly-filter-cancel" data-dismiss="modal">Cancel</button>
                         <button type="reset" class="btn btn-default griddly-search-reset">Reset</button>
-                        <button type="submit" class="btn btn-primary" data-dismiss="modal">Search</button>
+                        <button type="submit" class="btn btn-primary">Search</button>
                     </div>
                 </form>
             </div>

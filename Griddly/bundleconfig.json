@@ -1,0 +1,14 @@
+[
+  {
+    "outputFileName": "Scripts/bootstrap-multiselect.min.js",
+    "inputFiles": [
+      "Scripts/bootstrap-multiselect.js"
+    ]
+  },
+  {
+    "outputFileName": "Content/bootstrap-multiselect.min.css",
+    "inputFiles": [
+      "Content/bootstrap-multiselect.css"
+    ]
+  }
+]

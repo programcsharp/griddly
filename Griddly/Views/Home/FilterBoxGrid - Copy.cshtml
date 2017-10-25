@@ -41,27 +41,25 @@
                 .Add(new GriddlyButton() { Text = "UrlHelper Test", Argument = Url.Action("About") })
         }
     }
-    .Column(x => x.Id, filter: x => x.FilterBox(FilterDataType.Integer))
-    .Column(x => x.Item, filter: x => x.FilterList(groupedList))
-    .Column(x => x.FirstName, "First Name", filter: x => x.FilterBox(FilterDataType.String))
-    .Column(x => x.LastName, "Last Name", filter: x => x.FilterBox(FilterDataType.String))
-    .Column(x => x.Address, filter: x => x.FilterBox(FilterDataType.String))
-    .Column(x => x.City, filter: x => x.FilterBox(FilterDataType.String))
-    .Column(x => x.State, filter: x =>
+    .Column("test", template: @<a href="http://google.com">google</a>, summaryValue: "Total")
+    .Column(x => x.Test, "Sum", format: "c", summaryFunction: SummaryAggregateFunction.Sum)
+    .Column(x => x.Test, "Min", format: "c", summaryFunction: SummaryAggregateFunction.Min, filter: x => x.FilterList(new[] { new SelectListItem() { Text = "xxx" } }, nullItemText: "[none]", isNoneAll: true))
+    .Column(x => x.Test, "Max", format: "c", summaryFunction: SummaryAggregateFunction.Max)
+    .Column(x => x.Test, "Avg", format: "c", summaryFunction: SummaryAggregateFunction.Average, filter: x => x.FilterList(groupedList))
+    .Column(x => x.FirstName, "First Name", filter: x =>
     {
         GriddlyFilterList filter = x.FilterList(TestGridItem.UsStates);
 
-        //filter.CaptionPlural = "State";
+        filter.CaptionPlural = "State";
         filter.DisplayItemCount = 2;
 
         return filter;
     })
-    .Column(x => x.PostalCode, "Zip", filter: x => x.FilterBox(FilterDataType.String))
-    .Column(x => x.Quantity, filter: x => x.FilterRange(FilterDataType.Integer))
-    .Column(x => x.Total, format: "c", filter: x => x.FilterRange(FilterDataType.Currency))
-    .Column(x => x.Date, filter: x => x.FilterRange(FilterDataType.Date))
-    .Column(x => x.IsApproved, "Approved", filter: x => x.FilterBool(nullItemText: "Both", isNoneAll: true))
-
+    .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending, filter: x => x.FilterBox(FilterDataType.String))
+    .Column(x => x.Company, "Company", filter: x => x.FilterBox(FilterDataType.Decimal))
+    .Column(x => x.Address, "Address", filter: x => x.FilterBox(FilterDataType.Currency))
+    .Column(x => x.City, "City", filter: x => x.FilterBox(FilterDataType.Date))
+    .Column(x => x.PostalCode, "Zip", filter: x => x.FilterBox(FilterDataType.Integer))
     .Button(x => "javascript:void(0)", "Search", className: "btn-search", action: GriddlyButtonAction.Navigate )
         .Add(new GriddlyButton("btn-search") { Text = "Show Filter Form" })
 
