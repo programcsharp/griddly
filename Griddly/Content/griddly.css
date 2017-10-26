@@ -223,10 +223,20 @@
     display:block;
 }
 
-.griddly-selection 
+.griddly-filter-statusall-show,
+.griddly-filter-statusfiltered-show 
 {
-    white-space:nowrap;
-    vertical-align:top;
+    display:none
+}
+
+.griddly-filter-statusall .griddly-filter-statusall-show,
+.griddly-filter-statusfiltered .griddly-filter-statusfiltered-show {
+    display: inline
+}
+
+.griddly-selection {
+    white-space: nowrap;
+    vertical-align: top;
 }
     .griddly-selection-count
     {

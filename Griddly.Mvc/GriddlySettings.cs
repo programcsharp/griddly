@@ -68,6 +68,7 @@ namespace Griddly.Mvc
         public string TableClassName { get; set; }
         public FilterMode? AllowedFilterModes { get; set; }
         public FilterMode? InitialFilterMode { get; set; }
+        public bool IsFilterFormInline { get; set; }
         public bool ShowRowSelectCount { get; set; }
         public IDictionary<string, object> HtmlAttributes { get; set; }
         public IDictionary<string, object> TableHtmlAttributes { get; set; }
