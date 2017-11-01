@@ -1350,6 +1350,8 @@
 
             this.$element.toggleClass("griddly-filter-statusfiltered", hasFilter);
             this.$element.toggleClass("griddly-filter-statusall", !hasFilter);
+
+            this.triggerOrQueue(this.$element, "updatefilterdisplay.griddly");
         },
 
         buildRequest: function (paging)
