@@ -1057,6 +1057,10 @@
                         $(".griddly-filter-modal", this.$element).modal("hide");
                     });
                 })
+                .on("shown.bs.modal", function ()
+                {
+                    $(".modal-body :input:visible:not([disabled]):first", this).focus();
+                })
                 .modal("show");
         },
 
