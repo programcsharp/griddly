@@ -445,9 +445,11 @@
 
             $("a.btn-search, button.btn-search", this.$element).on("click", $.proxy(function (event)
             {
-                if (this.options.allowedFilterModes.length > 1 && this.options.filterMode == "Inline" && !this.options.isFilterFormInline)
+                if (!this.options.isFilterFormInline)
                 {
-                    this.setFilterMode("Form", true);
+                    if (this.options.filterMode == "Inline")
+                        this.setFilterMode("Form", true);
+
                     this.invokeFilterModal();
                 }
                 else
