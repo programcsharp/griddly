@@ -417,6 +417,8 @@
 
             $("form", this.$element).on("submit", $.proxy(function (event)
             {
+                $(event.currentTarget).closest(".griddly-filter-modal").modal("hide");
+
                 this.refresh(true);
 
                 event.preventDefault();
@@ -424,14 +426,18 @@
 
             $("form .griddly-search-reset", this.$element).on("click", $.proxy(function (event)
             {
-                this.resetFilterValues();
+                var refresh = $(event.currentTarget).closest(".modal").length == 0;
+
+                this.resetFilterValues(refresh);
 
                 event.preventDefault();
             }, this));
 
             $(".griddly-search-clear", this.$element).on("click", $.proxy(function (event)
             {
-                this.clearFilterValues();
+                var refresh = $(event.currentTarget).closest(".modal").length == 0;
+
+                this.clearFilterValues(refresh);
 
                 event.preventDefault();
             }, this));
@@ -1054,10 +1060,6 @@
                     {
                         self.setFilterValues(values);
                     });
-                    $("[type=submit]", this).off("click").on("click", function ()
-                    {
-                        $(".griddly-filter-modal", this.$element).modal("hide");
-                    });
                 })
                 .on("shown.bs.modal", function ()
                 {
@@ -1204,7 +1206,7 @@
                 this.refresh(true);
         },
 
-        resetFilterValues: function ()
+        resetFilterValues: function (refresh)
         {
             this.$element.find("form .transient").remove();
             this.$element.find("form")[0].reset();
@@ -1218,10 +1220,11 @@
 
             this.updateFilterDisplay();
 
-            this.refresh(true);
+            if (refresh != false)
+                this.refresh();
         },
 
-        clearFilterValues: function ()
+        clearFilterValues: function (refresh)
         {
             this.$element.find("form .transient").remove();
 
@@ -1234,7 +1237,8 @@
 
             this.updateFilterDisplay();
 
-            this.refresh(true);
+            if (refresh != false)
+                this.refresh();
         },
 
         updateFilterDisplay: function ()
