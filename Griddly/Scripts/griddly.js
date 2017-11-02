@@ -1058,7 +1058,8 @@
 
                     $(".griddly-filter-cancel", this).off("click").on("click", function ()
                     {
-                        self.setFilterValues(values);
+                        if (self.$element.triggerHandler("beforeclear.griddly") !== false)
+                            self.setFilterValues(values);
                     });
                 })
                 .on("shown.bs.modal", function ()
@@ -1304,7 +1305,7 @@
 
                         if (selectedItems.length == allItems.length
                             || (filter.data("griddly-filter-isnoneall") && selectedItems.length == 0)
-                            || (!filter.data("griddly-filter-ismultiple") && content.find("select").val().length == 0))
+                            || (!filter.data("griddly-filter-ismultiple") && (content.find("select").val() || "").length == 0))
                         {
 
                         }
