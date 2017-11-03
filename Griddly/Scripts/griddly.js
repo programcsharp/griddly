@@ -1059,7 +1059,7 @@
                     $(".griddly-filter-cancel", this).off("click").on("click", function ()
                     {
                         if (self.$element.triggerHandler("beforeclear.griddly") !== false)
-                            self.setFilterValues(values);
+                            self.setFilterValues(values, null, false, true);
                     });
                 })
                 .on("shown.bs.modal", function ()
@@ -1183,7 +1183,7 @@
             $(input[0]).change();
         },
 
-        setFilterValues: function (filters, isPatch, noRefresh)
+        setFilterValues: function (filters, isPatch, noRefresh, resetNone)
         {
             this._isUpdatingFilters = true;
 
@@ -1196,6 +1196,10 @@
             {
                 this.setFilterValue(e, filters[e.name]);
             }, this));
+
+            if (resetNone)
+                // clear any none's that were inadvertently reset
+                this.$element.find(".griddly-filters-form [data-griddly-filter-isnoneall=true] [multiple] option[value='']").prop("selected", false);
 
             this.triggerOrQueue(this.$element, "setfilters.griddly", filters);
 
@@ -1212,10 +1216,7 @@
             this.$element.find("form .transient").remove();
             this.$element.find("form")[0].reset();
 
-            this.setFilterValues(this.options.filterDefaults, null, true);
-
-            // clear any none's that were inadvertently reset
-            this.$element.find(".griddly-filters-form [data-griddly-filter-isnoneall=true] [multiple] option[value='']").prop("selected", false);
+            this.setFilterValues(this.options.filterDefaults, null, true, true);
 
             this.triggerOrQueue(this.$element, "resetfilters.griddly");
 
@@ -1229,10 +1230,7 @@
         {
             this.$element.find("form .transient").remove();
 
-            this.setFilterValues({}, false, true);
-
-            // clear any none's that were inadvertently reset
-            this.$element.find(".griddly-filters-form [data-griddly-filter-isnoneall=true] [multiple] option[value='']").prop("selected", false);
+            this.setFilterValues({}, false, true, true);
 
             this.triggerOrQueue(this.$element, "resetfilters.griddly");
 
