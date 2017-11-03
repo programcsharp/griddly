@@ -467,7 +467,7 @@
                 var url = $.trim($(e.target).parents("tr").data("griddly-url"));
                 var target = $.trim($(e.target).parents("tr").data("griddly-urltarget"));
 
-                if (url && $(e.target).closest("a").length == 0)
+                if (url && $(e.target).closest("a").length == 0 && $(e.target).closest("td").find("[data-toggle=dropdown]").length == 0)
                 {
                     if (this.options.rowClickModal)
                     {
