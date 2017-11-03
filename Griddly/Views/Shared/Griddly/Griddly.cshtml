@@ -19,18 +19,18 @@
     bool simple = ViewBag.isSimpleGriddly == true;
     bool isFirstRender = simple || ViewContext.Controller.ControllerContext.IsChildAction;
 
+    if (GriddlySettings.OnBeforeRender != null)
+    {
+        GriddlySettings.OnBeforeRender(settings, Model, Html, isFirstRender);
+    }
+
+    if (settings.BeforeRender != null)
+    {
+        settings.BeforeRender(settings, Model, Html, isFirstRender);
+    }
+
     if (isFirstRender)
     {
-        if (GriddlySettings.BeforeRender != null)
-        {
-            GriddlySettings.BeforeRender(settings, Model, Html);
-        }
-
-        if (settings.BeforeRenderThis != null)
-        {
-            settings.BeforeRenderThis(settings, Model, Html);
-        }
-
         if (settings.AllowedFilterModes == null)
         {
             FilterMode allowedModes = FilterMode.None;

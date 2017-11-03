@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -36,7 +35,7 @@ namespace Griddly.Mvc
         /// First argument is the record set. Second argument is the posted form values.
         /// </summary>
         public static Func<GriddlyResult, NameValueCollection, ActionResult> HandleCustomExport = null;
-        public static Action<GriddlySettings, GriddlyResultPage, HtmlHelper> BeforeRender = null;
+        public static Action<GriddlySettings, GriddlyResultPage, HtmlHelper, bool> OnBeforeRender = null;
         public static Action<GriddlySettings, ControllerContext> OnGriddlyResultExecuting = null;
 
         public GriddlySettings()
@@ -81,7 +80,7 @@ namespace Griddly.Mvc
         public List<GriddlyButton> Buttons { get; set; }
         public List<GriddlyExport> Exports { get; set; }
 
-        public Action<GriddlySettings, GriddlyResultPage, HtmlHelper> BeforeRenderThis = null;
+        public Action<GriddlySettings, GriddlyResultPage, HtmlHelper, bool> BeforeRender = null;
 
         public Func<object, object> BeforeTemplate { get; set; }
         public Func<object, object> AfterTemplate { get; set; }
