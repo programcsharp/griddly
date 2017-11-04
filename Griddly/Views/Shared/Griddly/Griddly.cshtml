@@ -307,8 +307,15 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default griddly-filter-cancel" data-dismiss="modal">Cancel</button>
-                        <button type="reset" class="btn btn-default griddly-search-reset">Reset</button>
-                        <button type="reset" class="btn btn-default griddly-search-clear">Clear</button>
+                        <div class="btn-group pull-left">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Reset <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="griddly-search-reset" href="javascript:void(0)">System Default</a></li>
+                                <li><a class="griddly-search-clear" href="javascript:void(0)">Clear (Show All)</a></li>
+                            </ul>
+                        </div>
                         <button type="submit" class="btn btn-primary">Search</button>
                     </div>
                 </form>
