@@ -1455,7 +1455,7 @@
                     tfoot.replaceWith(html.children("tfoot"));
 
                 var startRecord = this.options.pageNumber * this.options.pageSize;
-                this.$element.find(".griddly-summary").html('<span class="hidden-xs">Records</span> ' + (startRecord + (this.options.count ? 1 : 0)) + ' <span class="hidden-xs">through</span><span class="visible-xs">-</span> ' + (startRecord + currentPageSize) + " of " + this.options.count);
+                this.$element.find(".griddly-summary").html('<span class="hidden-xs">Records</span> ' + (startRecord + (this.options.count ? 1 : 0)) + ' <span class="hidden-xs">through</span><span class="visible-xs-inline">-</span> ' + (startRecord + currentPageSize) + " of " + this.options.count);
 
                 this.$element.find(".pageCount").html(this.options.pageCount);
 
