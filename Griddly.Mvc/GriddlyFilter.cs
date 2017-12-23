@@ -107,6 +107,7 @@ namespace Griddly.Mvc
         public bool IsNoneAll { get; set; }
         public bool IsNullable { get; set; }
         public bool DefaultSelectAll { get; set; }
+        public bool DisplayIncludeCaption { get; set; }
 
         public int DisplayItemCount { get; set; }
 

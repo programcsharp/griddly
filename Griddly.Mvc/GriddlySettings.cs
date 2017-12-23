@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -21,7 +20,7 @@ namespace Griddly.Mvc
         public static HtmlString BoolTrueHtml = null;
         public static HtmlString BoolFalseHtml = null;
         public static int? DefaultPageSize = null;
-        public static FilterMode? DefaultInitialFilterMode = FilterMode.Inline;
+        public static FilterMode? DefaultInitialFilterMode = FilterMode.Form;
         //public static FilterMode? DefaultAllowedFilterModes = FilterMode.Inline;
         public static bool DefaultShowRowSelectCount = true;
         public static bool ExportCurrencySymbol = true;
@@ -36,7 +35,7 @@ namespace Griddly.Mvc
         /// First argument is the record set. Second argument is the posted form values.
         /// </summary>
         public static Func<GriddlyResult, NameValueCollection, ActionResult> HandleCustomExport = null;
-        public static Action<GriddlySettings, GriddlyResultPage, HtmlHelper> BeforeRender = null;
+        public static Action<GriddlySettings, GriddlyResultPage, HtmlHelper, bool> OnBeforeRender = null;
         public static Action<GriddlySettings, ControllerContext> OnGriddlyResultExecuting = null;
 
         public GriddlySettings()
@@ -68,6 +67,7 @@ namespace Griddly.Mvc
         public string TableClassName { get; set; }
         public FilterMode? AllowedFilterModes { get; set; }
         public FilterMode? InitialFilterMode { get; set; }
+        public bool IsFilterFormInline { get; set; }
         public bool ShowRowSelectCount { get; set; }
         public IDictionary<string, object> HtmlAttributes { get; set; }
         public IDictionary<string, object> TableHtmlAttributes { get; set; }
@@ -80,7 +80,7 @@ namespace Griddly.Mvc
         public List<GriddlyButton> Buttons { get; set; }
         public List<GriddlyExport> Exports { get; set; }
 
-        public Action<GriddlySettings, GriddlyResultPage, HtmlHelper> BeforeRenderThis = null;
+        public Action<GriddlySettings, GriddlyResultPage, HtmlHelper, bool> BeforeRender = null;
 
         public Func<object, object> BeforeTemplate { get; set; }
         public Func<object, object> AfterTemplate { get; set; }
@@ -206,26 +206,26 @@ namespace Griddly.Mvc
             return Add(GriddlyFilterExtensions.FilterRange(null, dataType, field, fieldEnd, caption, htmlClass, captionPlural));
         }
 
-        public GriddlySettings FilterList(string field, string caption, IEnumerable<SelectListItem> items, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string htmlClass = null, string captionPlural = null)
+        public GriddlySettings FilterList(string field, string caption, IEnumerable<SelectListItem> items, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string htmlClass = null, string captionPlural = null, bool displayIncludeCaption = false)
         {
-            return Add(GriddlyFilterExtensions.FilterList(null, items, isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural));
+            return Add(GriddlyFilterExtensions.FilterList(null, items, isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural, displayIncludeCaption));
         }
 
-        public GriddlySettings FilterEnum<T>(string field, string caption, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string htmlClass = null, string captionPlural = null)
+        public GriddlySettings FilterEnum<T>(string field, string caption, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string htmlClass = null, string captionPlural = null, bool displayIncludeCaption = false)
             where T : struct
         {
-            return Add(GriddlyFilterExtensions.FilterEnum<T>(null, isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural));
+            return Add(GriddlyFilterExtensions.FilterEnum<T>(null, isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural, displayIncludeCaption));
         }
 
-        public GriddlySettings FilterEnum<T>(string field, string caption, IEnumerable<T> items, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string htmlClass = null, string captionPlural = null)
+        public GriddlySettings FilterEnum<T>(string field, string caption, IEnumerable<T> items, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string htmlClass = null, string captionPlural = null, bool displayIncludeCaption = false)
             where T : struct
         {
-            return Add(GriddlyFilterExtensions.FilterEnum<T>(null, items, isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural));
+            return Add(GriddlyFilterExtensions.FilterEnum<T>(null, items, isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural, displayIncludeCaption));
         }
 
-        public GriddlySettings FilterBool(string field, string caption, string trueLabel = "Yes", string falseLabel = "No", string nullItemText = null, bool isMultiple = false, bool defaultSelectAll = false, bool isNoneAll = false, string htmlClass = null, string captionPlural = null)
+        public GriddlySettings FilterBool(string field, string caption, string trueLabel = "Yes", string falseLabel = "No", string nullItemText = null, bool isMultiple = false, bool defaultSelectAll = false, bool isNoneAll = false, string htmlClass = null, string captionPlural = null, bool displayIncludeCaption = true)
         {
-            return Add(GriddlyFilterExtensions.FilterBool(null, trueLabel, falseLabel, nullItemText, isMultiple, defaultSelectAll, isNoneAll, field, caption, htmlClass, captionPlural));
+            return Add(GriddlyFilterExtensions.FilterBool(null, trueLabel, falseLabel, nullItemText, isMultiple, defaultSelectAll, isNoneAll, field, caption, htmlClass, captionPlural, displayIncludeCaption));
         }
 
         public GriddlySettings Add(GriddlyFilter filter)

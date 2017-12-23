@@ -12,6 +12,163 @@
 {
     "use strict"; // jshint ;_;
 
+    var isNullOrWhiteSpace = function (str)
+    {
+        return str == null || str.match(/^ *$/) !== null;
+    };
+
+    var trimToNull = function (str)
+    {
+        if (isNullOrWhiteSpace(str))
+            return null;
+        else
+            return str;
+    };
+
+    var getCleanedValue = function (val, dataType)
+    {
+        switch (dataType)
+        {
+            case "Integer":
+                val = String(val).replace(/[^0-9-]/g, "")
+
+                if (val.length > 1)
+                    val = val.substr(0, 1) + val.substr(1).replace(/-/g, "");
+                else if (val == '-')
+                    return null;
+
+                return val;
+            case "Decimal":
+            case "Currency":
+                //case "Percent":
+                val = String(val).replace(/[^0-9,.-]/g, "").replace(/,/g, "");
+
+                if (val.length > 1)
+                    val = val.substr(0, 1) + val.substr(1).replace(/-/g, "");
+                else if (val == '-')
+                    return null;
+
+                return val;
+            case "Date":
+                return String(val).replace(/[^0-9a-zA-Z-\/]/g, "");
+            default:
+                return val;
+        }
+    };
+
+    var getFormattedValue = function (val, dataType, currencySymbol)
+    {
+        val = getCleanedValue(val, dataType);
+
+        switch (dataType)
+        {
+            case "Integer":
+                val = parseInt(val);
+
+                if (!isFinite(val))
+                    val = null;
+
+                return val;
+            case "Decimal":
+            case "Currency":
+                //case "Percent":
+
+                // TODO: filter down to one decimal point
+                // TODO: filter out non numerics
+                val = parseFloat(val);
+
+                if (!isFinite(val))
+                    val = null;
+                else
+                {
+                    val = val.toFixed(2)
+
+                    var x = val.split('.');
+
+                    var x1 = x[0];
+
+                    var x2 = x.length > 1 ? '.' + x[1] : '';
+
+                    var rgx = /(\d+)(\d{3})/;
+
+                    while (rgx.test(x1))
+                    {
+                        x1 = x1.replace(rgx, '$1' + ',' + '$2');
+                    }
+
+                    val = x1 + x2;
+                }
+
+                if (dataType == "Currency")
+                    val = currencySymbol + val;
+                //else if (dataType == "Percent")
+                //    val += "%";
+
+                if (val && val.indexOf(".00", val.length - 3) !== -1)
+                    val = val.substr(0, val.length - 3);
+
+                return val;
+            case "Date":
+                val = parseForValidDate(val);
+
+                if (val == null || !isFinite(val))
+                    return null;
+                else
+                    return (val.getMonth() + 1) + "/" + val.getDate() + "/" + val.getFullYear();
+            default:
+                return val;
+        }
+    };
+
+    var serializeObject = function ($elements)
+    {
+        // http://stackoverflow.com/a/1186309/8037
+        var data = {};
+
+        $.each($elements.serializeArray(), function ()
+        {
+            if (data[this.name] !== undefined)
+            {
+                if (!data[this.name].push)
+                    data[this.name] = [data[this.name]];
+
+                data[this.name].push(this.value || '');
+            }
+            else
+            {
+                data[this.name] = this.value || '';
+            }
+        });
+
+        return data;
+    };
+
+    // http://stackoverflow.com/q/8098202
+    var parseForValidDate = function (text)
+    {
+
+        var date = Date.parse(text);
+
+        if (isNaN(date))
+            return null;
+
+        var comp = text.split('/');
+
+        if (comp.length !== 3)
+            return null;
+
+        var m = parseInt(comp[0], 10);
+        var d = parseInt(comp[1], 10);
+        var y = parseInt(comp[2], 10);
+
+        date = new Date(y, m - 1, d);
+
+        if (date.getFullYear() == y && date.getMonth() + 1 == m && date.getDate() == d)
+            return date;
+        else
+            return null;
+    };
+
     var Griddly = function (element, options)
     {
         this.$element = $(element);
@@ -65,7 +222,7 @@
                         this.options.pageSize = state.pageSize;
                         this.options.sortFields = state.sortFields;
                         this.setFilterMode(state.filterMode, true);
-                        this.setFilterValues(state.filterValues, false, true);
+                        this.setFilterValues(state.filterValues, false, true, true);
 
                         $("[data-griddly-sortfield], .griddly-filters-inline td", this.$element).removeClass("sorted_a sorted_d");
 
@@ -152,55 +309,6 @@
         this.isConstructed = true;
     };
 
-    var serializeObject = function ($elements)
-    {
-        // http://stackoverflow.com/a/1186309/8037
-        var data = {};
-
-        $.each($elements.serializeArray(), function ()
-        {
-            if (data[this.name] !== undefined)
-            {
-                if (!data[this.name].push)
-                    data[this.name] = [data[this.name]];
-
-                data[this.name].push(this.value || '');
-            }
-            else
-            {
-                data[this.name] = this.value || '';
-            }
-        });
-
-        return data;
-    };
-
-    // http://stackoverflow.com/q/8098202
-    var parseForValidDate = function (text)
-    {
-
-        var date = Date.parse(text);
-
-        if (isNaN(date))
-            return null;
-
-        var comp = text.split('/');
-
-        if (comp.length !== 3)
-            return null;
-
-        var m = parseInt(comp[0], 10);
-        var d = parseInt(comp[1], 10);
-        var y = parseInt(comp[2], 10);
-
-        date = new Date(y, m - 1, d);
-
-        if (date.getFullYear() == y && date.getMonth() + 1 == m && date.getDate() == d)
-            return date;
-        else
-            return null;
-    };
-
     Griddly.prototype = {
         constructor: Griddly,
 
@@ -219,6 +327,7 @@
             var rowClickModal = this.$element.data("griddly-rowclickmodal");
             var filterMode = this.$element.data("griddly-filtermode");
             var allowedFilterModes = this.$element.data("griddly-allowedfiltermodes");
+            var isFilterFormInline = this.$element.data("griddly-isfilterforminline");
             var filterDefaults = this.$element.data("griddly-filter-defaults");
             var currencySymbol = this.$element.data("griddly-currency-symbol");
 
@@ -245,6 +354,7 @@
 
             this.options.filterMode = filterMode;
             this.options.allowedFilterModes = allowedFilterModes != null ? allowedFilterModes : null;
+            this.options.isFilterFormInline = isFilterFormInline;
             this.options.filterDefaults = filterDefaults;
 
             if (currencySymbol)
@@ -307,6 +417,8 @@
 
             $("form", this.$element).on("submit", $.proxy(function (event)
             {
+                $(event.currentTarget).closest(".griddly-filter-modal").modal("hide");
+
                 this.refresh(true);
 
                 event.preventDefault();
@@ -314,14 +426,40 @@
 
             $("form .griddly-search-reset", this.$element).on("click", $.proxy(function (event)
             {
-                this.resetFilterValues();
+                var refresh = $(event.currentTarget).closest(".modal").length == 0;
+
+                this.resetFilterValues(refresh);
+
+                event.preventDefault();
+            }, this));
+
+            $(".griddly-search-clear", this.$element).on("click", $.proxy(function (event)
+            {
+                var refresh = $(event.currentTarget).closest(".modal").length == 0;
+
+                this.clearFilterValues(refresh);
+
+                event.preventDefault();
+            }, this));
+
+            $(".griddly-filter-invoke", this.$element).on("click", $.proxy(function (event)
+            {
+                this.invokeFilterModal();
 
                 event.preventDefault();
             }, this));
 
             $("a.btn-search, button.btn-search", this.$element).on("click", $.proxy(function (event)
             {
-                this.toggleFilterMode();
+                if (!this.options.isFilterFormInline)
+                {
+                    if (this.options.filterMode == "Inline")
+                        this.setFilterMode("Form", true);
+
+                    this.invokeFilterModal();
+                }
+                else
+                    this.toggleFilterMode();
             }, this));
 
             $(this.$element).on("mouseup", "tbody.data tr td:not(:has(input))", $.proxy(function (e)
@@ -329,7 +467,7 @@
                 var url = $.trim($(e.target).parents("tr").data("griddly-url"));
                 var target = $.trim($(e.target).parents("tr").data("griddly-urltarget"));
 
-                if (url && $(e.target).closest("a").length == 0)
+                if (url && $(e.target).closest("a").length == 0 && $(e.target).closest("td").find("[data-toggle=dropdown]").length == 0)
                 {
                     if (this.options.rowClickModal)
                     {
@@ -545,19 +683,6 @@
                 });*/
             });
 
-            var isNullOrWhiteSpace = function (str)
-            {
-                return str == null || str.match(/^ *$/) !== null;
-            }
-
-            var trimToNull = function (str)
-            {
-                if (isNullOrWhiteSpace(str))
-                    return null;
-                else
-                    return str;
-            }
-
             this.$inlineFilters = $(".griddly-filters-inline .filter-content input, .griddly-filters-inline .griddly-filter.griddly-html-filter input", this.$element);
 
             $(".griddly-filters-inline .filter-content input", this.$element).on("change", $.proxy(function (event, dontHide)
@@ -578,16 +703,16 @@
                     if (!dontHide)
                         filter.find(".filter-trigger").popover("hide");
 
-                    var val = trimToNull(this.getCleanedValue(content.find("input").first().val(), dataType));
+                    var val = trimToNull(getCleanedValue(content.find("input").first().val(), dataType));
 
                     content.find("input").first().val(val)
 
                     if (val != null)
                     {
                         if (dataType == "String")
-                            display = 'Contains "' + this.getFormattedValue(val, dataType) + '"';
+                            display = 'Contains "' + getFormattedValue(val, dataType, this.options.currencySymbol) + '"';
                         else
-                            display = this.getFormattedValue(val, dataType);
+                            display = getFormattedValue(val, dataType, this.options.currencySymbol);
                     }
 
                     if (display == null)
@@ -599,18 +724,18 @@
                 }
                 else if (filter.hasClass("griddly-filter-range"))
                 {
-                    var val = trimToNull(this.getCleanedValue(content.find("input").first().val(), dataType));
-                    var valEnd = trimToNull(this.getCleanedValue(content.find("input").last().val(), dataType));
+                    var val = trimToNull(getCleanedValue(content.find("input").first().val(), dataType));
+                    var valEnd = trimToNull(getCleanedValue(content.find("input").last().val(), dataType));
 
                     content.find("input").first().val(val)
                     content.find("input").last().val(valEnd)
 
                     if (val != null && valEnd != null)
-                        display = this.getFormattedValue(val, dataType) + " - " + this.getFormattedValue(valEnd, dataType);
+                        display = getFormattedValue(val, dataType, this.options.currencySymbol) + " - " + getFormattedValue(valEnd, dataType, this.options.currencySymbol);
                     else if (val != null)
-                        display = (dataType == "Date" ? "After " : ">= ") + this.getFormattedValue(val, dataType);
+                        display = (dataType == "Date" ? "After " : ">= ") + getFormattedValue(val, dataType, this.options.currencySymbol);
                     else if (valEnd != null)
-                        display = (dataType == "Date" ? "Before " : "<= ") + this.getFormattedValue(valEnd, dataType);
+                        display = (dataType == "Date" ? "Before " : "<= ") + getFormattedValue(valEnd, dataType, this.options.currencySymbol);
 
                     if (display == null || (dataType != "String" && display.indexOf("null") != -1))
                     {
@@ -822,6 +947,46 @@
                     });
                 }
             }, this));
+
+            $(".griddly-filter-values", this.$element).on("click", ".griddly-remove-filter-value", $.proxy(function (event)
+            {
+                var value = $(event.target).closest(".filter-display-value");
+                var fieldValue = value.data("filter-fieldvalue");
+                var field = value.closest(".filter-display").data("filter-field");
+                var filter = this.getFilterElement(field).closest(".griddly-filter");;
+
+                var values = {};
+
+                if (filter.hasClass("griddly-filter-list") && fieldValue)
+                {
+                    var remainingValues = filter.find("select :checked:not([value='" + fieldValue + "'])");
+
+                    if (remainingValues.length)
+                    {
+                        var replacementValues = [];
+
+                        remainingValues.each(function ()
+                        {
+                            replacementValues.push($(this).val());
+                        });
+
+                        values[field] = replacementValues;
+                    }
+                    else
+                        values[field] = null;
+                }
+                else
+                    values[field] = null;
+
+                if (filter.hasClass("griddly-filter-range"))
+                {
+                    var fieldEnd = filter.data("filter-fieldend");
+
+                    values[fieldEnd] = null;
+                }
+
+                this.setFilterValues(values, true);
+            }, this));
         },
 
         exportFile: function (type, exec, data)
@@ -848,15 +1013,18 @@
 
         setFilterMode: function (mode, noRefresh)
         {
-            if (this.options.allowedFilterModes.indexOf(mode) > -1)
+            if (this.options.filterMode != mode && this.options.allowedFilterModes.indexOf(mode) > -1)
             {
                 var currentFilters = this.getFilterValues();
                 var request1 = this.buildRequest();
 
                 this.options.filterMode = mode;
 
-                this.$element.find("tr.griddly-filters:not(tr.griddly-filters-" + this.options.filterMode.toLowerCase() + ")").hide();
-                this.$element.find("tr.griddly-filters-" + this.options.filterMode.toLowerCase()).show();
+                this.$element.toggleClass("griddly-filter-inline", mode == "Inline");
+                this.$element.toggleClass("griddly-filter-form", mode == "Form");
+
+                this.$element.find(".griddly-filters:not(tr.griddly-filters-" + this.options.filterMode.toLowerCase() + ")").hide();
+                this.$element.find(".griddly-filters-" + this.options.filterMode.toLowerCase()).show();
 
                 this.setFilterValues(currentFilters, true, true);
 
@@ -879,7 +1047,29 @@
             }
         },
 
-        getAllFilters: function ()
+        invokeFilterModal: function ()
+        {
+            var self = this;
+
+            $(".griddly-filter-modal", this.$element)
+                .on("show.bs.modal", function ()
+                {
+                    var values = self.getFilterValues();
+
+                    $(".griddly-filter-cancel", this).off("click").on("click", function ()
+                    {
+                        if (self.$element.triggerHandler("beforeclear.griddly") !== false)
+                            self.setFilterValues(values, null, false, true);
+                    });
+                })
+                .on("shown.bs.modal", function ()
+                {
+                    $(".modal-body :input:visible:not([disabled]):first", this).focus();
+                })
+                .modal("show");
+        },
+
+        getAllFilterElements: function ()
         {
             var allFilters;
 
@@ -895,9 +1085,19 @@
             return allFilters;
         },
 
+        getFilterElement: function (name)
+        {
+            var filter = "[name='" + name + "']";
+
+            if (this.options.filterMode == "Inline")
+                return this.$inlineFilters.filter(filter);
+            else
+                return $(".griddly-filters-form input" + filter + ", .griddly-filters-form select" + filter, this.$element);
+        },
+
         getFilterValues: function ()
         {
-            var allFilters = this.getAllFilters();
+            var allFilters = this.getAllFilterElements();
 
             if (this.options.filterMode == "Inline")
             {
@@ -935,7 +1135,7 @@
             var input;
 
             if (typeof (field) === "string")
-                input = this.getAllFilters().filter(field);
+                input = this.getAllFilterElements().filter(field);
             else
                 input = $(field);
 
@@ -983,11 +1183,11 @@
             $(input[0]).change();
         },
 
-        setFilterValues: function (filters, isPatch, noRefresh)
+        setFilterValues: function (filters, isPatch, noRefresh, resetNone)
         {
             this._isUpdatingFilters = true;
 
-            var allFilters = this.getAllFilters();
+            var allFilters = this.getAllFilterElements();
 
             if (isPatch === true)
                 allFilters = allFilters.filter(function (i, e) { return typeof (filters[e.name]) !== "undefined"; });
@@ -997,122 +1197,166 @@
                 this.setFilterValue(e, filters[e.name]);
             }, this));
 
+            if (resetNone)
+                // clear any none's that were inadvertently reset
+                this.$element.find(".griddly-filters-form [data-griddly-filter-isnoneall=true] [multiple] option[value='']").prop("selected", false);
+
             this.triggerOrQueue(this.$element, "setfilters.griddly", filters);
 
             this._isUpdatingFilters = false;
+
+            this.updateFilterDisplay();
 
             if (!noRefresh)
                 this.refresh(true);
         },
 
-        resetFilterValues: function ()
+        resetFilterValues: function (refresh)
         {
             this.$element.find("form .transient").remove();
             this.$element.find("form")[0].reset();
 
-            this.setFilterValues(this.options.filterDefaults, null, true);
-
-            // clear any none's that were inadvertently reset
-            this.$element.find(".griddly-filters-form [data-griddly-filter-isnoneall=true] [multiple] option[value='']").prop("selected", false);
+            this.setFilterValues(this.options.filterDefaults, null, true, true);
 
             this.triggerOrQueue(this.$element, "resetfilters.griddly");
 
-            this.refresh(true);
+            this.updateFilterDisplay();
+
+            if (refresh != false)
+                this.refresh();
         },
 
-        getCleanedValue: function (val, dataType)
+        clearFilterValues: function (refresh)
         {
-            switch (dataType)
-            {
-                case "Integer":
-                    val = String(val).replace(/[^0-9-]/g, "")
+            this.$element.find("form .transient").remove();
 
-                    if (val.length > 1)
-                        val = val.substr(0, 1) + val.substr(1).replace(/-/g, "");
-                    else if (val == '-')
-                        return null;
+            this.setFilterValues({}, false, true, true);
 
-                    return val;
-                case "Decimal":
-                case "Currency":
-                    //case "Percent":
-                    val = String(val).replace(/[^0-9,.-]/g, "").replace(/,/g, "");
+            this.triggerOrQueue(this.$element, "resetfilters.griddly");
 
-                    if (val.length > 1)
-                        val = val.substr(0, 1) + val.substr(1).replace(/-/g, "");
-                    else if (val == '-')
-                        return null;
+            this.updateFilterDisplay();
 
-                    return val;
-                case "Date":
-                    return String(val).replace(/[^0-9a-zA-Z-\/]/g, "");
-                default:
-                    return val;
-            }
+            if (refresh != false)
+                this.refresh();
         },
 
-        getFormattedValue: function (val, dataType)
+        updateFilterDisplay: function ()
         {
-            val = this.getCleanedValue(val, dataType);
+            var hasFilter = false;
 
-            switch (dataType)
+            if (this.options.filterMode == "Form")
             {
-                case "Integer":
-                    val = parseInt(val);
+                var filters = this.getAllFilterElements().closest(".griddly-filter");
+                var self = this;
 
-                    if (!isFinite(val))
-                        val = null;
+                this.$element.find(".griddly-filter-values .filter-display").each(function ()
+                {
+                    var field = $(this).data("filter-field");
+                    var filter = filters.filter("[data-filter-field='" + field + "']");
+                    var content = filter;
+                    //var key = $(this).data("griddly-filter-field");
+                    //var endKey = $(this).data("griddly-filter-fieldend");
 
-                    return val;
-                case "Decimal":
-                case "Currency":
-                    //case "Percent":
+                    var dataType = filter.data("filter-datatype");
+                    var displayItems = [];
 
-                    // TODO: filter down to one decimal point
-                    // TODO: filter out non numerics
-                    val = parseFloat(val);
-
-                    if (!isFinite(val))
-                        val = null;
-                    else
+                    // TODO: shove formatted values back into boxes to ensure post is correct?
+                    // TODO: for numbers, do correctly shredded numeric (no symbols, but numbers and decimals etc.)
+                    // TODO: for dates, push actual formatted date
+                    if (!filter.hasClass("griddly-filter-list"))
                     {
-                        val = val.toFixed(2)
+                        var display = null;
+                        var val = trimToNull(getCleanedValue(content.find("input").first().val(), dataType));
+                        var valEnd = trimToNull(getCleanedValue(content.find("input").last().val(), dataType));
 
-                        var x = val.split('.');
-
-                        var x1 = x[0];
-
-                        var x2 = x.length > 1 ? '.' + x[1] : '';
-
-                        var rgx = /(\d+)(\d{3})/;
-
-                        while (rgx.test(x1))
+                        if (val != null || valEnd != null)
                         {
-                            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+                            display = filter.data("filter-name") + " ";
+
+                            if (filter.hasClass("griddly-filter-box"))
+                            {
+                                if (dataType == "String")
+                                    display += 'contains "' + getFormattedValue(val, dataType, self.options.currencySymbol) + '"';
+                                else
+                                    display += ' = ' + getFormattedValue(val, dataType, self.options.currencySymbol);
+                            }
+                            else if (filter.hasClass("griddly-filter-range"))
+                            {
+                                if (val != null && valEnd != null)
+                                    display += 'from ' + getFormattedValue(val, dataType, self.options.currencySymbol) + " to " + getFormattedValue(valEnd, dataType, self.options.currencySymbol);
+                                else if (val != null)
+                                    display += (dataType == "Date" ? "after " : ">= ") + getFormattedValue(val, dataType, self.options.currencySymbol);
+                                else if (valEnd != null)
+                                    display += (dataType == "Date" ? "before " : "<= ") + getFormattedValue(valEnd, dataType, self.options.currencySymbol);
+                            }
                         }
 
-                        val = x1 + x2;
+                        if (display != null)
+                            displayItems.push({ content: display });
+                    }
+                    else
+                    {
+                        var allItems = content.find("select option");
+                        var selectedItems = allItems.filter(":checked");
+                        var displayItemCount = parseInt(filter.data("griddly-filter-displayitemcount"));
+                        var displayIncludeCaption = filter.data("griddly-filter-displayincludecaption");
+
+                        if (selectedItems.length == allItems.length
+                            || (filter.data("griddly-filter-isnoneall") && selectedItems.length == 0)
+                            || (!filter.data("griddly-filter-ismultiple") && (content.find("select").val() || "").length == 0))
+                        {
+
+                        }
+                        else if (selectedItems.length > displayItemCount)
+                        {
+                            displayItems.push({ content: selectedItems.length + " " + filter.data("filter-name-plural") });
+                        }
+                        else if (selectedItems.length > 0 && selectedItems.length <= displayItemCount)
+                        {
+                            for (var i = 0; i < selectedItems.length; i++)
+                                displayItems.push({ content: (displayIncludeCaption ? filter.data("filter-name") + ": " : "") + $.trim($(selectedItems[i]).text()), fieldValue: $(selectedItems[i]).val() });
+                        }
                     }
 
-                    if (dataType == "Currency")
-                        val = this.options.currencySymbol + val;
-                    //else if (dataType == "Percent")
-                    //    val += "%";
+                    if (displayItems.length)
+                    {
+                        $(this).empty();
 
-                    if (val && val.indexOf(".00", val.length - 3) !== -1)
-                        val = val.substr(0, val.length - 3);
+                        for (var i = 0; i < displayItems.length; i++)
+                        {
+                            var item = displayItems[i];
 
-                    return val;
-                case "Date":
-                    val = parseForValidDate(val);
+                            $(this).append(self.options.renderFilterDisplay(item.content, item.fieldValue) + " ");
+                        }
 
-                    if (val == null || !isFinite(val))
-                        return null;
+                        $(this).show();
+
+                        hasFilter = true;
+                    }
                     else
-                        return (val.getMonth() + 1) + "/" + val.getDate() + "/" + val.getFullYear();
-                default:
-                    return val;
+                        $(this).hide();
+
+                });
             }
+            else
+            {
+                var values = this.getFilterValues();
+
+                for (var k in values)
+                {
+                    if (values[k])
+                    {
+                        hasFilter = true;
+
+                        break;
+                    }
+                }
+            }
+
+            this.$element.toggleClass("griddly-filter-statusfiltered", hasFilter);
+            this.$element.toggleClass("griddly-filter-statusall", !hasFilter);
+
+            this.triggerOrQueue(this.$element, "updatefilterdisplay.griddly");
         },
 
         buildRequest: function (paging)
@@ -1179,6 +1423,8 @@
 
                 history.replaceState(globalState, document.title);
             }
+
+            this.updateFilterDisplay();
 
             // TODO: cancel any outstanding calls
 
@@ -1370,8 +1616,16 @@
         autoRefreshOnFilter: true,
         filterMode: null,
         allowedFilterModes: [],
+        isFilterFormInline: false,
         currencySymbol: "$",
-        confirmPromptFunction: null
+        confirmPromptFunction: null,
+        renderFilterDisplay: function (content, fieldValue)
+        {
+            return '<span class="filter-display-value" ' + (fieldValue != null ? 'data-filter-fieldvalue="' + fieldValue + '"' : "") + '>' +
+                content +
+                ' <a href="javascript:void(0)" class="griddly-remove-filter-value"><i class="glyphicon glyphicon-remove"></i></a>' +
+                '</span>';
+        }
     }, $.fn.griddlyGlobalDefaults);
 
     function GriddlyButton()

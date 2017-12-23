@@ -1,11 +1,12 @@
 ﻿
+using System;
 using System.Web.Mvc;
 namespace Griddly.Models
 {
     public class TestGridItem
     {
         public long? Id { get; set; }
-        public decimal? Test { get; set; }
+
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Company { get; set; }
@@ -13,6 +14,14 @@ namespace Griddly.Models
         public string City { get; set; }
         public string State { get; set; }
         public string PostalCode { get; set; }
+        public decimal Total { get; set; }
+        public int Quantity { get; set; }
+        public DateTime Date { get; set; }
+        public bool IsApproved { get; set; }
+        public string Item { get; set; }
+
+        public decimal? Test { get; set; }
+
         public string NullThing { get; set; }
 
         public int PostalCodePrefix

@@ -69,7 +69,7 @@ namespace Griddly.Mvc
             return filter;
         }
 
-        public static GriddlyFilterList FilterList(this GriddlyColumn column, IEnumerable<SelectListItem> items, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null, string htmlClass = null, string captionPlural = null)
+        public static GriddlyFilterList FilterList(this GriddlyColumn column, IEnumerable<SelectListItem> items, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null, string htmlClass = null, string captionPlural = null, bool displayIncludeCaption = false)
         {
             if (caption == null)
                 caption = column.Caption;
@@ -104,7 +104,8 @@ namespace Griddly.Mvc
                 IsNoneAll = isNoneAll,
                 IsNullable = !string.IsNullOrWhiteSpace(nullItemText),
                 DefaultSelectAll = defaultSelectAll,
-                HtmlClass = htmlClass
+                HtmlClass = htmlClass,
+                DisplayIncludeCaption = displayIncludeCaption
             };
 
             if (captionPlural != null)
@@ -128,21 +129,21 @@ namespace Griddly.Mvc
             return value;
         }
 
-        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null, string htmlClass = null, string captionPlural = null)
+        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null, string htmlClass = null, string captionPlural = null, bool displayIncludeCaption = false)
             where T : struct
         {
-            return column.FilterList(Extensions.ToSelectListItems<T>().OrderBy(x => x.Text), isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural);
+            return column.FilterList(Extensions.ToSelectListItems<T>().OrderBy(x => x.Text), isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural, displayIncludeCaption);
         }
 
-        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, IEnumerable<T> items, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null, string htmlClass = null, string captionPlural = null)
+        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, IEnumerable<T> items, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null, string htmlClass = null, string captionPlural = null, bool displayIncludeCaption = false)
             where T : struct
         {
-            return column.FilterList(Extensions.ToSelectListItems(items).OrderBy(x => x.Text), isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural);
+            return column.FilterList(Extensions.ToSelectListItems(items).OrderBy(x => x.Text), isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural, displayIncludeCaption);
         }
 
-        public static GriddlyFilterList FilterBool(this GriddlyColumn column, string trueLabel = "Yes", string falseLabel = "No", string nullItemText = null, bool isMultiple = false, bool defaultSelectAll = false, bool isNoneAll = false, string field = null, string caption = null, string htmlClass = null, string captionPlural = null)
+        public static GriddlyFilterList FilterBool(this GriddlyColumn column, string trueLabel = "Yes", string falseLabel = "No", string nullItemText = null, bool isMultiple = false, bool defaultSelectAll = false, bool isNoneAll = false, string field = null, string caption = null, string htmlClass = null, string captionPlural = null, bool displayIncludeCaption = true)
         {
-            return column.FilterList(BuildBoolItems(trueLabel, falseLabel), isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural);
+            return column.FilterList(BuildBoolItems(trueLabel, falseLabel), isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural, displayIncludeCaption);
         }
 
         static List<SelectListItem> BuildBoolItems(string trueLabel, string falseLabel)

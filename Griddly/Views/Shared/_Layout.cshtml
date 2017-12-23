@@ -4,9 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title@(!string.IsNullOrWhiteSpace(ViewBag.Title) ? " - " : null)Griddly</title>
-    @Styles.Render("~/Content/css")
     @Styles.Render("~/Content/SyntaxHighlighter/shCore.css")
     @Styles.Render("~/Content/SyntaxHighlighter/shThemeDefault.css")
+    @Styles.Render("~/Content/bootstrap-multiselect.css")
+    @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
     @RenderSection("head", false)
 </head>
@@ -66,6 +67,7 @@
     @Scripts.Render("~/scripts/SyntaxHighlighter/shCore.js")
     @Scripts.Render("~/scripts/SyntaxHighlighter/shBrushCSharp.js")
     @Scripts.Render("~/scripts/SyntaxHighlighter/shBrushRazor.js")
+    @Scripts.Render("~/scripts/site.js")
     @RenderSection("scripts", required: false)
     <script>
         SyntaxHighlighter.defaults.gutter = false;

@@ -23,6 +23,7 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <UseGlobalApplicationHostFile />
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -135,6 +136,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\bootstrap-multiselect.css" />
+    <Content Include="Content\bootstrap-multiselect.min.css">
+      <DependentUpon>bootstrap-multiselect.css</DependentUpon>
+    </Content>
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
@@ -169,6 +174,9 @@
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
     <Content Include="Scripts\bootstrap-multiselect.js" />
+    <Content Include="Scripts\bootstrap-multiselect.min.js">
+      <DependentUpon>bootstrap-multiselect.js</DependentUpon>
+    </Content>
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\editly.js" />
@@ -181,6 +189,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="Content\bootstrap.css.map" />
+    <None Include="bundleconfig.json" />
     <None Include="Properties\PublishProfiles\local.pubxml" />
     <None Include="Scripts\jquery-1.11.0.intellisense.js" />
     <Content Include="Scripts\jquery-1.11.0.js" />
@@ -195,6 +204,7 @@
     <Content Include="Scripts\npm.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
+    <Content Include="Scripts\site.js" />
     <Content Include="Scripts\SyntaxHighlighter\shAutoloader.js" />
     <Content Include="Scripts\SyntaxHighlighter\shBrushAppleScript.js" />
     <Content Include="Scripts\SyntaxHighlighter\shBrushAS3.js" />
@@ -255,6 +265,8 @@
     <Content Include="Views\Home\Editly.cshtml" />
     <Content Include="Views\Home\EditlyGrid.cshtml" />
     <Content Include="Views\Home\HistoryTest.cshtml" />
+    <Content Include="Views\Shared\Griddly\GriddlyFilterValues.cshtml" />
+    <Content Include="Views\Home\FilterBoxGrid - Copy.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Griddly.Mvc\Griddly.Mvc.csproj">
