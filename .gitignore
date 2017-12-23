@@ -49,4 +49,4 @@ _ReSharper*/
 #NuGet
 packages/
 .vs
-/.nuget/NuGet.exe
+#/.nuget/NuGet.exe

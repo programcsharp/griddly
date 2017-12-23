@@ -51,7 +51,7 @@ else {
     $packages | % { 
         $package = $_.Name
         write-host "Uploading $package"
-        & $nugetpath push $package $key
+        & $nugetpath push $package $key -src nuget.org
         write-host ""
     }
   }
