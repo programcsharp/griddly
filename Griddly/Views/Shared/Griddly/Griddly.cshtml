@@ -185,7 +185,7 @@
                 <th class="@column.ClassName @(isSortable ? "sortable" : null) @(column is GriddlySelectColumn ? "select" : null) @(column.DefaultSort != null ? (column.DefaultSort == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.ExpressionString) @column.HeaderHtmlAttributes.ToHtmlAttributes()>
                     @if (!string.IsNullOrWhiteSpace(column.ExpressionString))
                     {
-                        <text>@column.Caption<span class="icon">&nbsp;</span></text>
+                        <text>@Html.Raw(column.Caption)<span class="icon">&nbsp;</span></text>
                     }
                     else if (column is GriddlySelectColumn)
                     {
@@ -193,7 +193,7 @@
                     }
                     else
                     {
-                        @column.Caption
+                        @Html.Raw(column.Caption)
                     }
                 </th>
             }
