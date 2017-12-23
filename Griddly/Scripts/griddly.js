@@ -222,7 +222,7 @@
                         this.options.pageSize = state.pageSize;
                         this.options.sortFields = state.sortFields;
                         this.setFilterMode(state.filterMode, true);
-                        this.setFilterValues(state.filterValues, false, true);
+                        this.setFilterValues(state.filterValues, false, true, true);
 
                         $("[data-griddly-sortfield], .griddly-filters-inline td", this.$element).removeClass("sorted_a sorted_d");
 
@@ -1013,7 +1013,7 @@
 
         setFilterMode: function (mode, noRefresh)
         {
-            if (this.options.allowedFilterModes.indexOf(mode) > -1)
+            if (this.options.filterMode != mode && this.options.allowedFilterModes.indexOf(mode) > -1)
             {
                 var currentFilters = this.getFilterValues();
                 var request1 = this.buildRequest();
