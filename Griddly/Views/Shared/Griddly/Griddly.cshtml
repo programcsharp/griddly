@@ -232,7 +232,12 @@
     <div class="griddly-footer">
         @if (settings.FooterTemplate == null || simple)
         {
-            <span class="griddly-summary">Records @(Model.PageNumber * Model.PageSize + (Model.Total > 0 ? 1 : 0)) through @(Model.PageNumber * Model.PageSize + Model.Count) of @Model.Total</span>
+            <span class="griddly-summary"><span class="hidden-xs">Records</span>
+                <span class="griddly-recordstart">@(Model.PageNumber * Model.PageSize + (Model.Total > 0 ? 1 : 0))</span>
+                <span class="hidden-xs">through</span><span class="visible-xs">-</span>
+                <span class="griddly-recordend">@(Model.PageNumber * Model.PageSize + Model.Count)</span>
+                of <span class="griddly-recordtotal">@Model.Total</span>
+            </span>
             <span class="griddly-pager" style="@(Model.Total <= Model.PageSize ? "display:none" : null)">
                 <a class="prev" href="javascript:void(0)" style="@(Model.PageNumber == 0 ? "display:none" : null)">&lt;&lt; Previous</a>Page
                 <input type="text" class="pageNumber" value="@(Model.Total > 0 ? (Model.PageNumber + 1) : 0)"> of <span class="pageCount">@(Model.Total > 0 ? (Model.Total / Model.PageSize + 1) : 0)</span>
