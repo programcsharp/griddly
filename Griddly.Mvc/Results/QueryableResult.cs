@@ -12,17 +12,24 @@ namespace Griddly.Mvc.Results
     {
         IQueryable<T> _result;
         Func<IQueryable<T>, IQueryable<T>> _massage = null;
+        string _finalSortField;
 
-        public QueryableResult(IQueryable<T> result, string viewName = null, Func<IQueryable<T>, IQueryable<T>> massage = null)
+        static readonly bool _typeHasId = typeof(T).GetProperty("Id") != null;
+
+        public QueryableResult(IQueryable<T> result, string viewName = null, Func<IQueryable<T>, IQueryable<T>> massage = null, string finalSortField = null)
             : base(viewName)
         {
             _result = result;
             _massage = massage;
+            _finalSortField = finalSortField;
+
+            if (_finalSortField == null && _typeHasId)
+                _finalSortField = "Id";
         }
 
         public override IEnumerable<T> GetAll(SortField[] sortFields)
         {
-            IQueryable<T> sortedQuery = ApplySortFields(_result, sortFields);
+            IQueryable<T> sortedQuery = ApplySortFields(_result, sortFields, _finalSortField);
 
             if (_massage != null)
                 sortedQuery = _massage(sortedQuery);
@@ -32,7 +39,7 @@ namespace Griddly.Mvc.Results
 
         public override IList<T> GetPage(int pageNumber, int pageSize, SortField[] sortFields)
         {
-            IQueryable<T> sortedQuery = ApplySortFields(_result, sortFields);
+            IQueryable<T> sortedQuery = ApplySortFields(_result, sortFields, _finalSortField);
 
             if (_massage != null)
                 sortedQuery = _massage(sortedQuery);
@@ -102,7 +109,7 @@ namespace Griddly.Mvc.Results
 
         public override IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields)
         {
-            return ApplySortFields(_result, sortFields)
+            return ApplySortFields(_result, sortFields, _finalSortField)
                 .Select<P>(propertyName, null);
         }
 
@@ -111,7 +118,7 @@ namespace Griddly.Mvc.Results
             return _result.Count();
         }
 
-        protected static IQueryable<T> ApplySortFields(IQueryable<T> source, SortField[] sortFields)
+        protected static IQueryable<T> ApplySortFields(IQueryable<T> source, SortField[] sortFields, string finalSortField)
         {
             IOrderedQueryable<T> sortedQuery = null;
 
@@ -136,6 +143,14 @@ namespace Griddly.Mvc.Results
                             sortedQuery = ThenByDescending(sortedQuery, sortField.Field);
                     }
                 }
+            }
+
+            if (finalSortField != null)
+            {
+                if (sortedQuery == null)
+                    sortedQuery = OrderByDescending(source, finalSortField);
+                else
+                    sortedQuery = ThenByDescending(sortedQuery, finalSortField);
             }
 
             return sortedQuery ?? source;
