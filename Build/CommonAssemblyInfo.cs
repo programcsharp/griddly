@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyProduct("Griddly")]
-[assembly: AssemblyCopyright("Copyright © 2013-2017 Chris Hynes and Data Research Group")]
+[assembly: AssemblyCopyright("Copyright © 2013-2018 Chris Hynes and Data Research Group")]
 
 [assembly: ComVisible(false)]
 
