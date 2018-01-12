@@ -10,12 +10,6 @@
  *@
 
 @model GriddlyButton
-@{
-    if (Model.ArgumentTemplate != null)
-    {
-        Model.Argument = Model.ArgumentTemplate(ViewData["ResolveContext"]).ToString();
-    }
-}
 @if (Model is GriddlyHtmlButton)
 {
     @(((GriddlyHtmlButton)Model).HtmlTemplate(Model))
@@ -56,6 +50,11 @@ else
 
 @helper RenderLink(GriddlyButton button, bool isDropdown, bool isMenuItem)
 {
+    if (button.ArgumentTemplate != null)
+    {
+        button.Argument = button.ArgumentTemplate(ViewData["ResolveContext"]).ToString();
+    }
+
     string href = null;
     if (button.Action != GriddlyButtonAction.Modal && (button.Action != GriddlyButtonAction.Navigate || (isDropdown && button.DropdownCaret != GriddlyDropdownCaret.Split)))
     {
