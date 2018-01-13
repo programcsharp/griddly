@@ -172,6 +172,7 @@
     var Griddly = function (element, options)
     {
         this.$element = $(element);
+        this.$filterModal = $(".griddly-filter-modal", this.$element);
         this.options = options;
         this.create();
         this.isConstructed = false;
@@ -306,6 +307,24 @@
 
         }, this);
 
+        var self = this;
+
+        this.$filterModal
+            .on("show.bs.modal", function ()
+            {
+                var values = self.getFilterValues();
+
+                $(".griddly-filter-cancel, button.close", this).off("click").on("click", function ()
+                {
+                    if (self.$element.triggerHandler("beforeclear.griddly") !== false)
+                        self.setFilterValues(values, null, true, true);
+                });
+            })
+            .on("shown.bs.modal", function ()
+            {
+                $(".modal-body :input:visible:not([disabled]):not([data-griddly-filter-data-type=Date]):first", this).focus();
+            });
+
         this.isConstructed = true;
     };
 
@@ -417,7 +436,7 @@
 
             $("form", this.$element).on("submit", $.proxy(function (event)
             {
-                $(event.currentTarget).closest(".griddly-filter-modal").modal("hide");
+                this.$filterModal.modal("hide");
 
                 this.refresh(true);
 
@@ -794,6 +813,13 @@
                     this.triggerOrQueue(this.$element, "filterchange.griddly", this.$element, event.target);
             }, this));
 
+            // TODO: exclude this if the modal is still in griddly-filters-form? does it dupe?
+            $(this.$filterModal).on("change", "input, select", $.proxy(function (event)
+            {
+                if (!this._isUpdatingFilters)
+                    this.triggerOrQueue(this.$element, "filterchange.griddly", this.$element, event.target);
+            }, this));
+
             $(".griddly-filters-inline .filter-content input", this.$element).keyup(function (event)
             {
                 if (event.which == 13)
@@ -1049,24 +1075,7 @@
 
         invokeFilterModal: function ()
         {
-            var self = this;
-
-            $(".griddly-filter-modal", this.$element)
-                .on("show.bs.modal", function ()
-                {
-                    var values = self.getFilterValues();
-
-                    $(".griddly-filter-cancel", this).off("click").on("click", function ()
-                    {
-                        if (self.$element.triggerHandler("beforeclear.griddly") !== false)
-                            self.setFilterValues(values, null, false, true);
-                    });
-                })
-                .on("shown.bs.modal", function ()
-                {
-                    $(".modal-body :input:visible:not([disabled]):first", this).focus();
-                })
-                .modal("show");
+            this.$filterModal.modal("show");
         },
 
         getAllFilterElements: function ()
@@ -1079,7 +1088,8 @@
             }
             else
             {
-                allFilters = $(".griddly-filters-form input[name], .griddly-filters-form select[name]", this.$element);
+                allFilters = $(".griddly-filters-form input[name], .griddly-filters-form select[name]", this.$element)
+                    .add($("input[name], select[name]", this.$filterModal));
             }
 
             return allFilters;
@@ -1092,7 +1102,8 @@
             if (this.options.filterMode == "Inline")
                 return this.$inlineFilters.filter(filter);
             else
-                return $(".griddly-filters-form input" + filter + ", .griddly-filters-form select" + filter, this.$element);
+                return $(".griddly-filters-form input" + filter + ", .griddly-filters-form select" + filter, this.$element)
+                    .add($("input[name], select[name]", this.$filterModal));
         },
 
         getFilterValues: function ()
@@ -1199,7 +1210,9 @@
 
             if (resetNone)
                 // clear any none's that were inadvertently reset
-                this.$element.find(".griddly-filters-form [data-griddly-filter-isnoneall=true] [multiple] option[value='']").prop("selected", false);
+                this.$element.find(".griddly-filters-form [data-griddly-filter-isnoneall=true] [multiple] option[value='']")
+                    .add(this.$filterModal.find("[data-griddly-filter-isnoneall=true] [multiple] option[value='']"))
+                    .prop("selected", false);
 
             this.triggerOrQueue(this.$element, "setfilters.griddly", filters);
 
