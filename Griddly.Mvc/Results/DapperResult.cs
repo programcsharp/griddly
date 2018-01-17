@@ -118,7 +118,7 @@ namespace Griddly.Mvc.Results
 
             return _overallCount.Value;
         }
-        
+
         protected string BuildSortClause(SortField[] sortFields)
         {
             if (sortFields != null && sortFields.Length > 0)
@@ -142,13 +142,8 @@ namespace Griddly.Mvc.Results
             {
                 IEnumerable<T> result = _map(_getConnection(), _getTransaction != null ? _getTransaction() : null, sql, _param);
 
-                if (_hasOverallCount)
-                {
-                    IHasOverallCount overallCount = result as IHasOverallCount;
-
-                    if (overallCount != null)
-                        _overallCount = overallCount.OverallCount;
-                }
+                if (result is IHasOverallCount overallCount)
+                    _overallCount = overallCount.OverallCount;
 
                 IList<T> results = result.ToList();
 
@@ -167,16 +162,29 @@ namespace Griddly.Mvc.Results
         {
             IEnumerable<T> result = cn.Query<T>(sql, param, tx);
 
-            if (_hasOverallCount)
+            var firstRow = result.FirstOrDefault();
+            long? overallCount = null;
+
+            if (firstRow == null)
             {
-                IHasOverallCount firstRow = result.FirstOrDefault() as IHasOverallCount;
+                overallCount = 0;
+            }
+            else if (_hasOverallCount && firstRow is IHasOverallCount iHasOverallCount)
+            {
+                overallCount = iHasOverallCount.OverallCount;
+            }
+            else if (_sql.IndexOf("OverallCount", StringComparison.InvariantCultureIgnoreCase) != -1 
+                && firstRow is IDictionary<string, object> dapperRow)
+            {
+                overallCount = Convert.ToInt64(dapperRow["OverallCount"]);
+            }
+
+            if (overallCount != null)
+            {
                 ListPage<T> lp = new ListPage<T>();
 
-                if (firstRow != null)
-                {
-                    lp.OverallCount = firstRow.OverallCount;
-                    lp.AddRange(result);
-                }
+                lp.OverallCount = overallCount.Value;
+                lp.AddRange(result);
 
                 result = lp;
             }
