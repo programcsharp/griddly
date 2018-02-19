@@ -121,6 +121,10 @@
         @: data-griddly-currency-symbol="@Griddly.Mvc.GriddlyExtensions.CurrencySymbol"
         @: @Html.AttributeIf("data-griddly-defaultsort", defaultSort != null && defaultSort.Any(), Html.AttributeEncode(Json.Encode(defaultSort.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))))
         @: @settings.HtmlAttributes.ToHtmlAttributes()>
+    if (settings.BeforeTemplate != null)
+    {
+        @settings.BeforeTemplate(null)
+    }
     if (settings.Buttons.Any())
     {
         <div class="buttons">
@@ -138,10 +142,6 @@
                 @settings.FilterTemplate(settings)
             }
         </div>
-    }
-    if (settings.BeforeTemplate != null)
-    {
-        @settings.BeforeTemplate(null)
     }
     @:<div class="griddly-scrollable-container">
         @:<table class="@settings.TableClassName" @settings.TableHtmlAttributes.ToHtmlAttributes()>
