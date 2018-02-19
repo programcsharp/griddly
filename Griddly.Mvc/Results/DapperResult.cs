@@ -141,9 +141,9 @@ namespace Griddly.Mvc.Results
             try
             {
                 IEnumerable<T> result = _map(_getConnection(), _getTransaction != null ? _getTransaction() : null, sql, _param);
-
-                if (result is IHasOverallCount overallCount)
-                    _overallCount = overallCount.OverallCount;
+                
+                if (result is IHasOverallCount)
+                    _overallCount = (result as IHasOverallCount).OverallCount;
 
                 IList<T> results = result.ToList();
 
@@ -169,14 +169,13 @@ namespace Griddly.Mvc.Results
             {
                 overallCount = 0;
             }
-            else if (_hasOverallCount && firstRow is IHasOverallCount iHasOverallCount)
+            else if (_hasOverallCount && firstRow is IHasOverallCount)
             {
-                overallCount = iHasOverallCount.OverallCount;
+                overallCount = (firstRow as IHasOverallCount).OverallCount;
             }
-            else if (_sql.IndexOf("OverallCount", StringComparison.InvariantCultureIgnoreCase) != -1 
-                && firstRow is IDictionary<string, object> dapperRow)
+            else if (_sql.IndexOf("OverallCount", StringComparison.InvariantCultureIgnoreCase) != -1 && firstRow is IDictionary<string, object>)
             {
-                overallCount = Convert.ToInt64(dapperRow["OverallCount"]);
+                overallCount = Convert.ToInt64((firstRow as IDictionary<string, object>)["OverallCount"]);
             }
 
             if (overallCount != null)
