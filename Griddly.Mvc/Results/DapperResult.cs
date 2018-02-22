@@ -17,13 +17,14 @@ namespace Griddly.Mvc.Results
         Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> _map;
         Action<IDbConnection, IDbTransaction, IList<T>> _massage;
         long? _overallCount = null;
+        int? _commandTimeout = null;
 
         protected string _outerSqlTemplate;
         protected string _sql;
         protected bool _fixedSort;
         protected static readonly bool _hasOverallCount = typeof(IHasOverallCount).IsAssignableFrom(typeof(T));
 
-        public DapperResult(Func<IDbConnection> getConnection, string sql, object param, Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map, Action<IDbConnection, IDbTransaction, IList<T>> massage, bool fixedSort, Func<IDbTransaction> getTransaction, string outerSqlTemplate)
+        public DapperResult(Func<IDbConnection> getConnection, string sql, object param, Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map, Action<IDbConnection, IDbTransaction, IList<T>> massage, bool fixedSort, Func<IDbTransaction> getTransaction, string outerSqlTemplate, int? commandTimout)
             : base(null)
         {
             _getConnection = getConnection;
@@ -39,7 +40,7 @@ namespace Griddly.Mvc.Results
             _massage = massage;
             _fixedSort = fixedSort;
             _getTransaction = getTransaction;
-
+            _commandTimeout = commandTimout;
         }
 
         public override void PopulateSummaryValues(GriddlySettings<T> settings)
@@ -91,7 +92,7 @@ namespace Griddly.Mvc.Results
                 IDbConnection cn = _getConnection();
                 IDbTransaction tx = _getTransaction != null ? _getTransaction() : null;
 
-                return cn.Query<P>(sql, _param, tx);
+                return cn.Query<P>(sql, _param, tx, commandTimeout: _commandTimeout);
             }
             catch (Exception ex)
             {
@@ -132,7 +133,7 @@ namespace Griddly.Mvc.Results
             IDbConnection cn = _getConnection();
             IDbTransaction tx = _getTransaction != null ? _getTransaction() : null;
 
-            return cn.Query<X>(sql, _param, tx).Single();
+            return cn.Query<X>(sql, _param, tx, commandTimeout: _commandTimeout).Single();
         }
 
         // TODO: return IEnumerable so we don't have to .ToList()
@@ -160,7 +161,7 @@ namespace Griddly.Mvc.Results
 
         protected IEnumerable<T> DefaultMap(IDbConnection cn, IDbTransaction tx, string sql, object param)
         {
-            IEnumerable<T> result = cn.Query<T>(sql, param, tx);
+            IEnumerable<T> result = cn.Query<T>(sql, param, tx, commandTimeout: _commandTimeout);
 
             var firstRow = result.FirstOrDefault();
             long? overallCount = null;

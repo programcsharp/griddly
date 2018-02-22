@@ -10,8 +10,8 @@ namespace Griddly.Mvc.Results
 {
     public class DapperSql2012Result<T> : DapperResult<T>
     {
-        public DapperSql2012Result(Func<IDbConnection> getConnection, string sql, object param, Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map = null, Action<IDbConnection, IDbTransaction, IList<T>> massage = null, bool fixedSort = false, Func<IDbTransaction> getTransaction = null, string outerSqlTemplate = "{0}")
-            : base(getConnection, sql, param, map, massage, fixedSort, getTransaction, outerSqlTemplate)
+        public DapperSql2012Result(Func<IDbConnection> getConnection, string sql, object param, Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map = null, Action<IDbConnection, IDbTransaction, IList<T>> massage = null, bool fixedSort = false, Func<IDbTransaction> getTransaction = null, string outerSqlTemplate = "{0}", int? commandTimeout = null)
+            : base(getConnection, sql, param, map, massage, fixedSort, getTransaction, outerSqlTemplate, commandTimeout)
         { }
 
         public override IList<T> GetPage(int pageNumber, int pageSize, SortField[] sortFields)
