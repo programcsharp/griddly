@@ -1008,7 +1008,7 @@
                     values[fieldEnd] = null;
                 }
 
-                this.setFilterValues(values, true);
+                this.setFilterValues(values, true, null, true);
             }, this));
         },
 
