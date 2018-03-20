@@ -350,6 +350,7 @@
             var filterDefaults = this.$element.data("griddly-filter-defaults");
             var currencySymbol = this.$element.data("griddly-currency-symbol");
 
+            this.additionalRequestValues = {};
             this.options.url = url;
             this.options.defaultRowIds = defaultRowIds;
             this.options.count = parseInt(count);
@@ -1369,6 +1370,16 @@
             this.triggerOrQueue(this.$element, "updatefilterdisplay.griddly");
         },
 
+        getAdditionalRequestValues: function ()
+        {
+            return this.additionalRequestValues;
+        },
+
+        setAdditionalRequestValues: function (values)
+        {
+            this.additionalRequestValues = values;
+        },
+
         buildRequest: function (paging)
         {
             var postData = this.getFilterValues();
@@ -1390,6 +1401,11 @@
                     pageNumber: this.options.pageNumber,
                     pageSize: this.options.pageSize
                 });
+            }
+
+            if (this.additionalRequestValues)
+            {
+                $.extend(postData, this.additionalRequestValues);
             }
 
             return postData;
