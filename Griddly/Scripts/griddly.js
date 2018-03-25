@@ -291,6 +291,9 @@
                 else
                     el.show(350);
 
+                el.find(".griddly-selection-singular").toggle(this.options.selectedRows == 1);
+                el.find(".griddly-selection-plural").toggle(this.options.selectedRows != 1);
+
                 $(this.$element).find("[data-enable-on-selection=true]").removeClass("disabled");
             }
             else
@@ -305,6 +308,7 @@
                 $(this.$element).find("[data-enable-on-selection=true]").addClass("disabled");
             }
 
+            this.$element.triggerHandler("selectionchanged.griddly", [this.options.selectedRows]);
         }, this);
 
         var self = this;
