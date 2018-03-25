@@ -280,19 +280,24 @@
 
         this.setSelectedCount = $.proxy(function ()
         {
-            $(".griddly-selection-count", this.$element).text(Object.keys(this.options.selectedRows).length);
+            var count = Object.keys(this.options.selectedRows).length;
+
+            $(".griddly-selection-count", this.$element).text(count);
 
             if (!$.isEmptyObject(this.options.selectedRows))
             {
-                var el = this.$element.find(".griddly-selection:not(:visible)");
+                var el = this.$element.find(".griddly-selection");
 
-                if (el.is("span"))
-                    el.animate({ width: "show" }, 350);
-                else
-                    el.show(350);
+                if (el.is(":not(:visible)"))
+                {
+                    if (el.is("span"))
+                        el.animate({ width: "show" }, 350);
+                    else
+                        el.show(350);
+                }
 
-                el.find(".griddly-selection-singular").toggle(this.options.selectedRows == 1);
-                el.find(".griddly-selection-plural").toggle(this.options.selectedRows != 1);
+                el.find(".griddly-selection-singular").toggle(count == 1);
+                el.find(".griddly-selection-plural").toggle(count != 1);
 
                 $(this.$element).find("[data-enable-on-selection=true]").removeClass("disabled");
             }
@@ -308,7 +313,7 @@
                 $(this.$element).find("[data-enable-on-selection=true]").addClass("disabled");
             }
 
-            this.$element.triggerHandler("selectionchanged.griddly", [this.options.selectedRows]);
+            this.$element.triggerHandler("selectionchanged.griddly", [count, this.options.selectedRows]);
         }, this);
 
         var self = this;
