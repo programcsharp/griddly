@@ -12,9 +12,28 @@ namespace Griddly.Mvc
 {
     public abstract class GriddlySettings: IGriddlyFilterSettings
     {
-        public static string DefaultClassName = null;
-        public static string DefaultTableClassName = "table table-bordered table-hover";
-        public static string DefaultButtonClassName = null;
+        public static class Css
+        {
+            public static string GriddlyDefault = null;
+            public static string TableDefault = "table table-bordered table-hover";
+            public static string ButtonDefault = "btn btn-default";
+
+            public static class Icons
+            {
+                public static string Calendar = "glyphicon glyphicon-calendar";
+                public static string Remove = "glyphicon glyphicon-remove";
+                public static string ListMultipleSelected = "glyphicon glyphicon-ok";
+                public static string ListSingleSelected = "glyphicon glyphicon-record";
+                public static string Check = "glyphicon glyphicon-check";
+                public static string Filter = "glyphicon glyphicon-filter";
+                public static string Clear = "glyphicon glyphicon-ban-circle";
+            }
+        }
+
+        public static string DefaultClassName { get => Css.GriddlyDefault; set => Css.GriddlyDefault = value; }
+        public static string DefaultTableClassName { get => Css.TableDefault; set => Css.TableDefault = value; }
+        public static string DefaultButtonClassName { get => Css.ButtonDefault; set => Css.ButtonDefault = value; }
+
         public static string ButtonTemplate = "~/Views/Shared/Griddly/BootstrapButton.cshtml";
         public static string ButtonListTemplate = "~/Views/Shared/Griddly/ButtonStrip.cshtml";
         public static HtmlString BoolTrueHtml = null;
@@ -25,6 +44,7 @@ namespace Griddly.Mvc
         public static bool DefaultShowRowSelectCount = true;
         public static bool ExportCurrencySymbol = true;
         public static bool DisableHistoryParameters = false;
+        public static bool IsBootstrap4 = false;
 
         public static Func<GriddlyButton, object> IconTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
@@ -60,6 +80,20 @@ namespace Griddly.Mvc
             InitialFilterMode = DefaultInitialFilterMode;
             //AllowedFilterModes = DefaultAllowedFilterModes;
             ShowRowSelectCount = DefaultShowRowSelectCount;
+        }
+
+        public static void ConfigureBoostrap4Defaults()
+        {
+            IsBootstrap4 = true;
+            Css.ButtonDefault = "btn btn-outline-secondary";
+
+            Css.Icons.Calendar = "fa fa-calendar-alt";
+            Css.Icons.Remove = "fa fa-times";
+            Css.Icons.ListMultipleSelected = "fa fa-check";
+            Css.Icons.ListSingleSelected = "fa fa-dot-circle";
+            Css.Icons.Check = "fa fa-check-square-o";
+            Css.Icons.Filter = "fa fa-filter";
+            Css.Icons.Clear = "fa fa-ban";
         }
 
         public string[] DefaultRowIds { get; set; }

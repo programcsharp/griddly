@@ -678,6 +678,7 @@
             var isFilterFormInline = this.$element.data("griddly-isfilterforminline");
             var filterDefaults = this.$element.data("griddly-filter-defaults");
             var currencySymbol = this.$element.data("griddly-currency-symbol");
+            var removeIconCssClass = this.$element.data("griddly-remove-icon-css-class");
 
             this.additionalRequestValues = {};
             this.options.url = url;
@@ -706,6 +707,7 @@
             this.options.allowedFilterModes = allowedFilterModes != null ? allowedFilterModes : null;
             this.options.isFilterFormInline = isFilterFormInline;
             this.options.filterDefaults = filterDefaults;
+            this.options.removeIconCssClass = removeIconCssClass;
 
             if (currencySymbol)
                 this.options.currencySymbol = currencySymbol;
@@ -826,29 +828,29 @@
             {
                 if (e.which < 3)
                 {
-                    var url = $.trim($(e.target).parents("tr").data("griddly-url"));
-                    var target = $.trim($(e.target).parents("tr").data("griddly-urltarget"));
+                var url = $.trim($(e.target).parents("tr").data("griddly-url"));
+                var target = $.trim($(e.target).parents("tr").data("griddly-urltarget"));
 
-                    if (url && $(e.target).closest("a").length == 0 && $(e.target).closest("td").find("[data-toggle=dropdown]").length == 0)
+                if (url && $(e.target).closest("a").length == 0 && $(e.target).closest("td").find("[data-toggle=dropdown]").length == 0)
+                {
+                    if (this.options.rowClickModal)
                     {
-                        if (this.options.rowClickModal)
+                        $(this.options.rowClickModal).removeData("bs.modal").modal({ show: false });
+                        $(".modal-content", this.options.rowClickModal).load($.trim(url), $.proxy(function (event)
                         {
-                            $(this.options.rowClickModal).removeData("bs.modal").modal({ show: false });
-                            $(".modal-content", this.options.rowClickModal).load($.trim(url), $.proxy(function (event)
-                            {
-                                $(this.options.rowClickModal).modal("show");
-                            }, this));
-                        }
-                        else
-                        {
-                            if (e.which == 2 || e.ctrlKey || target == "_blank")
-                                window.open(url);
-                            else
-                                window.location = url;
-                        }
-
-                        e.preventDefault();
+                            $(this.options.rowClickModal).modal("show");
+                        }, this));
                     }
+                    else
+                    {
+                        if (e.which == 2 || e.ctrlKey || target == "_blank")
+                            window.open(url);
+                            else
+                            window.location = url;
+                    }
+
+                    e.preventDefault();
+                }
                 }
             }, this));
 
@@ -1516,21 +1518,21 @@
                 hasFilter = updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol);
             }
             else
-            {
+                {
                 var values = this.getFilterValues();
 
                 for (var k in values)
-                {
-                    if (values[k])
                     {
+                    if (values[k])
+                        {
                         hasFilter = true;
 
                         break;
-                    }
-                }
+                            }
+                            }
 
                 updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol, hasFilter);
-            }
+                    }
 
             this.updateDefaultStatus();
 
@@ -1538,7 +1540,7 @@
         },
 
         updateDefaultStatus: function ()
-        {
+                        {
             var values = this.getFilterValues();
             var isDefaultFilter = deepCompare(this.options.filterDefaults, values);
             var isDefaultSort = deepCompare(this.options.defaultSort, this.options.sortFields);
@@ -1547,17 +1549,17 @@
         },
 
         setSortFields: function (sortFields)
-        {
+                        {
             this.options.sortFields = sortFields;
 
             $("[data-griddly-sortfield], .griddly-filters-inline td", this.$element).removeClass("sorted_a sorted_d");
 
             if (this.options.sortFields && this.options.sortFields.length)
-            {
+                    {
                 var inlineFilters = $(".griddly-filters-inline", this.$element);
 
                 for (var i = 0; i < this.options.sortFields.length; i++)
-                {
+                        {
                     var sort = this.options.sortFields[i];
 
                     var header = $("th[data-griddly-sortfield='" + sort.Field + "']", this.$element);
@@ -1565,7 +1567,7 @@
                     header.addClass(sort.Direction == "Ascending" ? "sorted_a" : "sorted_d");
 
                     if (inlineFilters.length)
-                    {
+            {
                         var inlineFilter = inlineFilters[0].cells[header[0].cellIndex];
 
                         $(inlineFilter).addClass(sort.Direction == "Ascending" ? "sorted_a" : "sorted_d");
@@ -1891,7 +1893,7 @@
     }, $.fn.griddlyGlobalDefaults);
 
     var GriddlyFilterBar = function (element, options)
-    {
+        {
         this.$element = $(element);
         this.$filterModal = $(".griddly-filter-modal", this.$element);
         this.options = options;

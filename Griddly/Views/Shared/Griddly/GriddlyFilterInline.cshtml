@@ -120,7 +120,7 @@
                             }
                             else if (filter.DataType == FilterDataType.Date)
                             {
-                                <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                                <span class="input-group-addon"><i class="@(GriddlySettings.Css.Icons.Calendar)"></i></span>
                             }
                             <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
                                 data-griddly-filter-data-type="@filter.DataType" />
@@ -129,7 +129,7 @@
                                     <span class="input-group-addon">%</span>
                                 }*@
                             <span class="input-group-btn">
-                                <a class="btn btn-default griddly-filter-clear"><i class="glyphicon glyphicon-remove"></i></a>
+                                <a class="@GriddlySettings.DefaultButtonClassName griddly-filter-clear"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
                             </span>
                         </div>
                     }
@@ -142,7 +142,7 @@
                             }
                             else if (filter.DataType == FilterDataType.Date)
                             {
-                                <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                                <span class="input-group-addon"><i class="@(GriddlySettings.Css.Icons.Calendar)"></i></span>
                             }
                             <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
                                 data-griddly-filter-data-type="@filter.DataType" />
@@ -151,7 +151,7 @@
                                     <span class="input-group-addon">%</span>
                                 }*@
                             <span class="input-group-btn">
-                                <a class="btn btn-default griddly-filter-clear"><i class="glyphicon glyphicon-remove"></i></a>
+                                <a class="@GriddlySettings.DefaultButtonClassName griddly-filter-clear"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
                             </span>
                         </div>
                         <div style="text-align:center">to</div>
@@ -162,7 +162,7 @@
                             }
                             else if (filter.DataType == FilterDataType.Date)
                             {
-                                <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
+                                <span class="input-group-addon"><i class="@(GriddlySettings.Css.Icons.Calendar)"></i></span>
                             }
                             <input class="form-control" name="@filterRange.FieldEnd" type="text" value="@filter.GetEditValue(defaultValueEnd)"
                                 data-griddly-filter-data-type="@filter.DataType" />
@@ -171,7 +171,7 @@
                                     <span class="input-group-addon">%</span>
                                 }*@
                             <span class="input-group-btn">
-                                <a class="btn btn-default griddly-filter-clear"><i class="glyphicon glyphicon-remove"></i></a>
+                                <a class="@GriddlySettings.DefaultButtonClassName griddly-filter-clear"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
                             </span>
                         </div>
                     }
@@ -181,10 +181,10 @@
                         {
                             <div class="input-group griddly-filter-buttons">
                                 <span class="input-group-btn">
-                                    <a class="btn btn-default griddly-select-all"><i class="glyphicon glyphicon-check"></i> Select All</a>
+                                    <a class="@GriddlySettings.DefaultButtonClassName griddly-select-all"><i class="@(GriddlySettings.Css.Icons.Check)"></i> Select All</a>
                                 </span>
                                 <span class="input-group-btn">
-                                    <a class="btn btn-default griddly-clear"><i class="glyphicon glyphicon-ban-circle"></i> Clear</a>
+                                    <a class="@GriddlySettings.DefaultButtonClassName griddly-clear"><i class="@(GriddlySettings.Css.Icons.Clear)"></i> Clear</a>
                                 </span>
                             </div>
                         }
@@ -200,7 +200,7 @@
                                         {
                                             <a>
                                                 <b>@group.Text</b>
-                                                <i class="glyphicon glyphicon-ok griddly-filter-selected-indicator"></i>
+                                                <i class="@(GriddlySettings.Css.Icons.ListMultipleSelected) griddly-filter-selected-indicator"></i>
                                             </a>
                                         }
                                         else
@@ -232,7 +232,7 @@
     <li class="@(item.Selected ? "griddly-filter-selected" : null) @(isGrouped ? "griddly-list-group" : null)">
         <a>
             <input name="@filter.Field" type="@(filter.IsMultiple ? "checkbox" : "radio")" checked="@(item.Selected)" value="@item.Value" />
-            <i class="glyphicon glyphicon-@(filter.IsMultiple ? "ok" : "record") griddly-filter-selected-indicator"></i>
+            <i class="@(filter.IsMultiple ? GriddlySettings.Css.Icons.ListMultipleSelected : GriddlySettings.Css.Icons.ListSingleSelected) griddly-filter-selected-indicator"></i>
             @item.Text
         </a>
     </li>
