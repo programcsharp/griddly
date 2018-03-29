@@ -1,7 +1,7 @@
 ﻿@*
  * GriddlyButton renderer using Bootstrap html and styles
  * http://griddly.com
- * Copyright 2013-2017 Chris Hynes and Data Research Group, Inc.
+ * Copyright 2013-2018 Chris Hynes and Data Research Group, Inc.
  * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
  *
  * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
@@ -10,6 +10,9 @@
  *@
 
 @model GriddlyButton
+@{ 
+    bool isListOnly = ViewBag.IsListOnly == true;
+}
 @if (Model is GriddlyHtmlButton)
 {
     @(((GriddlyHtmlButton)Model).HtmlTemplate(Model))
@@ -20,6 +23,8 @@ else if (!Model.Buttons.Any())
 }
 else
 {
+    if (!isListOnly)
+    {
     <div class="btn-group">
         @RenderLink(Model, true, false)
         @if (Model.DropdownCaret == GriddlyDropdownCaret.Split)
@@ -29,23 +34,14 @@ else
             </button>
         }
         <ul class="dropdown-menu @(Model.AlignRight ? "pull-right" : "")">
-            @foreach (GriddlyButton button in Model.Buttons)
-            {
-                if (button is GriddlyHtmlButton)
-                {
-                    <li class="@(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null)" @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())>@(((GriddlyHtmlButton)button).HtmlTemplate(button))</li>
-                }
-                else if (!button.IsSeparator)
-                {
-                    <li class="@(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null)" @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())>@RenderLink(button, false, true)</li>
-                }
-                else
-                {
-                    <li class="divider"></li>
-                }
-            }
+            @RenderList()
         </ul>
     </div>
+    }
+    else
+    {
+        @RenderList()
+    }
 }
 
 @helper RenderLink(GriddlyButton button, bool isDropdown, bool isMenuItem)
@@ -111,4 +107,23 @@ else
             <span class="caret"></span>
         }
     </a>
+}
+
+@helper RenderList()
+{
+    foreach (GriddlyButton button in Model.Buttons)
+    {
+        if (button is GriddlyHtmlButton)
+        {
+            <li class="@(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null)" @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())>@(((GriddlyHtmlButton)button).HtmlTemplate(button))</li>
+        }
+        else if (!button.IsSeparator)
+        {
+            <li class="@(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null)" @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())>@RenderLink(button, false, true)</li>
+        }
+        else
+        {
+            <li class="divider"></li>
+        }
+    }
 }

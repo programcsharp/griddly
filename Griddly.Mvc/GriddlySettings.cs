@@ -83,6 +83,7 @@ namespace Griddly.Mvc
         public Action<GriddlySettings, GriddlyResultPage, HtmlHelper, bool> BeforeRender = null;
 
         public Func<object, object> BeforeTemplate { get; set; }
+        public Func<object, object> AfterButtonsTemplate { get; set; }
         public Func<object, object> AfterTemplate { get; set; }
         public Func<GriddlySettings, object> FilterTemplate { get; set; }
         public Func<GriddlySettings, object> InlineFilterTemplate { get; set; }

@@ -17,13 +17,14 @@ namespace Griddly.Mvc.Results
         Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> _map;
         Action<IDbConnection, IDbTransaction, IList<T>> _massage;
         long? _overallCount = null;
+        int? _commandTimeout = null;
 
         protected string _outerSqlTemplate;
         protected string _sql;
         protected bool _fixedSort;
         protected static readonly bool _hasOverallCount = typeof(IHasOverallCount).IsAssignableFrom(typeof(T));
 
-        public DapperResult(Func<IDbConnection> getConnection, string sql, object param, Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map, Action<IDbConnection, IDbTransaction, IList<T>> massage, bool fixedSort, Func<IDbTransaction> getTransaction, string outerSqlTemplate)
+        public DapperResult(Func<IDbConnection> getConnection, string sql, object param, Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map, Action<IDbConnection, IDbTransaction, IList<T>> massage, bool fixedSort, Func<IDbTransaction> getTransaction, string outerSqlTemplate, int? commandTimout = null)
             : base(null)
         {
             _getConnection = getConnection;
@@ -39,7 +40,7 @@ namespace Griddly.Mvc.Results
             _massage = massage;
             _fixedSort = fixedSort;
             _getTransaction = getTransaction;
-
+            _commandTimeout = commandTimout;
         }
 
         public override void PopulateSummaryValues(GriddlySettings<T> settings)
@@ -91,7 +92,7 @@ namespace Griddly.Mvc.Results
                 IDbConnection cn = _getConnection();
                 IDbTransaction tx = _getTransaction != null ? _getTransaction() : null;
 
-                return cn.Query<P>(sql, _param, tx);
+                return cn.Query<P>(sql, _param, tx, commandTimeout: _commandTimeout);
             }
             catch (Exception ex)
             {
@@ -132,7 +133,7 @@ namespace Griddly.Mvc.Results
             IDbConnection cn = _getConnection();
             IDbTransaction tx = _getTransaction != null ? _getTransaction() : null;
 
-            return cn.Query<X>(sql, _param, tx).Single();
+            return cn.Query<X>(sql, _param, tx, commandTimeout: _commandTimeout).Single();
         }
 
         // TODO: return IEnumerable so we don't have to .ToList()
@@ -141,9 +142,9 @@ namespace Griddly.Mvc.Results
             try
             {
                 IEnumerable<T> result = _map(_getConnection(), _getTransaction != null ? _getTransaction() : null, sql, _param);
-
-                if (result is IHasOverallCount overallCount)
-                    _overallCount = overallCount.OverallCount;
+                
+                if (result is IHasOverallCount)
+                    _overallCount = (result as IHasOverallCount).OverallCount;
 
                 IList<T> results = result.ToList();
 
@@ -160,7 +161,7 @@ namespace Griddly.Mvc.Results
 
         protected IEnumerable<T> DefaultMap(IDbConnection cn, IDbTransaction tx, string sql, object param)
         {
-            IEnumerable<T> result = cn.Query<T>(sql, param, tx);
+            IEnumerable<T> result = cn.Query<T>(sql, param, tx, commandTimeout: _commandTimeout);
 
             var firstRow = result.FirstOrDefault();
             long? overallCount = null;
@@ -169,14 +170,13 @@ namespace Griddly.Mvc.Results
             {
                 overallCount = 0;
             }
-            else if (_hasOverallCount && firstRow is IHasOverallCount iHasOverallCount)
+            else if (_hasOverallCount && firstRow is IHasOverallCount)
             {
-                overallCount = iHasOverallCount.OverallCount;
+                overallCount = (firstRow as IHasOverallCount).OverallCount;
             }
-            else if (_sql.IndexOf("OverallCount", StringComparison.InvariantCultureIgnoreCase) != -1 
-                && firstRow is IDictionary<string, object> dapperRow)
+            else if (_sql.IndexOf("OverallCount", StringComparison.InvariantCultureIgnoreCase) != -1 && firstRow is IDictionary<string, object>)
             {
-                overallCount = Convert.ToInt64(dapperRow["OverallCount"]);
+                overallCount = Convert.ToInt64((firstRow as IDictionary<string, object>)["OverallCount"]);
             }
 
             if (overallCount != null)

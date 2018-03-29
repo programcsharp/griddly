@@ -1,7 +1,7 @@
 ﻿/*
  * Griddly script
  * http://griddly.com
- * Copyright 2013-2017 Chris Hynes and Data Research Group, Inc.
+ * Copyright 2013-2018 Chris Hynes and Data Research Group, Inc.
  * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
  *
  * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
@@ -280,16 +280,24 @@
 
         this.setSelectedCount = $.proxy(function ()
         {
-            $(".griddly-selection-count", this.$element).text(Object.keys(this.options.selectedRows).length);
+            var count = Object.keys(this.options.selectedRows).length;
+
+            $(".griddly-selection-count", this.$element).text(count);
 
             if (!$.isEmptyObject(this.options.selectedRows))
             {
-                var el = this.$element.find(".griddly-selection:not(:visible)");
+                var el = this.$element.find(".griddly-selection");
 
-                if (el.is("span"))
-                    el.animate({ width: "show" }, 350);
-                else
-                    el.show(350);
+                if (el.is(":not(:visible)"))
+                {
+                    if (el.is("span"))
+                        el.animate({ width: "show" }, 350);
+                    else
+                        el.show(350);
+                }
+
+                el.find(".griddly-selection-singular").toggle(count == 1);
+                el.find(".griddly-selection-plural").toggle(count != 1);
 
                 $(this.$element).find("[data-enable-on-selection=true]").removeClass("disabled");
             }
@@ -305,6 +313,7 @@
                 $(this.$element).find("[data-enable-on-selection=true]").addClass("disabled");
             }
 
+            this.$element.triggerHandler("selectionchanged.griddly", [count, this.options.selectedRows]);
         }, this);
 
         var self = this;
@@ -350,6 +359,7 @@
             var filterDefaults = this.$element.data("griddly-filter-defaults");
             var currencySymbol = this.$element.data("griddly-currency-symbol");
 
+            this.additionalRequestValues = {};
             this.options.url = url;
             this.options.defaultRowIds = defaultRowIds;
             this.options.count = parseInt(count);
@@ -846,10 +856,7 @@
                 $(el).popover({
                     html: true,
                     placement: "bottom",
-                    // TODO: figure out how to have griddly in modal and still use body container. as it is, something about the modal
-                    // blocks inputs in popovers from getting focus. so as a fallback I put it back in the bouding container, 
-                    // which will work but means it will get cut off if griddly is scrollable
-                    container: null, // this.$element.parents(".modal").length ? null : "body",
+                    container: ".griddly-filters-inline",
                     template: '<div class="popover griddly-filter-popover"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>',
                     content: function ()
                     {
@@ -1011,7 +1018,7 @@
                     values[fieldEnd] = null;
                 }
 
-                this.setFilterValues(values, true);
+                this.setFilterValues(values, true, null, true);
             }, this));
         },
 
@@ -1372,6 +1379,16 @@
             this.triggerOrQueue(this.$element, "updatefilterdisplay.griddly");
         },
 
+        getAdditionalRequestValues: function ()
+        {
+            return this.additionalRequestValues;
+        },
+
+        setAdditionalRequestValues: function (values)
+        {
+            this.additionalRequestValues = values;
+        },
+
         buildRequest: function (paging)
         {
             var postData = this.getFilterValues();
@@ -1393,6 +1410,11 @@
                     pageNumber: this.options.pageNumber,
                     pageSize: this.options.pageSize
                 });
+            }
+
+            if (this.additionalRequestValues)
+            {
+                $.extend(postData, this.additionalRequestValues);
             }
 
             return postData;
