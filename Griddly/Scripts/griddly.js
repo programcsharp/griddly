@@ -296,8 +296,8 @@
                         el.show(350);
                 }
 
-                el.find(".griddly-selection-singular").toggle(count == 1);
-                el.find(".griddly-selection-plural").toggle(count != 1);
+                this.$element.find(".griddly-selection-singular").toggle(count == 1);
+                this.$element.find(".griddly-selection-plural").toggle(count != 1);
 
                 $(this.$element).find("[data-enable-on-selection=true]").removeClass("disabled");
             }
@@ -613,7 +613,7 @@
                 });
             }, this);
 
-            var setRowSelect = $.proxy(function ($checkbox)
+            var setRowSelect = $.proxy(function ($checkbox, skipRowChange)
             {
                 var rowkey = $checkbox.data("rowkey");
                 var row = this.options.selectedRows[rowkey];
@@ -632,7 +632,8 @@
                     delete this.options.selectedRows[rowkey];
                 }
 
-                onRowChange();
+                if (skipRowChange != true)
+                    onRowChange();
             }, this);
 
             $(this.$element).on("click", "td.griddly-select", $.proxy(function (event)
@@ -661,7 +662,9 @@
                     var start = Math.min(first, last);
                     var end = Math.max(first, last);
 
-                    $("tbody tr", this.$element).slice(start, end).find("input[name=_rowselect]").each(function () { $(this).prop("checked", newstate); setRowSelect($(this)) });
+                    $("tbody tr", this.$element).slice(start, end).find("input[name=_rowselect]").each(function () { $(this).prop("checked", newstate); setRowSelect($(this), true) });
+
+                    onRowChange();
                 }
 
                 this.options.lastSelectedRow = $target.parents("tr");
@@ -670,9 +673,11 @@
             $(this.$element).on("click", "thead tr.columnHeaders th.select", $.proxy(function (event)
             {
                 if (this.$element.find("input[name=_rowselect]:not(:checked)").length == 0)
-                    this.$element.find("input[name=_rowselect]").prop("checked", false).each(function () { setRowSelect($(this)); });
+                    this.$element.find("input[name=_rowselect]").prop("checked", false).each(function () { setRowSelect($(this), true); });
                 else
-                    this.$element.find("input[name=_rowselect]").prop("checked", true).each(function () { setRowSelect($(this)); });
+                    this.$element.find("input[name=_rowselect]").prop("checked", true).each(function () { setRowSelect($(this), true); });
+
+                onRowChange();
             }, this));
 
             $(this.$element).on("click", ".griddly-selection-clear", $.proxy(function (event)
