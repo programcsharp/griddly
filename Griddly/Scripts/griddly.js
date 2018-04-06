@@ -190,6 +190,8 @@
             }
         };
 
+        this.clearSelected();
+
         $(this.$element).find("[data-enable-on-selection=true]").addClass("disabled");
 
         if (this.options.onRefresh)
@@ -277,44 +279,6 @@
                 });
             }
         }, this));
-
-        this.setSelectedCount = $.proxy(function ()
-        {
-            var count = Object.keys(this.options.selectedRows).length;
-
-            $(".griddly-selection-count", this.$element).text(count);
-
-            if (!$.isEmptyObject(this.options.selectedRows))
-            {
-                var el = this.$element.find(".griddly-selection");
-
-                if (el.is(":not(:visible)"))
-                {
-                    if (el.is("span"))
-                        el.animate({ width: "show" }, 350);
-                    else
-                        el.show(350);
-                }
-
-                this.$element.find(".griddly-selection-singular").toggle(count == 1);
-                this.$element.find(".griddly-selection-plural").toggle(count != 1);
-
-                $(this.$element).find("[data-enable-on-selection=true]").removeClass("disabled");
-            }
-            else
-            {
-                var el = this.$element.find(".griddly-selection:visible");
-
-                if (el.is("span"))
-                    el.animate({ width: "hide" }, 350);
-                else
-                    el.hide(350);
-
-                $(this.$element).find("[data-enable-on-selection=true]").addClass("disabled");
-            }
-
-            this.$element.triggerHandler("selectionchanged.griddly", [count, this.options.selectedRows]);
-        }, this);
 
         var self = this;
 
@@ -1575,6 +1539,44 @@
                 result[arrayIdNames[name]] = $.map(this.options.selectedRows, function (x) { return x[arrayIdNames[name]] });
 
             return result;
+        },
+
+        setSelectedCount: function ()
+        {
+            var count = Object.keys(this.options.selectedRows).length;
+
+            $(".griddly-selection-count", this.$element).text(count);
+
+            if (!$.isEmptyObject(this.options.selectedRows))
+            {
+                var el = this.$element.find(".griddly-selection");
+
+                if (el.is(":not(:visible)"))
+                {
+                    if (el.is("span"))
+                        el.animate({ width: "show" }, 350);
+                    else
+                        el.show(350);
+                }
+
+                $(this.$element).find("[data-enable-on-selection=true]").removeClass("disabled");
+            }
+            else
+            {
+                var el = this.$element.find(".griddly-selection:visible");
+
+                if (el.is("span"))
+                    el.animate({ width: "hide" }, 350);
+                else
+                    el.hide(350);
+
+                $(this.$element).find("[data-enable-on-selection=true]").addClass("disabled");
+            }
+
+            this.$element.find(".griddly-selection-singular").toggle(count == 1);
+            this.$element.find(".griddly-selection-plural").toggle(count != 1);
+
+            this.$element.triggerHandler("selectionchanged.griddly", [count, this.options.selectedRows]);
         },
 
         clearSelected: function ()
