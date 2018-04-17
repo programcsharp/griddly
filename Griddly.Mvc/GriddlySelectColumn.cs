@@ -10,6 +10,8 @@ namespace Griddly.Mvc
 {
     public class GriddlySelectColumn : GriddlyColumn
     {
+        public Func<object, bool> IsRowSelectable { get; set; }
+
         public GriddlySelectColumn()
         {
             ClassName = "griddly-select align-center";
@@ -22,43 +24,48 @@ namespace Griddly.Mvc
                 
         public override HtmlString RenderCell(object row, GriddlySettings settings, bool encode = true)
         {
-            TagBuilder input = new TagBuilder("input");
-
-            input.Attributes["name"] = "_rowselect";
-            input.Attributes["type"] = "checkbox";
-
-            if (settings.RowIds.Any())
+            if (IsRowSelectable?.Invoke(row) != false)
             {
-                bool valueSet = false;
-                string key = "";
-                foreach (var x in settings.RowIds)
+                TagBuilder input = new TagBuilder("input");
+
+                input.Attributes["name"] = "_rowselect";
+                input.Attributes["type"] = "checkbox";
+
+                if (settings.RowIds.Any())
                 {
-                    string val = "";
-                    object result = x.Value(row);
-                    if (result != null)
-                        val = result.ToString();
-
-                    input.Attributes["data-" + x.Key] = val;
-                    key += "_" + val;
-
-                    if (!valueSet)
+                    bool valueSet = false;
+                    string key = "";
+                    foreach (var x in settings.RowIds)
                     {
-                        input.Attributes["value"] = val;
-                        valueSet = true;
+                        string val = "";
+                        object result = x.Value(row);
+                        if (result != null)
+                            val = result.ToString();
+
+                        input.Attributes["data-" + x.Key] = val;
+                        key += "_" + val;
+
+                        if (!valueSet)
+                        {
+                            input.Attributes["value"] = val;
+                            valueSet = true;
+                        }
                     }
+
+                    input.Attributes["data-rowkey"] = key;
                 }
 
-                input.Attributes["data-rowkey"] = key;
+                var inputAttributes = GenerateInputHtmlAttributes(row);
+
+                if (inputAttributes != null)
+                {
+                    input.MergeAttributes(inputAttributes);
+                }
+
+                return new HtmlString(input.ToString(TagRenderMode.SelfClosing));
             }
-
-            var inputAttributes = GenerateInputHtmlAttributes(row);
-
-            if (inputAttributes != null)
-            {
-                input.MergeAttributes(inputAttributes);
-            }
-
-            return new HtmlString(input.ToString(TagRenderMode.SelfClosing));
+            else
+                return null;
         }
 
         public override object RenderCellValue(object row, bool stripHtml = false)
@@ -74,7 +81,18 @@ namespace Griddly.Mvc
 
     public class GriddlySelectColumn<TRow> : GriddlySelectColumn
     {
-        public Func<TRow, object>  InputHtmlAttributesTemplate { get; set; }
+        public Func<TRow, object> InputHtmlAttributesTemplate { get; set; }
+
+        public new Func<TRow, bool> IsRowSelectable
+        {
+            set
+            {
+                if (value != null)
+                    base.IsRowSelectable = (x) => value((TRow)x);
+                else
+                    base.IsRowSelectable = null;
+            }
+        }
 
         public override IDictionary<string, object> GenerateInputHtmlAttributes(object row)
         {
