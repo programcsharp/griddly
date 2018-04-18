@@ -35,13 +35,13 @@ else
             }
             @if (GriddlySettings.IsBootstrap4)
             {
-                <div class="dropdown-menu">
+                <div class="dropdown-menu @(Model.AlignRight ? "dropdown-menu-right float-right" : "")">
                     @RenderList()
                 </div>
             }
             else
             {
-                <ul class="dropdown-menu @(Model.AlignRight ? GriddlySettings.IsBootstrap4 ? "float-right" : "pull-right" : "")">
+                <ul class="dropdown-menu @(Model.AlignRight ? "pull-right" : "")">
                     @RenderList()
                 </ul>
             }
