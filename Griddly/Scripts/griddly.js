@@ -236,7 +236,7 @@
                                 var sort = this.options.sortFields[i];
 
                                 var header = $("th[data-griddly-sortfield='" + sort.Field + "']", this.$element);
-                                var inlineFilter = $(".griddly-filters-inline")[0].cells[header[0].cellIndex];
+                                var inlineFilter = $(".griddly-filters-inline", this.$element)[0].cells[header[0].cellIndex];
 
                                 header.addClass(sort.Direction == "Ascending" ? "sorted_a" : "sorted_d");
                                 $(inlineFilter).addClass(sort.Direction == "Ascending" ? "sorted_a" : "sorted_d");
@@ -270,7 +270,7 @@
         {
             if (this.options.filterMode == "Inline" && $(event.target).parents('.popover.in').length == 0 && $(event.target).parents(".filter-trigger").length == 0 && !$(event.target).hasClass("filter-trigger"))
             {
-                $(".griddly-filters-inline .filter-trigger").each(function ()
+                $(".griddly-filters-inline .filter-trigger", this.$element).each(function ()
                 {
                     var filter = $(this);
 
@@ -825,7 +825,7 @@
                 $(el).popover({
                     html: true,
                     placement: "bottom",
-                    container: ".griddly-filters-inline",
+                    container: $(".griddly-filters-inline", this.$element),
                     template: '<div class="popover griddly-filter-popover"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>',
                     content: function ()
                     {
