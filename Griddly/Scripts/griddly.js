@@ -511,7 +511,7 @@
                     var currentDirection = currentPos != -1 ? this.options.sortFields[currentPos].Direction : "Descending";
                     var newDirection = currentDirection == "Descending" ? "Ascending" : "Descending";
 
-                    var inlineFilters = $("tr.griddly-filters-inline", this.element);
+                    var inlineFilters = $("tr.griddly-filters-inline", this.$element);
 
                     if (!this.options.isMultiSort || !event.ctrlKey)
                     {
