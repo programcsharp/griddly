@@ -186,7 +186,7 @@ namespace Griddly.Mvc.Results
             foreach (string prop in props)
             {
                 // use reflection (not ComponentModel) to mirror LINQ
-                PropertyInfo pi = type.GetProperty(prop);
+                PropertyInfo pi = type.GetProperty(prop, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
                 expr = Expression.Property(expr, pi);
                 type = pi.PropertyType;
             }
