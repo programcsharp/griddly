@@ -261,9 +261,9 @@
     <div class="griddly-footer">
         @if (settings.FooterTemplate == null || simple)
         {
-            <span class="griddly-summary"><span class="hidden-xs">Records</span>
+            <span class="griddly-summary"><span class="@(!GriddlySettings.IsBootstrap4?"hidden-xs":"d-none d-sm-inline")">Records</span>
                 <span class="griddly-recordstart">@(Model.PageNumber * Model.PageSize + (Model.Total > 0 ? 1 : 0))</span>
-                <span class="hidden-xs">through</span><span class="visible-xs-inline">-</span>
+                <span class="@(!GriddlySettings.IsBootstrap4?"hidden-xs":"d-none d-sm-inline")">through</span><span class="@(!GriddlySettings.IsBootstrap4?"visible-xs-inline":"d-xs-inline d-sm-none")">-</span>
                 <span class="griddly-recordend">@(Model.PageNumber * Model.PageSize + Model.Count)</span>
                 of <span class="griddly-recordtotal">@Model.Total</span>
             </span>
@@ -300,10 +300,10 @@
 
 @helper RenderFormFiltersModal(GriddlySettings settings)
 {
-    <a class="@GriddlySettings.DefaultButtonClassName griddly-filter-invoke" href="javascript:;"><i class="@(GriddlySettings.Css.Icons.Filter)"></i><span class="hidden-xs hidden-sm"> Filter</span></a>
+    <a class="@GriddlySettings.DefaultButtonClassName griddly-filter-invoke" href="javascript:;"><i class="@(GriddlySettings.Css.Icons.Filter)"></i><span class="@(!GriddlySettings.IsBootstrap4 ? "hidden-xs hidden-sm" : "d-none d-md-inline")"> Filter</span></a>
     @Html.Partial("Griddly/GriddlyFilterValues", settings)
     <span class="griddly-filter-statusall-show">Showing all</span>
-    <a class="griddly-search-clear griddly-filter-statusfiltered-show" href="javascript:;"><span class="hidden-xs hidden-sm">Clear Filter/</span>Show All</a>
+    <a class="griddly-search-clear griddly-filter-statusfiltered-show" href="javascript:;"><span class="@(!GriddlySettings.IsBootstrap4 ? "hidden-xs hidden-sm" : "d-none d-md-inline")">Clear Filter/</span>Show All</a>
     <div class="modal griddly-filter-modal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
