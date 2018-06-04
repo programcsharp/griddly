@@ -50,7 +50,7 @@
 {
     if (rightGroups.Any())
     {
-        <div class="btn-toolbar @ViewBag.ClassName pull-right">
+        <div class="btn-toolbar @ViewBag.ClassName @(GriddlySettings.IsBootstrap4 ? "float-right" : "pull-right")">
             @foreach (var group in rightGroups)
             {
                 if (group.Count() > 1 || group.First().Buttons.Count() == 0)

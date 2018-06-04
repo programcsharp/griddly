@@ -322,6 +322,7 @@
             var isFilterFormInline = this.$element.data("griddly-isfilterforminline");
             var filterDefaults = this.$element.data("griddly-filter-defaults");
             var currencySymbol = this.$element.data("griddly-currency-symbol");
+            var removeIconCssClass = this.$element.data("griddly-remove-icon-css-class");
 
             this.additionalRequestValues = {};
             this.options.url = url;
@@ -349,6 +350,7 @@
             this.options.allowedFilterModes = allowedFilterModes != null ? allowedFilterModes : null;
             this.options.isFilterFormInline = isFilterFormInline;
             this.options.filterDefaults = filterDefaults;
+            this.options.removeIconCssClass = removeIconCssClass;
 
             if (currencySymbol)
                 this.options.currencySymbol = currencySymbol;
@@ -1315,7 +1317,7 @@
                         {
                             var item = displayItems[i];
 
-                            $(this).append(self.options.renderFilterDisplay(item.content, item.fieldValue) + " ");
+                            $(this).append(self.options.renderFilterDisplay(item.content, item.fieldValue, self.options.removeIconCssClass) + " ");
                         }
 
                         $(this).show();
@@ -1661,11 +1663,11 @@
         isFilterFormInline: false,
         currencySymbol: "$",
         confirmPromptFunction: null,
-        renderFilterDisplay: function (content, fieldValue)
+        renderFilterDisplay: function (content, fieldValue, removeIconCssClass)
         {
             return '<span class="filter-display-value" ' + (fieldValue != null ? 'data-filter-fieldvalue="' + fieldValue + '"' : "") + '>' +
                 content +
-                ' <a href="javascript:void(0)" class="griddly-remove-filter-value"><i class="glyphicon glyphicon-remove"></i></a>' +
+                ' <a href="javascript:void(0)" class="griddly-remove-filter-value"><i class="' + removeIconCssClass + '"></i></a>' +
                 '</span>';
         }
     }, $.fn.griddlyGlobalDefaults);
