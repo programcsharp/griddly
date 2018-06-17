@@ -267,6 +267,7 @@
     <Content Include="Views\Home\HistoryTest.cshtml" />
     <Content Include="Views\Shared\Griddly\GriddlyFilterValues.cshtml" />
     <Content Include="Views\Home\FilterBoxGrid - Copy.cshtml" />
+    <Content Include="Views\Shared\Griddly\GriddlyFilters.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Griddly.Mvc\Griddly.Mvc.csproj">
