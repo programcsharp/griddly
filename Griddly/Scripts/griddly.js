@@ -1079,7 +1079,7 @@
                 return this.$inlineFilters.filter(filter);
             else
                 return $(".griddly-filters-form input" + filter + ", .griddly-filters-form select" + filter, this.$element)
-                    .add($("input[name], select[name]", this.$filterModal));
+                    .add($("input" + filter + ", select" + filter, this.$filterModal));
         },
 
         getFilterValues: function ()
