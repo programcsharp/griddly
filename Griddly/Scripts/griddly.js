@@ -335,12 +335,52 @@
         root.toggleClass("griddly-filter-statusall", !hasFilter);
     };
 
-    var renderDisplayImpl = function (content, fieldValue)
+    var renderFilterDisplayImpl = function (content, fieldValue)
     {
         return '<span class="filter-display-value" ' + (fieldValue != null ? 'data-filter-fieldvalue="' + fieldValue + '"' : "") + '>' +
             content +
             ' <a href="javascript:void(0)" class="griddly-remove-filter-value"><i class="glyphicon glyphicon-remove"></i></a>' +
             '</span>';
+    };
+
+    var removeFilterValueImpl = function (event)
+    {
+        var value = $(event.target).closest(".filter-display-value");
+        var fieldValue = value.data("filter-fieldvalue");
+        var field = value.closest(".filter-display").data("filter-field");
+        var filter = this.getFilterElement(field).closest(".griddly-filter");;
+
+        var values = {};
+
+        if (filter.hasClass("griddly-filter-list") && fieldValue)
+        {
+            var remainingValues = filter.find("select :checked:not([value='" + fieldValue + "'])");
+
+            if (remainingValues.length)
+            {
+                var replacementValues = [];
+
+                remainingValues.each(function ()
+                {
+                    replacementValues.push($(this).val());
+                });
+
+                values[field] = replacementValues;
+            }
+            else
+                values[field] = null;
+        }
+        else
+            values[field] = null;
+
+        if (filter.hasClass("griddly-filter-range"))
+        {
+            var fieldEnd = filter.data("filter-fieldend");
+
+            values[fieldEnd] = null;
+        }
+
+        this.setFilterValues(values, true, null, true);
     };
 
     var Griddly = function (element, options)
@@ -1124,45 +1164,7 @@
                 }
             }, this));
 
-            $(".griddly-filter-values", this.$element).on("click", ".griddly-remove-filter-value", $.proxy(function (event)
-            {
-                var value = $(event.target).closest(".filter-display-value");
-                var fieldValue = value.data("filter-fieldvalue");
-                var field = value.closest(".filter-display").data("filter-field");
-                var filter = this.getFilterElement(field).closest(".griddly-filter");;
-
-                var values = {};
-
-                if (filter.hasClass("griddly-filter-list") && fieldValue)
-                {
-                    var remainingValues = filter.find("select :checked:not([value='" + fieldValue + "'])");
-
-                    if (remainingValues.length)
-                    {
-                        var replacementValues = [];
-
-                        remainingValues.each(function ()
-                        {
-                            replacementValues.push($(this).val());
-                        });
-
-                        values[field] = replacementValues;
-                    }
-                    else
-                        values[field] = null;
-                }
-                else
-                    values[field] = null;
-
-                if (filter.hasClass("griddly-filter-range"))
-                {
-                    var fieldEnd = filter.data("filter-fieldend");
-
-                    values[fieldEnd] = null;
-                }
-
-                this.setFilterValues(values, true, null, true);
-            }, this));
+            $(".griddly-filter-values", this.$element).on("click", ".griddly-remove-filter-value", $.proxy(removeFilterValueImpl, this));
         },
 
         exportFile: function (type, exec, data)
@@ -1695,6 +1697,219 @@
         renderFilterDisplay: renderFilterDisplayImpl
     }, $.fn.griddlyGlobalDefaults);
 
+    var GriddlyFilterBar = function (element, options)
+    {
+        this.$element = $(element);
+        this.$filterModal = $(".griddly-filter-modal", this.$element);
+        this.options = options;
+        this.create();
+
+        var self = this;
+
+        this.$filterModal
+            .on("show.bs.modal", function ()
+            {
+                var values = self.getFilterValues();
+
+                $(".griddly-filter-cancel, button.close", this).off("click").on("click", function ()
+                {
+                    if (self.$element.triggerHandler("beforeclear.griddly") !== false)
+                        self.setFilterValues(values, null, true, true);
+                });
+            })
+            .on("shown.bs.modal", function ()
+            {
+                $(".modal-body :input:visible:not([disabled]):not([data-griddly-filter-data-type=Date]):first", this).focus();
+            });
+
+        this.isConstructed = true;
+    };
+
+    GriddlyFilterBar.prototype = {
+        constructor: GriddlyFilterBar,
+
+        _isUpdatingFilters: false,
+
+        // create and bind
+        create: function ()
+        {
+            var filterDefaults = this.$element.data("griddly-filter-defaults");
+            var currencySymbol = this.$element.data("griddly-currency-symbol");
+
+            this.options.filterDefaults = filterDefaults;
+
+            if (currencySymbol)
+                this.options.currencySymbol = currencySymbol;
+
+            $("form", this.$element).attr("onsubmit", "return false;");
+
+            $("form", this.$element).on("submit", $.proxy(function (event)
+            {
+                this.$filterModal.modal("hide");
+
+                this.updateFilterDisplay();
+
+                event.preventDefault();
+            }, this));
+
+            $(".griddly-search-reset", this.$element).on("click", $.proxy(function (event)
+            {
+                this.resetFilterValues();
+
+                event.preventDefault();
+            }, this));
+
+            $(".griddly-search-clear", this.$element).on("click", $.proxy(function (event)
+            {
+                this.clearFilterValues();
+
+                event.preventDefault();
+            }, this));
+
+            $(".griddly-filter-invoke", this.$element).on("click", $.proxy(function (event)
+            {
+                this.invokeFilterModal();
+
+                event.preventDefault();
+            }, this));
+
+            $(this.$filterModal).on("change", "input, select", $.proxy(function (event)
+            {
+                if (!this._isUpdatingFilters)
+                    this.$element.triggerHandler("filterchange.griddlyFilterBar", event.target);
+            }, this));
+
+            $(".griddly-filter-values", this.$element).on("click", ".griddly-remove-filter-value", $.proxy(removeFilterValueImpl, this));
+        },
+
+        invokeFilterModal: function ()
+        {
+            this.$filterModal.modal("show");
+        },
+
+        getAllFilterElements: function ()
+        {
+            var allFilters = $("input[name], select[name]", this.$filterModal);
+
+            return allFilters;
+        },
+
+        getFilterElement: function (name)
+        {
+            var filter = "[name='" + name + "']";
+
+            return $("input" + filter + ", select" + filter, this.$filterModal);
+        },
+
+        getFilterValues: function ()
+        {
+            var allFilters = this.getAllFilterElements();
+
+            return serializeObject(allFilters);
+        },
+
+        setFilterValue: function (field, value)
+        {
+            var input;
+
+            if (typeof (field) === "string")
+                input = this.getAllFilterElements().filter(field);
+            else
+                input = $(field);
+
+            setFilterValueImpl(input, value);
+        },
+
+        setFilterValues: function (filters, isPatch)
+        {
+            this._isUpdatingFilters = true;
+
+            var allFilters = this.getAllFilterElements();
+
+            setFilterValuesImpl(allFilters, filters, isPatch, this.$filterModal);
+
+            this.$element.triggerHandler("setfilters.griddlyFilterBar", filters);
+
+            this._isUpdatingFilters = false;
+
+            this.updateFilterDisplay();
+        },
+
+        resetFilterValues: function (refresh)
+        {
+            this.$element.find("form")[0].reset();
+
+            this.setFilterValues(this.options.filterDefaults);
+
+            this.$element.triggerHandler("resetfilters.griddlyFilterBar");
+
+            this.updateFilterDisplay();
+        },
+
+        clearFilterValues: function (refresh)
+        {
+            this.setFilterValues({}, false);
+
+            this.$element.triggerHandler("resetfilters.griddlyFilterBar");
+
+            this.updateFilterDisplay();
+        },
+
+        updateFilterDisplay: function ()
+        {
+            var filters = this.getAllFilterElements().closest(".griddly-filter");
+
+            updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol);
+
+            this.$element.triggerHandler("updatefilterdisplay.griddlyFilterBar");
+        },
+
+        // destroy and unbind
+        destroy: function ()
+        {
+
+        }
+    };
+
+    $.fn.griddlyFilterBar = function (option, parameter)
+    {
+        var value;
+        var args = arguments;
+
+        this.each(function ()
+        {
+            var data = $(this).data('griddlyFilterBar'),
+                options = typeof option == 'object' && option;
+
+            // initialize griddly
+            if (!data)
+            {
+                var instanceOptions = $.extend({}, $.fn.griddly.defaults, options);
+
+                $(this).data('griddlyFilterBar', (data = new GriddlyFilterBar(this, instanceOptions)));
+
+            }
+
+            // call griddly method
+            if (typeof option == 'string')
+            {
+                value = data[option].apply(data, Array.prototype.slice.call(args, 1));
+            }
+        });
+
+        if (value !== undefined)
+            return value;
+        else
+            return this;
+    };
+
+    $.fn.griddlyFilterBar.defaults = $.extend({},
+        {
+            currencySymbol: "$",
+            renderFilterDisplay: renderFilterDisplayImpl
+        }, $.fn.griddlyFilterBarGlobalDefaults);
+
+
     function GriddlyButton()
     { }
 
@@ -1928,6 +2143,7 @@
     $(function ()
     {
         $("[data-role=griddly]").griddly();
+        $("[data-role=griddly-filter-bar]").griddlyFilterBar();
 
         $(document).on("click", "[data-role=griddly-button]:not(.griddly table a[data-toggle=ajax],.griddly table a[data-toggle=post])", GriddlyButton.handleClick);
 

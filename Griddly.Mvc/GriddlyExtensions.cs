@@ -198,6 +198,11 @@ namespace Griddly.Mvc
             return page.ViewData["_griddlyDefault_" + field];
         }
 
+        public static void ForceGriddlyDefault(this Controller controller, string field, object value)
+        {
+            controller.ViewData["_griddlyDefault_" + field] = value;
+        }
+
         public static Dictionary<string, object> GetGriddlyDefaults(this WebViewPage page)
         {
             Dictionary<string, object> defaults = new Dictionary<string, object>();

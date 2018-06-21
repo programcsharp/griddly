@@ -1,0 +1,31 @@
+﻿@using Griddly.Mvc;
+@{
+    //ViewBag.Title = "Home Page";
+
+    var filters = new GriddlyFilterBarSettings()
+    {
+
+    }
+        .FilterBox("test", "Da Test", FilterDataType.String)
+        .FilterBool("bar", "Da Bar", nullItemText: "Both")
+    ;
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1>Filter Bar</h1>
+
+        @Html.Partial("Griddly/GriddlyFilterBar", filters)
+    </div>
+</div>
+
+@section head
+{
+}
+
+@section scripts
+{
+    <script>
+
+    </script>
+}
