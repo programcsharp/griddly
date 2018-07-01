@@ -1332,8 +1332,6 @@
 
             this.triggerOrQueue(this.$element, "resetfilters.griddly");
 
-            this.updateFilterDisplay();
-
             if (refresh != false)
                 this.refresh();
         },
@@ -1345,8 +1343,6 @@
             this.setFilterValues({}, false, true, true);
 
             this.triggerOrQueue(this.$element, "resetfilters.griddly");
-
-            this.updateFilterDisplay();
 
             if (refresh != false)
                 this.refresh();
@@ -1842,8 +1838,6 @@
             this.setFilterValues(this.options.filterDefaults);
 
             this.$element.triggerHandler("resetfilters.griddlyFilterBar");
-
-            this.updateFilterDisplay();
         },
 
         clearFilterValues: function (refresh)
@@ -1851,8 +1845,6 @@
             this.setFilterValues({}, false);
 
             this.$element.triggerHandler("resetfilters.griddlyFilterBar");
-
-            this.updateFilterDisplay();
         },
 
         updateFilterDisplay: function ()
