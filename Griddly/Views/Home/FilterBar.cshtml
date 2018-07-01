@@ -6,8 +6,10 @@
     {
 
     }
-        .FilterBox("test", "Da Test", FilterDataType.String)
-        .FilterBool("bar", "Da Bar", nullItemText: "Both")
+        .FilterBox("test", "Availability", FilterDataType.String, group: "Properties")
+        .FilterRange("guestsStart", "guestsEnd", "Guests", group: "Properties")
+        .FilterBool("bar", "Payment Status", nullItemText: "Both", group: "Bookings")
+        .FilterBool("test", "Listing Site", group: "Bookings")
     ;
 }
 

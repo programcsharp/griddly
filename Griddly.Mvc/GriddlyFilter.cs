@@ -40,6 +40,8 @@ namespace Griddly.Mvc
 
         public string HtmlClass { get; set; }
 
+        public string Group { get; set; }
+
         public string Field { get; set; }
         public virtual FilterDataType DataType { get; set; }
 
