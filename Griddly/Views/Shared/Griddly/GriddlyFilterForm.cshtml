@@ -9,9 +9,9 @@
     *
 *@
 
-@model GriddlySettings
+@model List<GriddlyFilter>
 
-@foreach (GriddlyFilter filter in Model.Filters)
+@foreach (GriddlyFilter filter in Model)
 {
     GriddlyFilterBox filterBox = filter as GriddlyFilterBox;
     GriddlyFilterRange filterRange = filter as GriddlyFilterRange;

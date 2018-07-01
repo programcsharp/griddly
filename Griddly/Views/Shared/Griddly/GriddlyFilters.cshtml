@@ -1,0 +1,58 @@
+﻿@*
+    * GriddlyFilters section renderer using Bootstrap html and styles
+    * http://griddly.com
+    * Copyright 2013-2018 Chris Hynes and Data Research Group, Inc.
+    * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
+    *
+    * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
+    *          Use the static properties on GriddlySettings to make config changes.
+    *
+*@
+
+@model List<GriddlyFilter>
+
+<a class="@GriddlySettings.DefaultButtonClassName griddly-filter-invoke" href="javascript:;"><i class="@(GriddlySettings.Css.Icons.Filter)"></i><span class="@(!GriddlySettings.IsBootstrap4 ? "hidden-xs hidden-sm" : "d-none d-md-inline")"> Filter</span></a>
+@Html.Partial("Griddly/GriddlyFilterValues")
+<span class="griddly-filter-statusall-show">Showing all</span>
+<a class="griddly-search-clear griddly-filter-statusfiltered-show" href="javascript:;"><span class="@(!GriddlySettings.IsBootstrap4 ? "hidden-xs hidden-sm" : "d-none d-md-inline")">Clear Filter/</span>Show All</a>
+<div class="modal griddly-filter-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                @if (GriddlySettings.IsBootstrap4) { <h4 class="modal-title">Filter</h4>}
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                @if (!GriddlySettings.IsBootstrap4) { <h4 class="modal-title">Filter</h4>}
+            </div>
+            <form class="@(GriddlySettings.IsBootstrap4 ? "" : "form-horizontal")">
+                <div class="modal-body">
+                    @Html.Partial("Griddly/GriddlyFilterForm")
+                </div>
+                <div class="modal-footer">
+                    <div class="btn-group @(GriddlySettings.IsBootstrap4 ? "mr-auto" : "pull-left")">
+                        <button type="button" class="@GriddlySettings.DefaultButtonClassName dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Reset <span class="caret"></span>
+                        </button>
+                        @if (GriddlySettings.IsBootstrap4)
+                        {
+                            <div class="dropdown-menu">
+                                <a class="griddly-search-reset dropdown-item" href="javascript:;">System Default</a>
+                                <a class="griddly-search-clear dropdown-item" href="javascript:;">Clear (Show All)</a>
+                            </div>
+                        }
+                        else
+                        {
+                            <ul class="dropdown-menu">
+                                <li><a class="griddly-search-reset" href="javascript:;">System Default</a></li>
+                                <li><a class="griddly-search-clear" href="javascript:;">Clear (Show All)</a></li>
+                            </ul>
+                        }
+                    </div>
+                        
+                    <button type="button" class="@GriddlySettings.DefaultButtonClassName griddly-filter-cancel" data-dismiss="modal">Cancel</button>
+                        
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

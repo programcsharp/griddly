@@ -99,6 +99,11 @@ namespace Griddly.Mvc
             }
         }
 
+        public static MvcHtmlString GriddlyFilterBar(this HtmlHelper htmlHelper, GriddlyFilterBarSettings settings)
+        {
+            return htmlHelper.Partial("~/Views/Shared/Griddly/GriddlyFilterBar.cshtml", settings);
+        }
+
         public static GriddlyColumn<TRow> GriddlyColumnFor<TRow>(this HtmlHelper<IEnumerable<TRow>> htmlHelper, Func<TRow, object> template)
         {
             return htmlHelper.GriddlyColumnFor<TRow>(template, null);
@@ -196,6 +201,11 @@ namespace Griddly.Mvc
         public static object GetGriddlyDefault(this WebViewPage page, string field)
         {
             return page.ViewData["_griddlyDefault_" + field];
+        }
+
+        public static void ForceGriddlyDefault(this Controller controller, string field, object value)
+        {
+            controller.ViewData["_griddlyDefault_" + field] = value;
         }
 
         public static Dictionary<string, object> GetGriddlyDefaults(this WebViewPage page)
