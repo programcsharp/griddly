@@ -31,6 +31,12 @@ namespace Griddly.Controllers
             return View();
         }
 
+        public ActionResult FilterBar()
+        {
+            this.ForceGriddlyDefault("test", "hello world!");
+
+            return View();
+        }
 
         public ActionResult Editly()
         {

@@ -1,5 +1,5 @@
 ﻿@*
-    * GriddlyFilter form renderer using Bootstrap html and styles
+    * GriddlyFilter value renderer using Bootstrap html and styles
     * http://griddly.com
     * Copyright 2013-2018 Chris Hynes and Data Research Group, Inc.
     * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
@@ -9,10 +9,10 @@
     *
 *@
 
-@model GriddlySettings
+@model List<GriddlyFilter>
 
 <span class="griddly-filter-values">
-    @foreach (GriddlyFilter filter in Model.Filters.OrderBy(x => x.Caption))
+    @foreach (GriddlyFilter filter in Model.OrderBy(x => x.Caption))
     {
         GriddlyFilterBox filterBox = filter as GriddlyFilterBox;
         GriddlyFilterRange filterRange = filter as GriddlyFilterRange;
