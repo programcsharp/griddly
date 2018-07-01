@@ -99,6 +99,11 @@ namespace Griddly.Mvc
             }
         }
 
+        public static MvcHtmlString GriddlyFilterBar(this HtmlHelper htmlHelper, GriddlyFilterBarSettings settings)
+        {
+            return htmlHelper.Partial("~/Views/Shared/Griddly/GriddlyFilterBar.cshtml", settings);
+        }
+
         public static GriddlyColumn<TRow> GriddlyColumnFor<TRow>(this HtmlHelper<IEnumerable<TRow>> htmlHelper, Func<TRow, object> template)
         {
             return htmlHelper.GriddlyColumnFor<TRow>(template, null);
