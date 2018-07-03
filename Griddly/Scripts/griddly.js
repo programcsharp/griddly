@@ -120,23 +120,35 @@
         }
     };
 
-    var serializeObject = function ($elements)
+    var serializeObject = function ($elements, skipEmpty, multipleSelects)
     {
         // http://stackoverflow.com/a/1186309/8037
         var data = {};
 
         $.each($elements.serializeArray(), function ()
         {
-            if (data[this.name] !== undefined)
+            if (this.value == '' && skipEmpty)
+                this.value = null;
+            else if (this.value == null && !skipEmpty)
+                this.value = '';
+
+            var isMultipleSelect = $.inArray(this.name, multipleSelects) != -1;
+
+            if (this.value == null && !isMultipleSelect)
+                return;
+
+            if (data[this.name] !== undefined || isMultipleSelect)
             {
-                if (!data[this.name].push)
+                if (data[this.name] == null)
+                    data[this.name] = [];
+                else if (!data[this.name].push)
                     data[this.name] = [data[this.name]];
 
-                data[this.name].push(this.value || '');
+                data[this.name].push(this.value);
             }
             else
             {
-                data[this.name] = this.value || '';
+                data[this.name] = this.value;
             }
         });
 
@@ -230,7 +242,11 @@
         {
             resetContext
                 .find("[data-griddly-filter-isnoneall=true] [multiple] option[value='']")
-                .prop("selected", false);
+                .each(function ()
+                {
+                    if (newFilters[$(this).closest("[data-filter-field]").data("filter-field")] == null)
+                        $(this).prop("selected", false);
+                });   
         }
     };
 
@@ -1710,7 +1726,7 @@
                 $(".griddly-filter-cancel, button.close", this).off("click").on("click", function ()
                 {
                     if (self.$element.triggerHandler("beforeclear.griddly") !== false)
-                        self.setFilterValues(values, null, true, true);
+                        self.setFilterValues(values, false);
                 });
             })
             .on("shown.bs.modal", function ()
@@ -1736,6 +1752,16 @@
 
             if (currencySymbol)
                 this.options.currencySymbol = currencySymbol;
+
+            var multipleSelects = [];
+
+            this.$element.find("[data-griddly-filter-ismultiple=true]").each(
+                function (el, i)
+                {
+                    return multipleSelects.push($(this).data("filter-field"));
+                });
+
+            this.options.multipleSelects = multipleSelects;
 
             $("form", this.$element).attr("onsubmit", "return false;");
 
@@ -1801,7 +1827,7 @@
         {
             var allFilters = this.getAllFilterElements();
 
-            return serializeObject(allFilters);
+            return serializeObject(allFilters, true, this.options.multipleSelects);
         },
 
         setFilterValue: function (field, value)
