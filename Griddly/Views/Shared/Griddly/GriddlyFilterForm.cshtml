@@ -60,7 +60,7 @@
                             <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
                         }
                     }
-                    <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@filter.Field" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
+                    <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@filter.Field" name="@filter.Field" type="text" autocomplete="off" role="presentation" value="@filter.GetEditValue(defaultValue)"
                             data-griddly-filter-data-type="@filter.DataType" />
                     if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
                     {
@@ -87,7 +87,7 @@
                                     <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
                                 }
                             }
-                            <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@filter.Field" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
+                            <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@filter.Field" name="@filter.Field" type="text" autocomplete="off" role="presentation" value="@filter.GetEditValue(defaultValue)"
                                    data-griddly-filter-data-type="@filter.DataType" />
                             @if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
                             {
@@ -112,7 +112,7 @@
                                     <span class="input-group-addon"><i class="glyphicon glyphicon-calendar"></i></span>
                                 }
                             }
-                            <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@(filter.Field)-to" name="@filterRange.FieldEnd" type="text" value="@filter.GetEditValue(defaultValueEnd)"
+                            <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@(filter.Field)-to" name="@filterRange.FieldEnd" type="text" autocomplete="off" role="presentation" value="@filter.GetEditValue(defaultValueEnd)"
                                    data-griddly-filter-data-type="@filter.DataType" />
                             @if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
                             {
