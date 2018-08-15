@@ -687,28 +687,31 @@
 
             $(this.$element).on("mouseup", "tbody.data tr td:not(:has(input))", $.proxy(function (e)
             {
-                var url = $.trim($(e.target).parents("tr").data("griddly-url"));
-                var target = $.trim($(e.target).parents("tr").data("griddly-urltarget"));
-
-                if (url && $(e.target).closest("a").length == 0 && $(e.target).closest("td").find("[data-toggle=dropdown]").length == 0)
+                if (e.which < 3)
                 {
-                    if (this.options.rowClickModal)
-                    {
-                        $(this.options.rowClickModal).removeData("bs.modal").modal({ show: false });
-                        $(".modal-content", this.options.rowClickModal).load($.trim(url), $.proxy(function (event)
-                        {
-                            $(this.options.rowClickModal).modal("show");
-                        }, this));
-                    }
-                    else
-                    {
-                        if (e.which == 2 || e.ctrlKey || target == "_blank")
-                            window.open(url);
-                        else if (e.which != 3)
-                            window.location = url;
-                    }
+                    var url = $.trim($(e.target).parents("tr").data("griddly-url"));
+                    var target = $.trim($(e.target).parents("tr").data("griddly-urltarget"));
 
-                    e.preventDefault();
+                    if (url && $(e.target).closest("a").length == 0 && $(e.target).closest("td").find("[data-toggle=dropdown]").length == 0)
+                    {
+                        if (this.options.rowClickModal)
+                        {
+                            $(this.options.rowClickModal).removeData("bs.modal").modal({ show: false });
+                            $(".modal-content", this.options.rowClickModal).load($.trim(url), $.proxy(function (event)
+                            {
+                                $(this.options.rowClickModal).modal("show");
+                            }, this));
+                        }
+                        else
+                        {
+                            if (e.which == 2 || e.ctrlKey || target == "_blank")
+                                window.open(url);
+                            else
+                                window.location = url;
+                        }
+
+                        e.preventDefault();
+                    }
                 }
             }, this));
 
