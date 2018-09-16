@@ -60,6 +60,13 @@ namespace Griddly.Mvc
 
         public override void ExecuteResult(ControllerContext context)
         {
+            if (GriddlySettings.DisableHistoryParameters)
+            {
+                // not using history, so make sure we don't get half junk in FF etc from back buttons
+                context.RequestContext.HttpContext.Response.Cache.SetNoServerCaching();
+                context.RequestContext.HttpContext.Response.Cache.SetNoStore();
+            }
+
             int pageNumber;
             int pageSize;
             SortField[] sortFields = null;

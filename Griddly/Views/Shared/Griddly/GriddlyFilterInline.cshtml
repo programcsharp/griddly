@@ -32,8 +32,8 @@
                     @Html.AttributeIf("data-griddly-filter-isnullable", filterList != null, x => filterList.IsNullable.ToString().ToLower())
                     @Html.AttributeIf("data-griddly-filter-displayitemcount", filterList != null, x => filterList.DisplayItemCount)>
                 @{
-                    object defaultValue = this.GetGriddlyDefault(filter.Field);
-                    object defaultValueEnd = filterRange != null ? this.GetGriddlyDefault(filterRange.FieldEnd) : null;
+                    object defaultValue = this.GetGriddlyParameter(filter.Field);
+                    object defaultValueEnd = filterRange != null ? this.GetGriddlyParameter(filterRange.FieldEnd) : null;
                 }
                 @if (filterHtml != null)
                 {

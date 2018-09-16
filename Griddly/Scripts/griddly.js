@@ -407,6 +407,7 @@
         this.create();
         this.isConstructed = false;
         this.eventQueue = [];
+        this.hasHistory = this.$element.prev(".griddly-init-flag").length > 0;
 
         this.triggerOrQueue = function ()
         {
@@ -436,7 +437,7 @@
 
         var isLoadingHistory = false;
 
-        if (window.history && history.replaceState && history.state && history.state.griddly)
+        if (this.hasHistory && window.history && history.replaceState && history.state && history.state.griddly)
         {
             var state = history.state.griddly[this.options.url];
 
@@ -582,6 +583,16 @@
 
             if (currencySymbol)
                 this.options.currencySymbol = currencySymbol;
+
+            var multipleSelects = [];
+
+            this.$element.find("[data-griddly-filter-ismultiple=true]").each(
+                function (el, i)
+                {
+                    return multipleSelects.push($(this).data("filter-field"));
+                });
+
+            this.options.multipleSelects = multipleSelects;
 
             // TODO: should we do this later on so we handle dynamically added buttons?
             this.$element.find("[data-append-rowids-to-url]").each(function ()
@@ -1309,7 +1320,7 @@
                 }
             }
 
-            return serializeObject(allFilters);
+            return serializeObject(allFilters, true, this.options.multipleSelects);
         },
 
         setFilterValue: function (field, value)
@@ -1455,7 +1466,7 @@
 
             var postData = this.buildRequest();
 
-            if (window.history && history.replaceState)
+            if (this.hasHistory && window.history && history.replaceState)
             {
                 var state =
                 {

@@ -22,7 +22,7 @@
     {
         Caption = "Custom Html Filter",
         Field = "htmlFilter",
-        HtmlTemplate = @<text><input class="form-control @item.HtmlClass" id="griddly-filter-@item.Field" type="text" name="@item.Field" value="@item.GetEditValue(this.GetGriddlyDefault(item.Field))"
+        HtmlTemplate = @<text><input class="form-control @item.HtmlClass" id="griddly-filter-@item.Field" type="text" name="@item.Field" value="@item.GetEditValue(this.GetGriddlyParameter(item.Field))"
             data-griddly-filter-data-type="@item.DataType" /></text>
     })
 )

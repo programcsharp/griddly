@@ -31,9 +31,43 @@ namespace Griddly.Controllers
             return View();
         }
 
+        public ActionResult MultipleDefaultTest()
+        {
+            return View();
+        }
+
+        public GriddlyResult Test1Grid(string lastName, string city = "fooorrr")
+        {
+            this.SetGriddlyDefault(ref lastName, "lastName", "ba");
+
+            IQueryable<TestGridItem> query = _testData;
+
+            if (!string.IsNullOrWhiteSpace(lastName))
+                query = query.Where(x => x.LastName.Contains(lastName));
+            if (!string.IsNullOrWhiteSpace(city))
+                query = query.Where(x => x.City.Contains(city));
+
+            return new QueryableResult<TestGridItem>(query);
+        }
+
+        public GriddlyResult Test2Grid(string lastName, string city)
+        {
+            this.SetGriddlyDefault(ref lastName, "city", "fo");
+
+            IQueryable<TestGridItem> query = _testData;
+
+            if (!string.IsNullOrWhiteSpace(lastName))
+                query = query.Where(x => x.LastName.Contains(lastName));
+
+            if (!string.IsNullOrWhiteSpace(city))
+                query = query.Where(x => x.City.Contains(city));
+
+            return new QueryableResult<TestGridItem>(query);
+        }
+
         public ActionResult FilterBar()
         {
-            this.ForceGriddlyDefault("test", "hello world!");
+            //this.ForceGriddlyDefault("test", "hello world!");
 
             return View();
         }
@@ -94,9 +128,10 @@ namespace Griddly.Controllers
             return new QueryableResult<TestGridItem>(query);
         }
 
-        public GriddlyResult FilterBoxGrid(string lastName, DateTime? city)
+        public GriddlyResult FilterBoxGrid(string lastName, DateTime? city, string[] item)
         {
             this.SetGriddlyDefault(ref lastName, "lastName", "ba");
+            this.SetGriddlyDefault(ref item, "item", new[] { "Item6", "Item7", "Item8", "Item9", "Item10" });
 
             IQueryable<TestGridItem> query = _testData;
 

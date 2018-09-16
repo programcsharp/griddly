@@ -19,8 +19,8 @@
         GriddlyFilterList filterList = filter as GriddlyFilterList;
         GriddlyHtmlFilter filterHtml = filter as GriddlyHtmlFilter;
 
-        object defaultValue = this.GetGriddlyDefault(filter.Field);
-        object defaultValueEnd = filterRange != null ? this.GetGriddlyDefault(filterRange.FieldEnd) : null;
+        object defaultValue = this.GetGriddlyParameter(filter.Field);
+        object defaultValueEnd = filterRange != null ? this.GetGriddlyParameter(filterRange.FieldEnd) : null;
 
         <span class="filter-display" data-filter-field="@filter.Field">
             @if (filterList == null)

@@ -103,10 +103,13 @@
         {
             GriddlyFilterRange filterRange = x as GriddlyFilterRange;
 
-            return this.GetGriddlyDefault(x.Field) != null || (filterRange != null && this.GetGriddlyDefault(filterRange.FieldEnd) != null);
+            return this.GetGriddlyParameter(x.Field) != null || (filterRange != null && this.GetGriddlyParameter(filterRange.FieldEnd) != null);
         });
 
+        if (!GriddlySettings.DisableHistoryParameters)
+        {
         <input class="griddly-init-flag" type="hidden" />
+        }
     @:<div class="griddly griddly-init @settings.ClassName griddly-filter-@settings.InitialFilterMode.ToString().ToLower() griddly-filter-status@(isFiltered ? "filtered" : "all")" data-role="griddly"
         @: @Html.AttributeNullable("data-griddly-url", !simple ? Url.Current() : null)
         @: @Html.AttributeNullable("data-griddly-urltarget", !simple ? settings.RowClickTarget : null)

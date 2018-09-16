@@ -1,0 +1,16 @@
+﻿
+@{
+    ViewBag.Title = "Test 1 Grid";
+}
+
+@Html.Griddly(new GriddlySettings<TestGridItem>()
+    {
+        PageSize = 5
+    }
+    
+    .Column(x => x.FirstName, "First Name" )
+    .Column(x => x.LastName, "Last Name", filter: x => x.FilterBox(FilterDataType.String), defaultSort: SortDirection.Ascending)
+    .Column(x => x.City, "City", filter: x => x.FilterBox(FilterDataType.String))
+    .Column(x => x.State, "State")
+    .Column(x => x.Address, "Address")
+)

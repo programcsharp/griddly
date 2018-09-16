@@ -158,87 +158,120 @@ namespace Griddly.Mvc
             return new HtmlString(sb.ToString());
         }
 
-        public static void SetGriddlyDefault<T>(this Controller controller, ref T parameter, string field, T value)
+        static readonly string _contextKey = "_griddlycontext";
+
+        public static void SetGriddlyDefault<T>(this ControllerBase controller, ref T parameter, string field, T value)
         {
-            if (controller.ControllerContext.IsChildAction)
+            var context = controller.ViewData[_contextKey] as GriddlyContext;
+
+            if (context != null)
             {
-                if (EqualityComparer<T>.Default.Equals(parameter, default(T)))
+                context.Defaults[field] = value;
+
+                if (controller.ControllerContext.IsChildAction
+                    && !context.IsDefaultSkipped
+                    && EqualityComparer<T>.Default.Equals(parameter, default(T)))
+                {
                     parameter = value;
 
-                controller.ViewData["_griddlyDefault_" + field] = parameter;
+                    context.Parameters[field] = value;
+                }
             }
-            else
-                controller.ViewData["_griddlyDefault_" + field] = value;
         }
 
-        public static void SetGriddlyDefault<T>(this Controller controller, ref T[] parameter, string field, IEnumerable<T> value)
+        public static void SetGriddlyDefault<T>(this ControllerBase controller, ref T[] parameter, string field, IEnumerable<T> value)
         {
-            if (controller.ControllerContext.IsChildAction)
-            {
-                if (parameter == null)
-                    parameter = value.ToArray();
+            var context = controller.ViewData[_contextKey] as GriddlyContext;
 
-                controller.ViewData["_griddlyDefault_" + field] = parameter;
+            if (context != null)
+            {
+                context.Defaults[field] = value;
+
+                if (controller.ControllerContext.IsChildAction
+                    && !context.IsDefaultSkipped
+                    && parameter == null)
+                {
+                    parameter = value.ToArray();
+                }
             }
-            else
-                controller.ViewData["_griddlyDefault_" + field] = value;
         }
 
-        public static void SetGriddlyDefault<T>(this Controller controller, ref T?[] parameter, string field, IEnumerable<T> value)
+        public static void SetGriddlyDefault<T>(this ControllerBase controller, ref T?[] parameter, string field, IEnumerable<T> value)
             where T : struct
         {
-            if (controller.ControllerContext.IsChildAction)
+            var context = controller.ViewData[_contextKey] as GriddlyContext;
+
+            if (context != null)
             {
-                if (parameter == null)
+                context.Defaults[field] = value;
+
+                if (controller.ControllerContext.IsChildAction
+                    && !context.IsDefaultSkipped
+                    && parameter == null)
+                {
                     parameter = value.Cast<T?>().ToArray();
-
-                controller.ViewData["_griddlyDefault_" + field] = parameter;
+                }
             }
-            else
-                controller.ViewData["_griddlyDefault_" + field] = value;
         }
 
-        public static object GetGriddlyDefault(this WebViewPage page, string field)
+        public static object GetGriddlyParameter(this WebViewPage page, string field)
         {
-            return page.ViewData["_griddlyDefault_" + field];
-        }
+            object value = null;
 
-        public static void ForceGriddlyDefault(this Controller controller, string field, object value)
-        {
-            controller.ViewData["_griddlyDefault_" + field] = value;
+            if ((page.ViewData[_contextKey] as GriddlyContext)?.Parameters.TryGetValue(field, out value) != true)
+                value = null;
+
+            return value;
         }
 
         public static Dictionary<string, object> GetGriddlyDefaults(this WebViewPage page)
         {
             Dictionary<string, object> defaults = new Dictionary<string, object>();
+            var context = page.ViewData[_contextKey] as GriddlyContext;
 
-            foreach (var key in page.ViewData.Keys.Where(k => k.StartsWith("_griddlyDefault_")))
+            if (context != null)
             {
-                var value = page.ViewData[key];
-                string stringValue = null;
-
-                Type t = null;
-
-                if (value != null)
+                // TODO: is there any reason to make a new dict vs using the same one? nobody else uses it, right?
+                foreach (var pair in context.Defaults)
                 {
-                    t = value.GetType();
+                    var value = pair.Value;
 
-                    if (t.IsArray)
-                    { 
-                        t = t.GetElementType();
+                    if (value != null)
+                    {
+                        Type t = value.GetType();
 
-                        if ((Nullable.GetUnderlyingType(t) ?? t).IsEnum)
-                            value = ((Array)value).Cast<object>().Select(x => x?.ToString()).ToArray();
+                        if (t.IsArray)
+                        {
+                            t = t.GetElementType();
+
+                            if ((Nullable.GetUnderlyingType(t) ?? t).IsEnum)
+                                value = ((Array)value).Cast<object>().Select(x => x?.ToString()).ToArray();
+                        }
                     }
 
-                    if (stringValue == null)
-                        stringValue = value.ToString();
+                    defaults[pair.Key] = value;
                 }
-
-                defaults[key.Substring("_griddlyDefault_".Length)] = value;
             }
 
             return defaults;
+        }
+
+        public static GriddlyContext GetOrCreateGriddlyContext(this ControllerBase controller)
+        {
+            var context = controller.ViewData[_contextKey] as GriddlyContext;
+
+            if (context == null)
+            {
+                context = new GriddlyContext()
+                {
+                    Name = (controller.GetType().Name + "_" + controller.ControllerContext.RouteData.GetRequiredString("action")).ToLower()
+                };
+
+                // NOTE: for 2020 Chris... yes, this is unique for multiple griddlies on a page as it is in the grid action context of each one
+                controller.ViewData[_contextKey] = context;
+            }
+
+            return context;
         }
 
         static IDictionary<string, object> ObjectToDictionary(object value)

@@ -51,9 +51,8 @@
       <HintPath>..\packages\FFaker.Net.1.1.0.0\lib\net40\FFaker.Net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -270,6 +269,9 @@
     <Content Include="Views\Shared\Griddly\GriddlyFilters.cshtml" />
     <Content Include="Views\Home\FilterBar.cshtml" />
     <Content Include="Views\Shared\Griddly\GriddlyFilterBar.cshtml" />
+    <Content Include="Views\Home\MultipleDefaultTest.cshtml" />
+    <Content Include="Views\Home\Test1Grid.cshtml" />
+    <Content Include="Views\Home\Test2Grid.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Griddly.Mvc\Griddly.Mvc.csproj">

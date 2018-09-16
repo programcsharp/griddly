@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Griddly.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -16,6 +17,10 @@ namespace Griddly
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            GlobalFilters.Filters.Add(new GriddlyParameterAttribute());
+
+            ValueProviderFactories.Factories.Add(new GriddlyCookieFilterValueProviderFactory());
         }
     }
 }

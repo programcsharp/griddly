@@ -31,8 +31,8 @@
         GriddlyFilterList filterList = filter as GriddlyFilterList;
         GriddlyHtmlFilter filterHtml = filter as GriddlyHtmlFilter;
 
-        object defaultValue = this.GetGriddlyDefault(filter.Field);
-        object defaultValueEnd = filterRange != null ? this.GetGriddlyDefault(filterRange.FieldEnd) : null;
+        object defaultValue = this.GetGriddlyParameter(filter.Field);
+        object defaultValueEnd = filterRange != null ? this.GetGriddlyParameter(filterRange.FieldEnd) : null;
 
         <div class="griddly-filter-form-group form-group form-group-sm griddly-filter @(filterBox != null ? "griddly-filter-box" : null) @(filterRange != null ? "griddly-filter-range" : null) @(filterList != null ? "griddly-filter-list" : null) @(filterHtml != null ? "griddly-html-filter" : null)"
                         data-filter-name="@filter.Caption" data-filter-name-plural="@filter.CaptionPlural"

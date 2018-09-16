@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -190,6 +191,35 @@ namespace Griddly.Mvc
                 output = output.Substring(0, output.Length - 3);
 
             return output;
+        }
+
+        internal static string[] GetFormattedValueByType(object value)
+        {
+            if (value != null)
+            {
+                var type = value.GetType();
+
+                if (value is IEnumerable enumerable && type != typeof(string))
+                    return enumerable.Cast<object>().Select(x => x.ToString()).ToArray();
+
+                string stringValue;
+
+                if (type == typeof(float) ||
+                    type == typeof(double) ||
+                    type == typeof(decimal))
+                    stringValue = string.Format("{0:n2}", value);
+                else if (type == typeof(DateTime) || type.HasCastOperator<DateTime>())
+                    stringValue = string.Format("{0:d}", value);
+                else if (type == typeof(bool))
+                    stringValue = value.ToString().ToLower();
+                else
+                    stringValue = value.ToString();
+
+                if (!string.IsNullOrWhiteSpace(stringValue))
+                    return new[] { stringValue };
+            }
+
+            return null;
         }
     }
 }
