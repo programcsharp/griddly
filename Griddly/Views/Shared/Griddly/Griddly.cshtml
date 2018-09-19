@@ -114,7 +114,7 @@
 
             if (param != null)
             {
-                return GriddlyExtensions.GetFormattedValueByType(x.Value).SequenceEqual(GriddlyExtensions.GetFormattedValueByType(param));
+                return Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(x.Value).SequenceEqual(Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(param));
             }
 
             return false;
@@ -155,7 +155,7 @@
         @: data-griddly-pagesize="@(settings.PageSize ?? Model.PageSize)"
         @: @Html.AttributeNullable("data-griddly-rowclickmodal", settings.RowClickModal)
         @: data-griddly-defaultrowids="@Json.Encode(settings.DefaultRowIds != null ? settings.DefaultRowIds.Select(x => x.ToLower()).ToArray() : new[] { "value" })"
-        @: data-griddly-filter-defaults="@Newtonsoft.Json.JsonConvert.SerializeObject(defaultFilters)"
+        @: data-griddly-filter-defaults="@Newtonsoft.Json.JsonConvert.SerializeObject(defaultFilters, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.Converters.IsoDateTimeConverter() { DateTimeFormat = "d" })"
         @: data-griddly-currency-symbol="@Griddly.Mvc.GriddlyExtensions.CurrencySymbol"
         @: @Html.AttributeIf("data-griddly-currentsort", Model.SortFields != null && Model.SortFields.Any(), Html.AttributeEncode(Json.Encode(Model.SortFields.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))))
         @: @Html.AttributeIf("data-griddly-defaultsort", defaultSort != null && defaultSort.Any(), Html.AttributeEncode(Json.Encode(defaultSort.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))))
