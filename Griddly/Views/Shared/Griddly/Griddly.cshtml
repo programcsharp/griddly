@@ -340,7 +340,8 @@
 
 @helper RenderFormFiltersModal(GriddlySettings settings)
 {
-    @Html.Partial("Griddly/GriddlyFilters", settings.Filters)
+    @Html.Partial("Griddly/GriddlyFilters", settings)
+
 }
 
 @helper RenderFormFiltersInline(GriddlySettings settings)

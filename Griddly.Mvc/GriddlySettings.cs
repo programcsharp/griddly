@@ -10,7 +10,7 @@ using System.Web.Routing;
 
 namespace Griddly.Mvc
 {
-    public abstract class GriddlySettings
+    public abstract class GriddlySettings: IGriddlyFilterSettings
     {
         public static string DefaultClassName = null;
         public static string DefaultTableClassName = "table table-bordered table-hover";
@@ -88,6 +88,7 @@ namespace Griddly.Mvc
         public Func<object, object> AfterTemplate { get; set; }
         public Func<GriddlySettings, object> FilterTemplate { get; set; }
         public Func<GriddlySettings, object> InlineFilterTemplate { get; set; }
+        public Func<object, object> FilterButtonTemplate { get; set; }
 
         public Func<object, object> RowClickUrl { get; set; }
 

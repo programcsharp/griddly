@@ -44,27 +44,37 @@ namespace Griddly.Mvc
 
     public class GriddlyCookieFilterValueProviderFactory : ValueProviderFactory
     {
+        Func<ControllerContext, bool> _canProvide = null;
+
+        public GriddlyCookieFilterValueProviderFactory(Func<ControllerContext, bool> canProvide = null)
+        {
+            _canProvide = canProvide;
+        }
+
         public override IValueProvider GetValueProvider(ControllerContext controllerContext)
         {
             if (controllerContext.IsChildAction && controllerContext.HttpContext.Request.QueryString.Count == 0)
             {
-                var context = controllerContext.Controller.GetOrCreateGriddlyContext();
-                var cookie = controllerContext.HttpContext.Request.Cookies[context.CookieName];
-
-                if (cookie != null && !string.IsNullOrWhiteSpace(cookie.Value))
+                if (_canProvide?.Invoke(controllerContext) != false)
                 {
-                    try
-                    {
-                        var data = JsonConvert.DeserializeObject<GriddlyFilterCookieData>(cookie.Value);
+                    var context = controllerContext.Controller.GetOrCreateGriddlyContext();
+                    var cookie = controllerContext.HttpContext.Request.Cookies[context.CookieName];
 
-                        context.CookieData = data;
-                        context.IsDefaultSkipped = true;
-
-                        return new GriddlyCookieFilterValueProvider(context);
-                    }
-                    catch
+                    if (cookie != null && !string.IsNullOrWhiteSpace(cookie.Value))
                     {
-                        // TODO: log it?
+                        try
+                        {
+                            var data = JsonConvert.DeserializeObject<GriddlyFilterCookieData>(cookie.Value);
+
+                            context.CookieData = data;
+                            context.IsDefaultSkipped = true;
+
+                            return new GriddlyCookieFilterValueProvider(context);
+                        }
+                        catch
+                        {
+                            // TODO: log it?
+                        }
                     }
                 }
             }

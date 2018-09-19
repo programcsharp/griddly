@@ -14,5 +14,5 @@
 <div class="griddly-filter-bar" data-role="griddly-filter-bar"
     data-griddly-filter-defaults="@Newtonsoft.Json.JsonConvert.SerializeObject(this.GetGriddlyDefaults())"
     data-griddly-currency-symbol="@Griddly.Mvc.GriddlyExtensions.CurrencySymbol">
-    @Html.Partial("Griddly/GriddlyFilters", Model.Filters)
+    @Html.Partial("Griddly/GriddlyFilters")
 </div>

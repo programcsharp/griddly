@@ -9,10 +9,17 @@
     *
 *@
 
-@model List<GriddlyFilter>
+@model IGriddlyFilterSettings
 
-<a class="btn btn-default griddly-filter-invoke"><i class="glyphicon glyphicon-filter"></i><span class="hidden-xs hidden-sm"> Filter</span></a>
-@Html.Partial("Griddly/GriddlyFilterValues")
+@if (Model.FilterButtonTemplate != null)
+{
+    @Model.FilterButtonTemplate(null)
+}
+else
+{
+    <a class="btn btn-default griddly-filter-invoke"><i class="glyphicon glyphicon-filter"></i><span class="hidden-xs hidden-sm"> Filter</span></a>
+}
+@Html.Partial("Griddly/GriddlyFilterValues", Model.Filters)
 <span class="griddly-filter-statusall-show">Showing all</span>
 <a class="griddly-search-clear griddly-filter-statusfiltered-show" href="javascript:void(0)">Show All</a>
 <span class="griddly-filter-statusfiltered-show griddly-filter-statuscandefault-show">|</span>
@@ -26,7 +33,7 @@
             </div>
             <form class="form-horizontal">
                 <div class="modal-body">
-                    @Html.Partial("Griddly/GriddlyFilterForm")
+                    @Html.Partial("Griddly/GriddlyFilterForm", Model.Filters)
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default griddly-filter-cancel" data-dismiss="modal">Cancel</button>

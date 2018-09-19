@@ -10,14 +10,10 @@ using System.Web.Routing;
 
 namespace Griddly.Mvc
 {
-    public class GriddlyFilterBarSettings
+    public class GriddlyFilterBarSettings : IGriddlyFilterSettings
     {
-        public GriddlyFilterBarSettings()
-        {
-            Filters = new List<GriddlyFilter>();
-        }
-
-        public List<GriddlyFilter> Filters { get; set; }
+        public List<GriddlyFilter> Filters { get; set; } = new List<GriddlyFilter>();
+        public Func<object, object> FilterButtonTemplate { get; set; }
 
         public GriddlyFilterBarSettings FilterBox(string field, string caption, FilterDataType dataType = FilterDataType.Decimal, string htmlClass = null, string captionPlural = null, string group = null)
         {

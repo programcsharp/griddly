@@ -101,6 +101,7 @@
     <Compile Include="GriddlyExport.cs" />
     <Compile Include="GriddlyFilterBarSettings.cs" />
     <Compile Include="GriddlyParameterAttribute.cs" />
+    <Compile Include="IFilterSettings.cs" />
     <Compile Include="InternalExtensions.cs" />
     <Compile Include="GriddlyButton.cs" />
     <Compile Include="GriddlyColumn.cs" />
