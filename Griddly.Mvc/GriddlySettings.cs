@@ -38,6 +38,7 @@ namespace Griddly.Mvc
         public static Func<GriddlyResult, NameValueCollection, ActionResult> HandleCustomExport = null;
         public static Action<GriddlySettings, GriddlyResultPage, HtmlHelper, bool> OnBeforeRender = null;
         public static Action<GriddlySettings, ControllerContext> OnGriddlyResultExecuting = null;
+        public static Action<GriddlySettings, GriddlyContext, ControllerContext> OnGriddlyPageExecuting = null;
 
         public GriddlySettings()
         {

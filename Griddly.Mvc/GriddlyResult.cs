@@ -89,6 +89,8 @@ namespace Griddly.Mvc
 
             if (griddlyContext.ExportFormat == null)
             {
+                GriddlySettings.OnGriddlyPageExecuting?.Invoke(settings, griddlyContext, context);
+
                 IList<T> page = GetPage(griddlyContext.PageNumber, griddlyContext.PageSize, griddlyContext.SortFields);
 
                 GriddlyResultPage<T> result = new GriddlyResultPage<T>()
