@@ -11,23 +11,26 @@ namespace Griddly.Mvc
 {
     public class GriddlyCookieFilterValueProvider : IValueProvider
     {
-        GriddlyFilterCookieData _data;
+        GriddlyContext _context;
 
-        public GriddlyCookieFilterValueProvider(GriddlyFilterCookieData data)
+        public GriddlyCookieFilterValueProvider(GriddlyContext context)
         {
-            _data = data;
+            _context = context;
+
+            if (_context.CookieData?.SortFields?.Length > 0)
+                _context.SortFields = _context.CookieData?.SortFields;
         }
 
         public bool ContainsPrefix(string prefix)
         {
-            return _data.Values?.ContainsKey(prefix) == true;
+            return _context.CookieData.Values?.ContainsKey(prefix) == true;
         }
 
         public ValueProviderResult GetValue(string key)
         {
             string[] value = null;
 
-            if (_data.Values?.TryGetValue(key, out value) != true)
+            if (_context.CookieData.Values?.TryGetValue(key, out value) != true)
                 value = null;
 
             string attemptedValue = null;
@@ -57,7 +60,7 @@ namespace Griddly.Mvc
                         context.CookieData = data;
                         context.IsDefaultSkipped = true;
 
-                        return new GriddlyCookieFilterValueProvider(data);
+                        return new GriddlyCookieFilterValueProvider(context);
                     }
                     catch
                     {

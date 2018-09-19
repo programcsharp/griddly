@@ -36,7 +36,10 @@ namespace Griddly.Mvc
                             if (context.IsDefaultSkipped && !(context.CookieData?.Values?.ContainsKey(param.Key) == true || parentKeys.Contains(param.Key)))
                                 filterContext.ActionParameters[param.Key] = null;
                             else
+                            {
+                                context.Defaults[param.Key] = param.Value;
                                 context.Parameters[param.Key] = param.Value;
+                            }
                         }
                     }
                 }
@@ -55,17 +58,20 @@ namespace Griddly.Mvc
                 Uri parentPath = filterContext.IsChildAction ? request.Url : request.UrlReferrer;
                 string parentPathString = parentPath?.PathAndQuery.Split('?')[0]; // TODO: less allocations than split
 
-                if (parentPathString?.Length > 1)
+                if (parentPathString?.Length > 0)
                 {
                     HttpCookie cookie = new HttpCookie("gf_" + context.Name)
                     {
-                        Path = context.ParentPath
+                        Path = parentPathString
                     };
 
                     GriddlyFilterCookieData data = new GriddlyFilterCookieData()
                     {
                         Values = new Dictionary<string, string[]>()
                     };
+
+                    if (context.SortFields?.Length > 0)
+                        data.SortFields = context.SortFields;
 
                     // now, we could use the context.Parameters... but the raw string values seems more like what we want here...
                     foreach (var param in filterContext.ActionDescriptor.GetParameters())
@@ -88,7 +94,7 @@ namespace Griddly.Mvc
                         {
                             if (param.Value != null)
                             {
-                                var value = Extensions.GetFormattedValueByType(param.Value);
+                                var value = GriddlyExtensions.GetFormattedValueByType(param.Value);
 
                                 if (value != null)
                                     data.Values[param.Key] = value;

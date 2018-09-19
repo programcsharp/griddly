@@ -97,20 +97,55 @@
 }
 
 @if (isFirstRender)
+{
+    var defaultFilters = this.GetGriddlyDefaults();
+    SortField[] defaultSort = settings.DefaultSort;
+    bool isFiltered = settings.Filters.Any(x =>
     {
-        SortField[] defaultSort = settings.DefaultSort;
-        bool isFiltered = settings.Filters.Any(x =>
-        {
-            GriddlyFilterRange filterRange = x as GriddlyFilterRange;
+        GriddlyFilterRange filterRange = x as GriddlyFilterRange;
 
-            return this.GetGriddlyParameter(x.Field) != null || (filterRange != null && this.GetGriddlyParameter(filterRange.FieldEnd) != null);
+        return this.GetGriddlyParameter(x.Field) != null || (filterRange != null && this.GetGriddlyParameter(filterRange.FieldEnd) != null);
+    });
+
+    bool isDefaultFilter = defaultFilters.Any() == isFiltered
+        && defaultFilters.All(x =>
+        {
+            var param = this.GetGriddlyParameter(x.Key);
+
+            if (param != null)
+            {
+                return GriddlyExtensions.GetFormattedValueByType(x.Value).SequenceEqual(GriddlyExtensions.GetFormattedValueByType(param));
+            }
+
+            return false;
         });
 
-        if (!GriddlySettings.DisableHistoryParameters)
+    bool isDefaultSort = true;
+    
+    if (defaultSort != null && Model.SortFields != null && defaultSort.Length == Model.SortFields.Length)
+    {
+        for (int i = 0; i < defaultSort.Length; i++)
         {
-        <input class="griddly-init-flag" type="hidden" />
+            if (defaultSort[i].Field != Model.SortFields[i].Field || defaultSort[i].Direction != Model.SortFields[i].Direction)
+            {
+                isDefaultSort = false;
+
+                break;
+            }
         }
-    @:<div class="griddly griddly-init @settings.ClassName griddly-filter-@settings.InitialFilterMode.ToString().ToLower() griddly-filter-status@(isFiltered ? "filtered" : "all")" data-role="griddly"
+    }
+    else if ((defaultSort != null && Model.SortFields == null)
+        || (defaultSort == null && Model.SortFields != null)
+        || (defaultSort.Length != Model.SortFields.Length))
+    {
+        isDefaultSort = false;
+    }
+
+    if (!GriddlySettings.DisableHistoryParameters)
+    {
+        <input class="griddly-init-flag" type="hidden" />
+    }
+    @:<div class="griddly griddly-init @settings.ClassName griddly-filter-@settings.InitialFilterMode.ToString().ToLower() griddly-filter-status@(isFiltered ? "filtered" : "all") @((!isDefaultFilter && defaultFilters.Count > 0) || !isDefaultSort ? "griddly-filter-statuscandefault" : null)" data-role="griddly"
         @: @Html.AttributeNullable("data-griddly-url", !simple ? Url.Current() : null)
         @: @Html.AttributeNullable("data-griddly-urltarget", !simple ? settings.RowClickTarget : null)
         @: data-griddly-count="@Model.Total"
@@ -120,8 +155,9 @@
         @: data-griddly-pagesize="@(settings.PageSize ?? Model.PageSize)"
         @: @Html.AttributeNullable("data-griddly-rowclickmodal", settings.RowClickModal)
         @: data-griddly-defaultrowids="@Json.Encode(settings.DefaultRowIds != null ? settings.DefaultRowIds.Select(x => x.ToLower()).ToArray() : new[] { "value" })"
-        @: data-griddly-filter-defaults="@Newtonsoft.Json.JsonConvert.SerializeObject(this.GetGriddlyDefaults())"
+        @: data-griddly-filter-defaults="@Newtonsoft.Json.JsonConvert.SerializeObject(defaultFilters)"
         @: data-griddly-currency-symbol="@Griddly.Mvc.GriddlyExtensions.CurrencySymbol"
+        @: @Html.AttributeIf("data-griddly-currentsort", Model.SortFields != null && Model.SortFields.Any(), Html.AttributeEncode(Json.Encode(Model.SortFields.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))))
         @: @Html.AttributeIf("data-griddly-defaultsort", defaultSort != null && defaultSort.Any(), Html.AttributeEncode(Json.Encode(defaultSort.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))))
         @: @settings.HtmlAttributes.ToHtmlAttributes()>
     if (settings.BeforeTemplate != null)
@@ -188,8 +224,10 @@
          <tr class="columnHeaders">
             @foreach (GriddlyColumn column in settings.Columns)
             {
+                SortField sort = Model.SortFields.FirstOrDefault(x => x.Field == column.ExpressionString);
+
                 bool isSortable = !simple && !string.IsNullOrWhiteSpace(column.ExpressionString);
-                <th class="@column.ClassName @(isSortable ? "sortable" : null) @(column is GriddlySelectColumn ? "select" : null) @(column.DefaultSort != null ? (column.DefaultSort == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.ExpressionString) @column.HeaderHtmlAttributes.ToHtmlAttributes()>
+                <th class="@column.ClassName @(isSortable ? "sortable" : null) @(column is GriddlySelectColumn ? "select" : null) @(sort != null ? (sort.Direction == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.ExpressionString) @column.HeaderHtmlAttributes.ToHtmlAttributes()>
                     @if (!string.IsNullOrWhiteSpace(column.ExpressionString))
                     {
                         <text>@Html.Raw(column.Caption)<span class="icon">&nbsp;</span></text>

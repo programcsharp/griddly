@@ -155,6 +155,144 @@
         return data;
     };
 
+    // https://stackoverflow.com/a/1144249
+    var deepCompare = function ()
+    {
+        var i, l, leftChain, rightChain;
+
+        function compare2Objects(x, y)
+        {
+            var p;
+
+            // remember that NaN === NaN returns false
+            // and isNaN(undefined) returns true
+            if (isNaN(x) && isNaN(y) && typeof x === 'number' && typeof y === 'number')
+            {
+                return true;
+            }
+
+            // Compare primitives and functions.     
+            // Check if both arguments link to the same object.
+            // Especially useful on the step where we compare prototypes
+            if (x === y)
+            {
+                return true;
+            }
+
+            // Works in case when functions are created in constructor.
+            // Comparing dates is a common scenario. Another built-ins?
+            // We can even handle functions passed across iframes
+            if ((typeof x === 'function' && typeof y === 'function') ||
+                (x instanceof Date && y instanceof Date) ||
+                (x instanceof RegExp && y instanceof RegExp) ||
+                (x instanceof String && y instanceof String) ||
+                (x instanceof Number && y instanceof Number))
+            {
+                return x.toString() === y.toString();
+            }
+
+            // At last checking prototypes as good as we can
+            if (!(x instanceof Object && y instanceof Object))
+            {
+                return false;
+            }
+
+            if (x.isPrototypeOf(y) || y.isPrototypeOf(x))
+            {
+                return false;
+            }
+
+            if (x.constructor !== y.constructor)
+            {
+                return false;
+            }
+
+            if (x.prototype !== y.prototype)
+            {
+                return false;
+            }
+
+            // Check for infinitive linking loops
+            if (leftChain.indexOf(x) > -1 || rightChain.indexOf(y) > -1)
+            {
+                return false;
+            }
+
+            // Quick checking of one object being a subset of another.
+            // todo: cache the structure of arguments[0] for performance
+            for (p in y)
+            {
+                if (y.hasOwnProperty(p) !== x.hasOwnProperty(p))
+                {
+                    return false;
+                }
+                else if (typeof y[p] !== typeof x[p])
+                {
+                    return false;
+                }
+            }
+
+            for (p in x)
+            {
+                if (y.hasOwnProperty(p) !== x.hasOwnProperty(p))
+                {
+                    return false;
+                }
+                else if (typeof y[p] !== typeof x[p])
+                {
+                    return false;
+                }
+
+                switch (typeof (x[p]))
+                {
+                    case 'object':
+                    case 'function':
+
+                        leftChain.push(x);
+                        rightChain.push(y);
+
+                        if (!compare2Objects(x[p], y[p]))
+                        {
+                            return false;
+                        }
+
+                        leftChain.pop();
+                        rightChain.pop();
+                        break;
+
+                    default:
+                        if (x[p] !== y[p])
+                        {
+                            return false;
+                        }
+                        break;
+                }
+            }
+
+            return true;
+        }
+
+        if (arguments.length < 1)
+        {
+            return true; //Die silently? Don't know how to handle such case, please help...
+            // throw "Need two or more arguments to compare";
+        }
+
+        for (i = 1, l = arguments.length; i < l; i++)
+        {
+
+            leftChain = []; //Todo: this can be cached
+            rightChain = [];
+
+            if (!compare2Objects(arguments[0], arguments[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    };
+
     // http://stackoverflow.com/q/8098202
     var parseForValidDate = function (text)
     {
@@ -349,6 +487,8 @@
 
         root.toggleClass("griddly-filter-statusfiltered", hasFilter);
         root.toggleClass("griddly-filter-statusall", !hasFilter);
+
+        return hasFilter;
     };
 
     var renderFilterDisplayImpl = function (content, fieldValue)
@@ -454,25 +594,9 @@
 
                         this.options.pageNumber = state.pageNumber;
                         this.options.pageSize = state.pageSize;
-                        this.options.sortFields = state.sortFields;
+                        this.setSortFields(state.sortFields);
                         this.setFilterMode(state.filterMode, true);
                         this.setFilterValues(state.filterValues, false, true, true);
-
-                        $("[data-griddly-sortfield], .griddly-filters-inline td", this.$element).removeClass("sorted_a sorted_d");
-
-                        if (this.options.sortFields)
-                        {
-                            for (var i = 0; i < this.options.sortFields.length; i++)
-                            {
-                                var sort = this.options.sortFields[i];
-
-                                var header = $("th[data-griddly-sortfield='" + sort.Field + "']", this.$element);
-                                var inlineFilter = $(".griddly-filters-inline", this.$element)[0].cells[header[0].cellIndex];
-
-                                header.addClass(sort.Direction == "Ascending" ? "sorted_a" : "sorted_d");
-                                $(inlineFilter).addClass(sort.Direction == "Ascending" ? "sorted_a" : "sorted_d");
-                            }
-                        }
 
                         this.refresh();
                     }
@@ -543,6 +667,7 @@
             var url = this.$element.data("griddly-url");
             var count = this.$element.data("griddly-count");
             var pageSize = this.$element.data("griddly-pagesize");
+            var currentSort = this.$element.data("griddly-currentsort");
             var defaultSort = this.$element.data("griddly-defaultsort");
             var defaultRowIds = this.$element.data("griddly-defaultrowids");
             var isMultiSort = this.$element.data("griddly-multisort");
@@ -571,7 +696,8 @@
             if (isMultiSort != null)
                 this.options.isMultiSort = isMultiSort == true;
 
-            this.options.sortFields = defaultSort && defaultSort.length ? defaultSort : [];
+            this.options.sortFields = currentSort && currentSort.length ? currentSort : [];
+            this.options.defaultSort = defaultSort && defaultSort.length ? defaultSort : [];
 
             if (onRefresh && Object.prototype.toString.call(window[onRefresh]) == '[object Function]')
                 this.options.onRefresh = window[onRefresh];
@@ -658,7 +784,7 @@
                 event.preventDefault();
             }, this));
 
-            $("form .griddly-search-reset", this.$element).on("click", $.proxy(function (event)
+            $(".griddly-search-reset", this.$element).on("click", $.proxy(function (event)
             {
                 var refresh = $(event.currentTarget).closest(".modal").length == 0;
 
@@ -1358,6 +1484,7 @@
             this.$element.find("form .transient").remove();
             this.$element.find("form")[0].reset();
 
+            this.setSortFields(this.options.defaultSort);
             this.setFilterValues(this.options.filterDefaults, null, true, true);
 
             this.triggerOrQueue(this.$element, "resetfilters.griddly");
@@ -1380,15 +1507,16 @@
 
         updateFilterDisplay: function ()
         {
+            var hasFilter = false;
+
             if (this.options.filterMode == "Form")
             {
                 var filters = this.getAllFilterElements().closest(".griddly-filter");
 
-                updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol);
+                hasFilter = updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol);
             }
             else
             {
-                var hasFilter = false;
                 var values = this.getFilterValues();
 
                 for (var k in values)
@@ -1404,7 +1532,39 @@
                 updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol, hasFilter);
             }
 
+            this.updateDefaultStatus();
+
             this.triggerOrQueue(this.$element, "updatefilterdisplay.griddly");
+        },
+
+        updateDefaultStatus: function ()
+        {
+            var values = this.getFilterValues();
+            var isDefaultFilter = deepCompare(this.options.filterDefaults, values);
+            var isDefaultSort = deepCompare(this.options.defaultSort, this.options.sortFields);
+
+            this.$element.toggleClass("griddly-filter-statuscandefault", (!isDefaultFilter && this.options.filterDefaults != null && Object.keys(this.options.filterDefaults).length > 0) || !isDefaultSort);
+        },
+
+        setSortFields: function (sortFields)
+        {
+            this.options.sortFields = sortFields;
+
+            $("[data-griddly-sortfield], .griddly-filters-inline td", this.$element).removeClass("sorted_a sorted_d");
+
+            if (this.options.sortFields && this.options.sortFields.length)
+            {
+                for (var i = 0; i < this.options.sortFields.length; i++)
+                {
+                    var sort = this.options.sortFields[i];
+
+                    var header = $("th[data-griddly-sortfield='" + sort.Field + "']", this.$element);
+                    var inlineFilter = $(".griddly-filters-inline", this.$element)[0].cells[header[0].cellIndex];
+
+                    header.addClass(sort.Direction == "Ascending" ? "sorted_a" : "sorted_d");
+                    $(inlineFilter).addClass(sort.Direction == "Ascending" ? "sorted_a" : "sorted_d");
+                }
+            }
         },
 
         getAdditionalRequestValues: function ()

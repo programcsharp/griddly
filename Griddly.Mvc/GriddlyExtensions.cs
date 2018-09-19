@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -162,55 +163,50 @@ namespace Griddly.Mvc
 
         public static void SetGriddlyDefault<T>(this ControllerBase controller, ref T parameter, string field, T value)
         {
-            var context = controller.ViewData[_contextKey] as GriddlyContext;
+            var context = controller.GetOrCreateGriddlyContext();
 
-            if (context != null)
+            context.Defaults[field] = value;
+
+            if (controller.ControllerContext.IsChildAction
+                && !context.IsDefaultSkipped
+                && EqualityComparer<T>.Default.Equals(parameter, default(T)))
             {
-                context.Defaults[field] = value;
+                parameter = value;
 
-                if (controller.ControllerContext.IsChildAction
-                    && !context.IsDefaultSkipped
-                    && EqualityComparer<T>.Default.Equals(parameter, default(T)))
-                {
-                    parameter = value;
-
-                    context.Parameters[field] = value;
-                }
+                context.Parameters[field] = parameter;
             }
         }
 
         public static void SetGriddlyDefault<T>(this ControllerBase controller, ref T[] parameter, string field, IEnumerable<T> value)
         {
-            var context = controller.ViewData[_contextKey] as GriddlyContext;
+            var context = controller.GetOrCreateGriddlyContext();
 
-            if (context != null)
+            context.Defaults[field] = value;
+
+            if (controller.ControllerContext.IsChildAction
+                && !context.IsDefaultSkipped
+                && parameter == null)
             {
-                context.Defaults[field] = value;
+                parameter = value.ToArray();
 
-                if (controller.ControllerContext.IsChildAction
-                    && !context.IsDefaultSkipped
-                    && parameter == null)
-                {
-                    parameter = value.ToArray();
-                }
+                context.Parameters[field] = parameter;
             }
         }
 
         public static void SetGriddlyDefault<T>(this ControllerBase controller, ref T?[] parameter, string field, IEnumerable<T> value)
             where T : struct
         {
-            var context = controller.ViewData[_contextKey] as GriddlyContext;
+            var context = controller.GetOrCreateGriddlyContext();
 
-            if (context != null)
+            context.Defaults[field] = value;
+
+            if (controller.ControllerContext.IsChildAction
+                && !context.IsDefaultSkipped
+                && parameter == null)
             {
-                context.Defaults[field] = value;
+                parameter = value.Cast<T?>().ToArray();
 
-                if (controller.ControllerContext.IsChildAction
-                    && !context.IsDefaultSkipped
-                    && parameter == null)
-                {
-                    parameter = value.Cast<T?>().ToArray();
-                }
+                context.Parameters[field] = parameter;
             }
         }
 
@@ -262,9 +258,31 @@ namespace Griddly.Mvc
 
             if (context == null)
             {
+                SortField[] sortFields = null;
+                GriddlyExportFormat? exportFormat;
+
+                NameValueCollection items = new NameValueCollection(controller.ControllerContext.HttpContext.Request.Params);
+
+                if (!int.TryParse(items["pageNumber"], out int pageNumber))
+                    pageNumber = 0;
+
+                if (!int.TryParse(items["pageSize"], out int pageSize))
+                    pageSize = 20;
+
+                if (Enum.TryParse(items["exportFormat"], true, out GriddlyExportFormat exportFormatValue))
+                    exportFormat = exportFormatValue;
+                else
+                    exportFormat = null;
+
+                sortFields = GriddlyResult.GetSortFields(items);
+
                 context = new GriddlyContext()
                 {
-                    Name = (controller.GetType().Name + "_" + controller.ControllerContext.RouteData.GetRequiredString("action")).ToLower()
+                    Name = (controller.GetType().Name + "_" + controller.ControllerContext.RouteData.GetRequiredString("action")).ToLower(),
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    ExportFormat = exportFormat,
+                    SortFields = sortFields
                 };
 
                 // NOTE: for 2020 Chris... yes, this is unique for multiple griddlies on a page as it is in the grid action context of each one
@@ -273,6 +291,37 @@ namespace Griddly.Mvc
 
             return context;
         }
+
+        // TODO: keep in sync with Extensions.GetFormattedValue
+        public static string[] GetFormattedValueByType(object value)
+        {
+            if (value != null)
+            {
+                var type = value.GetType();
+
+                if (value is IEnumerable enumerable && type != typeof(string))
+                    return enumerable.Cast<object>().Select(x => x.ToString()).ToArray();
+
+                string stringValue;
+
+                if (type == typeof(float) ||
+                    type == typeof(double) ||
+                    type == typeof(decimal))
+                    stringValue = string.Format("{0:n2}", value);
+                else if (type == typeof(DateTime) || type.HasCastOperator<DateTime>())
+                    stringValue = string.Format("{0:d}", value);
+                else if (type == typeof(bool))
+                    stringValue = value.ToString().ToLower();
+                else
+                    stringValue = value.ToString();
+
+                if (!string.IsNullOrWhiteSpace(stringValue))
+                    return new[] { stringValue };
+            }
+
+            return null;
+        }
+
 
         static IDictionary<string, object> ObjectToDictionary(object value)
         {

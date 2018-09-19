@@ -13,7 +13,7 @@ namespace Griddly.Mvc
 {
     public abstract class GriddlyResult : ActionResult
     {
-        public SortField[] GetSortFields(NameValueCollection items)
+        public static SortField[] GetSortFields(NameValueCollection items)
         {
             return items.AllKeys
                 .Where(x => x != null && x.StartsWith("sortFields["))
@@ -67,59 +67,38 @@ namespace Griddly.Mvc
                 context.RequestContext.HttpContext.Response.Cache.SetNoStore();
             }
 
-            int pageNumber;
-            int pageSize;
-            SortField[] sortFields = null;
-            GriddlyExportFormat exportFormatValue;
-            GriddlyExportFormat? exportFormat;
-
-            NameValueCollection items = new NameValueCollection(context.RequestContext.HttpContext.Request.Params);
-
-            if (!int.TryParse(items["pageNumber"], out pageNumber))
-                pageNumber = 0;
-
-            if (!int.TryParse(items["pageSize"], out pageSize))
-                pageSize = 20;
-
-            if (Enum.TryParse(items["exportFormat"], true, out exportFormatValue))
-                exportFormat = exportFormatValue;
-            else
-                exportFormat = null;
-
-            sortFields = GetSortFields(items);
-
+            var griddlyContext = context.Controller.GetOrCreateGriddlyContext();
             GriddlySettings settings = null;
 
             if (context.IsChildAction)
             {
                 settings = GriddlySettingsResult.GetSettings(context, ViewName);
 
-                if (GriddlySettings.OnGriddlyResultExecuting != null)
-                    GriddlySettings.OnGriddlyResultExecuting(settings, context);
+                GriddlySettings.OnGriddlyResultExecuting?.Invoke(settings, context);
 
                 // TODO: should we always pull sort fields?
-                if (!sortFields.Any())
-                    sortFields = settings.DefaultSort;
+                if (griddlyContext.SortFields?.Any() != true)
+                    griddlyContext.SortFields = settings.DefaultSort;
 
                 if (settings.PageSize > settings.MaxPageSize)
                     settings.PageSize = settings.MaxPageSize;
 
                 if (settings.PageSize != null)
-                    pageSize = settings.PageSize.Value;
+                    griddlyContext.PageSize = settings.PageSize.Value;
             }
 
-            if (exportFormat == null)
+            if (griddlyContext.ExportFormat == null)
             {
-                IList<T> page = GetPage(pageNumber, pageSize, sortFields);
+                IList<T> page = GetPage(griddlyContext.PageNumber, griddlyContext.PageSize, griddlyContext.SortFields);
 
                 GriddlyResultPage<T> result = new GriddlyResultPage<T>()
                 {
                     Data = page,
                     Count = page.Count,
-                    PageNumber = pageNumber,
+                    PageNumber = griddlyContext.PageNumber,
                     Total = GetCount(),
-                    PageSize = pageSize,
-                    SortFields = sortFields,
+                    PageSize = griddlyContext.PageSize,
+                    SortFields = griddlyContext.SortFields,
                     Settings = settings,
                     PopulateSummaryValues = PopulateSummaryValues
                 };
@@ -160,20 +139,23 @@ namespace Griddly.Mvc
                         fileName = fileName.Replace(c, '_');
                 }
 
-                if (exportFormat == GriddlyExportFormat.Custom)
+                NameValueCollection items = new NameValueCollection(context.HttpContext.Request.Params);
+
+                if (griddlyContext.ExportFormat == GriddlyExportFormat.Custom)
                 {
                     result = GriddlySettings.HandleCustomExport(this, items);
                 }
                 else
                 {
-                    var records = GetAll(sortFields);
-                    if (exportFormat == GriddlyExportFormat.Xlsx)
+                    var records = GetAll(griddlyContext.SortFields);
+
+                    if (griddlyContext.ExportFormat == GriddlyExportFormat.Xlsx)
                     {
                         result = new GriddlyExcelResult<T>(records, settings, fileName, items["exportName"]);
                     }
                     else // if (exportFormat == GriddlyExportFormat.Csv || exportFormat == GriddlyExportFormat.Tsv)
                     {
-                        result = new GriddlyCsvResult<T>(records, settings, fileName, exportFormat.Value, items["exportName"]);
+                        result = new GriddlyCsvResult<T>(records, settings, fileName, griddlyContext.ExportFormat.Value, items["exportName"]);
                     }
                 }
                 

@@ -224,14 +224,23 @@
 }
 
 .griddly-filter-statusall-show,
-.griddly-filter-statusfiltered-show 
+.griddly-filter-statusfiltered-show,
+.griddly-filter-statuscandefault-show
 {
-    display:none
+    display: none
 }
 
 .griddly-filter-statusall .griddly-filter-statusall-show,
-.griddly-filter-statusfiltered .griddly-filter-statusfiltered-show {
+.griddly-filter-statusfiltered .griddly-filter-statusfiltered-show,
+.griddly-filter-statuscandefault .griddly-filter-statuscandefault-show
+{
     display: inline
+}
+
+.griddly-filter-statusfiltered:not(.griddly-filter-statuscandefault) .griddly-filter-statusfiltered-show.griddly-filter-statuscandefault-show,
+.griddly-filter-statuscandefault:not(.griddly-filter-statusfiltered) .griddly-filter-statusfiltered-show.griddly-filter-statuscandefault-show
+{
+    display: none
 }
 
 .griddly-selection {
