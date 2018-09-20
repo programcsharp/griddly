@@ -157,8 +157,8 @@
         @: data-griddly-defaultrowids="@Json.Encode(settings.DefaultRowIds != null ? settings.DefaultRowIds.Select(x => x.ToLower()).ToArray() : new[] { "value" })"
         @: data-griddly-filter-defaults="@Newtonsoft.Json.JsonConvert.SerializeObject(defaultFilters, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.Converters.IsoDateTimeConverter() { DateTimeFormat = "d" })"
         @: data-griddly-currency-symbol="@Griddly.Mvc.GriddlyExtensions.CurrencySymbol"
-        @: @Html.AttributeIf("data-griddly-currentsort", Model.SortFields != null && Model.SortFields.Any(), Html.AttributeEncode(Json.Encode(Model.SortFields.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))))
-        @: @Html.AttributeIf("data-griddly-defaultsort", defaultSort != null && defaultSort.Any(), Html.AttributeEncode(Json.Encode(defaultSort.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))))
+        @: @Html.AttributeIf("data-griddly-currentsort", Model.SortFields != null && Model.SortFields.Any(), (z) => Html.AttributeEncode(Json.Encode(Model.SortFields.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))))
+        @: @Html.AttributeIf("data-griddly-defaultsort", defaultSort != null && defaultSort.Any(), (z) => Html.AttributeEncode(Json.Encode(defaultSort.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))))
         @: @settings.HtmlAttributes.ToHtmlAttributes()>
     if (settings.BeforeTemplate != null)
     {
@@ -224,7 +224,7 @@
          <tr class="columnHeaders">
             @foreach (GriddlyColumn column in settings.Columns)
             {
-                SortField sort = Model.SortFields.FirstOrDefault(x => x.Field == column.ExpressionString);
+                SortField sort = Model.SortFields?.FirstOrDefault(x => x.Field == column.ExpressionString);
 
                 bool isSortable = !simple && !string.IsNullOrWhiteSpace(column.ExpressionString);
                 <th class="@column.ClassName @(isSortable ? "sortable" : null) @(column is GriddlySelectColumn ? "select" : null) @(sort != null ? (sort.Direction == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.ExpressionString) @column.HeaderHtmlAttributes.ToHtmlAttributes()>

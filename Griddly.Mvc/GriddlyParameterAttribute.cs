@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Mvc.Async;
 
 namespace Griddly.Mvc
 {
@@ -14,7 +15,8 @@ namespace Griddly.Mvc
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             if (filterContext.ActionDescriptor.ActionName.EndsWith("grid", StringComparison.OrdinalIgnoreCase)
-                    || ((ReflectedActionDescriptor)filterContext.ActionDescriptor).MethodInfo.ReturnType == typeof(GriddlyResult))
+                    || (filterContext.ActionDescriptor as ReflectedActionDescriptor)?.MethodInfo.ReturnType == typeof(GriddlyResult)
+                    || (filterContext.ActionDescriptor as TaskAsyncActionDescriptor)?.TaskMethodInfo.ReturnType == typeof(GriddlyResult))
             {
                 var request = filterContext.HttpContext.Request;
                 var context = filterContext.Controller.GetOrCreateGriddlyContext();
