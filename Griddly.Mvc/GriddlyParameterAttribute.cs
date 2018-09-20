@@ -26,20 +26,24 @@ namespace Griddly.Mvc
                     string[] parentKeys = request.QueryString.AllKeys;
 
                     // if a param came in on querystring, skip the defaults. cookie already does its own skip.
-                    if (filterContext.ActionParameters.Any(x => x.Value != null && parentKeys.Contains(x.Key)))
+                    if (!context.IsDefaultSkipped && filterContext.ActionParameters.Any(x => x.Value != null && parentKeys.Contains(x.Key)))
                         context.IsDefaultSkipped = true;
 
                     foreach (var param in filterContext.ActionParameters.ToList())
                     {
                         if (param.Value != null)
                         {
+                            bool isParamSet = context.CookieData?.Values?.ContainsKey(param.Key) == true || parentKeys.Contains(param.Key) || filterContext.RouteData.Values.ContainsKey(param.Key);
+
                             // if we're skipping defaults but this didn't come from cookie or querystring, it must've come from a
                             // parameter default in code... nuke it.
-                            if (context.IsDefaultSkipped && !(context.CookieData?.Values?.ContainsKey(param.Key) == true || parentKeys.Contains(param.Key)))
+                            if (context.IsDefaultSkipped && !isParamSet)
                                 filterContext.ActionParameters[param.Key] = null;
                             else
                             {
-                                context.Defaults[param.Key] = param.Value;
+                                if (!context.IsDefaultSkipped || !isParamSet)
+                                    context.Defaults[param.Key] = param.Value;
+
                                 context.Parameters[param.Key] = param.Value;
                             }
                         }

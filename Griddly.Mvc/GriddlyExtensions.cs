@@ -210,6 +210,16 @@ namespace Griddly.Mvc
             }
         }
 
+        public static object GetGriddlyDefault(this WebViewPage page, string field)
+        {
+            object value = null;
+
+            if ((page.ViewData[_contextKey] as GriddlyContext)?.Defaults.TryGetValue(field, out value) != true)
+                value = null;
+
+            return value;
+        }
+
         public static object GetGriddlyParameter(this WebViewPage page, string field)
         {
             object value = null;
@@ -218,6 +228,11 @@ namespace Griddly.Mvc
                 value = null;
 
             return value;
+        }
+
+        public static int GetGriddlyParameterCount(this WebViewPage page)
+        {
+            return (page.ViewData[_contextKey] as GriddlyContext)?.Parameters.Count ?? 0;
         }
 
         public static Dictionary<string, object> GetGriddlyDefaults(this WebViewPage page)

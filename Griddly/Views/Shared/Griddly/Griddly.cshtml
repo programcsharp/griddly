@@ -107,7 +107,7 @@
         return this.GetGriddlyParameter(x.Field) != null || (filterRange != null && this.GetGriddlyParameter(filterRange.FieldEnd) != null);
     });
 
-    bool isDefaultFilter = defaultFilters.Any() == isFiltered
+    bool isDefaultFilter = defaultFilters.Count == this.GetGriddlyParameterCount()
         && defaultFilters.All(x =>
         {
             var param = this.GetGriddlyParameter(x.Key);
