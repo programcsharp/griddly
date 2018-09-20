@@ -1554,15 +1554,22 @@
 
             if (this.options.sortFields && this.options.sortFields.length)
             {
+                var inlineFilters = $(".griddly-filters-inline", this.$element);
+
                 for (var i = 0; i < this.options.sortFields.length; i++)
                 {
                     var sort = this.options.sortFields[i];
 
                     var header = $("th[data-griddly-sortfield='" + sort.Field + "']", this.$element);
-                    var inlineFilter = $(".griddly-filters-inline", this.$element)[0].cells[header[0].cellIndex];
 
                     header.addClass(sort.Direction == "Ascending" ? "sorted_a" : "sorted_d");
-                    $(inlineFilter).addClass(sort.Direction == "Ascending" ? "sorted_a" : "sorted_d");
+
+                    if (inlineFilters.length)
+                    {
+                        var inlineFilter = inlineFilters[0].cells[header[0].cellIndex];
+
+                        $(inlineFilter).addClass(sort.Direction == "Ascending" ? "sorted_a" : "sorted_d");
+                    }
                 }
             }
         },
