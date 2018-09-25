@@ -468,7 +468,7 @@ namespace Griddly.Mvc
 
                 if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                     type = Nullable.GetUnderlyingType(type);
-
+                
                 if (className == null)
                 {
                     if (type == typeof(byte) || type == typeof(sbyte) ||
@@ -478,10 +478,10 @@ namespace Griddly.Mvc
                              type == typeof(float) ||
                              type == typeof(double) ||
                              type == typeof(decimal))
-                        className = "align-right";
+                        className = IsBootstrap4 ? "text-right" : "align-right";
                     else if (type == typeof(bool) ||
                              type == typeof(DateTime) || type.HasCastOperator<DateTime>())
-                        className = "align-center";
+                        className = IsBootstrap4 ? "text-center" : "align-center";
                 }
 
                 if (caption == null)
