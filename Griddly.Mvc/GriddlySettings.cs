@@ -14,6 +14,9 @@ namespace Griddly.Mvc
     {
         public static class Css
         {
+            public static string TextCenter = "align-center";
+            public static string TextRight = "align-right";
+            public static string FloatRight = "pull-right";
             public static string GriddlyDefault = null;
             public static string TableDefault = "table table-bordered table-hover";
             public static string ButtonDefault = "btn btn-default";
@@ -85,6 +88,9 @@ namespace Griddly.Mvc
         public static void ConfigureBoostrap4Defaults()
         {
             IsBootstrap4 = true;
+            Css.TextCenter = "text-center";
+            Css.TextRight = "text-right";
+            Css.FloatRight = "float-right";
             Css.ButtonDefault = "btn btn-outline-secondary";
 
             Css.Icons.Calendar = "fa fa-calendar-alt";
@@ -478,10 +484,10 @@ namespace Griddly.Mvc
                              type == typeof(float) ||
                              type == typeof(double) ||
                              type == typeof(decimal))
-                        className = IsBootstrap4 ? "text-right" : "align-right";
+                        className = Css.TextRight;
                     else if (type == typeof(bool) ||
                              type == typeof(DateTime) || type.HasCastOperator<DateTime>())
-                        className = IsBootstrap4 ? "text-center" : "align-center";
+                        className = Css.TextCenter;
                 }
 
                 if (caption == null)

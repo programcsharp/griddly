@@ -113,39 +113,34 @@ else
 }
 
 @helper RenderList()
+{
+    foreach (GriddlyButton button in Model.Buttons)
     {
-        foreach (GriddlyButton button in Model.Buttons)
+        if (GriddlySettings.IsBootstrap4)
         {
-            if (GriddlySettings.IsBootstrap4)
+            if (button.IsSeparator)
             {
-                if (button.IsSeparator)
-                {
-                    <div class="dropdown-divider"></div>
-                }
-                else if (button is GriddlyHtmlButton)
-                {
-                    @(((GriddlyHtmlButton)button).HtmlTemplate(button))
-                }
-                else
-                {
-                    @RenderLink(button, false, true)
-                }
+                <div class="dropdown-divider"></div>
+            }
+            else if (button is GriddlyHtmlButton)
+            {@(((GriddlyHtmlButton)button).HtmlTemplate(button))}
+            else
+            {@RenderLink(button, false, true)}
+        }
+        else
+        {
+            if (button.IsSeparator)
+            {
+                <li class="divider"></li>
             }
             else
             {
-                if (button.IsSeparator)
-                {
-                    <li class="divider"></li>
-                }
+                <li class="@(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null)" @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())>
+                @if (button is GriddlyHtmlButton)
+                {@(((GriddlyHtmlButton)button).HtmlTemplate(button))}
                 else
-                {
-                    <li class="@(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null)" @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())>
-                        @if
-(button is GriddlyHtmlButton)
-                        {@(((GriddlyHtmlButton)button).HtmlTemplate(button))}
-                    else
-                    {@RenderLink(button, false, true)}
-                </li>
+                {@RenderLink(button, false, true)}
+            </li>
             }
         }
 

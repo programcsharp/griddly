@@ -388,7 +388,7 @@
         }
     };
 
-    var updateFilterDisplayImpl = function (root, filters, renderFilterDisplay, currencySymbol, overrideHasFilter)
+    var updateFilterDisplayImpl = function (root, filters, renderFilterDisplay, currencySymbol, overrideHasFilter, removeIconCssClass)
     {
         var hasFilter = false;
 
@@ -471,7 +471,7 @@
                     {
                         var item = displayItems[i];
 
-                        $(this).append(renderFilterDisplay(item.content, item.fieldValue) + " ");
+                        $(this).append(renderFilterDisplay(item.content, item.fieldValue, removeIconCssClass) + " ");
                     }
 
                     $(this).show();
@@ -491,11 +491,11 @@
         return hasFilter;
     };
 
-    var renderFilterDisplayImpl = function (content, fieldValue)
+    var renderFilterDisplayImpl = function (content, fieldValue, removeIconCssClass)
     {
         return '<span class="filter-display-value" ' + (fieldValue != null ? 'data-filter-fieldvalue="' + fieldValue + '"' : "") + '>' +
             content +
-            ' <a href="javascript:void(0)" class="griddly-remove-filter-value"><i class="glyphicon glyphicon-remove"></i></a>' +
+            ' <a href="javascript:void(0)" class="griddly-remove-filter-value"><i class="' + removeIconCssClass + '"></i></a>' +
             '</span>';
     };
 
@@ -1515,7 +1515,7 @@
             {
                 var filters = this.getAllFilterElements().closest(".griddly-filter");
 
-                hasFilter = updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol);
+                hasFilter = updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol, null, this.options.removeIconCssClass);
             }
             else
                 {
@@ -1531,7 +1531,7 @@
                             }
                             }
 
-                updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol, hasFilter);
+                updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol, hasFilter, this.options.removeIconCssClass);
                     }
 
             this.updateDefaultStatus();
@@ -2060,7 +2060,7 @@
         {
             var filters = this.getAllFilterElements().closest(".griddly-filter");
 
-            updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol);
+            updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol, null, this.options.removeIconCssClass);
 
             this.$element.triggerHandler("updatefilterdisplay.griddlyFilterBar");
         },
