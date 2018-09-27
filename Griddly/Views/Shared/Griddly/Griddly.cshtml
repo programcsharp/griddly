@@ -97,15 +97,15 @@
 }
 
 @if (isFirstRender)
-    {
+{
     var defaultFilters = this.GetGriddlyDefaults();
-        SortField[] defaultSort = settings.DefaultSort;
-        bool isFiltered = settings.Filters.Any(x =>
-        {
-            GriddlyFilterRange filterRange = x as GriddlyFilterRange;
+    SortField[] defaultSort = settings.DefaultSort;
+    bool isFiltered = settings.Filters.Any(x =>
+    {
+        GriddlyFilterRange filterRange = x as GriddlyFilterRange;
 
         return this.GetGriddlyParameter(x.Field) != null || (filterRange != null && this.GetGriddlyParameter(filterRange.FieldEnd) != null);
-        });
+    });
 
     bool isDefaultFilter = defaultFilters.Count == this.GetGriddlyParameterCount()
         && defaultFilters.All(x =>
@@ -302,9 +302,9 @@
     <div class="griddly-footer">
         @if (settings.FooterTemplate == null || simple)
         {
-            <span class="griddly-summary"><span class="hidden-xs">Records</span>
+            <span class="griddly-summary"><span class="@(GriddlySettings.IsBootstrap4 ? "d-none d-sm-inline" : "hidden-xs")">Records</span>
                 <span class="griddly-recordstart">@(Model.PageNumber * Model.PageSize + (Model.Total > 0 ? 1 : 0))</span>
-                <span class="hidden-xs">through</span><span class="visible-xs-inline">-</span>
+                <span class="@(GriddlySettings.IsBootstrap4 ? "d-none d-sm-inline" : "hidden-xs")">through</span><span class="@(GriddlySettings.IsBootstrap4 ? "d-inline d-sm-none" : "visible-xs-inline"))">-</span>
                 <span class="griddly-recordend">@(Model.PageNumber * Model.PageSize + Model.Count)</span>
                 of <span class="griddly-recordtotal">@Model.Total</span>
             </span>

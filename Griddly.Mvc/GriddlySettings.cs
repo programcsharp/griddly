@@ -30,6 +30,7 @@ namespace Griddly.Mvc
                 public static string Check = "glyphicon glyphicon-check";
                 public static string Filter = "glyphicon glyphicon-filter";
                 public static string Clear = "glyphicon glyphicon-ban-circle";
+                public static string CaretDown = "caret";
             }
         }
 
@@ -96,10 +97,11 @@ namespace Griddly.Mvc
             Css.Icons.Calendar = "fa fa-calendar-alt";
             Css.Icons.Remove = "fa fa-times";
             Css.Icons.ListMultipleSelected = "fa fa-check";
-            Css.Icons.ListSingleSelected = "fa fa-dot-circle";
-            Css.Icons.Check = "fa fa-check-square-o";
+            Css.Icons.ListSingleSelected = "fas fa-check-circle";
+            Css.Icons.Check = "fa fa-check-square";
             Css.Icons.Filter = "fa fa-filter";
             Css.Icons.Clear = "fa fa-ban";
+            Css.Icons.CaretDown = "fa fa-caret-down";
         }
 
         public string[] DefaultRowIds { get; set; }

@@ -41,7 +41,7 @@
                 }
                 else
                 {
-                <a class="btn btn-xs @(filterList == null || filterList.Items.Count > 0 ? "btn-link filter-trigger" : "disabled")">
+                <a class="btn btn-xs @(filterList == null || filterList.Items.Count > 0 ? "btn-link filter-trigger" : "disabled")" href="javascript:;">
                     <span class="griddly-filter-display">
                         @if (filterBox != null)
                         {
@@ -83,10 +83,8 @@
                         else if (filterList != null)
                         {
                             filterList.SetSelectedItems(defaultValue);
-                                
                             int allCount = filterList.SelectableItems.Count;
                             int selectedCount = filterList.SelectableItems.Count(x => x.Selected);
-                                                                
                             if (selectedCount == allCount || (selectedCount == 0 && filterList.IsNoneAll))
                             {
                                 <text>@(allCount == 2 && !filterList.IsNullable ? "Both " : "All ") @filter.CaptionPlural</text>
@@ -107,29 +105,31 @@
                     </span>
                     @if (filterList == null || filterList.Items.Count > 0)
                     {
-                    <span class="caret"></span>
+                    <span class="@GriddlySettings.Css.Icons.CaretDown"></span>
                     }
                 </a>
                 <div class="filter-content">
                     @if (filterBox != null)
                     {
                         <div class="input-group input-group-sm">
+                            
                             @if (filter.DataType == FilterDataType.Currency)
                             {
-                                <span class="input-group-addon">@Griddly.Mvc.GriddlyExtensions.CurrencySymbol</span>
+                                @InputGroupAddon(@<text>@Griddly.Mvc.GriddlyExtensions.CurrencySymbol</text>, true)
                             }
                             else if (filter.DataType == FilterDataType.Date)
                             {
-                                <span class="input-group-addon"><i class="@(GriddlySettings.Css.Icons.Calendar)"></i></span>
+                                @InputGroupAddon(@<i class="@(GriddlySettings.Css.Icons.Calendar)"></i>, true)
                             }
+
                             <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
                                 data-griddly-filter-data-type="@filter.DataType" />
                             @*@if (filter.DataType == FilterDataType.Percent)
                                 {
                                     <span class="input-group-addon">%</span>
                                 }*@
-                            <span class="input-group-btn">
-                                <a class="@GriddlySettings.DefaultButtonClassName griddly-filter-clear"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
+                            <span class="@(GriddlySettings.IsBootstrap4 ? "input-group-append" : "input-group-btn")">
+                                <a class="@GriddlySettings.DefaultButtonClassName griddly-filter-clear" href="javascript:;"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
                             </span>
                         </div>
                     }
@@ -138,11 +138,11 @@
                         <div class="input-group input-group-sm">
                             @if (filter.DataType == FilterDataType.Currency)
                             {
-                                <span class="input-group-addon">@Griddly.Mvc.GriddlyExtensions.CurrencySymbol</span>
+                                @InputGroupAddon(@<text>@Griddly.Mvc.GriddlyExtensions.CurrencySymbol</text>, true)
                             }
                             else if (filter.DataType == FilterDataType.Date)
                             {
-                                <span class="input-group-addon"><i class="@(GriddlySettings.Css.Icons.Calendar)"></i></span>
+                                @InputGroupAddon(@<i class="@(GriddlySettings.Css.Icons.Calendar)"></i>, true)
                             }
                             <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
                                 data-griddly-filter-data-type="@filter.DataType" />
@@ -150,19 +150,19 @@
                                 {
                                     <span class="input-group-addon">%</span>
                                 }*@
-                            <span class="input-group-btn">
-                                <a class="@GriddlySettings.DefaultButtonClassName griddly-filter-clear"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
+                            <span class="@(GriddlySettings.IsBootstrap4 ? "input-group-append" : "input-group-btn")">
+                                <a class="@GriddlySettings.DefaultButtonClassName griddly-filter-clear" href="javascript:;"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
                             </span>
                         </div>
                         <div style="text-align:center">to</div>
                         <div class="input-group input-group-sm">
                             @if (filter.DataType == FilterDataType.Currency)
                             {
-                                <span class="input-group-addon">@Griddly.Mvc.GriddlyExtensions.CurrencySymbol</span>
+                                @InputGroupAddon(@<text>@Griddly.Mvc.GriddlyExtensions.CurrencySymbol</text>, true)
                             }
                             else if (filter.DataType == FilterDataType.Date)
                             {
-                                <span class="input-group-addon"><i class="@(GriddlySettings.Css.Icons.Calendar)"></i></span>
+                                @InputGroupAddon(@<i class="@(GriddlySettings.Css.Icons.Calendar)"></i>, true)
                             }
                             <input class="form-control" name="@filterRange.FieldEnd" type="text" value="@filter.GetEditValue(defaultValueEnd)"
                                 data-griddly-filter-data-type="@filter.DataType" />
@@ -170,8 +170,8 @@
                                 {
                                     <span class="input-group-addon">%</span>
                                 }*@
-                            <span class="input-group-btn">
-                                <a class="@GriddlySettings.DefaultButtonClassName griddly-filter-clear"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
+                            <span class="@(GriddlySettings.IsBootstrap4 ? "input-group-append" : "input-group-btn")">
+                                <a class="@GriddlySettings.DefaultButtonClassName griddly-filter-clear" href="javascript:;"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
                             </span>
                         </div>
                     }
@@ -181,33 +181,22 @@
                         {
                             <div class="input-group griddly-filter-buttons">
                                 <span class="input-group-btn">
-                                    <a class="@GriddlySettings.DefaultButtonClassName griddly-select-all"><i class="@(GriddlySettings.Css.Icons.Check)"></i> Select All</a>
+                                    <a class="@GriddlySettings.DefaultButtonClassName griddly-select-all" href="javascript:;"><i class="@(GriddlySettings.Css.Icons.Check)"></i> Select All</a>
                                 </span>
                                 <span class="input-group-btn">
-                                    <a class="@GriddlySettings.DefaultButtonClassName griddly-clear"><i class="@(GriddlySettings.Css.Icons.Clear)"></i> Clear</a>
+                                    <a class="@GriddlySettings.DefaultButtonClassName griddly-clear" href="javascript:;"><i class="@(GriddlySettings.Css.Icons.Clear)"></i> Clear</a>
                                 </span>
                             </div>
                         }
-                        <ul class="dropdown-menu" role="menu">
-                            @foreach (SelectListItem item in filterList.Items)
+                        @DropdownMenu(@<text>
+                            @foreach (SelectListItem sli in filterList.Items)
                             {
-                                SelectListItemGroup group = item as SelectListItemGroup;
+                                SelectListItemGroup group = sli as SelectListItemGroup;
 
                                 if (group != null)
                                 {
-                                    <li class="griddly-list-group-header @(filterList.IsMultiple && group.Items.All(x => x.Selected) ? "griddly-filter-selected" : null)">
-                                        @if (filterList.IsMultiple)
-                                        {
-                                            <a>
-                                                <b>@group.Text</b>
-                                                <i class="@(GriddlySettings.Css.Icons.ListMultipleSelected) griddly-filter-selected-indicator"></i>
-                                            </a>
-                                        }
-                                        else
-                                        {
-                                            <b>@group.Text</b>
-                                        }
-                                    </li>
+                                    @ListGroupHeader(filterList, group)
+                                    
                                     foreach (SelectListItem childItem in group.Items)
                                     {
                                         @RenderListItem(filterList, childItem, true)
@@ -215,10 +204,10 @@
                                 }
                                 else
                                 {
-                                    @RenderListItem(filterList, item)
+                                    @RenderListItem(filterList, sli)
                                 }
                             }
-                        </ul>
+                        </text>)
                     }
                 </div>
                 }
@@ -229,11 +218,64 @@
 
 @helper RenderListItem(GriddlyFilterList filter, SelectListItem item, bool isGrouped = false)
 {
-    <li class="@(item.Selected ? "griddly-filter-selected" : null) @(isGrouped ? "griddly-list-group" : null)">
-        <a>
-            <input name="@filter.Field" type="@(filter.IsMultiple ? "checkbox" : "radio")" checked="@(item.Selected)" value="@item.Value" />
-            <i class="@(filter.IsMultiple ? GriddlySettings.Css.Icons.ListMultipleSelected : GriddlySettings.Css.Icons.ListSingleSelected) griddly-filter-selected-indicator"></i>
-            @item.Text
+    var className = $@"{(item.Selected ? "griddly-filter-selected" : null)} {(isGrouped ? "griddly-list-group" : null)}";
+    if (!GriddlySettings.IsBootstrap4) {
+        @Html.Raw($@"<li class=""{className}"">")
+    }
+
+    <a href="javascript:;" class="@(GriddlySettings.IsBootstrap4 ? "dropdown-item " + className : null)">
+        <input name="@filter.Field" type="@(filter.IsMultiple ? "checkbox" : "radio")" checked="@(item.Selected)" value="@item.Value" />
+        <i class="@(filter.IsMultiple ? GriddlySettings.Css.Icons.ListMultipleSelected : GriddlySettings.Css.Icons.ListSingleSelected) griddly-filter-selected-indicator"></i>
+        @item.Text
+    </a>
+
+    if (!GriddlySettings.IsBootstrap4) { 
+        @Html.Raw("</li>")
+    }
+    
+}
+
+@helper ListGroupHeader(GriddlyFilterList filterList, SelectListItemGroup group) { 
+    var tag = GriddlySettings.IsBootstrap4 ? "div" : "li";
+    var className = filterList.IsMultiple && group.Items.All(x => x.Selected) ? "griddly-filter-selected" : null;
+
+    @Html.Raw($@"<{tag} class=""griddly-list-group-header {className}"">")
+    if (filterList.IsMultiple)
+    {
+        <a href="javascript:;">
+            <b>@group.Text</b>
+            <i class="@(GriddlySettings.Css.Icons.ListMultipleSelected) griddly-filter-selected-indicator"></i>
         </a>
-    </li>
+    }
+    else
+    {
+        <b>@group.Text</b>
+    }
+    @Html.Raw($"</{tag}>")
+}
+
+@helper DropdownMenu(Func<MvcHtmlString, HelperResult> htmlContent) { 
+    if (GriddlySettings.IsBootstrap4)
+    {
+        <div class="dropdown-menu">
+            @htmlContent(new MvcHtmlString(""))
+        </div>
+    }
+    else
+    {
+        <ul class="dropdown-menu" role="menu">
+            @htmlContent(new MvcHtmlString(""))
+        </ul>
+    }
+}
+
+@helper InputGroupAddon(Func<MvcHtmlString, HelperResult> htmlContent, bool prepend = false) { 
+    if (GriddlySettings.IsBootstrap4)
+    {
+        <div class="input-group-@(prepend?"prepend":"append")"><span class="input-group-text">@htmlContent(new MvcHtmlString(""))</span></div>
+    }
+    else
+    {
+        <span class="input-group-addon">@htmlContent(new MvcHtmlString(""))</span>
+    }
 }

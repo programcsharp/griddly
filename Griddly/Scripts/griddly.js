@@ -544,11 +544,12 @@
         this.$element = $(element);
         this.$filterModal = $(".griddly-filter-modal", this.$element);
         this.options = options;
+        this.isBootstrap4 = $.fn.tooltip.Constructor.VERSION.substr(0, 1) == "4";
         this.create();
         this.isConstructed = false;
         this.eventQueue = [];
         this.hasHistory = this.$element.prev(".griddly-init-flag").length > 0;
-
+        
         this.triggerOrQueue = function ()
         {
             if (this.isConstructed)
@@ -623,13 +624,16 @@
 
         $("html").on("click", $.proxy(function (event)
         {
-            if (this.options.filterMode == "Inline" && $(event.target).parents('.popover.in').length == 0 && $(event.target).parents(".filter-trigger").length == 0 && !$(event.target).hasClass("filter-trigger"))
+            if (this.options.filterMode == "Inline" && $(event.target).parents('.popover.in, .popover.show').length == 0 && $(event.target).parents(".filter-trigger").length == 0 && !$(event.target).hasClass("filter-trigger"))
             {
                 $(".griddly-filters-inline .filter-trigger", this.$element).each(function ()
                 {
                     var filter = $(this);
 
-                    if (filter.data('bs.popover').tip().hasClass('in'))
+                    var tip = filter.data('bs.popover').tip;
+                    if ($.isFunction(tip)) tip = tip(); /*BS3*/
+
+                    if ($(tip).hasClass('in') || $(tip).hasClass('show')/*BS4*/)
                         filter.popover("hide");
                 });
             }
@@ -828,29 +832,29 @@
             {
                 if (e.which < 3)
                 {
-                var url = $.trim($(e.target).parents("tr").data("griddly-url"));
-                var target = $.trim($(e.target).parents("tr").data("griddly-urltarget"));
+                    var url = $.trim($(e.target).parents("tr").data("griddly-url"));
+                    var target = $.trim($(e.target).parents("tr").data("griddly-urltarget"));
 
-                if (url && $(e.target).closest("a").length == 0 && $(e.target).closest("td").find("[data-toggle=dropdown]").length == 0)
-                {
-                    if (this.options.rowClickModal)
+                    if (url && $(e.target).closest("a").length == 0 && $(e.target).closest("td").find("[data-toggle=dropdown]").length == 0)
                     {
-                        $(this.options.rowClickModal).removeData("bs.modal").modal({ show: false });
-                        $(".modal-content", this.options.rowClickModal).load($.trim(url), $.proxy(function (event)
+                        if (this.options.rowClickModal)
                         {
-                            $(this.options.rowClickModal).modal("show");
-                        }, this));
-                    }
-                    else
-                    {
-                        if (e.which == 2 || e.ctrlKey || target == "_blank")
-                            window.open(url);
+                            $(this.options.rowClickModal).removeData("bs.modal").modal({ show: false });
+                            $(".modal-content", this.options.rowClickModal).load($.trim(url), $.proxy(function (event)
+                            {
+                                $(this.options.rowClickModal).modal("show");
+                            }, this));
+                        }
+                        else
+                        {
+                            if (e.which == 2 || e.ctrlKey || target == "_blank")
+                                window.open(url);
                             else
-                            window.location = url;
-                    }
+                                window.location = url;
+                        }
 
-                    e.preventDefault();
-                }
+                        e.preventDefault();
+                    }
                 }
             }, this));
 
@@ -1057,6 +1061,8 @@
 
             $(".griddly-filters-inline .filter-content input", this.$element).on("change", $.proxy(function (event, dontHide)
             {
+                var self = this;
+
                 var filter = $(event.currentTarget).data("griddly-filter");
                 var content = filter.data("griddly-filter-content");
                 var displayEl = filter.data("griddly-filter-display");
@@ -1120,7 +1126,7 @@
                     if (!filter.data("griddly-filter-ismultiple") && !dontHide)
                         filter.find(".filter-trigger").popover("hide");
 
-                    var allItems = content.find("li:not(.griddly-list-group-header)");
+                    var allItems = content.find("li:not(.griddly-list-group-header), .dropdown-item");
                     var selectedItems = allItems.filter(":has(:checked)");
                     var displayItemCount = parseInt(filter.data("griddly-filter-displayitemcount"));
 
@@ -1133,7 +1139,7 @@
                         display = selectedItems.length + " " + filter.data("filter-name-plural");
                     else if (selectedItems.length > 0 && selectedItems.length <= displayItemCount)
                     {
-                        var itemTexts = selectedItems.find("a");
+                        var itemTexts = self.isBootstrap4 ? selectedItems : selectedItems.find("a");
                         var display = $.trim($(itemTexts[0]).text());
 
                         for (var i = 1; i < selectedItems.length && i < displayItemCount; i++)
@@ -1198,7 +1204,9 @@
                     html: true,
                     placement: "bottom",
                     container: $(".griddly-filters-inline", this.$element),
-                    template: '<div class="popover griddly-filter-popover"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>',
+                    template:
+                        self.isBootstrap4 ? '<div class="popover griddly-filter-popover" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>'
+                        : '<div class="popover griddly-filter-popover"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>',
                     content: function ()
                     {
                         return content;
@@ -1219,7 +1227,7 @@
                     {
                         if ($("input", content).length === $("input:checked", content).length)
                         {
-                            $(".dropdown-menu li:not(.griddly-list-group-header)", content).removeClass("griddly-filter-selected");
+                            $(".dropdown-menu li:not(.griddly-list-group-header), .dropdown-menu .dropdown-item", content).removeClass("griddly-filter-selected");
                             $("input", content).prop("checked", false).first().change();
                         }
                     }
@@ -1235,11 +1243,11 @@
 
                 $("a", el).click(function ()
                 {
-                    var item = $(this).parents("li");
+                    var listGroupHeader = $(this).parents(".griddly-list-group-header");
 
-                    if (item.hasClass("griddly-list-group-header"))
+                    if (listGroupHeader.length > 0)
                     {
-                        var children = item.nextUntil(".griddly-list-group-header");
+                        var children = listGroupHeader.nextUntil(".griddly-list-group-header");
 
                         if (children.length != children.filter(".griddly-filter-selected").length)
                         {
@@ -1258,6 +1266,8 @@
                     }
                     else
                     {
+                        var item = self.isBootstrap4 ? $(this).parents(".dropdown-item") : $(this).parents("li");
+
                         var checkbox = $(this).find("input");
 
                         var filter = checkbox.data("griddly-filter");
@@ -1272,7 +1282,7 @@
                         {
                             var content = filter.data("griddly-filter-content");
 
-                            content.find(".dropdown-menu li:not(.griddly-list-group-header)").not(item).removeClass("griddly-filter-selected");
+                            content.find(".dropdown-menu li:not(.griddly-list-group-header), .dropdown-menu .dropdown-item").not(item).removeClass("griddly-filter-selected");
                             content.find("input").not(checkbox).prop("checked", false);
 
                             item.addClass("griddly-filter-selected");
@@ -1292,7 +1302,8 @@
                 {
                     var filter = checkbox.data("griddly-filter");
 
-                    var selector = ".dropdown-menu li" + (!filter.data("griddly-filter-ismultiple") ? ":not(.griddly-list-group-header)" : "");
+                    var selector = ".dropdown-menu li" + (!filter.data("griddly-filter-ismultiple") ? ":not(.griddly-list-group-header)" : "")
+                        +", .dropdown-menu .dropdown-item";
 
                     $(el).click(function ()
                     {
@@ -1312,7 +1323,8 @@
                 {
                     var filter = checkbox.data("griddly-filter");
 
-                    var selector = ".dropdown-menu li" + (!filter.data("griddly-filter-ismultiple") ? ":not(.griddly-list-group-header)" : "");
+                    var selector = ".dropdown-menu li" + (!filter.data("griddly-filter-ismultiple") ? ":not(.griddly-list-group-header)" : "")
+                        + ", .dropdown-menu .dropdown-item";
 
                     $(el).click(function ()
                     {
@@ -1518,21 +1530,21 @@
                 hasFilter = updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol, null, this.options.removeIconCssClass);
             }
             else
-                {
+            {
                 var values = this.getFilterValues();
 
                 for (var k in values)
-                    {
+                {
                     if (values[k])
-                        {
+                    {
                         hasFilter = true;
 
                         break;
-                            }
-                            }
+                    }
+                }
 
                 updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol, hasFilter, this.options.removeIconCssClass);
-                    }
+            }
 
             this.updateDefaultStatus();
 
@@ -1540,7 +1552,7 @@
         },
 
         updateDefaultStatus: function ()
-                        {
+        {
             var values = this.getFilterValues();
             var isDefaultFilter = deepCompare(this.options.filterDefaults, values);
             var isDefaultSort = deepCompare(this.options.defaultSort, this.options.sortFields);
@@ -1549,17 +1561,17 @@
         },
 
         setSortFields: function (sortFields)
-                        {
+        {
             this.options.sortFields = sortFields;
 
             $("[data-griddly-sortfield], .griddly-filters-inline td", this.$element).removeClass("sorted_a sorted_d");
 
             if (this.options.sortFields && this.options.sortFields.length)
-                    {
+            {
                 var inlineFilters = $(".griddly-filters-inline", this.$element);
 
                 for (var i = 0; i < this.options.sortFields.length; i++)
-                        {
+                {
                     var sort = this.options.sortFields[i];
 
                     var header = $("th[data-griddly-sortfield='" + sort.Field + "']", this.$element);
@@ -1567,7 +1579,7 @@
                     header.addClass(sort.Direction == "Ascending" ? "sorted_a" : "sorted_d");
 
                     if (inlineFilters.length)
-            {
+                    {
                         var inlineFilter = inlineFilters[0].cells[header[0].cellIndex];
 
                         $(inlineFilter).addClass(sort.Direction == "Ascending" ? "sorted_a" : "sorted_d");
@@ -1893,7 +1905,7 @@
     }, $.fn.griddlyGlobalDefaults);
 
     var GriddlyFilterBar = function (element, options)
-        {
+    {
         this.$element = $(element);
         this.$filterModal = $(".griddly-filter-modal", this.$element);
         this.options = options;
