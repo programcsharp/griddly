@@ -14,8 +14,8 @@ namespace Griddly.Mvc
     {
         public static class Css
         {
-            public static string TextCenter = "align-center";
-            public static string TextRight = "align-right";
+            public static string TextCenter = "text-center";
+            public static string TextRight = "text-right";
             public static string FloatRight = "pull-right";
             public static string GriddlyDefault = null;
             public static string TableDefault = "table table-bordered table-hover";
