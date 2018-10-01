@@ -34,8 +34,11 @@ namespace Griddly.Mvc
             }
         }
 
+        [Obsolete("Use GriddlySettings.Css.GriddlyDefault")]
         public static string DefaultClassName { get => Css.GriddlyDefault; set => Css.GriddlyDefault = value; }
+        [Obsolete("Use GriddlySettings.Css.TableDefault")]
         public static string DefaultTableClassName { get => Css.TableDefault; set => Css.TableDefault = value; }
+        [Obsolete("Use GriddlySettings.Css.ButtonDefault")]
         public static string DefaultButtonClassName { get => Css.ButtonDefault; set => Css.ButtonDefault = value; }
 
         public static string ButtonTemplate = "~/Views/Shared/Griddly/BootstrapButton.cshtml";
