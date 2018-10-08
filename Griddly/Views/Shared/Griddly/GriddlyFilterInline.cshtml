@@ -25,7 +25,7 @@
             GriddlyHtmlFilter filterHtml = filter as GriddlyHtmlFilter;
 
             <div class="btn-group griddly-filter @(filterBox != null ? "griddly-filter-box" : null) @(filterRange != null ? "griddly-filter-range" : null) @(filterList != null ? "griddly-filter-list" : null) @(filterHtml != null ? "griddly-html-filter" : null)"
-                    data-filter-name="@filter.Caption" data-filter-name-plural="@filter.CaptionPlural"
+                    data-filter-name="@filter.CaptionInline" data-filter-name-plural="@filter.CaptionPlural"
                     data-filter-datatype="@filter.DataType.ToString()"
                     @Html.AttributeIf("data-griddly-filter-ismultiple", filterList != null, x => filterList.IsMultiple.ToString().ToLower())
                     @Html.AttributeIf("data-griddly-filter-isnoneall", filterList != null, x => filterList.IsNoneAll.ToString().ToLower())
@@ -58,7 +58,7 @@
                             }
                             else
                             {
-                                <text>Any @filter.Caption</text>
+                                <text>Any @filter.CaptionInline</text>
                             }
                         }
                         else if (filterRange != null)
@@ -145,7 +145,7 @@
                                 @InputGroupAddon(@<i class="@(GriddlySettings.Css.Icons.Calendar)"></i>, true)
                             }
                             <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
-                                data-griddly-filter-data-type="@filter.DataType" />
+                                data-griddly-filter-data-type="@filter.DataType" placeholder="Range Start"/>
                             @*@if (filter.DataType == FilterDataType.Percent)
                                 {
                                     <span class="input-group-addon">%</span>
@@ -154,7 +154,7 @@
                                 <a class="@GriddlySettings.DefaultButtonClassName griddly-filter-clear" href="javascript:;"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
                             </span>
                         </div>
-                        <div style="text-align:center">to</div>
+                        <div style="text-align:center" class="filter-range-to-text">to</div>
                         <div class="input-group input-group-sm">
                             @if (filter.DataType == FilterDataType.Currency)
                             {
@@ -165,7 +165,7 @@
                                 @InputGroupAddon(@<i class="@(GriddlySettings.Css.Icons.Calendar)"></i>, true)
                             }
                             <input class="form-control" name="@filterRange.FieldEnd" type="text" value="@filter.GetEditValue(defaultValueEnd)"
-                                data-griddly-filter-data-type="@filter.DataType" />
+                                data-griddly-filter-data-type="@filter.DataType" placeholder="Range End"/>
                             @*@if (filter.DataType == FilterDataType.Percent)
                                 {
                                     <span class="input-group-addon">%</span>

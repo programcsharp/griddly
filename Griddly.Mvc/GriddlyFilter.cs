@@ -33,10 +33,12 @@ namespace Griddly.Mvc
                 }
 
                 _caption = value;
+                CaptionInline = value;
             }
         }
 
         public string CaptionPlural { get; set; }
+        public string CaptionInline { get; set; }
 
         public string HtmlClass { get; set; }
 
