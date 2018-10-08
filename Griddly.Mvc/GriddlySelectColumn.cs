@@ -14,7 +14,7 @@ namespace Griddly.Mvc
 
         public GriddlySelectColumn()
         {
-            ClassName = "griddly-select align-center";
+            ClassName = $"griddly-select {GriddlySettings.Css.TextCenter}";
         }
 
         public virtual IDictionary<string, object> GenerateInputHtmlAttributes(object row)

@@ -43,21 +43,6 @@ namespace Griddly.Mvc
                 if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                     type = Nullable.GetUnderlyingType(type);
 
-                if (className == null)
-                {
-                    if (type == typeof(byte) || type == typeof(sbyte) ||
-                             type == typeof(short) || type == typeof(ushort) ||
-                             type == typeof(int) || type == typeof(uint) ||
-                             type == typeof(long) || type == typeof(ulong) ||
-                             type == typeof(float) ||
-                             type == typeof(double) ||
-                             type == typeof(decimal))
-                        className = "align-right";
-                    else if (type == typeof(bool) ||
-                             type == typeof(DateTime) || type.HasCastOperator<DateTime>())
-                        className = "align-center";
-                }
-
                 if (caption == null)
                     caption = metadata.DisplayName ?? metadata.PropertyName ?? htmlFieldName.Split('.').Last();
 

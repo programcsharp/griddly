@@ -12,9 +12,35 @@ namespace Griddly.Mvc
 {
     public abstract class GriddlySettings: IGriddlyFilterSettings
     {
-        public static string DefaultClassName = null;
-        public static string DefaultTableClassName = "table table-bordered table-hover";
-        public static string DefaultButtonClassName = null;
+        public static class Css
+        {
+            public static string TextCenter = "text-center";
+            public static string TextRight = "text-right";
+            public static string FloatRight = "pull-right";
+            public static string GriddlyDefault = null;
+            public static string TableDefault = "table table-bordered table-hover";
+            public static string ButtonDefault = "btn btn-default";
+
+            public static class Icons
+            {
+                public static string Calendar = "glyphicon glyphicon-calendar";
+                public static string Remove = "glyphicon glyphicon-remove";
+                public static string ListMultipleSelected = "glyphicon glyphicon-ok";
+                public static string ListSingleSelected = "glyphicon glyphicon-record";
+                public static string Check = "glyphicon glyphicon-check";
+                public static string Filter = "glyphicon glyphicon-filter";
+                public static string Clear = "glyphicon glyphicon-ban-circle";
+                public static string CaretDown = "caret";
+            }
+        }
+
+        [Obsolete("Use GriddlySettings.Css.GriddlyDefault")]
+        public static string DefaultClassName { get => Css.GriddlyDefault; set => Css.GriddlyDefault = value; }
+        [Obsolete("Use GriddlySettings.Css.TableDefault")]
+        public static string DefaultTableClassName { get => Css.TableDefault; set => Css.TableDefault = value; }
+        [Obsolete("Use GriddlySettings.Css.ButtonDefault")]
+        public static string DefaultButtonClassName { get => Css.ButtonDefault; set => Css.ButtonDefault = value; }
+
         public static string ButtonTemplate = "~/Views/Shared/Griddly/BootstrapButton.cshtml";
         public static string ButtonListTemplate = "~/Views/Shared/Griddly/ButtonStrip.cshtml";
         public static HtmlString BoolTrueHtml = null;
@@ -25,6 +51,7 @@ namespace Griddly.Mvc
         public static bool DefaultShowRowSelectCount = true;
         public static bool ExportCurrencySymbol = true;
         public static bool DisableHistoryParameters = false;
+        public static bool IsBootstrap4 = false;
 
         public static Func<GriddlyButton, object> IconTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
@@ -60,6 +87,24 @@ namespace Griddly.Mvc
             InitialFilterMode = DefaultInitialFilterMode;
             //AllowedFilterModes = DefaultAllowedFilterModes;
             ShowRowSelectCount = DefaultShowRowSelectCount;
+        }
+
+        public static void ConfigureBoostrap4Defaults()
+        {
+            IsBootstrap4 = true;
+            Css.TextCenter = "text-center";
+            Css.TextRight = "text-right";
+            Css.FloatRight = "float-right";
+            Css.ButtonDefault = "btn btn-outline-secondary";
+
+            Css.Icons.Calendar = "fa fa-calendar-alt";
+            Css.Icons.Remove = "fa fa-times";
+            Css.Icons.ListMultipleSelected = "fa fa-check";
+            Css.Icons.ListSingleSelected = "fas fa-check-circle";
+            Css.Icons.Check = "fa fa-check-square";
+            Css.Icons.Filter = "fa fa-filter";
+            Css.Icons.Clear = "fa fa-ban";
+            Css.Icons.CaretDown = "fa fa-caret-down";
         }
 
         public string[] DefaultRowIds { get; set; }
@@ -434,7 +479,7 @@ namespace Griddly.Mvc
 
                 if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                     type = Nullable.GetUnderlyingType(type);
-
+                
                 if (className == null)
                 {
                     if (type == typeof(byte) || type == typeof(sbyte) ||
@@ -444,10 +489,10 @@ namespace Griddly.Mvc
                              type == typeof(float) ||
                              type == typeof(double) ||
                              type == typeof(decimal))
-                        className = "align-right";
+                        className = Css.TextRight;
                     else if (type == typeof(bool) ||
                              type == typeof(DateTime) || type.HasCastOperator<DateTime>())
-                        className = "align-center";
+                        className = Css.TextCenter;
                 }
 
                 if (caption == null)

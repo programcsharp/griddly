@@ -17,36 +17,50 @@
 }
 else
 {
-    <a class="btn btn-default griddly-filter-invoke"><i class="glyphicon glyphicon-filter"></i><span class="hidden-xs hidden-sm"> Filter</span></a>
+    <a class="@GriddlySettings.DefaultButtonClassName griddly-filter-invoke" href="javascript:;"><i class="@(GriddlySettings.Css.Icons.Filter)"></i><span class="@(!GriddlySettings.IsBootstrap4 ? "hidden-xs hidden-sm" : "d-none d-md-inline")"> Filter</span></a>
 }
 @Html.Partial("Griddly/GriddlyFilterValues", Model.Filters)
 <span class="griddly-filter-statusall-show">Showing all</span>
-<a class="griddly-search-clear griddly-filter-statusfiltered-show" href="javascript:void(0)">Show All</a>
+<a class="griddly-search-clear griddly-filter-statusfiltered-show" href="javascript:;">Show All</a>
 <span class="griddly-filter-statusfiltered-show griddly-filter-statuscandefault-show">|</span>
-<a class="griddly-search-reset griddly-filter-statuscandefault-show" href="javascript:void(0)">Show Default</a>
+<a class="griddly-search-reset griddly-filter-statuscandefault-show" href="javascript:;">Show Default</a>
 <div class="modal griddly-filter-modal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
+                @if (GriddlySettings.IsBootstrap4) { <h4 class="modal-title">Filter</h4>}
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">Filter</h4>
+                @if (!GriddlySettings.IsBootstrap4) { <h4 class="modal-title">Filter</h4>}
             </div>
-            <form class="form-horizontal">
+            <form class="@(GriddlySettings.IsBootstrap4?"":"form-horizontal")">
                 <div class="modal-body">
                     @Html.Partial("Griddly/GriddlyFilterForm", Model.Filters)
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default griddly-filter-cancel" data-dismiss="modal">Cancel</button>
-                    <div class="btn-group pull-left">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Reset <span class="caret"></span>
+
+                    <div class="btn-group @(GriddlySettings.IsBootstrap4 ? "mr-auto" : "pull-left")">
+                        <button type="button" class="@GriddlySettings.DefaultButtonClassName dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Reset @if (!GriddlySettings.IsBootstrap4){<span class="@GriddlySettings.Css.Icons.CaretDown"></span>}
                         </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="griddly-search-reset" href="javascript:void(0)">System Default</a></li>
-                            <li><a class="griddly-search-clear" href="javascript:void(0)">Clear (Show All)</a></li>
-                        </ul>
+                        @if (GriddlySettings.IsBootstrap4)
+                        {
+                            <div class="dropdown-menu">
+                                <a class="griddly-search-reset dropdown-item" href="javascript:;">System Default</a>
+                                <a class="griddly-search-clear dropdown-item" href="javascript:;">Clear (Show All)</a>
+                            </div>
+                        }
+                        else
+                        {
+                            <ul class="dropdown-menu">
+                                <li><a class="griddly-search-reset" href="javascript:;">System Default</a></li>
+                                <li><a class="griddly-search-clear" href="javascript:;">Clear (Show All)</a></li>
+                            </ul>
+                        }
                     </div>
-                    <button type="submit" class="btn btn-primary">Search</button>
+
+                    <button type="button" class="@(GriddlySettings.IsBootstrap4 ? "btn btn-link" : GriddlySettings.DefaultButtonClassName) griddly-filter-cancel" data-dismiss="modal">Cancel</button>
+
+                    <button type="submit" class="@GriddlySettings.DefaultButtonClassName">Search</button>
                 </div>
             </form>
         </div>

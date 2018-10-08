@@ -388,7 +388,7 @@
         }
     };
 
-    var updateFilterDisplayImpl = function (root, filters, renderFilterDisplay, currencySymbol, overrideHasFilter)
+    var updateFilterDisplayImpl = function (root, filters, renderFilterDisplay, currencySymbol, overrideHasFilter, removeIconCssClass)
     {
         var hasFilter = false;
 
@@ -471,7 +471,7 @@
                     {
                         var item = displayItems[i];
 
-                        $(this).append(renderFilterDisplay(item.content, item.fieldValue) + " ");
+                        $(this).append(renderFilterDisplay(item.content, item.fieldValue, removeIconCssClass) + " ");
                     }
 
                     $(this).show();
@@ -491,11 +491,11 @@
         return hasFilter;
     };
 
-    var renderFilterDisplayImpl = function (content, fieldValue)
+    var renderFilterDisplayImpl = function (content, fieldValue, removeIconCssClass)
     {
         return '<span class="filter-display-value" ' + (fieldValue != null ? 'data-filter-fieldvalue="' + fieldValue + '"' : "") + '>' +
             content +
-            ' <a href="javascript:void(0)" class="griddly-remove-filter-value"><i class="glyphicon glyphicon-remove"></i></a>' +
+            ' <a href="javascript:void(0)" class="griddly-remove-filter-value"><i class="' + removeIconCssClass + '"></i></a>' +
             '</span>';
     };
 
@@ -544,11 +544,12 @@
         this.$element = $(element);
         this.$filterModal = $(".griddly-filter-modal", this.$element);
         this.options = options;
+        this.isBootstrap4 = $.fn.tooltip.Constructor.VERSION.substr(0, 1) == "4";
         this.create();
         this.isConstructed = false;
         this.eventQueue = [];
         this.hasHistory = this.$element.prev(".griddly-init-flag").length > 0;
-
+        
         this.triggerOrQueue = function ()
         {
             if (this.isConstructed)
@@ -623,13 +624,16 @@
 
         $("html").on("click", $.proxy(function (event)
         {
-            if (this.options.filterMode == "Inline" && $(event.target).parents('.popover.in').length == 0 && $(event.target).parents(".filter-trigger").length == 0 && !$(event.target).hasClass("filter-trigger"))
+            if (this.options.filterMode == "Inline" && $(event.target).parents('.popover.in, .popover.show').length == 0 && $(event.target).parents(".filter-trigger").length == 0 && !$(event.target).hasClass("filter-trigger"))
             {
                 $(".griddly-filters-inline .filter-trigger", this.$element).each(function ()
                 {
                     var filter = $(this);
 
-                    if (filter.data('bs.popover').tip().hasClass('in'))
+                    var tip = filter.data('bs.popover').tip;
+                    if ($.isFunction(tip)) tip = tip(); /*BS3*/
+
+                    if ($(tip).hasClass('in') || $(tip).hasClass('show')/*BS4*/)
                         filter.popover("hide");
                 });
             }
@@ -678,6 +682,7 @@
             var isFilterFormInline = this.$element.data("griddly-isfilterforminline");
             var filterDefaults = this.$element.data("griddly-filter-defaults");
             var currencySymbol = this.$element.data("griddly-currency-symbol");
+            var removeIconCssClass = this.$element.data("griddly-remove-icon-css-class");
 
             this.additionalRequestValues = {};
             this.options.url = url;
@@ -706,6 +711,7 @@
             this.options.allowedFilterModes = allowedFilterModes != null ? allowedFilterModes : null;
             this.options.isFilterFormInline = isFilterFormInline;
             this.options.filterDefaults = filterDefaults;
+            this.options.removeIconCssClass = removeIconCssClass;
 
             if (currencySymbol)
                 this.options.currencySymbol = currencySymbol;
@@ -1055,6 +1061,8 @@
 
             $(".griddly-filters-inline .filter-content input", this.$element).on("change", $.proxy(function (event, dontHide)
             {
+                var self = this;
+
                 var filter = $(event.currentTarget).data("griddly-filter");
                 var content = filter.data("griddly-filter-content");
                 var displayEl = filter.data("griddly-filter-display");
@@ -1118,7 +1126,7 @@
                     if (!filter.data("griddly-filter-ismultiple") && !dontHide)
                         filter.find(".filter-trigger").popover("hide");
 
-                    var allItems = content.find("li:not(.griddly-list-group-header)");
+                    var allItems = content.find("li:not(.griddly-list-group-header), .dropdown-item");
                     var selectedItems = allItems.filter(":has(:checked)");
                     var displayItemCount = parseInt(filter.data("griddly-filter-displayitemcount"));
 
@@ -1131,7 +1139,7 @@
                         display = selectedItems.length + " " + filter.data("filter-name-plural");
                     else if (selectedItems.length > 0 && selectedItems.length <= displayItemCount)
                     {
-                        var itemTexts = selectedItems.find("a");
+                        var itemTexts = self.isBootstrap4 ? selectedItems : selectedItems.find("a");
                         var display = $.trim($(itemTexts[0]).text());
 
                         for (var i = 1; i < selectedItems.length && i < displayItemCount; i++)
@@ -1196,7 +1204,9 @@
                     html: true,
                     placement: "bottom",
                     container: $(".griddly-filters-inline", this.$element),
-                    template: '<div class="popover griddly-filter-popover"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>',
+                    template:
+                        self.isBootstrap4 ? '<div class="popover griddly-filter-popover" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>'
+                        : '<div class="popover griddly-filter-popover"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>',
                     content: function ()
                     {
                         return content;
@@ -1217,7 +1227,7 @@
                     {
                         if ($("input", content).length === $("input:checked", content).length)
                         {
-                            $(".dropdown-menu li:not(.griddly-list-group-header)", content).removeClass("griddly-filter-selected");
+                            $(".dropdown-menu li:not(.griddly-list-group-header), .dropdown-menu .dropdown-item", content).removeClass("griddly-filter-selected");
                             $("input", content).prop("checked", false).first().change();
                         }
                     }
@@ -1233,11 +1243,11 @@
 
                 $("a", el).click(function ()
                 {
-                    var item = $(this).parents("li");
+                    var listGroupHeader = $(this).parents(".griddly-list-group-header");
 
-                    if (item.hasClass("griddly-list-group-header"))
+                    if (listGroupHeader.length > 0)
                     {
-                        var children = item.nextUntil(".griddly-list-group-header");
+                        var children = listGroupHeader.nextUntil(".griddly-list-group-header");
 
                         if (children.length != children.filter(".griddly-filter-selected").length)
                         {
@@ -1256,6 +1266,8 @@
                     }
                     else
                     {
+                        var item = self.isBootstrap4 ? $(this).parents(".dropdown-item") : $(this).parents("li");
+
                         var checkbox = $(this).find("input");
 
                         var filter = checkbox.data("griddly-filter");
@@ -1270,7 +1282,7 @@
                         {
                             var content = filter.data("griddly-filter-content");
 
-                            content.find(".dropdown-menu li:not(.griddly-list-group-header)").not(item).removeClass("griddly-filter-selected");
+                            content.find(".dropdown-menu li:not(.griddly-list-group-header), .dropdown-menu .dropdown-item").not(item).removeClass("griddly-filter-selected");
                             content.find("input").not(checkbox).prop("checked", false);
 
                             item.addClass("griddly-filter-selected");
@@ -1290,7 +1302,8 @@
                 {
                     var filter = checkbox.data("griddly-filter");
 
-                    var selector = ".dropdown-menu li" + (!filter.data("griddly-filter-ismultiple") ? ":not(.griddly-list-group-header)" : "");
+                    var selector = ".dropdown-menu li" + (!filter.data("griddly-filter-ismultiple") ? ":not(.griddly-list-group-header)" : "")
+                        +", .dropdown-menu .dropdown-item";
 
                     $(el).click(function ()
                     {
@@ -1310,7 +1323,8 @@
                 {
                     var filter = checkbox.data("griddly-filter");
 
-                    var selector = ".dropdown-menu li" + (!filter.data("griddly-filter-ismultiple") ? ":not(.griddly-list-group-header)" : "");
+                    var selector = ".dropdown-menu li" + (!filter.data("griddly-filter-ismultiple") ? ":not(.griddly-list-group-header)" : "")
+                        + ", .dropdown-menu .dropdown-item";
 
                     $(el).click(function ()
                     {
@@ -1513,7 +1527,7 @@
             {
                 var filters = this.getAllFilterElements().closest(".griddly-filter");
 
-                hasFilter = updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol);
+                hasFilter = updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol, null, this.options.removeIconCssClass);
             }
             else
             {
@@ -1529,7 +1543,7 @@
                     }
                 }
 
-                updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol, hasFilter);
+                updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol, hasFilter, this.options.removeIconCssClass);
             }
 
             this.updateDefaultStatus();
@@ -2058,7 +2072,7 @@
         {
             var filters = this.getAllFilterElements().closest(".griddly-filter");
 
-            updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol);
+            updateFilterDisplayImpl(this.$element, filters, this.options.renderFilterDisplay, this.options.currencySymbol, null, this.options.removeIconCssClass);
 
             this.$element.triggerHandler("updatefilterdisplay.griddlyFilterBar");
         },

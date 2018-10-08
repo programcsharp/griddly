@@ -152,6 +152,7 @@
         @: @Html.AttributeNullable("data-griddly-filtermode", settings.InitialFilterMode != FilterMode.None ? settings.InitialFilterMode.ToString() : null)
         @: @Html.AttributeNullable("data-griddly-allowedfiltermodes", settings.AllowedFilterModes != FilterMode.None ? Json.Encode(Enum.GetValues(typeof(FilterMode)).Cast<FilterMode>().Where(x => settings.AllowedFilterModes.Value.HasFlag(x) && x != FilterMode.Both && x != FilterMode.None).Select(x => x.ToString())) : null)
         @: data-griddly-isfilterforminline="@settings.IsFilterFormInline.ToString().ToLower()"
+        @: data-griddly-remove-icon-css-class="@GriddlySettings.Css.Icons.Remove"
         @: data-griddly-pagesize="@(settings.PageSize ?? Model.PageSize)"
         @: @Html.AttributeNullable("data-griddly-rowclickmodal", settings.RowClickModal)
         @: data-griddly-defaultrowids="@Json.Encode(settings.DefaultRowIds != null ? settings.DefaultRowIds.Select(x => x.ToLower()).ToArray() : new[] { "value" })"
@@ -234,7 +235,7 @@
                     }
                     else if (column is GriddlySelectColumn)
                     {
-                        <i class="glyphicon glyphicon-check"></i>
+                        <i class="@(GriddlySettings.Css.Icons.Check)"></i>
                     }
                     else
                     {
@@ -301,16 +302,16 @@
     <div class="griddly-footer">
         @if (settings.FooterTemplate == null || simple)
         {
-            <span class="griddly-summary"><span class="hidden-xs">Records</span>
+            <span class="griddly-summary"><span class="@(GriddlySettings.IsBootstrap4 ? "d-none d-sm-inline" : "hidden-xs")">Records</span>
                 <span class="griddly-recordstart">@(Model.PageNumber * Model.PageSize + (Model.Total > 0 ? 1 : 0))</span>
-                <span class="hidden-xs">through</span><span class="visible-xs-inline">-</span>
+                <span class="@(GriddlySettings.IsBootstrap4 ? "d-none d-sm-inline" : "hidden-xs")">through</span><span class="@(GriddlySettings.IsBootstrap4 ? "d-inline d-sm-none" : "visible-xs-inline"))">-</span>
                 <span class="griddly-recordend">@(Model.PageNumber * Model.PageSize + Model.Count)</span>
                 of <span class="griddly-recordtotal">@Model.Total</span>
             </span>
             <span class="griddly-pager" style="@(Model.Total <= Model.PageSize ? "display:none" : null)">
-                <a class="prev" href="javascript:void(0)" style="@(Model.PageNumber == 0 ? "display:none" : null)">&lt;&lt; Previous</a>Page
+                <a class="prev" href="javascript:;" style="@(Model.PageNumber == 0 ? "display:none" : null)">&lt;&lt; Previous</a>Page
                 <input type="text" class="pageNumber" value="@(Model.Total > 0 ? (Model.PageNumber + 1) : 0)"> of <span class="pageCount">@(Model.Total > 0 ? (Model.Total / Model.PageSize + 1) : 0)</span>
-                <a class="next" style="@(Model.Total < Model.PageSize ? "display:none" : null)" href="javascript:void(0)">Next &gt;&gt;</a>
+                <a class="next" style="@(Model.Total < Model.PageSize ? "display:none" : null)" href="javascript:;">Next &gt;&gt;</a>
             </span>
         }
         else
@@ -352,8 +353,8 @@
         <div class="form-group form-group-sm">
             <div class="col-sm-offset-2 col-sm-10">
                 <button type="submit" class="btn btn-primary">Search</button>
-                <button type="reset" class="btn btn-default griddly-search-reset">Reset</button>
-                <button type="reset" class="btn btn-default griddly-search-clear">Clear</button>
+                <button type="reset" class="@GriddlySettings.DefaultButtonClassName griddly-search-reset">Reset</button>
+                <button type="reset" class="@GriddlySettings.DefaultButtonClassName griddly-search-clear">Clear</button>
             </div>
         </div>
     </form>

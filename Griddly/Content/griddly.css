@@ -179,24 +179,24 @@
     top:auto;
 }
 
-.filter-content .dropdown-menu li a
+.filter-content .dropdown-menu a
 {
     padding: 3px 6px; 
     white-space: normal;
     cursor: pointer
 }
 
-.filter-content .dropdown-menu li.griddly-list-group-header
+.filter-content .dropdown-menu .griddly-list-group-header
 {
 
 }
 
-.filter-content .dropdown-menu li.griddly-list-group a
+.filter-content .dropdown-menu .griddly-list-group a
 {
     padding-left:16px;
 }
 
-.filter-content .dropdown-menu li a input 
+.filter-content .dropdown-menu a input 
 {
     display:none
 }
