@@ -89,7 +89,7 @@ namespace Griddly.Mvc
             ShowRowSelectCount = DefaultShowRowSelectCount;
         }
 
-        public static void ConfigureBoostrap4Defaults()
+        public static void ConfigureBootstrap4Defaults()
         {
             IsBootstrap4 = true;
             Css.TextCenter = "text-center";
