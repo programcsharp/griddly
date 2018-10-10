@@ -1266,7 +1266,7 @@
                     }
                     else
                     {
-                        var item = self.isBootstrap4 ? $(this).parents(".dropdown-item") : $(this).parents("li");
+                        var item = self.isBootstrap4 ? $(this) : $(this).parents("li");
 
                         var checkbox = $(this).find("input");
 

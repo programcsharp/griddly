@@ -145,7 +145,7 @@
                                 @InputGroupAddon(@<i class="@(GriddlySettings.Css.Icons.Calendar)"></i>, true)
                             }
                             <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
-                                data-griddly-filter-data-type="@filter.DataType" placeholder="Range Start"/>
+                                data-griddly-filter-data-type="@filter.DataType" placeholder="Range Start" />
                             @*@if (filter.DataType == FilterDataType.Percent)
                                 {
                                     <span class="input-group-addon">%</span>
@@ -180,10 +180,10 @@
                         if (filterList.IsMultiple)
                         {
                             <div class="input-group griddly-filter-buttons">
-                                <span class="input-group-btn">
+                                <span class="input-group-btn @(GriddlySettings.IsBootstrap4 ? "w-50" : null)">
                                     <a class="@GriddlySettings.DefaultButtonClassName griddly-select-all" href="javascript:;"><i class="@(GriddlySettings.Css.Icons.Check)"></i> Select All</a>
                                 </span>
-                                <span class="input-group-btn">
+                                <span class="input-group-btn @(GriddlySettings.IsBootstrap4 ? "w-50" : null)">
                                     <a class="@GriddlySettings.DefaultButtonClassName griddly-clear" href="javascript:;"><i class="@(GriddlySettings.Css.Icons.Clear)"></i> Clear</a>
                                 </span>
                             </div>
