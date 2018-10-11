@@ -13,7 +13,7 @@ namespace Griddly.Mvc
             Enabled = true;
             Action = GriddlyButtonAction.Navigate;
 
-            ClassName = ((GriddlySettings.DefaultButtonClassName ?? "") + " " + (additionalClassName ?? "")).Trim();
+            ClassName = ((GriddlySettings.Css.ButtonDefault ?? "") + " " + (additionalClassName ?? "")).Trim();
         }
 
         public string Argument { get; set; }

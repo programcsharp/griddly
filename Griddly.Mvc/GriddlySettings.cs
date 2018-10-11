@@ -79,8 +79,8 @@ namespace Griddly.Mvc
             HtmlAttributes = new RouteValueDictionary();
             TableHtmlAttributes = new RouteValueDictionary();
 
-            ClassName = DefaultClassName;
-            TableClassName = DefaultTableClassName;
+            ClassName = Css.GriddlyDefault;
+            TableClassName = Css.TableDefault;
             FooterTemplate = DefaultFooterTemplate;
             HeaderTemplate = DefaultHeaderTemplate;
             PageSize = DefaultPageSize;

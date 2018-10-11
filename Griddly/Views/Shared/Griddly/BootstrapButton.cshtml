@@ -29,7 +29,7 @@ else
             @RenderLink(Model, true, false)
             @if (Model.DropdownCaret == GriddlyDropdownCaret.Split)
             {
-                <button type="button" class="dropdown-toggle @GriddlySettings.DefaultButtonClassName" data-toggle="dropdown">
+                <button type="button" class="dropdown-toggle @GriddlySettings.Css.ButtonDefault" data-toggle="dropdown">
                     @if (!GriddlySettings.IsBootstrap4)
                     {
                     <span class="@GriddlySettings.Css.Icons.CaretDown"></span>
