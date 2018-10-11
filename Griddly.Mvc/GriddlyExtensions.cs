@@ -276,7 +276,12 @@ namespace Griddly.Mvc
                 SortField[] sortFields = null;
                 GriddlyExportFormat? exportFormat;
 
-                NameValueCollection items = new NameValueCollection(controller.ControllerContext.HttpContext.Request.Params);
+                NameValueCollection items;
+
+                if (controller.ControllerContext.HttpContext.Request.Params != null)
+                    items = new NameValueCollection(controller.ControllerContext.HttpContext.Request.Params);
+                else
+                    items = new NameValueCollection();
 
                 if (!int.TryParse(items["pageNumber"], out int pageNumber))
                     pageNumber = 0;
