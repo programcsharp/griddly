@@ -298,7 +298,7 @@ namespace Griddly.Mvc
 
                 context = new GriddlyContext()
                 {
-                    Name = (controller.GetType().Name + "_" + controller.ControllerContext.RouteData.GetRequiredString("action")).ToLower(),
+                    Name = (controller.GetType().Name + "_" + controller.ControllerContext.RouteData.Values["action"] as string).ToLower(),
                     PageNumber = pageNumber,
                     PageSize = pageSize,
                     ExportFormat = exportFormat,
