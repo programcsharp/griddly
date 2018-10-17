@@ -79,7 +79,7 @@ else
 
     bool clearSelectionOnAction = button.ClearSelectionOnAction ?? (button.Action == GriddlyButtonAction.Ajax || button.Action == GriddlyButtonAction.AjaxBulk);
 
-    <a data-role="griddly-button" class="@(!isMenuItem ? button.ClassName : null) @(isDropdown && button.DropdownCaret != GriddlyDropdownCaret.Split ? "dropdown-toggle" : null) @(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null) @(!string.IsNullOrWhiteSpace(button.Icon) ? "btn-with-icon" : null) @(isMenuItem && GriddlySettings.IsBootstrap4 ? "dropdown-item" : null)"
+    <a data-role="griddly-button" class="@(!isMenuItem ? GriddlySettings.Css.ButtonDefault : null) @button.ClassName @(isDropdown && button.DropdownCaret != GriddlyDropdownCaret.Split ? "dropdown-toggle" : null) @(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null) @(!string.IsNullOrWhiteSpace(button.Icon) ? "btn-with-icon" : null) @(isMenuItem && GriddlySettings.IsBootstrap4 ? "dropdown-item" : null)"
         @*onclick="@(button.Action == GriddlyButtonAction.Javascript ? button.Argument : null)"*@
         title="@button.Title"
         @Html.AttributeIf("target", button.Action == GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)

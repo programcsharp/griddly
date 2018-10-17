@@ -630,8 +630,11 @@
                 {
                     var filter = $(this);
 
-                    var tip = filter.data('bs.popover').tip;
-                    if ($.isFunction(tip)) tip = tip(); /*BS3*/
+                    var tip;
+                    if ($.isFunction(filter.data('bs.popover').tip))
+                        tip = filter.data('bs.popover').tip(); /*BS3*/
+                    else
+                        tip = filter.data('bs.popover').tip; /*BS4*/
 
                     if ($(tip).hasClass('in') || $(tip).hasClass('show')/*BS4*/)
                         filter.popover("hide");
