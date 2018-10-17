@@ -129,7 +129,7 @@
                                     <span class="input-group-addon">%</span>
                                 }*@
                             <span class="@(GriddlySettings.IsBootstrap4 ? "input-group-append" : "input-group-btn")">
-                                <a class="@GriddlySettings.Css.ButtonDefault griddly-filter-clear" href="javascript:;"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
+                                <a class="@GriddlySettings.Css.ButtonDefault griddly-filter-clear" href="javascript:;" tabindex="-1"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
                             </span>
                         </div>
                     }
@@ -151,7 +151,7 @@
                                     <span class="input-group-addon">%</span>
                                 }*@
                             <span class="@(GriddlySettings.IsBootstrap4 ? "input-group-append" : "input-group-btn")">
-                                <a class="@GriddlySettings.Css.ButtonDefault griddly-filter-clear" href="javascript:;"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
+                                <a class="@GriddlySettings.Css.ButtonDefault griddly-filter-clear" href="javascript:;" tabindex="-1"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
                             </span>
                         </div>
                         <div style="text-align:center" class="filter-range-to-text">to</div>
@@ -171,7 +171,7 @@
                                     <span class="input-group-addon">%</span>
                                 }*@
                             <span class="@(GriddlySettings.IsBootstrap4 ? "input-group-append" : "input-group-btn")">
-                                <a class="@GriddlySettings.Css.ButtonDefault griddly-filter-clear" href="javascript:;"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
+                                <a class="@GriddlySettings.Css.ButtonDefault griddly-filter-clear" href="javascript:;" tabindex="-1"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
                             </span>
                         </div>
                     }
@@ -242,7 +242,7 @@
     @Html.Raw($@"<{tag} class=""griddly-list-group-header {className}"">")
     if (filterList.IsMultiple)
     {
-        <a href="javascript:;">
+        <a href="javascript:;" tabindex="-1">
             <b>@group.Text</b>
             <i class="@(GriddlySettings.Css.Icons.ListMultipleSelected) griddly-filter-selected-indicator"></i>
         </a>
