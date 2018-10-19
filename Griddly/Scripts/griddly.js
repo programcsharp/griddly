@@ -1498,8 +1498,10 @@
 
         resetFilterValues: function (refresh)
         {
-            this.$element.find("form .transient").remove();
-            this.$element.find("form")[0].reset();
+            if (this.$element.find("form").length)
+            {
+                this.$element.find("form")[0].reset();
+            }
 
             this.setSortFields(this.options.defaultSort);
             this.setFilterValues(this.options.filterDefaults, null, true, true);
@@ -1512,8 +1514,6 @@
 
         clearFilterValues: function (refresh)
         {
-            this.$element.find("form .transient").remove();
-
             this.setFilterValues({}, false, true, true);
 
             this.triggerOrQueue(this.$element, "resetfilters.griddly");
