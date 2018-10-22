@@ -83,6 +83,8 @@ namespace Griddly.Mvc
             TableClassName = Css.TableDefault;
             FooterTemplate = DefaultFooterTemplate;
             HeaderTemplate = DefaultHeaderTemplate;
+            EmptyGridMessageTemplate = DefaultEmptyGridMessageTemplate;
+            EmptyGridMessage = DefaultEmptyGridMessage;
             PageSize = DefaultPageSize;
             InitialFilterMode = DefaultInitialFilterMode;
             //AllowedFilterModes = DefaultAllowedFilterModes;
@@ -148,6 +150,11 @@ namespace Griddly.Mvc
 
         public Func<GriddlyResultPage, object> FooterTemplate { get; set; }
         public Func<GriddlyResultPage, object> HeaderTemplate { get; set; }
+
+        public static Func<EmptyGridMessageTemplateParams, object> DefaultEmptyGridMessageTemplate { get; set; }
+        public Func<EmptyGridMessageTemplateParams, object> EmptyGridMessageTemplate { get; set; }
+        public static string DefaultEmptyGridMessage { get; set; }
+        public string EmptyGridMessage { get; set; }
 
         public Dictionary<string, Func<object, object>> RowIds { get; protected set; }
 

@@ -87,6 +87,7 @@
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="DynamicLinq.cs" />
+    <Compile Include="EmptyGridMessageTemplateParams.cs" />
     <Compile Include="Exceptions\DapperGriddlyException.cs" />
     <Compile Include="GriddlyContext.cs" />
     <Compile Include="GriddlyCookieFilterValueProvider.cs" />

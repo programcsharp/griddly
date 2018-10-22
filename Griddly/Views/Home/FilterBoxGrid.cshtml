@@ -39,7 +39,9 @@
         {
             new GriddlyButton() { Text = "Dropdown Test" }
                 .Add(new GriddlyButton() { Text = "UrlHelper Test", Argument = Url.Action("About") })
-        }
+        }, 
+        EmptyGridMessageTemplate=@<text><div class="alert alert-warning">@item.Settings.EmptyGridMessage</div></text>,
+        EmptyGridMessage="Sorry, no records were found"
     }
     .Column(x => x.Id, filter: x => x.FilterBox(FilterDataType.Integer))
     .Column(x => x.Item, filter: x => x.FilterList(groupedList))

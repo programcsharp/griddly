@@ -1696,10 +1696,13 @@
                 // https://github.com/programcsharp/griddly/issues/79
                 this.$element.find("tbody.data").html(html.children("tbody").html());
 
-                var tfoot = this.$element.find("tfoot");
+                var tfoot = this.$element.find("tfoot.totals-tfoot");
+                if (tfoot.length && html.children("tfoot.totals-tfoot").length)
+                    tfoot.replaceWith(html.children("tfoot.totals-tfoot"));
 
-                if (tfoot.length && html.children("tfoot").length)
-                    tfoot.replaceWith(html.children("tfoot"));
+                var emptyMessage = this.$element.find("tfoot.empty-grid-message");
+                if (emptyMessage.length && html.children("tfoot.empty-grid-message").length)
+                    emptyMessage.replaceWith(html.children("tfoot.empty-grid-message"));
 
                 var startRecord = this.options.pageNumber * this.options.pageSize;
 

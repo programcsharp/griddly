@@ -286,7 +286,7 @@
 </tbody>
 @if (settings.Columns.Any(x => x.SummaryFunction != null || x.SummaryValue != null))
 {
-    <tfoot>
+    <tfoot class="totals-tfoot">
         <tr>
             @foreach (GriddlyColumn column in settings.Columns)
             {
@@ -295,10 +295,29 @@
         </tr>
     </tfoot>
 }
+
+@if (settings.EmptyGridMessage != null) {
+    <tfoot class="empty-grid-message" style="@(Model.Total > 0 ? "display:none;" : null)">
+        <tr>
+            <td colspan="@settings.Columns.Count">
+                @if (settings.EmptyGridMessageTemplate != null)
+                {
+                    @settings.EmptyGridMessageTemplate(new EmptyGridMessageTemplateParams() { ResultPage = Model, Settings = settings })
+                }
+                else
+                {
+                    @Model.Settings.EmptyGridMessage
+                }
+            </td>
+        </tr>
+    </tfoot>
+}
+
 @if (isFirstRender)
 {
-    @:</table>
-    @:</div>
+@:</table>
+@:</div>
+
     <div class="griddly-footer">
         @if (settings.FooterTemplate == null || simple)
         {
