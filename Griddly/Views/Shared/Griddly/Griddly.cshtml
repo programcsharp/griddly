@@ -323,7 +323,7 @@
         {
             <span class="griddly-summary"><span class="@(GriddlySettings.IsBootstrap4 ? "d-none d-sm-inline" : "hidden-xs")">Records</span>
                 <span class="griddly-recordstart">@(Model.PageNumber * Model.PageSize + (Model.Total > 0 ? 1 : 0))</span>
-                <span class="@(GriddlySettings.IsBootstrap4 ? "d-none d-sm-inline" : "hidden-xs")">through</span><span class="@(GriddlySettings.IsBootstrap4 ? "d-inline d-sm-none" : "visible-xs-inline"))">-</span>
+                <span class="@(GriddlySettings.IsBootstrap4 ? "d-none d-sm-inline" : "hidden-xs")">through</span><span class="@(GriddlySettings.IsBootstrap4 ? "d-inline d-sm-none" : "visible-xs-inline")">-</span>
                 <span class="griddly-recordend">@(Model.PageNumber * Model.PageSize + Model.Count)</span>
                 of <span class="griddly-recordtotal">@Model.Total</span>
             </span>
