@@ -121,7 +121,7 @@
         });
 
     bool isDefaultSort = true;
-    
+
     if (defaultSort != null && Model.SortFields != null && defaultSort.Length == Model.SortFields.Length)
     {
         for (int i = 0; i < defaultSort.Length; i++)
@@ -139,6 +139,15 @@
         || (defaultSort.Length != Model.SortFields.Length))
     {
         isDefaultSort = false;
+    }
+
+    // TODO: make js know how to do real bools
+    foreach (var pair in defaultFilters.ToList())
+    {
+        if (pair.Value as bool? != null)
+        {
+            defaultFilters[pair.Key] = pair.Value.ToString().ToLower();
+        }
     }
 
     if (!GriddlySettings.DisableHistoryParameters)

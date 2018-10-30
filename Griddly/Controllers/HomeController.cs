@@ -242,7 +242,7 @@ namespace Griddly.Controllers
 
         public ActionResult IndexGrid(string item, int? quantityStart, int? quantityEnd, decimal? totalStart, decimal? totalEnd, string firstName, string lastName, bool? isApproved)
         {
-            this.SetGriddlyDefault(ref isApproved, "isApproved", true);
+            this.SetGriddlyDefault(ref isApproved, "isApproved", false);
 
             IQueryable<SimpleOrder> query = _indexTestData;
 
