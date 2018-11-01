@@ -145,7 +145,7 @@ namespace Griddly.Mvc
 
                 if (griddlyContext.ExportFormat == GriddlyExportFormat.Custom)
                 {
-                    result = GriddlySettings.HandleCustomExport(this, items);
+                    result = GriddlySettings.HandleCustomExport(this, items, context);
                 }
                 else
                 {

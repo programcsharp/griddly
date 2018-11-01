@@ -62,7 +62,7 @@ namespace Griddly.Mvc
         /// 
         /// First argument is the record set. Second argument is the posted form values.
         /// </summary>
-        public static Func<GriddlyResult, NameValueCollection, ActionResult> HandleCustomExport = null;
+        public static Func<GriddlyResult, NameValueCollection, ControllerContext, ActionResult> HandleCustomExport = null;
         public static Action<GriddlySettings, GriddlyResultPage, HtmlHelper, bool> OnBeforeRender = null;
         public static Action<GriddlySettings, ControllerContext> OnGriddlyResultExecuting = null;
         public static Action<GriddlySettings, GriddlyContext, ControllerContext> OnGriddlyPageExecuting = null;

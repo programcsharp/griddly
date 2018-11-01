@@ -12,7 +12,7 @@ namespace Griddly.Controllers
 {
     public class HomeController : Controller
     {
-        public static ActionResult HandleCustomExport(GriddlyResult result, NameValueCollection form)
+        public static ActionResult HandleCustomExport(GriddlyResult result, NameValueCollection form, ControllerContext context)
         {
             return new JsonResult()
             {
