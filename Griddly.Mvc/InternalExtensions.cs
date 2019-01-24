@@ -163,7 +163,7 @@ namespace Griddly.Mvc
             switch (dataType)
             {
                 case FilterDataType.Integer:
-                    format = "d";
+                    format = "n0";
 
                     break;
                 case FilterDataType.Decimal:
