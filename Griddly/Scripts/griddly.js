@@ -356,11 +356,17 @@
         }
 
         if (input.data("griddly-filter") && input.data("griddly-filter").data("griddly-filter-isnoneall") &&
-            (value == null ||
-                (input.data("griddly-filter").data("griddly-filter-ismultiple") && $.isArray(value) && $("input", input.data("griddly-filter").data("griddly-filter-content")).length === value.length)))
+            (value === null || (input.data("griddly-filter").data("griddly-filter-ismultiple") && $.isArray(value) && $("input", input.data("griddly-filter").data("griddly-filter-content")).length === value.length)))
+        {
             input.prop("checked", false);
+        }
         else
-            input.val([].concat(value));
+        {
+            if (typeof value === typeof undefined && input.is("[multiple]"))
+                input.find("option:selected").prop("selected", false);
+            else
+                input.val([].concat(value));
+        }
 
         $(input[0]).change();
     };
