@@ -13,6 +13,7 @@
 
 @{
     GriddlySettings settings = (GriddlySettings)ViewBag.settings;
+    var context = ViewContext.Controller.GetOrCreateGriddlyContext();
 
     settings.Columns.RemoveAll(x => !x.RenderMode.HasFlag(ColumnRenderMode.View));
 
@@ -158,6 +159,7 @@
         @: @Html.AttributeNullable("data-griddly-url", !simple ? Url.Current() : null)
         @: @Html.AttributeNullable("data-griddly-urltarget", !simple ? settings.RowClickTarget : null)
         @: data-griddly-count="@Model.Total"
+        @: @Html.AttributeIf("data-griddly-isdeeplink", context.IsDeepLink, true)
         @: @Html.AttributeNullable("data-griddly-filtermode", settings.InitialFilterMode != FilterMode.None ? settings.InitialFilterMode.ToString() : null)
         @: @Html.AttributeNullable("data-griddly-allowedfiltermodes", settings.AllowedFilterModes != FilterMode.None ? Json.Encode(Enum.GetValues(typeof(FilterMode)).Cast<FilterMode>().Where(x => settings.AllowedFilterModes.Value.HasFlag(x) && x != FilterMode.Both && x != FilterMode.None).Select(x => x.ToString())) : null)
         @: data-griddly-isfilterforminline="@settings.IsFilterFormInline.ToString().ToLower()"

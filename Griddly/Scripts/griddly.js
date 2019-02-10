@@ -692,8 +692,13 @@
             var filterDefaults = this.$element.data("griddly-filter-defaults");
             var currencySymbol = this.$element.data("griddly-currency-symbol");
             var removeIconCssClass = this.$element.data("griddly-remove-icon-css-class");
+            var isDeepLink = this.$element.data("griddly-isdeeplink");
 
             this.additionalRequestValues = {};
+
+            if (isDeepLink)
+                this.additionalRequestValues._isDeepLink = true;
+
             this.options.url = url;
             this.options.defaultRowIds = defaultRowIds;
             this.options.count = parseInt(count);

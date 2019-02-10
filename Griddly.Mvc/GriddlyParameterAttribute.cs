@@ -27,7 +27,10 @@ namespace Griddly.Mvc
 
                     // if a param came in on querystring, skip the defaults. cookie already does its own skip.
                     if (!context.IsDefaultSkipped && filterContext.ActionParameters.Any(x => x.Value != null && parentKeys.Contains(x.Key)))
+                    {
                         context.IsDefaultSkipped = true;
+                        context.IsDeepLink = true;
+                    }
 
                     foreach (var param in filterContext.ActionParameters.ToList())
                     {
@@ -49,6 +52,11 @@ namespace Griddly.Mvc
                         }
                     }
                 }
+                else if (filterContext.ActionParameters.TryGetValue("_isDeepLink", out object value))
+                {
+                    if (Convert.ToBoolean(value) == true)
+                        context.IsDeepLink = true;
+                }
              }
 
             base.OnActionExecuting(filterContext);
@@ -59,58 +67,62 @@ namespace Griddly.Mvc
             if (filterContext.Result is GriddlyResult result)
             {
                 var context = filterContext.Controller.GetOrCreateGriddlyContext();
-                var request = filterContext.HttpContext.Request;
 
-                Uri parentPath = filterContext.IsChildAction ? request.Url : request.UrlReferrer;
-                string parentPathString = parentPath?.PathAndQuery.Split('?')[0]; // TODO: less allocations than split
-
-                if (parentPathString?.Length > 0)
+                if (!context.IsDeepLink)
                 {
-                    HttpCookie cookie = new HttpCookie("gf_" + context.Name)
+                    var request = filterContext.HttpContext.Request;
+
+                    Uri parentPath = filterContext.IsChildAction ? request.Url : request.UrlReferrer;
+                    string parentPathString = parentPath?.PathAndQuery.Split('?')[0]; // TODO: less allocations than split
+
+                    if (parentPathString?.Length > 0)
                     {
-                        Path = parentPathString
-                    };
-
-                    GriddlyFilterCookieData data = new GriddlyFilterCookieData()
-                    {
-                        Values = new Dictionary<string, string[]>()
-                    };
-
-                    if (context.SortFields?.Length > 0)
-                        data.SortFields = context.SortFields;
-
-                    // now, we could use the context.Parameters... but the raw string values seems more like what we want here...
-                    foreach (var param in filterContext.ActionDescriptor.GetParameters())
-                    {
-                        var valueResult = filterContext.Controller.ValueProvider.GetValue(param.ParameterName);
-
-                        if (valueResult?.RawValue != null)
+                        HttpCookie cookie = new HttpCookie("gf_" + context.Name)
                         {
-                            if (valueResult.RawValue is string[] array)
-                                data.Values[param.ParameterName] = array;
-                            else
-                                data.Values[param.ParameterName] = new[] { valueResult.RawValue.ToString() };
-                        }
-                    }
+                            Path = parentPathString
+                        };
 
-                    // ... but if it is a defaults situation, we actually need to grab those
-                    if (filterContext.IsChildAction && !context.IsDefaultSkipped && context.Defaults.Count > 0)
-                    {
-                        foreach (var param in context.Defaults)
+                        GriddlyFilterCookieData data = new GriddlyFilterCookieData()
                         {
-                            if (param.Value != null)
+                            Values = new Dictionary<string, string[]>()
+                        };
+
+                        if (context.SortFields?.Length > 0)
+                            data.SortFields = context.SortFields;
+
+                        // now, we could use the context.Parameters... but the raw string values seems more like what we want here...
+                        foreach (var param in filterContext.ActionDescriptor.GetParameters())
+                        {
+                            var valueResult = filterContext.Controller.ValueProvider.GetValue(param.ParameterName);
+
+                            if (valueResult?.RawValue != null)
                             {
-                                var value = GriddlyExtensions.GetFormattedValueByType(param.Value);
-
-                                if (value != null)
-                                    data.Values[param.Key] = value;
+                                if (valueResult.RawValue is string[] array)
+                                    data.Values[param.ParameterName] = array;
+                                else
+                                    data.Values[param.ParameterName] = new[] { valueResult.RawValue.ToString() };
                             }
                         }
+
+                        // ... but if it is a defaults situation, we actually need to grab those
+                        if (filterContext.IsChildAction && !context.IsDefaultSkipped && context.Defaults.Count > 0)
+                        {
+                            foreach (var param in context.Defaults)
+                            {
+                                if (param.Value != null)
+                                {
+                                    var value = GriddlyExtensions.GetFormattedValueByType(param.Value);
+
+                                    if (value != null)
+                                        data.Values[param.Key] = value;
+                                }
+                            }
+                        }
+
+                        cookie.Value = JsonConvert.SerializeObject(data);
+
+                        filterContext.HttpContext.Response.Cookies.Add(cookie);
                     }
-
-                    cookie.Value = JsonConvert.SerializeObject(data);
-
-                    filterContext.HttpContext.Response.Cookies.Add(cookie);
                 }
             }
 

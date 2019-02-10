@@ -10,6 +10,7 @@ namespace Griddly.Mvc
     {
         public string Name { get; set; }
         public bool IsDefaultSkipped { get; set; }
+        public bool IsDeepLink { get; set; }
 
         public GriddlyFilterCookieData CookieData { get; set; }
 
