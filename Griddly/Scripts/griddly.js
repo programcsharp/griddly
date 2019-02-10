@@ -790,7 +790,7 @@
                     value = 1000;
 
                 this.options.pageNumber = Math.floor(this.options.pageNumber * this.options.pageSize / value);
-                this.options.pageSize = value;
+                this.pageSize(value);
 
                 this.refresh();
             }, this));
@@ -1854,7 +1854,16 @@
 
         pageSize: function (pageSize)
         {
+            var originalSize = this.options.pageSize;
+
             this.options.pageSize = pageSize;
+
+            this.triggerOrQueue(this.$element, "pagesizechanged.griddly",
+                {
+                    originalSize: originalSize,
+                    pageSize: pageSize
+                });
+
             // TODO: refresh auto?
         },
 
