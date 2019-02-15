@@ -2299,7 +2299,7 @@
             // TODO: go back to first page?
             griddly.griddly("refresh");
 
-            button.triggerHandler("afterExecute", [data, status, xhr]);
+            button.trigger("afterExecute", [data, status, xhr]);
         }, this));
     };
 
@@ -2372,7 +2372,7 @@
                 // TODO: go back to first page?
                 griddly.griddly("refresh");
 
-                button.triggerHandler("afterExecute", [data, status, xhr]);
+                button.trigger("afterExecute", [data, status, xhr]);
             }, this));
         }
     };
