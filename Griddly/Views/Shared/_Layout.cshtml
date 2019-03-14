@@ -25,7 +25,6 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li class="@(ViewContext.RouteData.Values["action"].ToString() == "examples" ? "active" : null)">@Html.ActionLink("Examples", "Examples")</li>
-                    <li class="@(ViewContext.RouteData.Values["action"].ToString() == "editly" ? "active" : null)">@Html.ActionLink("Editly", "Editly")</li>
                     <li class="@(ViewContext.RouteData.Values["action"].ToString() == "filterbar" ? "active" : null)">@Html.ActionLink("Filter Bar", "FilterBar")</li>
                     <li class="@(ViewContext.RouteData.Values["action"].ToString() == "historytest" ? "active" : null)">@Html.ActionLink("History Test", "HistoryTest")</li>
                     <li class="@(ViewContext.RouteData.Values["action"].ToString() == "multipledefaulttest" ? "active" : null)">@Html.ActionLink("Multiple Test", "MultipleDefaultTest")</li>
@@ -64,7 +63,6 @@
     @Scripts.Render("~/bundles/bootstrap")
     <script src="https://cdnjs.cloudflare.com/ajax/libs/floatthead/1.2.10/jquery.floatThead.min.js"></script>
     @Scripts.Render("~/scripts/griddly.js")
-    @Scripts.Render("~/scripts/editly.js")
     @Scripts.Render("~/scripts/bootstrap-multiselect.js")
     @Scripts.Render("~/scripts/SyntaxHighlighter/shCore.js")
     @Scripts.Render("~/scripts/SyntaxHighlighter/shBrushCSharp.js")

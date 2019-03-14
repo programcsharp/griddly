@@ -179,7 +179,6 @@
     </Content>
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
-    <Content Include="Scripts\editly.js" />
     <Content Include="Scripts\griddly.js" />
     <Content Include="Scripts\bootstrap.min.js.map">
       <DependentUpon>bootstrap.min.js</DependentUpon>
@@ -262,8 +261,6 @@
     <Content Include="Views\Home\IndexGrid.cshtml" />
     <Content Include="Views\Shared\Griddly\GriddlyFilterInline.cshtml" />
     <Content Include="Views\Shared\Griddly\GriddlyFilterForm.cshtml" />
-    <Content Include="Views\Home\Editly.cshtml" />
-    <Content Include="Views\Home\EditlyGrid.cshtml" />
     <Content Include="Views\Home\HistoryTest.cshtml" />
     <Content Include="Views\Shared\Griddly\GriddlyFilterValues.cshtml" />
     <Content Include="Views\Home\FilterBoxGrid - Copy.cshtml" />

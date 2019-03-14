@@ -25,7 +25,6 @@
     <ItemGroup>
       <Libs Include="$(BaseDir)\Griddly.Mvc\bin\$(Configuration)\Griddly.Mvc.dll" />
       <Content Include="$(BaseDir)\Griddly\**\griddly.js" />
-      <Content Include="$(BaseDir)\Griddly\**\editly.js" />
       <Content Include="$(BaseDir)\Griddly\**\griddly.css" />
       <Content Include="$(BaseDir)\Griddly\**\Views\Shared\Griddly\*.*" />
     </ItemGroup>
