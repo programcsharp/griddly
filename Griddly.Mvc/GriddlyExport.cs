@@ -29,7 +29,7 @@ namespace Griddly.Mvc
             : base(name, useGridColumns)
         {
         }
-        public GriddlyExport<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> expression, string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, ColumnRenderMode renderMode = ColumnRenderMode.Both, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0, Expression<Func<TRow, object>> value = null)
+        public GriddlyExport<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> expression, string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, ColumnRenderMode renderMode = ColumnRenderMode.Both, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0, Expression<Func<TRow, object>> value = null, double? exportWidth = null)
         {
             ModelMetadata metadata = null;
 
@@ -80,6 +80,7 @@ namespace Griddly.Mvc
                 ClassName = className,
                 RenderMode = renderMode,
                 Width = width,
+                ExportWidth = exportWidth,
                 HtmlAttributesTemplate = htmlAttributes,
                 HeaderHtmlAttributes = (IDictionary<string, object>)headerHtmlAttributes,
                 UnderlyingValueTemplate = valueTemplate
@@ -88,9 +89,9 @@ namespace Griddly.Mvc
             return this;
         }
 
-        public GriddlyExport<TRow> Column(string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, ColumnRenderMode renderMode = ColumnRenderMode.Both, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0, Expression<Func<TRow, object>> value = null)
+        public GriddlyExport<TRow> Column(string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, ColumnRenderMode renderMode = ColumnRenderMode.Both, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0, Expression<Func<TRow, object>> value = null, double? exportWidth = null)
         {
-            return Column<object>(null, caption, format, expressionString, defaultSort, className, renderMode, width, summaryFunction, summaryValue, template, htmlAttributes, headerHtmlAttributes, defaultSortOrder, value);
+            return Column<object>(null, caption, format, expressionString, defaultSort, className, renderMode, width, summaryFunction, summaryValue, template, htmlAttributes, headerHtmlAttributes, defaultSortOrder, value, exportWidth);
         }
     }
 }
