@@ -26,6 +26,7 @@ namespace Griddly.Mvc
         public int DefaultSortOrder { get; set; }
         public string ClassName { get; set; }
         public string Width { get; set; }
+        public double? ExportWidth { get; set; }
         public ColumnRenderMode RenderMode { get; set; }
         public SummaryAggregateFunction? SummaryFunction { get; set; }
         public object SummaryValue { get; set; }

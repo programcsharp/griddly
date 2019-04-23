@@ -73,13 +73,23 @@ namespace Griddly.Mvc
 
                             cell.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
                         }
+                        else if (renderedValue is string stringValue && stringValue.IndexOf('\n') != -1)
+                        {
+                            cell.Style.WrapText = true;
+                        }
                     }
 
                     y++;
                 }
 
                 for (int i = 0; i < columns.Count; i++)
-                    ws.Column(i + 1).AutoFit();
+                {
+                    GriddlyColumn col = columns[i];
+                    if (col.ExportWidth != null)
+                        ws.Column(i + 1).Width = col.ExportWidth.Value;
+                    else
+                        ws.Column(i + 1).AutoFit();
+                }
 
                 context.HttpContext.Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                 context.HttpContext.Response.AddHeader("content-disposition", "attachment;  filename=" + _name + ".xlsx");
