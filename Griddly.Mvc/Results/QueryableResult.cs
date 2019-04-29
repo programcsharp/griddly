@@ -148,7 +148,8 @@ namespace Griddly.Mvc.Results
             if (finalSortField != null)
             {
                 if (sortedQuery == null)
-                    sortedQuery = source is IOrderedQueryable<T> sourceOrdered ? ThenByDescending(sourceOrdered, finalSortField) : OrderByDescending(source, finalSortField);
+                    sortedQuery = source is IOrderedQueryable<T> sourceOrdered && typeof(IOrderedQueryable<T>).IsAssignableFrom(source.Expression.Type)
+                        ? ThenByDescending(sourceOrdered, finalSortField) : OrderByDescending(source, finalSortField);
                 else
                     sortedQuery = ThenByDescending(sortedQuery, finalSortField);
             }
