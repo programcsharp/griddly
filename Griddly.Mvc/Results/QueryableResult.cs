@@ -148,7 +148,7 @@ namespace Griddly.Mvc.Results
             if (finalSortField != null)
             {
                 if (sortedQuery == null)
-                    sortedQuery = source is IOrderedQueryable<T> sourceOrdered && typeof(IOrderedQueryable<T>).IsAssignableFrom(source.Expression.Type)
+                    sortedQuery = source is IOrderedQueryable<T> sourceOrdered && OrderingVisitor.HasOrderBy(sourceOrdered.Expression)
                         ? ThenByDescending(sourceOrdered, finalSortField) : OrderByDescending(source, finalSortField);
                 else
                     sortedQuery = ThenByDescending(sortedQuery, finalSortField);
@@ -203,7 +203,34 @@ namespace Griddly.Mvc.Results
                     .Invoke(null, new object[] { source, lambda });
             return (IOrderedQueryable<T>)result;
         }
+
+        class OrderingVisitor : ExpressionVisitor
+        {
+            public bool FoundOrderBy { get; private set; }
+
+            protected override Expression VisitMethodCall(MethodCallExpression node)
+            {
+                if (node.Method.DeclaringType == typeof(Queryable) &&
+                    (node.Method.Name == "OrderBy" || node.Method.Name == "OrderByDescending"))
+                {
+                    FoundOrderBy = true;
+                }
+
+                return base.VisitMethodCall(node);
+            }
+
+            internal static bool HasOrderBy(Expression exp)
+            {
+                if (!typeof(IOrderedQueryable<T>).IsAssignableFrom(exp.Type)) return false;
+
+                var v = new OrderingVisitor();
+                v.Visit(exp);
+                return v.FoundOrderBy;
+            }
+        }
     }
+
+ 
 
     public enum GriddlyExportFormat
     {
@@ -212,4 +239,6 @@ namespace Griddly.Mvc.Results
         Tsv,
         Custom
     }
+
+
 }
