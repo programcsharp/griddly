@@ -301,7 +301,7 @@
         <tr>
             @foreach (GriddlyColumn column in settings.Columns)
             {
-                <td>@column.RenderValue(column.SummaryValue)</td>
+                <td class="@column.ClassName">@column.RenderValue(column.SummaryValue)</td>
             }
         </tr>
     </tfoot>
