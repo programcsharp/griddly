@@ -1420,7 +1420,8 @@
 
             if (this.options.filterMode == "Inline")
             {
-                allFilters = this.$inlineFilters;
+                allFilters = this.$inlineFilters
+                    .add($("input[name][value!=''], select[name][value!='']", this.$filterModal));
             }
             else
             {
