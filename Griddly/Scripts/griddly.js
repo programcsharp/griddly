@@ -422,23 +422,23 @@
 
                     if (val != null || valEnd != null)
                     {
-                        display = filter.data("filter-name") + " ";
+                        display = filter.data("filter-name");
 
                         if (filter.hasClass("griddly-filter-box"))
                         {
                             if (dataType == "String")
-                                display += 'contains "' + getFormattedValue(val, dataType, currencySymbol) + '"';
+                                display += ': "' + getFormattedValue(val, dataType, currencySymbol) + '"';
                             else
-                                display += ' = ' + getFormattedValue(val, dataType, currencySymbol);
+                                display += ': ' + getFormattedValue(val, dataType, currencySymbol);
                         }
                         else if (filter.hasClass("griddly-filter-range"))
                         {
                             if (val != null && valEnd != null)
-                                display += 'from ' + getFormattedValue(val, dataType, currencySymbol) + " to " + getFormattedValue(valEnd, dataType, currencySymbol);
+                                display += ' from ' + getFormattedValue(val, dataType, currencySymbol) + " to " + getFormattedValue(valEnd, dataType, currencySymbol);
                             else if (val != null)
-                                display += (dataType == "Date" ? "after " : ">= ") + getFormattedValue(val, dataType, currencySymbol);
+                                display += (dataType == "Date" ? " after " : " >= ") + getFormattedValue(val, dataType, currencySymbol);
                             else if (valEnd != null)
-                                display += (dataType == "Date" ? "before " : "<= ") + getFormattedValue(valEnd, dataType, currencySymbol);
+                                display += (dataType == "Date" ? " before " : " <= ") + getFormattedValue(valEnd, dataType, currencySymbol);
                         }
                     }
 

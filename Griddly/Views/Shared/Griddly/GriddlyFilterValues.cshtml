@@ -28,36 +28,22 @@
                 if (defaultValue != null || defaultValueEnd != null)
                 {
                     @FieldValue(filter.Field,
-                    @<text>
-                        @filter.Caption
-
-                        @if (filterBox != null)
-                        {
-                            if (filter.DataType == FilterDataType.String)
-                            {
-                                <text>contains "@filter.GetFormattedValue(defaultValue)"</text>
-                            }
-                            else
-                            {
-                                <text> = @filter.GetFormattedValue(defaultValue)</text>
-                            }
-                        }
-                        else if (filterRange != null)
-                        {
-                            if (defaultValue != null && defaultValueEnd != null)
-                            {
-                                <text>from @filter.GetFormattedValue(defaultValue) to @filter.GetFormattedValue(defaultValueEnd)</text>
-                            }
-                            else if (defaultValue != null)
-                            {
-                                <text>@(filter.DataType == FilterDataType.Date ? "after" : ">=") @filter.GetFormattedValue(defaultValue)</text>
-                            }
-                            else if (defaultValueEnd != null)
-                            {
-                                <text>@(filter.DataType == FilterDataType.Date ? "before" : "<=") @filter.GetFormattedValue(defaultValueEnd)</text>
-                            }
-
-                        }
+                    @<text>@filter.Caption@if (filterBox != null)
+                    {
+                        if (filter.DataType == FilterDataType.String)
+                        {<text>: "@filter.GetFormattedValue(defaultValue)"</text>}
+                        else
+                        {<text>: @filter.GetFormattedValue(defaultValue)</text>}
+                    }
+                    else if (filterRange != null)
+                    {
+                        if (defaultValue != null && defaultValueEnd != null)
+                        {<text> from @filter.GetFormattedValue(defaultValue) to @filter.GetFormattedValue(defaultValueEnd)</text>}
+                        else if (defaultValue != null)
+                        {<text>@(filter.DataType == FilterDataType.Date ? " after" : " >=") @filter.GetFormattedValue(defaultValue)</text>}
+                        else if (defaultValueEnd != null)
+                        {<text>@(filter.DataType == FilterDataType.Date ? " before" : " <=") @filter.GetFormattedValue(defaultValueEnd)</text>}
+                    }
                     </text>)
                 }
             }
