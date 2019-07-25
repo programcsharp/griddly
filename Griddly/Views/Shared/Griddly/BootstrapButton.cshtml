@@ -12,6 +12,7 @@
 @model GriddlyButton
 @{
     bool isListOnly = ViewBag.IsListOnly == true;
+    var css = (GriddlyCss?)ViewBag.GriddlyCss ?? GriddlySettings.DefaultCss;
 }
 @if (Model is GriddlyHtmlButton)
 {
@@ -29,14 +30,14 @@ else
             @RenderLink(Model, true, false)
             @if (Model.DropdownCaret == GriddlyDropdownCaret.Split)
             {
-                <button type="button" class="dropdown-toggle @GriddlySettings.Css.ButtonDefault" data-toggle="dropdown">
-                    @if (!GriddlySettings.IsBootstrap4)
+                <button type="button" class="dropdown-toggle @css.ButtonDefault" data-toggle="dropdown">
+                    @if (!css.IsBootstrap4)
                     {
-                    <span class="@GriddlySettings.Css.Icons.CaretDown"></span>
+                    <span class="@css.Icons.CaretDown"></span>
                     }
                 </button>
             }
-            @if (GriddlySettings.IsBootstrap4)
+            @if (css.IsBootstrap4)
             {
                 <div class="dropdown-menu @(Model.AlignRight ? "dropdown-menu-right float-right" : "")">
                     @RenderList()
@@ -58,6 +59,8 @@ else
 
 @helper RenderLink(GriddlyButton button, bool isDropdown, bool isMenuItem)
 {
+    var css = (GriddlyCss?)ViewBag.GriddlyCss ?? GriddlySettings.DefaultCss;
+
     if (button.ArgumentTemplate != null)
     {
         button.Argument = button.ArgumentTemplate(ViewData["ResolveContext"]).ToString();
@@ -79,7 +82,7 @@ else
 
     bool clearSelectionOnAction = button.ClearSelectionOnAction ?? (button.Action == GriddlyButtonAction.Ajax || button.Action == GriddlyButtonAction.AjaxBulk);
 
-    <a data-role="griddly-button" class="@(!isMenuItem ? GriddlySettings.Css.ButtonDefault : null) @button.ClassName @(isDropdown && button.DropdownCaret != GriddlyDropdownCaret.Split ? "dropdown-toggle" : null) @(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null) @(!string.IsNullOrWhiteSpace(button.Icon) ? "btn-with-icon" : null) @(isMenuItem && GriddlySettings.IsBootstrap4 ? "dropdown-item" : null)"
+    <a data-role="griddly-button" class="@(!isMenuItem ? css.ButtonDefault : null) @button.ClassName @(isDropdown && button.DropdownCaret != GriddlyDropdownCaret.Split ? "dropdown-toggle" : null) @(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null) @(!string.IsNullOrWhiteSpace(button.Icon) ? "btn-with-icon" : null) @(isMenuItem && css.IsBootstrap4 ? "dropdown-item" : null)"
         @*onclick="@(button.Action == GriddlyButtonAction.Javascript ? button.Argument : null)"*@
         title="@button.Title"
         @Html.AttributeIf("target", button.Action == GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
@@ -108,18 +111,20 @@ else
         }
         @button.Text
 
-        @if (isDropdown && button.DropdownCaret == GriddlyDropdownCaret.Inline && !GriddlySettings.IsBootstrap4)
+        @if (isDropdown && button.DropdownCaret == GriddlyDropdownCaret.Inline && !css.IsBootstrap4)
         {
-            <span class="@GriddlySettings.Css.Icons.CaretDown"></span>
+            <span class="@css.Icons.CaretDown"></span>
         }
     </a>
 }
 
 @helper RenderList()
 {
+    var css = (GriddlyCss?)ViewBag.GriddlyCss ?? GriddlySettings.DefaultCss;
+
     foreach (GriddlyButton button in Model.Buttons)
     {
-        if (GriddlySettings.IsBootstrap4)
+        if (css.IsBootstrap4)
         {
             if (button.IsSeparator)
             {

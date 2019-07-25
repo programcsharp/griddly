@@ -23,6 +23,7 @@ namespace Griddly.Mvc
         public int PageSize { get; set; }
         public GriddlyExportFormat? ExportFormat { get; set; }
         public SortField[] SortFields { get; set; }
+        public GriddlySettings Settings { get; set; }
     }
 
     public class GriddlyFilterCookieData

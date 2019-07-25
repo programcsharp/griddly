@@ -91,6 +91,7 @@
     <Compile Include="Exceptions\DapperGriddlyException.cs" />
     <Compile Include="GriddlyContext.cs" />
     <Compile Include="GriddlyCookieFilterValueProvider.cs" />
+    <Compile Include="GriddlyCss.cs" />
     <Compile Include="GriddlyFilterExtensions.cs" />
     <Compile Include="GriddlyHtmlFilter.cs" />
     <Compile Include="GriddlyExport.cs" />

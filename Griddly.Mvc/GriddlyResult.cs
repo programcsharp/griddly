@@ -72,7 +72,7 @@ namespace Griddly.Mvc
 
             if (context.IsChildAction)
             {
-                settings = GriddlySettingsResult.GetSettings(context, ViewName);
+                griddlyContext.Settings = settings = GriddlySettingsResult.GetSettings(context, ViewName);
 
                 GriddlySettings.OnGriddlyResultExecuting?.Invoke(settings, context);
 
@@ -127,7 +127,7 @@ namespace Griddly.Mvc
             }
             else
             {
-                settings = GriddlySettingsResult.GetSettings(context, ViewName);
+                griddlyContext.Settings = settings = GriddlySettingsResult.GetSettings(context, ViewName);
 
                 settings.Columns.RemoveAll(x => x is GriddlySelectColumn);
 

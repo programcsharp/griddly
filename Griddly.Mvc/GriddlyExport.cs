@@ -53,9 +53,6 @@ namespace Griddly.Mvc
                 {
                     var compiledTemplate = expression.Compile();
 
-                    //if (type == typeof(bool) && (BoolTrueHtml != null || BoolFalseHtml != null))
-                    //    template = (row) => (compiledTemplate(row) as bool? == true) ? BoolTrueHtml : BoolFalseHtml;
-                    //else
                     template = (row) => compiledTemplate(row);
                 }
             }

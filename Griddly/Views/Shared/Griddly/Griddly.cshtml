@@ -163,7 +163,7 @@
         @: @Html.AttributeNullable("data-griddly-filtermode", settings.InitialFilterMode != FilterMode.None ? settings.InitialFilterMode.ToString() : null)
         @: @Html.AttributeNullable("data-griddly-allowedfiltermodes", settings.AllowedFilterModes != FilterMode.None ? Json.Encode(Enum.GetValues(typeof(FilterMode)).Cast<FilterMode>().Where(x => settings.AllowedFilterModes.Value.HasFlag(x) && x != FilterMode.Both && x != FilterMode.None).Select(x => x.ToString())) : null)
         @: data-griddly-isfilterforminline="@settings.IsFilterFormInline.ToString().ToLower()"
-        @: data-griddly-remove-icon-css-class="@GriddlySettings.Css.Icons.Remove"
+        @: data-griddly-remove-icon-css-class="@settings.Css.Icons.Remove"
         @: data-griddly-pagesize="@(settings.PageSize ?? Model.PageSize)"
         @: @Html.AttributeNullable("data-griddly-rowclickmodal", settings.RowClickModal)
         @: data-griddly-defaultrowids="@Json.Encode(settings.DefaultRowIds != null ? settings.DefaultRowIds.Select(x => x.ToLower()).ToArray() : new[] { "value" })"
@@ -181,6 +181,7 @@
         <div class="buttons">
             @Html.Partial(GriddlySettings.ButtonListTemplate, new ViewDataDictionary(settings.Buttons)
             {
+                { "GriddlyCss", settings.Css },
                 { "ResolveContext", ViewContext.ParentActionViewContext != null ? ViewContext.ParentActionViewContext.ViewData.Model : null }
             })
         </div>
@@ -236,7 +237,7 @@
          <tr class="columnHeaders">
             @foreach (GriddlyColumn column in settings.Columns)
             {
-                SortField sort = Model.SortFields?.FirstOrDefault(x => x.Field == column.ExpressionString);
+                SortField sort = Model.SortFields==null?null:Model.SortFields.FirstOrDefault(x => x.Field == column.ExpressionString);
 
                 bool isSortable = !simple && !string.IsNullOrWhiteSpace(column.ExpressionString);
                 <th class="@column.ClassName @(isSortable ? "sortable" : null) @(column is GriddlySelectColumn ? "select" : null) @(sort != null ? (sort.Direction == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.ExpressionString) @column.HeaderHtmlAttributes.ToHtmlAttributes()>
@@ -246,7 +247,7 @@
                     }
                     else if (column is GriddlySelectColumn)
                     {
-                        <i class="@(GriddlySettings.Css.Icons.Check)"></i>
+                        <i class="@(settings.Css.Icons.Check)"></i>
                     }
                     else
                     {
@@ -332,9 +333,9 @@
     <div class="griddly-footer">
         @if (settings.FooterTemplate == null || simple)
         {
-            <span class="griddly-summary"><span class="@(GriddlySettings.IsBootstrap4 ? "d-none d-sm-inline" : "hidden-xs")">Records</span>
+            <span class="griddly-summary"><span class="@(settings.Css.IsBootstrap4 ? "d-none d-sm-inline" : "hidden-xs")">Records</span>
                 <span class="griddly-recordstart">@(Model.PageNumber * Model.PageSize + (Model.Total > 0 ? 1 : 0))</span>
-                <span class="@(GriddlySettings.IsBootstrap4 ? "d-none d-sm-inline" : "hidden-xs")">through</span><span class="@(GriddlySettings.IsBootstrap4 ? "d-inline d-sm-none" : "visible-xs-inline")">-</span>
+                <span class="@(settings.Css.IsBootstrap4 ? "d-none d-sm-inline" : "hidden-xs")">through</span><span class="@(settings.Css.IsBootstrap4 ? "d-inline d-sm-none" : "visible-xs-inline")">-</span>
                 <span class="griddly-recordend">@(Model.PageNumber * Model.PageSize + Model.Count)</span>
                 of <span class="griddly-recordtotal">@Model.Total</span>
             </span>
@@ -371,20 +372,20 @@
 
 @helper RenderFormFiltersModal(GriddlySettings settings)
 {
-    @Html.Partial("Griddly/GriddlyFilters", settings)
+    @Html.Partial("Griddly/GriddlyFilters", settings, new ViewDataDictionary() { { "GriddlyCss", settings.Css } })
 
 }
 
 @helper RenderFormFiltersInline(GriddlySettings settings)
 {
     <form class="form-horizontal">
-        @Html.Partial("Griddly/GriddlyFilterForm", settings)
+        @Html.Partial("Griddly/GriddlyFilterForm", settings, new ViewDataDictionary() { { "GriddlyCss", settings.Css } })
 
         <div class="form-group form-group-sm">
             <div class="col-sm-offset-2 col-sm-10">
                 <button type="submit" class="btn btn-primary">Search</button>
-                <button type="reset" class="@GriddlySettings.Css.ButtonDefault griddly-search-reset">Reset</button>
-                <button type="reset" class="@GriddlySettings.Css.ButtonDefault griddly-search-clear">Clear</button>
+                <button type="reset" class="@settings.Css.ButtonDefault griddly-search-reset">Reset</button>
+                <button type="reset" class="@settings.Css.ButtonDefault griddly-search-clear">Clear</button>
             </div>
         </div>
     </form>
