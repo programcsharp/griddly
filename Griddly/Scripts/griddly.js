@@ -1420,8 +1420,14 @@
 
             if (this.options.filterMode == "Inline")
             {
-                allFilters = this.$inlineFilters
-                    .add($("input[name][value!=''], select[name][value!='']", this.$filterModal));
+                allFilters = this.$inlineFilters;
+                if (this.$filterModal) {
+                    var modalFiltersNotOnInlineFilter = $("input[name], select[name]", this.$filterModal)
+                        .filter(function () {
+                            return $(this).val() && allFilters.filter("[name='" + $(this).attr("name") + "']").length == 0;
+                        });
+                    allFilters = allFilters.add(modalFiltersNotOnInlineFilter);
+                }
             }
             else
             {
