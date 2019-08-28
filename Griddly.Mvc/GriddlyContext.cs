@@ -16,8 +16,8 @@ namespace Griddly.Mvc
 
         public string CookieName => "gf_" + Name;
 
-        public Dictionary<string, object> Defaults { get; set; } = new Dictionary<string, object>();
-        public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object> Defaults { get; set; } = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        public Dictionary<string, object> Parameters { get; set; } = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
