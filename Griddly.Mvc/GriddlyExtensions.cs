@@ -70,8 +70,18 @@ namespace Griddly.Mvc
                 case SummaryAggregateFunction.Average:
                 case SummaryAggregateFunction.Min:
                 case SummaryAggregateFunction.Max:
-                    c.SummaryValue = data.AsQueryable().Aggregate(c.SummaryFunction.Value.ToString(), c.ExpressionString);
-
+                    try
+                    {
+                        c.SummaryValue = data.AsQueryable().Aggregate(c.SummaryFunction.Value.ToString(), c.ExpressionString);
+                    }
+                    catch (Exception ex) when (ex.InnerException is ArgumentNullException)
+                    {
+                        c.SummaryValue = null;
+                    }
+                    catch (InvalidOperationException ex) when (ex.Message.Contains("failed because the materialized value is null"))
+                    {
+                        c.SummaryValue = null;
+                    }
                     break;
 
                 default:

@@ -100,6 +100,10 @@ namespace Griddly.Mvc.Results
                     {
                         c.SummaryValue = null;
                     }
+                    catch (InvalidOperationException ex) when (ex.Message.Contains("failed because the materialized value is null"))
+                    {
+                        c.SummaryValue = null;
+                    }
                     break;
 
                 default:
