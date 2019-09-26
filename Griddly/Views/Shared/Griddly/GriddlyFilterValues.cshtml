@@ -77,8 +77,10 @@
 
 @helper FieldValue(string field, Func<object, object> content, string fieldValue = null)
 {
+    var css = (GriddlyCss?)ViewBag.GriddlyCss ?? GriddlySettings.DefaultCss;
+
     <span class="filter-display-value" @Html.AttributeNullable("data-filter-fieldvalue", fieldValue)>
         @content(null)
-        <a href="javascript:void(0)" class="griddly-remove-filter-value"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
+        <a href="javascript:void(0)" class="griddly-remove-filter-value"><i class="@(css.Icons.Remove)"></i></a>
     </span>
 }

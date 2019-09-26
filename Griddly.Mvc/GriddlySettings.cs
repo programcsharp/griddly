@@ -12,46 +12,29 @@ namespace Griddly.Mvc
 {
     public abstract class GriddlySettings: IGriddlyFilterSettings
     {
-        public static class Css
-        {
-            public static string TextCenter = "text-center";
-            public static string TextRight = "text-right";
-            public static string FloatRight = "pull-right";
-            public static string GriddlyDefault = null;
-            public static string TableDefault = "table table-bordered table-hover";
-            public static string ButtonDefault = "btn btn-default";
+        public static GriddlyCss DefaultCss = GriddlyCss.Bootstrap3Defaults;
 
-            public static class Icons
-            {
-                public static string Calendar = "glyphicon glyphicon-calendar";
-                public static string Remove = "glyphicon glyphicon-remove";
-                public static string ListMultipleSelected = "glyphicon glyphicon-ok";
-                public static string ListSingleSelected = "glyphicon glyphicon-record";
-                public static string Check = "glyphicon glyphicon-check";
-                public static string Filter = "glyphicon glyphicon-filter";
-                public static string Clear = "glyphicon glyphicon-ban-circle";
-                public static string CaretDown = "caret";
-            }
-        }
-
+        #region Obsolete shims retained only for backward compatibility
         [Obsolete("Use GriddlySettings.Css.GriddlyDefault")]
-        public static string DefaultClassName { get => Css.GriddlyDefault; set => Css.GriddlyDefault = value; }
+        public static string DefaultClassName { get => DefaultCss.GriddlyDefault; set => DefaultCss.GriddlyDefault = value; }
         [Obsolete("Use GriddlySettings.Css.TableDefault")]
-        public static string DefaultTableClassName { get => Css.TableDefault; set => Css.TableDefault = value; }
+        public static string DefaultTableClassName { get => DefaultCss.TableDefault; set => DefaultCss.TableDefault = value; }
         [Obsolete("Use GriddlySettings.Css.ButtonDefault")]
-        public static string DefaultButtonClassName { get => Css.ButtonDefault; set => Css.ButtonDefault = value; }
-
+        public static string DefaultButtonClassName { get => DefaultCss.ButtonDefault; set => DefaultCss.ButtonDefault = value; }
+        [Obsolete("Use Css.IsBootstrap4")]
+        public static bool IsBootstrap4 => DefaultCss.IsBootstrap4;
+        #endregion
+        
         public static string ButtonTemplate = "~/Views/Shared/Griddly/BootstrapButton.cshtml";
         public static string ButtonListTemplate = "~/Views/Shared/Griddly/ButtonStrip.cshtml";
-        public static HtmlString BoolTrueHtml = null;
-        public static HtmlString BoolFalseHtml = null;
+        public static HtmlString DefaultBoolTrueHtml = null;
+        public static HtmlString DefaultBoolFalseHtml = null;
         public static int? DefaultPageSize = null;
         public static FilterMode? DefaultInitialFilterMode = FilterMode.Form;
         //public static FilterMode? DefaultAllowedFilterModes = FilterMode.Inline;
         public static bool DefaultShowRowSelectCount = true;
         public static bool ExportCurrencySymbol = true;
         public static bool DisableHistoryParameters = false;
-        public static bool IsBootstrap4 = false;
 
         public static Func<GriddlyButton, object> IconTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
@@ -66,7 +49,7 @@ namespace Griddly.Mvc
         public static Action<GriddlySettings, GriddlyResultPage, HtmlHelper, bool> OnBeforeRender = null;
         public static Action<GriddlySettings, ControllerContext> OnGriddlyResultExecuting = null;
         public static Action<GriddlySettings, GriddlyContext, ControllerContext> OnGriddlyPageExecuting = null;
-
+        
         public GriddlySettings()
         {
             IdProperty = "Id";
@@ -79,8 +62,8 @@ namespace Griddly.Mvc
             HtmlAttributes = new RouteValueDictionary();
             TableHtmlAttributes = new RouteValueDictionary();
 
-            ClassName = Css.GriddlyDefault;
-            TableClassName = Css.TableDefault;
+            ClassName = DefaultCss.GriddlyDefault;
+            TableClassName = DefaultCss.TableDefault;
             FooterTemplate = DefaultFooterTemplate;
             HeaderTemplate = DefaultHeaderTemplate;
             EmptyGridMessageTemplate = DefaultEmptyGridMessageTemplate;
@@ -93,21 +76,12 @@ namespace Griddly.Mvc
 
         public static void ConfigureBootstrap4Defaults()
         {
-            IsBootstrap4 = true;
-            Css.TextCenter = "text-center";
-            Css.TextRight = "text-right";
-            Css.FloatRight = "float-right";
-            Css.ButtonDefault = "btn btn-outline-secondary";
-
-            Css.Icons.Calendar = "fa fa-calendar-alt";
-            Css.Icons.Remove = "fa fa-times";
-            Css.Icons.ListMultipleSelected = "fa fa-check";
-            Css.Icons.ListSingleSelected = "fas fa-check-circle";
-            Css.Icons.Check = "fa fa-check-square";
-            Css.Icons.Filter = "fa fa-filter";
-            Css.Icons.Clear = "fa fa-ban";
-            Css.Icons.CaretDown = "fa fa-caret-down";
+            DefaultCss = GriddlyCss.Bootstrap4Defaults;
         }
+
+        public GriddlyCss Css = DefaultCss;
+        public HtmlString BoolTrueHtml = DefaultBoolTrueHtml;
+        public HtmlString BoolFalseHtml = DefaultBoolFalseHtml;
 
         public string[] DefaultRowIds { get; set; }
         public string IdProperty { get; set; }
@@ -362,7 +336,7 @@ namespace Griddly.Mvc
         {
             RowId(id, "id");
 
-            return Add(new GriddlySelectColumn()
+            return Add(new GriddlySelectColumn(this)
             {
                 SummaryValue = summaryValue
             });
@@ -375,7 +349,7 @@ namespace Griddly.Mvc
                 RowIds[x.Key] = x.Value;
             }
 
-            return Add(new GriddlySelectColumn()
+            return Add(new GriddlySelectColumn(this)
             {
                 SummaryValue = summaryValue
             });
@@ -557,7 +531,7 @@ namespace Griddly.Mvc
         {
             RowId(id, "id");
 
-            Add(new GriddlySelectColumn<TRow>()
+            Add(new GriddlySelectColumn<TRow>(this)
             {
                 SummaryValue = summaryValue,
                 InputHtmlAttributesTemplate = inputHtmlAttributesTemplate
@@ -573,7 +547,7 @@ namespace Griddly.Mvc
                 RowIds[x.Key] = (z) => x.Value((TRow)z);
             }
 
-            Add(new GriddlySelectColumn()
+            Add(new GriddlySelectColumn(this)
             {
                 SummaryValue = summaryValue
             });

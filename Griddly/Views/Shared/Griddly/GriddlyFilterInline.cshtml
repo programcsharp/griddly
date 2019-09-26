@@ -10,7 +10,9 @@
 *@
 
 @model GriddlySettings
-
+@{ 
+    var css = Model.Css;
+}
 @for (int i = 0; i < Model.Columns.Count; i++)
 {
     GriddlyColumn column = Model.Columns[i];
@@ -105,7 +107,7 @@
                     </span>
                     @if (filterList == null || filterList.Items.Count > 0)
                     {
-                    <span class="@GriddlySettings.Css.Icons.CaretDown"></span>
+                    <span class="@css.Icons.CaretDown"></span>
                     }
                 </a>
                 <div class="filter-content">
@@ -119,7 +121,7 @@
                             }
                             else if (filter.DataType == FilterDataType.Date)
                             {
-                                @InputGroupAddon(@<i class="@(GriddlySettings.Css.Icons.Calendar)"></i>, true)
+                                @InputGroupAddon(@<i class="@(css.Icons.Calendar)"></i>, true)
                             }
 
                             <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
@@ -128,8 +130,8 @@
                                 {
                                     <span class="input-group-addon">%</span>
                                 }*@
-                            <span class="@(GriddlySettings.IsBootstrap4 ? "input-group-append" : "input-group-btn")">
-                                <a class="@GriddlySettings.Css.ButtonDefault griddly-filter-clear" href="javascript:;" tabindex="-1"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
+                            <span class="@(css.IsBootstrap4 ? "input-group-append" : "input-group-btn")">
+                                <a class="@css.ButtonDefault griddly-filter-clear" href="javascript:;" tabindex="-1"><i class="@(css.Icons.Remove)"></i></a>
                             </span>
                         </div>
                     }
@@ -142,7 +144,7 @@
                             }
                             else if (filter.DataType == FilterDataType.Date)
                             {
-                                @InputGroupAddon(@<i class="@(GriddlySettings.Css.Icons.Calendar)"></i>, true)
+                                @InputGroupAddon(@<i class="@(css.Icons.Calendar)"></i>, true)
                             }
                             <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
                                 data-griddly-filter-data-type="@filter.DataType" placeholder="Range Start" />
@@ -150,8 +152,8 @@
                                 {
                                     <span class="input-group-addon">%</span>
                                 }*@
-                            <span class="@(GriddlySettings.IsBootstrap4 ? "input-group-append" : "input-group-btn")">
-                                <a class="@GriddlySettings.Css.ButtonDefault griddly-filter-clear" href="javascript:;" tabindex="-1"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
+                            <span class="@(css.IsBootstrap4 ? "input-group-append" : "input-group-btn")">
+                                <a class="@css.ButtonDefault griddly-filter-clear" href="javascript:;" tabindex="-1"><i class="@(css.Icons.Remove)"></i></a>
                             </span>
                         </div>
                         <div style="text-align:center" class="filter-range-to-text">to</div>
@@ -162,7 +164,7 @@
                             }
                             else if (filter.DataType == FilterDataType.Date)
                             {
-                                @InputGroupAddon(@<i class="@(GriddlySettings.Css.Icons.Calendar)"></i>, true)
+                                @InputGroupAddon(@<i class="@(css.Icons.Calendar)"></i>, true)
                             }
                             <input class="form-control" name="@filterRange.FieldEnd" type="text" value="@filter.GetEditValue(defaultValueEnd)"
                                 data-griddly-filter-data-type="@filter.DataType" placeholder="Range End"/>
@@ -170,8 +172,8 @@
                                 {
                                     <span class="input-group-addon">%</span>
                                 }*@
-                            <span class="@(GriddlySettings.IsBootstrap4 ? "input-group-append" : "input-group-btn")">
-                                <a class="@GriddlySettings.Css.ButtonDefault griddly-filter-clear" href="javascript:;" tabindex="-1"><i class="@(GriddlySettings.Css.Icons.Remove)"></i></a>
+                            <span class="@(css.IsBootstrap4 ? "input-group-append" : "input-group-btn")">
+                                <a class="@css.ButtonDefault griddly-filter-clear" href="javascript:;" tabindex="-1"><i class="@(css.Icons.Remove)"></i></a>
                             </span>
                         </div>
                     }
@@ -180,11 +182,11 @@
                         if (filterList.IsMultiple)
                         {
                             <div class="input-group griddly-filter-buttons">
-                                <span class="input-group-btn @(GriddlySettings.IsBootstrap4 ? "w-50" : null)">
-                                    <a class="@GriddlySettings.Css.ButtonDefault griddly-select-all" href="javascript:;"><i class="@(GriddlySettings.Css.Icons.Check)"></i> Select All</a>
+                                <span class="input-group-btn @(css.IsBootstrap4 ? "w-50" : null)">
+                                    <a class="@css.ButtonDefault griddly-select-all" href="javascript:;"><i class="@(css.Icons.Check)"></i> Select All</a>
                                 </span>
-                                <span class="input-group-btn @(GriddlySettings.IsBootstrap4 ? "w-50" : null)">
-                                    <a class="@GriddlySettings.Css.ButtonDefault griddly-clear" href="javascript:;"><i class="@(GriddlySettings.Css.Icons.Clear)"></i> Clear</a>
+                                <span class="input-group-btn @(css.IsBootstrap4 ? "w-50" : null)">
+                                    <a class="@css.ButtonDefault griddly-clear" href="javascript:;"><i class="@(css.Icons.Clear)"></i> Clear</a>
                                 </span>
                             </div>
                         }
@@ -218,44 +220,47 @@
 
 @helper RenderListItem(GriddlyFilterList filter, SelectListItem item, bool isGrouped = false)
 {
-    var className = $@"{(item.Selected ? "griddly-filter-selected" : null)} {(isGrouped ? "griddly-list-group" : null)}";
-    if (!GriddlySettings.IsBootstrap4) {
-        @Html.Raw($@"<li class=""{className}"">")
+    var css = Model.Css;
+    var className = (item.Selected ? "griddly-filter-selected" : null) + " " + (isGrouped ? "griddly-list-group" : null);
+    if (!css.IsBootstrap4) {
+         @Html.Raw("<li class=\"" + className + "\">")
     }
 
-    <a href="javascript:;" class="@(GriddlySettings.IsBootstrap4 ? "dropdown-item " + className : null)">
+    <a href="javascript:;" class="@(css.IsBootstrap4 ? "dropdown-item " + className : null)">
         <input name="@filter.Field" type="@(filter.IsMultiple ? "checkbox" : "radio")" checked="@(item.Selected)" value="@item.Value" />
-        <i class="@(filter.IsMultiple ? GriddlySettings.Css.Icons.ListMultipleSelected : GriddlySettings.Css.Icons.ListSingleSelected) griddly-filter-selected-indicator"></i>
+        <i class="@(filter.IsMultiple ? css.Icons.ListMultipleSelected : css.Icons.ListSingleSelected) griddly-filter-selected-indicator"></i>
         @item.Text
     </a>
 
-    if (!GriddlySettings.IsBootstrap4) { 
+    if (!css.IsBootstrap4) { 
         @Html.Raw("</li>")
     }
     
 }
 
 @helper ListGroupHeader(GriddlyFilterList filterList, SelectListItemGroup group) { 
-    var tag = GriddlySettings.IsBootstrap4 ? "div" : "li";
+    var css = Model.Css;
+    var tag = css.IsBootstrap4 ? "div" : "li";
     var className = filterList.IsMultiple && group.Items.All(x => x.Selected) ? "griddly-filter-selected" : null;
 
-    @Html.Raw($@"<{tag} class=""griddly-list-group-header {className}"">")
+    @Html.Raw("<" + tag + " class=\"griddly-list-group-header " + className + "\">")
     if (filterList.IsMultiple)
     {
         <a href="javascript:;" tabindex="-1">
             <b>@group.Text</b>
-            <i class="@(GriddlySettings.Css.Icons.ListMultipleSelected) griddly-filter-selected-indicator"></i>
+            <i class="@(css.Icons.ListMultipleSelected) griddly-filter-selected-indicator"></i>
         </a>
     }
     else
     {
         <b>@group.Text</b>
     }
-    @Html.Raw($"</{tag}>")
+    @Html.Raw("</" + tag + ">")
 }
 
 @helper DropdownMenu(Func<MvcHtmlString, HelperResult> htmlContent) { 
-    if (GriddlySettings.IsBootstrap4)
+    var css = Model.Css;
+    if (css.IsBootstrap4)
     {
         <div class="dropdown-menu">
             @htmlContent(new MvcHtmlString(""))
@@ -270,7 +275,8 @@
 }
 
 @helper InputGroupAddon(Func<MvcHtmlString, HelperResult> htmlContent, bool prepend = false) { 
-    if (GriddlySettings.IsBootstrap4)
+    var css = Model.Css;
+    if (css.IsBootstrap4)
     {
         <div class="input-group-@(prepend?"prepend":"append")"><span class="input-group-text">@htmlContent(new MvcHtmlString(""))</span></div>
     }

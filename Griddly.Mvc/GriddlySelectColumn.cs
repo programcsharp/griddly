@@ -12,9 +12,9 @@ namespace Griddly.Mvc
     {
         public Func<object, bool> IsRowSelectable { get; set; }
 
-        public GriddlySelectColumn()
+        public GriddlySelectColumn(GriddlySettings settings)
         {
-            ClassName = $"griddly-select {GriddlySettings.Css.TextCenter}";
+            ClassName = $"griddly-select {settings.Css.TextCenter}";
         }
 
         public virtual IDictionary<string, object> GenerateInputHtmlAttributes(object row)
@@ -81,6 +81,10 @@ namespace Griddly.Mvc
 
     public class GriddlySelectColumn<TRow> : GriddlySelectColumn
     {
+        public GriddlySelectColumn(GriddlySettings<TRow> settings) : base(settings)
+        {
+        }
+
         public Func<TRow, object> InputHtmlAttributesTemplate { get; set; }
 
         public new Func<TRow, bool> IsRowSelectable
