@@ -72,7 +72,11 @@ namespace Griddly.Mvc
                 case SummaryAggregateFunction.Max:
                     try
                     {
-                        c.SummaryValue = data.AsQueryable().Aggregate(c.SummaryFunction.Value.ToString(), c.ExpressionString);
+                        IQueryable q = data.AsQueryable();
+                        if (c.ExpressionString.Contains("."))
+                            q = q.Select(c.ExpressionString.Substring(0, c.ExpressionString.LastIndexOf('.')));
+
+                        c.SummaryValue = q.Aggregate(c.SummaryFunction.Value.ToString(), c.ExpressionString.Split(new[] { '.' }).Last());
                     }
                     catch (Exception ex) when (ex.InnerException is ArgumentNullException)
                     {
