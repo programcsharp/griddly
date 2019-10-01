@@ -13,6 +13,8 @@ namespace Griddly.Mvc
 {
     public class GriddlyParameterAttribute : ActionFilterAttribute
     {
+        public static bool DefaultIgnoreSkipped { get; set; } = true;
+
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             if (filterContext.ActionDescriptor.ActionName.EndsWith("grid", StringComparison.OrdinalIgnoreCase)
@@ -41,11 +43,11 @@ namespace Griddly.Mvc
 
                             // if we're skipping defaults but this didn't come from cookie or querystring, it must've come from a
                             // parameter default in code... nuke it.
-                            if (context.IsDefaultSkipped && !isParamSet)
+                            if ((context.IsDefaultSkipped && !DefaultIgnoreSkipped) && !isParamSet)
                                 filterContext.ActionParameters[param.Key] = null;
                             else
                             {
-                                if (!context.IsDefaultSkipped || !isParamSet)
+                                if (!(context.IsDefaultSkipped && !DefaultIgnoreSkipped) || !isParamSet)
                                     context.Defaults[param.Key] = param.Value;
 
                                 context.Parameters[param.Key] = param.Value;

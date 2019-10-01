@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -175,14 +176,17 @@ namespace Griddly.Mvc
 
         static readonly string _contextKey = "_griddlycontext";
 
-        public static void SetGriddlyDefault<T>(this ControllerBase controller, ref T parameter, string field, T value)
+        public static void SetGriddlyDefault<T>(this ControllerBase controller, ref T parameter, string field, T value, bool? ignoreSkipped = null)
         {
+            if (ignoreSkipped == null)
+                ignoreSkipped = GriddlyParameterAttribute.DefaultIgnoreSkipped;
+
             var context = controller.GetOrCreateGriddlyContext();
 
             context.Defaults[field] = value;
 
             if (controller.ControllerContext.IsChildAction
-                && !context.IsDefaultSkipped
+                && (!context.IsDefaultSkipped || ignoreSkipped.Value)
                 && EqualityComparer<T>.Default.Equals(parameter, default(T)))
             {
                 parameter = value;
@@ -191,14 +195,17 @@ namespace Griddly.Mvc
             }
         }
 
-        public static void SetGriddlyDefault<T>(this ControllerBase controller, ref T[] parameter, string field, IEnumerable<T> value)
+        public static void SetGriddlyDefault<T>(this ControllerBase controller, ref T[] parameter, string field, IEnumerable<T> value, bool? ignoreSkipped = null)
         {
+            if (ignoreSkipped == null)
+                ignoreSkipped = GriddlyParameterAttribute.DefaultIgnoreSkipped;
+
             var context = controller.GetOrCreateGriddlyContext();
 
             context.Defaults[field] = value;
 
             if (controller.ControllerContext.IsChildAction
-                && !context.IsDefaultSkipped
+                && (!context.IsDefaultSkipped || ignoreSkipped.Value)
                 && parameter == null)
             {
                 parameter = value.ToArray();
@@ -207,20 +214,58 @@ namespace Griddly.Mvc
             }
         }
 
-        public static void SetGriddlyDefault<T>(this ControllerBase controller, ref T?[] parameter, string field, IEnumerable<T> value)
+        public static void SetGriddlyDefault<T>(this ControllerBase controller, ref T?[] parameter, string field, IEnumerable<T> value, bool? ignoreSkipped = null)
             where T : struct
         {
+            if (ignoreSkipped == null)
+                ignoreSkipped = GriddlyParameterAttribute.DefaultIgnoreSkipped;
+
             var context = controller.GetOrCreateGriddlyContext();
 
             context.Defaults[field] = value;
 
             if (controller.ControllerContext.IsChildAction
-                && !context.IsDefaultSkipped
+                && (!context.IsDefaultSkipped || ignoreSkipped.Value)
                 && parameter == null)
             {
                 parameter = value.Cast<T?>().ToArray();
 
                 context.Parameters[field] = parameter;
+            }
+        }
+
+        public static void SetGriddlyDefault<TController, TModel, TProp>(this TController controller, TModel model,
+            Expression<Func<TModel, TProp>> expression, TProp defaultValue, bool? ignoreSkipped = null)
+            where TController : Controller
+        {
+            if (ignoreSkipped == null)
+                ignoreSkipped = GriddlyParameterAttribute.DefaultIgnoreSkipped;
+
+            var context = controller.GetOrCreateGriddlyContext();
+
+            var field = ExpressionHelper.GetExpressionText(expression);
+            context.Defaults[field] = defaultValue;
+
+            var compiledExpression = expression.Compile();
+            TProp parameter = compiledExpression(model);
+
+            if (controller.ControllerContext.IsChildAction
+                && (!context.IsDefaultSkipped || ignoreSkipped.Value)
+                && EqualityComparer<TProp>.Default.Equals(parameter, default(TProp)))
+            {
+                parameter = defaultValue;
+
+                context.Parameters[field] = defaultValue;
+
+                if (expression.Body is MemberExpression me && me.Member.MemberType == MemberTypes.Property)
+                {
+                    var pi = me.Member as PropertyInfo;
+                    pi.SetValue(model, defaultValue);
+                }
+                else
+                {
+                    throw new ArgumentException("expression must be a MemberExpression to a Property");
+                }
             }
         }
 
