@@ -83,7 +83,7 @@ namespace Griddly.Mvc
                     {
                         c.SummaryValue = null;
                     }
-                    catch (InvalidOperationException ex) when (ex.Message.Contains("failed because the materialized value is null"))
+                    catch (InvalidOperationException ex) when (ex.Message.Contains("failed because the materialized value is null") || ex.Message.Contains("Nullable object must have a value"))
                     {
                         c.SummaryValue = null;
                     }
