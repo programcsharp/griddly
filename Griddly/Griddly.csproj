@@ -126,7 +126,10 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Controllers\ExampleController.cs" />
-    <Compile Include="Controllers\Examples\FiltersGrids.cs">
+    <Compile Include="Controllers\Examples\ColumnsGrid.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="Controllers\Examples\FiltersGrid.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
     <Compile Include="Controllers\HomeController.cs" />
@@ -278,6 +281,7 @@
     <Content Include="Views\Home\Test2Grid.cshtml" />
     <Content Include="Views\Example\Example.cshtml" />
     <Content Include="Views\Example\FiltersGrid.cshtml" />
+    <Content Include="Views\Example\ColumnsGrid.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Griddly.Mvc\Griddly.Mvc.csproj">

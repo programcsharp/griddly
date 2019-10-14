@@ -9,6 +9,17 @@ namespace Griddly.Controllers
 {
     public partial class ExampleController : Controller
     {
+        public ActionResult Columns()
+        {
+            return View("Example", new ExampleModel()
+            {
+                Title = "Columns Example",
+                GridAction = "ColumnsGrid",
+                GridView = "ColumnsGrid.cshtml",
+                Description = "Griddly column helpers offer several ways to quickly define your table structure."
+            });
+        }
+
         public ActionResult Filters()
         {
             return View("Example", new ExampleModel()
