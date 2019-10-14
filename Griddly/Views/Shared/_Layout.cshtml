@@ -24,12 +24,20 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li class="@(ViewContext.RouteData.Values["action"].ToString() == "examples" ? "active" : null)">@Html.ActionLink("Examples", "Examples")</li>
-                    <li class="@(ViewContext.RouteData.Values["action"].ToString() == "filterbar" ? "active" : null)">@Html.ActionLink("Filter Bar", "FilterBar")</li>
-                    <li class="@(ViewContext.RouteData.Values["action"].ToString() == "historytest" ? "active" : null)">@Html.ActionLink("History Test", "HistoryTest")</li>
-                    <li class="@(ViewContext.RouteData.Values["action"].ToString() == "multipledefaulttest" ? "active" : null)">@Html.ActionLink("Multiple Test", "MultipleDefaultTest")</li>
+                    <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "example" ? "active" : null) dropdown">
+                        @*@Html.ActionLink("Examples", "Examples")*@
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" >Grid <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li>@Html.ActionLink("Columns", "Columns", "Example")</li>
+                            <li>@Html.ActionLink("Filters", "Filters", "Example")</li>
+                            @*<li>@Html.ActionLink("Filters", "Filters", "Example")</li>*@
+                        </ul>
+                    </li>
+                    <li class="@(ViewContext.RouteData.Values["action"].ToString() == "filterbar" ? "active" : null)">@Html.ActionLink("Filter Bar", "FilterBar", "Home")</li>
+                    <li class="@(ViewContext.RouteData.Values["action"].ToString() == "historytest" ? "active" : null)">@Html.ActionLink("History Test", "HistoryTest", "Home")</li>
+                    <li class="@(ViewContext.RouteData.Values["action"].ToString() == "multipledefaulttest" ? "active" : null)">@Html.ActionLink("Multiple Test", "MultipleDefaultTest", "Home")</li>
                     <li><a href="https://github.com/programcsharp/griddly/issues">Issues</a></li>
-                    <li class="@(ViewContext.RouteData.Values["action"].ToString() == "about" ? "active" : null)">@Html.ActionLink("About", "About")</li>
+                    <li class="@(ViewContext.RouteData.Values["action"].ToString() == "about" ? "active" : null)">@Html.ActionLink("About", "About", "Home")</li>
                 </ul>
             </div>
         </div>

@@ -1,0 +1,28 @@
+﻿@{
+    var gridSettings = new GriddlySettings<TestGridItem>()
+    {
+        PageSize = 20,
+        RowClickUrl = x => "http://microsoft.com",
+        EmptyGridMessageTemplate =@<text><div class="alert alert-warning">@item.Settings.EmptyGridMessage</div></text>,
+        EmptyGridMessage = "Sorry, no records were found"
+    };
+
+    gridSettings
+        .Column(x => x.Id)
+        .Column(x => x.FirstName, "First Name")
+        .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending, className: "custom-style")
+        .Column(x => x.Address)
+        .Column(x => x.City)
+        .Column(x => x.State)
+        .Column(x => x.PostalCode, "Zip")
+        .Column(x => x.Quantity)
+        .Column(x => x.Total, format: "c")
+        .Column(x => x.Date, htmlAttributes: x => new { data_date = x.Date })
+        .Column("Approved", template: x => x.IsApproved ? "YES" : "NO!");
+}
+
+<style>
+    .custom-style { font-weight: bold; }
+</style>
+
+@Html.Griddly(gridSettings)

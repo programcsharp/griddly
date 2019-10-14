@@ -1,0 +1,47 @@
+﻿@model ExampleModel
+@{
+    ViewBag.Title = Model.Title;
+}
+@section head {
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/styles/vs.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+    <script src="/scripts/cshtml-razor.js"></script>
+    <script>
+        hljs.registerLanguage('cshtml-razor', window.hljsDefineCshtmlRazor);
+        hljs.initHighlightingOnLoad();
+    </script>
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h2>@ViewBag.Title</h2>
+
+        <p>@Model.Description</p>
+
+        <ul class="nav nav-tabs" role="tablist" style="margin-bottom:20px">
+            <li class="active"><a href="#tab-display" data-toggle="tab">Live</a></li>
+            <li><a href="#tab-view" data-toggle="tab">Views</a></li>
+            <li><a href="#tab-action" data-toggle="tab">Controller Action</a></li>
+        </ul>
+
+        <div class="tab-content">
+            
+            <div id="tab-display" class="tab-pane active" role="tabpanel">
+                @Html.Griddly(Model.GridAction)
+            </div>
+
+            <div id="tab-view" class="tab-pane" role="tabpanel">
+                <h3>Parent View (@(ViewContext.RouteData.Values["action"].ToString()).cshtml)</h3>
+                <pre><code class="cs razor-cshtml">@@Html.Griddly("@Model.GridAction")</code></pre>
+
+                <h3>Child View (@Model.GridView.ToLower())</h3>
+                <pre><code class="cs razor-cshtml">@System.IO.File.ReadAllText(Context.Server.MapPath("~/Views/Example/" + Model.GridView))</code></pre>
+            </div>
+
+            <div id="tab-action" class="tab-pane" role="tabpanel">
+                <pre><code class="cs">@System.IO.File.ReadAllText(Context.Server.MapPath("~/Controllers/Examples/" + Model.GridAction + ".cs"))</code></pre>
+            </div>
+
+        </div>
+    </div>
+</div>

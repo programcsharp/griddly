@@ -125,10 +125,18 @@
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="Controllers\ExampleController.cs" />
+    <Compile Include="Controllers\Examples\ColumnsGrid.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
+    <Compile Include="Controllers\Examples\FiltersGrid.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\ExampleModel.cs" />
     <Compile Include="Models\Enums.cs" />
     <Compile Include="Models\SimplePerson.cs" />
     <Compile Include="Models\SimpleOrder.cs" />
@@ -179,6 +187,7 @@
     </Content>
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\cshtml-razor.js" />
     <Content Include="Scripts\griddly.js" />
     <Content Include="Scripts\bootstrap.min.js.map">
       <DependentUpon>bootstrap.min.js</DependentUpon>
@@ -270,6 +279,9 @@
     <Content Include="Views\Home\MultipleDefaultTest.cshtml" />
     <Content Include="Views\Home\Test1Grid.cshtml" />
     <Content Include="Views\Home\Test2Grid.cshtml" />
+    <Content Include="Views\Example\Example.cshtml" />
+    <Content Include="Views\Example\FiltersGrid.cshtml" />
+    <Content Include="Views\Example\ColumnsGrid.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Griddly.Mvc\Griddly.Mvc.csproj">
