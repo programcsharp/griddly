@@ -33,6 +33,18 @@ namespace Griddly.Controllers
             });
         }
 
+        public ActionResult FilterDefaults()
+        {
+            return View("Example", new ExampleModel()
+            {
+                Title = "Filter Defaults Example",
+                GridAction = "FilterDefaultsGrid",
+                ParentView = "FilterDefaults.cshtml",
+                GridView = "FilterDefaultsGrid.cshtml",
+                Description = "Filter default values may be set using the ControllerBase.SetGriddlyDefault() extension method."
+            });
+        }
+
         public ActionResult Parameters()
         {
             return View("Example", new ExampleModel()

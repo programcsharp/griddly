@@ -1,0 +1,50 @@
+﻿@{
+    List<SelectListItem> groupedList = new List<SelectListItem>()
+    {
+        new SelectListItemGroup()
+        {
+            Text = "Group1",
+            Items = new List<SelectListItem>()
+            {
+                new SelectListItem() { Text = "Item1", Value = "Item1" },
+                new SelectListItem() { Text = "Item2", Value = "Item2" },
+                new SelectListItem() { Text = "Item3", Value = "Item3" },
+                new SelectListItem() { Text = "Item4", Value = "Item4" },
+                new SelectListItem() { Text = "Item5", Value = "Item5" },
+            }
+        },
+        new SelectListItemGroup()
+        {
+            Text = "Group2",
+            Items = new List<SelectListItem>()
+            {
+                new SelectListItem() { Text = "Item6", Value = "Item6" },
+                new SelectListItem() { Text = "Item7", Value = "Item7" },
+                new SelectListItem() { Text = "Item8", Value = "Item8" },
+                new SelectListItem() { Text = "Item9", Value = "Item9" },
+                new SelectListItem() { Text = "Item10", Value = "Item10" },
+            }
+        }
+    };
+
+    var gridSettings = new GriddlySettings<TestGridItem>()
+    {
+        PageSize = 20,
+        RowClickUrl = x => "http://microsoft.com",
+        EmptyGridMessageTemplate =@<text><div class="alert alert-warning">@item.Settings.EmptyGridMessage</div></text>,
+        EmptyGridMessage = "Sorry, no records were found"
+    };
+
+    gridSettings
+        .Column(x => x.Id)
+        .Column(x => x.Item, filter: x => x.FilterList(groupedList, field: "item"))
+        .Column(x => x.FirstName, "First Name")
+        .Column(x => x.LastName, "Last Name", filter: x => x.FilterBox(FilterDataType.String, field: "lastName"))
+        .Column(x => x.Address)
+        .Column(x => x.City)
+        .Column(x => x.State)
+        .Column(x => x.PostalCode, "Zip")
+        .Column(x => x.IsApproved, "Approved", filter: x => x.FilterBool(nullItemText: "Both", field: "isApproved"));
+}
+
+@Html.Griddly(gridSettings)
