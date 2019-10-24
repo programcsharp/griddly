@@ -2,15 +2,6 @@
 @{
     ViewBag.Title = Model.Title;
 }
-@section head {
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/styles/vs.min.css">
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
-    <script src="/scripts/cshtml-razor.js"></script>
-    <script>
-        hljs.registerLanguage('cshtml-razor', window.hljsDefineCshtmlRazor);
-        hljs.initHighlightingOnLoad();
-    </script>
-}
 
 <div class="row">
     <div class="col-md-12">
@@ -32,14 +23,14 @@
 
             <div id="tab-view" class="tab-pane" role="tabpanel">
                 <h3>Parent View (@Model.ParentView.ToLower())</h3>
-                <pre><code class="cs razor-cshtml">@System.IO.File.ReadAllText(Context.Server.MapPath("~/Views/Example/" + Model.ParentView))</code></pre>
+                <pre class="brush: razor">@System.IO.File.ReadAllText(Context.Server.MapPath("~/Views/Example/" + Model.ParentView))</pre>
 
                 <h3>Child View (@Model.GridView.ToLower())</h3>
-                <pre><code class="cs razor-cshtml">@System.IO.File.ReadAllText(Context.Server.MapPath("~/Views/Example/" + Model.GridView))</code></pre>
+                <pre class="brush: razor">@System.IO.File.ReadAllText(Context.Server.MapPath("~/Views/Example/" + Model.GridView))</pre>
             </div>
 
             <div id="tab-action" class="tab-pane" role="tabpanel">
-                <pre><code class="cs">@System.IO.File.ReadAllText(Context.Server.MapPath("~/Controllers/Examples/" + Model.GridAction + ".cs"))</code></pre>
+                <pre class="brush: csharp">@System.IO.File.ReadAllText(Context.Server.MapPath("~/Controllers/Examples/" + Model.GridAction + ".cs"))</pre>
             </div>
 
         </div>

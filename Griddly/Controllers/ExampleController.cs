@@ -21,6 +21,20 @@ namespace Griddly.Controllers
             });
         }
 
+        public ActionResult Buttons(string lastName = null)
+        {
+            ViewBag.LastName = lastName;
+
+            return View("Example", new ExampleModel()
+            {
+                Title = "Buttons Example",
+                GridAction = "ButtonsGrid",
+                ParentView = "Buttons.cshtml",
+                GridView = "ButtonsGrid.cshtml",
+                Description = ""
+            });
+        }
+
         public ActionResult Filters()
         {
             return View("Example", new ExampleModel()
