@@ -1,0 +1,36 @@
+﻿<div class="alert alert-info" style="@(ViewBag.Selected == null ? "display:none;" : null)">
+    <h4>You selected:</h4>     
+    <p>@(ViewBag.Selected != null ? string.Join(", ", ViewBag.Selected) : null)</p>
+</div>
+
+@Html.Griddly("ButtonsGrid", new { lastName = ViewBag.LastName })
+
+<div id="modal-id" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p>Hello world!</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-sm" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function CallJavascriptFunction()
+    {
+        alert("Hello world! You may only call global javascript functions.");
+    }
+
+    $(".griddly .btn").on("afterExecute", function (e, data)
+    {
+        if ($(".alert-info p").text().length)
+            $(".alert-info p").append("<br />AND " + data.selected);
+        else
+            $(".alert-info p").append(data.selected);
+
+        $(".alert-info").show();
+    });
+</script>

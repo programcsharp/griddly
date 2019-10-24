@@ -28,6 +28,7 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" >Grid Examples <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li>@Html.ActionLink("Columns", "Columns", "Example")</li>
+                            <li>@Html.ActionLink("Buttons", "Buttons", "Example")</li>
                             <li>@Html.ActionLink("Filters", "Filters", "Example")</li>
                             <li>@Html.ActionLink("Filter Defaults", "FilterDefaults", "Example")</li>
                             <li>@Html.ActionLink("Additional Parameters", "Parameters", "Example")</li>
@@ -42,6 +43,7 @@
             </div>
         </div>
     </div>
+    @Scripts.Render("~/bundles/jquery")
     @RenderSection("header", false)
     <div class="container body-content">
         @RenderBody()
@@ -67,7 +69,6 @@
         </footer>
     </div>
 
-    @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     <script src="https://cdnjs.cloudflare.com/ajax/libs/floatthead/1.2.10/jquery.floatThead.min.js"></script>
     @Scripts.Render("~/scripts/griddly.js")
