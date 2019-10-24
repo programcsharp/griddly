@@ -7,6 +7,8 @@ namespace Griddly.Models
 
         public string Description { get; set; }
 
+        public string ParentView { get; set; }
+
         public string GridView { get; set; }
 
         public string GridAction { get; set; }

@@ -27,12 +27,12 @@
         <div class="tab-content">
             
             <div id="tab-display" class="tab-pane active" role="tabpanel">
-                @Html.Griddly(Model.GridAction)
+                @Html.Partial($"~/Views/Example/{Model.ParentView}")
             </div>
 
             <div id="tab-view" class="tab-pane" role="tabpanel">
-                <h3>Parent View (@(ViewContext.RouteData.Values["action"].ToString()).cshtml)</h3>
-                <pre><code class="cs razor-cshtml">@@Html.Griddly("@Model.GridAction")</code></pre>
+                <h3>Parent View (@Model.ParentView.ToLower())</h3>
+                <pre><code class="cs razor-cshtml">@System.IO.File.ReadAllText(Context.Server.MapPath("~/Views/Example/" + Model.ParentView))</code></pre>
 
                 <h3>Child View (@Model.GridView.ToLower())</h3>
                 <pre><code class="cs razor-cshtml">@System.IO.File.ReadAllText(Context.Server.MapPath("~/Views/Example/" + Model.GridView))</code></pre>

@@ -25,12 +25,11 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li class="@(ViewContext.RouteData.Values["controller"].ToString() == "example" ? "active" : null) dropdown">
-                        @*@Html.ActionLink("Examples", "Examples")*@
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" >Grid <span class="caret"></span></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" >Grid Examples <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li>@Html.ActionLink("Columns", "Columns", "Example")</li>
                             <li>@Html.ActionLink("Filters", "Filters", "Example")</li>
-                            @*<li>@Html.ActionLink("Filters", "Filters", "Example")</li>*@
+                            <li>@Html.ActionLink("Additional Parameters", "Parameters", "Example")</li>
                         </ul>
                     </li>
                     <li class="@(ViewContext.RouteData.Values["action"].ToString() == "filterbar" ? "active" : null)">@Html.ActionLink("Filter Bar", "FilterBar", "Home")</li>
