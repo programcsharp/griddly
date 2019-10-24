@@ -35,6 +35,7 @@
         EmptyGridMessage = "Sorry, no records were found"
     };
 
+    // Filters on columns
     gridSettings
         .Column(x => x.Id)
         .Column(x => x.Item, filter: x => x.FilterList(groupedList))
@@ -45,10 +46,7 @@
         .Column(x => x.State, filter: x =>
         {
             GriddlyFilterList filter = x.FilterList(TestGridItem.UsStates);
-
-            //filter.CaptionPlural = "State";
             filter.DisplayItemCount = 2;
-
             return filter;
         })
         .Column(x => x.PostalCode, "Zip")
@@ -56,6 +54,9 @@
         .Column(x => x.Total, format: "c")
         .Column(x => x.Date, filter: x => x.FilterRange(FilterDataType.Date))
         .Column(x => x.IsApproved, "Approved", filter: x => x.FilterBool(nullItemText: "Both", isNoneAll: true));
+
+    // Non-column based filter:
+    gridSettings.FilterBool("totalPositive", "Total Is Positive", nullItemText: "All");
 }
 
 @Html.Griddly(gridSettings)

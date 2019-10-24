@@ -9,15 +9,15 @@ namespace Griddly.Controllers
 {
     public partial class ExampleController : Controller
     {
-        public GriddlyResult FiltersGrid(string[] item, string lastName, string[] state, int? quantityFrom, int? quantityTo, DateTime? dateFrom, DateTime? dateTo, bool? isApproved)
+        public GriddlyResult FiltersGrid(string[] item, string lastName, string[] state, int? quantityFrom, int? quantityTo, DateTime? dateFrom, DateTime? dateTo, bool? isApproved, bool? totalPositive)
         {
-            IQueryable<TestGridItem> query = _testData;
+            IQueryable<TestGridItem> query = _testData.AsQueryable();
 
             if (item != null && item.Any())
                 query = query.Where(x => item.Contains(x.Item));
 
             if (!string.IsNullOrWhiteSpace(lastName))
-                query = query.Where(x => x.LastName.Contains(lastName));
+                query = query.Where(x => x.LastName.IndexOf(lastName, StringComparison.InvariantCultureIgnoreCase) > -1);
 
             if (state != null && state.Any())
                 query = query.Where(x => state.Contains(x.State));
@@ -36,6 +36,11 @@ namespace Griddly.Controllers
 
             if (isApproved != null)
                 query = query.Where(x => x.IsApproved == isApproved.Value);
+
+            if (totalPositive == true)
+                query = query.Where(x => x.Total > 0);
+            else if (totalPositive == false)
+                query = query.Where(x => x.Total < 0);
 
             return new QueryableResult<TestGridItem>(query);
         }

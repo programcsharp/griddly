@@ -15,6 +15,7 @@ namespace Griddly.Controllers
             {
                 Title = "Columns Example",
                 GridAction = "ColumnsGrid",
+                ParentView = "Columns.cshtml",
                 GridView = "ColumnsGrid.cshtml",
                 Description = "Griddly column helpers offer several ways to quickly define your table structure."
             });
@@ -26,21 +27,34 @@ namespace Griddly.Controllers
             {
                 Title = "Filters Example",
                 GridAction = "FiltersGrid",
+                ParentView = "Filters.cshtml",
                 GridView = "FiltersGrid.cshtml",
                 Description = "There are several filter helpers built into Griddly. Click the \"Filter\" button to play with these."
             });
         }
 
+        public ActionResult Parameters()
+        {
+            return View("Example", new ExampleModel()
+            {
+                Title = "Additional Parameters Example",
+                GridAction = "ParametersGrid",
+                ParentView = "Parameters.cshtml",
+                GridView = "ParametersGrid.cshtml",
+                Description = "Non-filter parameters may be passed from the parent view to the grid action on every refresh request."
+            });
+        }
+
         #region Test Data
 
-        static readonly IQueryable<TestGridItem> _testData = BuildTestData().AsQueryable();
+        static readonly IList<TestGridItem> _testData = BuildTestData();
 
-        static List<TestGridItem> BuildTestData()
+        static List<TestGridItem> BuildTestData(int rows = 1000)
         {
             List<TestGridItem> items = new List<TestGridItem>();
             Random r = new Random();
 
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i < rows; i++)
             {
                 items.Add(new TestGridItem()
                 {
