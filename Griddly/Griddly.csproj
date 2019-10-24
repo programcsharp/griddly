@@ -129,6 +129,9 @@
     <Compile Include="Controllers\Examples\ColumnsGrid.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="Controllers\Examples\FilterDefaultsGrid.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
     <Compile Include="Controllers\Examples\ParametersGrid.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
@@ -289,6 +292,8 @@
     <Content Include="Views\Example\Parameters.cshtml" />
     <Content Include="Views\Example\Columns.cshtml" />
     <Content Include="Views\Example\Filters.cshtml" />
+    <Content Include="Views\Example\FilterDefaultsGrid.cshtml" />
+    <Content Include="Views\Example\FilterDefaults.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Griddly.Mvc\Griddly.Mvc.csproj">
