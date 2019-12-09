@@ -83,6 +83,7 @@ namespace Griddly.Mvc
         public Func<TRow, object> UnderlyingValueTemplate { get; set; }
         public Func<TRow, string> ClassNameTemplate { get; set; }
         public Func<TRow, object> HtmlAttributesTemplate { get; set; }
+        public Func<TRow, string> LinkUrl { get; set; }
 
         static readonly Regex _htmlMatch = new Regex(@"<[^>]*>", RegexOptions.Compiled);
 
@@ -150,14 +151,31 @@ namespace Griddly.Mvc
                 throw new InvalidOperationException("Error rendering column \"" + Caption + "\"", ex);
             }
 
+            string valueString = null;
+
             if (value is HtmlString)
-                return (HtmlString)value;
+            {
+                if (LinkUrl == null) return (HtmlString)value; //Return directly, to avoid converting to string and back to HtmlString unnecessarily
+                else valueString = ((HtmlString)value).ToHtmlString();
+            }
             else if (value is HelperResult && encode)
-                return new HtmlString(((HelperResult)value).ToHtmlString());
+                valueString = ((HelperResult)value).ToHtmlString();
             else if (value is HelperResult && !encode)
-                return new HtmlString(((HelperResult)value).ToString());
+                valueString = ((HelperResult)value).ToString();
             else
-                return RenderValue(value, encode);
+            {
+                if (LinkUrl == null) return RenderValue(value, encode); //Return directly, to avoid converting to string and back to HtmlString unnecessarily
+                else valueString = RenderValue(value, encode)?.ToHtmlString();
+            }
+
+            if (row != null && LinkUrl != null && !string.IsNullOrWhiteSpace(valueString))
+            {
+                string url = LinkUrl((TRow)row);
+                if (!string.IsNullOrWhiteSpace(url))
+                    valueString = string.Format(GriddlySettings.ColumnLinkTemplate, url, valueString);
+            }
+
+            return new HtmlString(valueString);
         }
 
         public override HtmlString RenderUnderlyingValue(object row)
