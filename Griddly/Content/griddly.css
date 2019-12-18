@@ -212,15 +212,13 @@
     width:100%
 }
 
-.griddly-filter-selected-indicator
-{
-    float:right;
-    display:none
+.griddly .griddly-filter-selected-indicator {
+    float: right;
+    display: none
 }
 
-.griddly-filter-selected .griddly-filter-selected-indicator
-{
-    display:block;
+.griddly .griddly-filter-selected > .griddly-filter-selected-indicator {
+    display: block;
 }
 
 .griddly-filter-statusall-show,
