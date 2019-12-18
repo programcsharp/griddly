@@ -372,14 +372,15 @@
 
 @helper RenderFormFiltersModal(GriddlySettings settings)
 {
-    @Html.Partial("Griddly/GriddlyFilters", settings, new ViewDataDictionary() { { "GriddlyCss", settings.Css } })
-
+    ViewBag.GriddlyCss = settings.Css;
+    @Html.Partial("Griddly/GriddlyFilters", settings)
 }
 
 @helper RenderFormFiltersInline(GriddlySettings settings)
 {
+    ViewBag.GriddlyCss = settings.Css;
     <form class="form-horizontal">
-        @Html.Partial("Griddly/GriddlyFilterForm", settings, new ViewDataDictionary() { { "GriddlyCss", settings.Css } })
+        @Html.Partial("Griddly/GriddlyFilterForm", settings)
 
         <div class="form-group form-group-sm">
             <div class="col-sm-offset-2 col-sm-10">

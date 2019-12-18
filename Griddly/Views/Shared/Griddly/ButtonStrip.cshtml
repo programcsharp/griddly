@@ -45,7 +45,7 @@
     var leftGroups = GetGroups(Model.Where(x => !x.AlignRight && ViewBag.AlignRight != true));
     var rightGroups = GetGroups(Model.Where(x => x.AlignRight || ViewBag.AlignRight == true));
 
-    var css = (GriddlyCss?)ViewBag.GriddlyCss ?? GriddlySettings.DefaultCss;
+    var css = ViewBag.GriddlyCss = (GriddlyCss?)ViewBag.GriddlyCss ?? GriddlySettings.DefaultCss;
 }
 
 @if (Model.Any())
@@ -62,7 +62,7 @@
                 foreach (GriddlyButton button in group)
                 {
                     button.AlignRight = true;
-                    @Html.Partial(GriddlySettings.ButtonTemplate, button, new ViewDataDictionary() { { "GriddlyCss", css } });
+                    @Html.Partial(GriddlySettings.ButtonTemplate, button);
                 }
                 if (group.Count() > 1 || group.First().Buttons.Count() == 0)
                 {
@@ -82,7 +82,7 @@
                 }
                 foreach (GriddlyButton button in group)
                 {
-                    @Html.Partial(GriddlySettings.ButtonTemplate, button, new ViewDataDictionary() { { "GriddlyCss", css } });
+                    @Html.Partial(GriddlySettings.ButtonTemplate, button);
                 }
                 if (group.Count() > 1 || group.First().Buttons.Count() == 0)
                 {

@@ -12,7 +12,7 @@
 @model IGriddlyFilterSettings
 
 @{ 
-    var css = (GriddlyCss?)ViewBag.GriddlyCss ?? GriddlySettings.DefaultCss;
+    var css = ViewBag.GriddlyCss = (GriddlyCss?)ViewBag.GriddlyCss ?? GriddlySettings.DefaultCss;
 }
 
 @if (Model.FilterButtonTemplate != null)
@@ -23,11 +23,12 @@ else
 {
     <a class="@css.ButtonDefault griddly-filter-invoke" href="javascript:;"><i class="@(css.Icons.Filter)"></i><span class="@(!css.IsBootstrap4 ? "hidden-xs hidden-sm" : "d-none d-md-inline")"> Filter</span></a>
 }
-@Html.Partial("Griddly/GriddlyFilterValues", Model.Filters, new ViewDataDictionary() { { "GriddlyCss", css } })
+@Html.Partial("Griddly/GriddlyFilterValues", Model.Filters)
 <span class="griddly-filter-statusall-show">Showing all</span>
 <a class="griddly-search-clear griddly-filter-statusfiltered-show" href="javascript:;">Show All</a>
 <span class="griddly-filter-statusfiltered-show griddly-filter-statuscandefault-show">|</span>
 <a class="griddly-search-reset griddly-filter-statuscandefault-show" href="javascript:;">Show Default</a>
+
 <div class="modal griddly-filter-modal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -38,7 +39,7 @@ else
             </div>
             <form class="@(css.IsBootstrap4?"":"form-horizontal")">
                 <div class="modal-body">
-                    @Html.Partial("Griddly/GriddlyFilterForm", Model.Filters, new ViewDataDictionary() { { "GriddlyCss", css } })
+                    @Html.Partial("Griddly/GriddlyFilterForm", Model.Filters)
                 </div>
                 <div class="modal-footer">
 
