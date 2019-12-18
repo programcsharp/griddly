@@ -155,12 +155,15 @@
     {
         <input class="griddly-init-flag" type="hidden" />
     }
-    @:<div class="griddly griddly-init @settings.ClassName griddly-filter-@settings.InitialFilterMode.ToString().ToLower() griddly-filter-status@(isFiltered ? "filtered" : "all") @((!isDefaultFilter && defaultFilters.Count > 0) || !isDefaultSort ? "griddly-filter-statuscandefault" : null)" data-role="griddly"
+
+    var activeFilterMode = settings.InitialFilterMode == FilterMode.Both ? FilterMode.Inline : settings.InitialFilterMode;
+
+    @:<div class="griddly griddly-init @settings.ClassName griddly-filter-@activeFilterMode.ToString().ToLower() griddly-filter-status@(isFiltered ? "filtered" : "all") @((!isDefaultFilter && defaultFilters.Count > 0) || !isDefaultSort ? "griddly-filter-statuscandefault" : null)" data-role="griddly"
         @: @Html.AttributeNullable("data-griddly-url", !simple ? Url.Current() : null)
         @: @Html.AttributeNullable("data-griddly-urltarget", !simple ? settings.RowClickTarget : null)
         @: data-griddly-count="@Model.Total"
         @: @Html.AttributeIf("data-griddly-isdeeplink", context.IsDeepLink, true)
-        @: @Html.AttributeNullable("data-griddly-filtermode", settings.InitialFilterMode != FilterMode.None ? settings.InitialFilterMode.ToString() : null)
+        @: @Html.AttributeNullable("data-griddly-filtermode", activeFilterMode != FilterMode.None ? activeFilterMode.ToString() : null)
         @: @Html.AttributeNullable("data-griddly-allowedfiltermodes", settings.AllowedFilterModes != FilterMode.None ? Json.Encode(Enum.GetValues(typeof(FilterMode)).Cast<FilterMode>().Where(x => settings.AllowedFilterModes.Value.HasFlag(x) && x != FilterMode.Both && x != FilterMode.None).Select(x => x.ToString())) : null)
         @: data-griddly-isfilterforminline="@settings.IsFilterFormInline.ToString().ToLower()"
         @: data-griddly-remove-icon-css-class="@settings.Css.Icons.Remove"
@@ -192,7 +195,7 @@
     }
     if (settings.AllowedFilterModes != FilterMode.None && settings.AllowedFilterModes.Value.HasFlag(FilterMode.Form) && !settings.IsFilterFormInline)
     {
-        <div class="griddly-filters griddly-filters-form" style="@(settings.InitialFilterMode == FilterMode.Form ? null : "display:none")">
+        <div class="griddly-filters griddly-filters-form" style="@(settings.InitialFilterMode?.HasFlag(FilterMode.Form) == true ? null : "display:none")">
             @if (settings.FilterTemplate != null)
             {
                 @settings.FilterTemplate(settings)
@@ -225,7 +228,7 @@
         }
         @if (settings.AllowedFilterModes != FilterMode.None && settings.AllowedFilterModes.Value.HasFlag(FilterMode.Form) && settings.IsFilterFormInline)
         {
-        <tr class="griddly-filters griddly-filters-form" style="@(settings.InitialFilterMode == FilterMode.Form ? null : "display:none")">
+        <tr class="griddly-filters griddly-filters-form" style="@(settings.InitialFilterMode?.HasFlag(FilterMode.Form) == true ? null : "display:none")">
             <td colspan="@settings.Columns.Count">
                 @if (settings.FilterTemplate != null)
                 {
@@ -258,7 +261,7 @@
         </tr>
         @if (settings.AllowedFilterModes != FilterMode.None && settings.AllowedFilterModes.Value.HasFlag(FilterMode.Inline))
         {
-            <tr class="griddly-filters griddly-filters-inline" style="@(settings.InitialFilterMode == FilterMode.Inline ? null : "display:none")">@settings.InlineFilterTemplate(settings)</tr>
+            <tr class="griddly-filters griddly-filters-inline" style="@(settings.InitialFilterMode?.HasFlag(FilterMode.Inline) == true ? null : "display:none")">@settings.InlineFilterTemplate(settings)</tr>
         }
         @if (settings.HeaderTemplate != null)
         {
