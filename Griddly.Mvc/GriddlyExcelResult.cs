@@ -91,6 +91,8 @@ namespace Griddly.Mvc
                         ws.Column(i + 1).AutoFit();
                 }
 
+                ws.Cells[1, 1, 1 + y, columns.Count].AutoFilter = true;
+
                 context.HttpContext.Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                 context.HttpContext.Response.AddHeader("content-disposition", "attachment;  filename=" + _name + ".xlsx");
 
