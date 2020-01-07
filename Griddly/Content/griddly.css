@@ -217,7 +217,7 @@
     display: none
 }
 
-.griddly .griddly-filter-selected > .griddly-filter-selected-indicator {
+.griddly .griddly-filter-selected .griddly-filter-selected-indicator {
     display: block;
 }
 
