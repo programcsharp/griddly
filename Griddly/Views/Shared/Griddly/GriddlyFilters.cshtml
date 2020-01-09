@@ -41,7 +41,7 @@ else
                 <div class="modal-body">
                     @Html.Partial("Griddly/GriddlyFilterForm", Model.Filters)
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer" style="@(css.IsBootstrap4 ? "justify-content:flex-start" : null@*fix for IE flex bug*@)" >
 
                     <div class="btn-group @(css.IsBootstrap4 ? "mr-auto" : "pull-left")">
                         <button type="button" class="@css.ButtonDefault dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
