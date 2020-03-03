@@ -9,7 +9,7 @@ namespace Griddly.Controllers
 {
     public partial class ExampleController : Controller
     {
-        public GriddlyResult ParametersGrid(string lastname)
+        public GriddlyResult ParametersGrid(string lastname, long?[] collection)
         {
             ViewBag.TitleParameter = $"Last Name starts with \"{lastname}\"";
 

@@ -379,7 +379,7 @@ namespace Griddly.Mvc
                 var type = value.GetType();
 
                 if (value is IEnumerable enumerable && type != typeof(string))
-                    return enumerable.Cast<object>().Select(x => x.ToString()).ToArray();
+                    return enumerable.Cast<object>().Select(x => x?.ToString()).ToArray();
 
                 string stringValue;
 
@@ -429,7 +429,9 @@ namespace Griddly.Mvc
                         values[value.Key] = Convert.ChangeType(value.Value, typeof(DateTime));
                     else if (t.IsArray || t.IsSubclassOf(typeof(IEnumerable)))
                     {
-                        arrayVals.Append(string.Join("&", ((IEnumerable)value.Value).Cast<object>().Select(x=> value.Key + "=" + x.ToString())));
+                        if (arrayVals.Length > 0)
+                            arrayVals.Append("&");
+                        arrayVals.Append(string.Join("&", ((IEnumerable)value.Value).Cast<object>().Select(x=> value.Key + "=" + x?.ToString())));
                     }
                 }
             }
