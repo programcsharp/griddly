@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Web.Mvc;
 using System.Linq;
+using System.Web;
+using System.Text.RegularExpressions;
 
 namespace Griddly.Mvc
 {
@@ -24,6 +26,7 @@ namespace Griddly.Mvc
             _exportName = exportName;
         }
 
+        static readonly Regex _htmlMatch = new Regex(@"<[^>]*>", RegexOptions.Compiled);
         // static readonly Regex _aMatch = new Regex(@"<a\s[^>]*\s?href=""(.*?)"">(.*?)</a>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public override void ExecuteResult(ControllerContext context)
@@ -42,7 +45,8 @@ namespace Griddly.Mvc
 
                 for (int i = 0; i < columns.Count; i++)
                 {
-                    ws.Cells[1, i + 1].Value = columns[i].Caption;
+                    string caption = HttpUtility.HtmlDecode(_htmlMatch.Replace(columns[i].Caption, "").Trim().Replace("  ", " "));
+                    ws.Cells[1, i + 1].Value = caption;
                     ws.Cells[1, i + 1].Style.Font.Bold = true;
                 }
 
