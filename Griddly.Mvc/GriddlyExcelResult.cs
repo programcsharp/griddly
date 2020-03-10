@@ -90,7 +90,7 @@ namespace Griddly.Mvc
                     if (col.ExportWidth != null)
                         ws.Column(i + 1).Width = col.ExportWidth.Value;
                     else
-                        ws.Column(i + 1).AutoFit();
+                        ws.Column(i + 1).AutoFit(8, 80);
                 }
 
                 if (EnableAutoFilter)
