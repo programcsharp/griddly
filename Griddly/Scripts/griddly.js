@@ -1788,6 +1788,25 @@
             }, this));
         },
 
+        toggleColumnVisible: function (columnId, visible) {
+            var colElement = $("colgroup col[data-columnid='" + columnId + "']", this.$element);
+            var colIdx = colElement.index();
+
+            if (typeof visible === 'undefined')
+                visible = colElement.hasClass("column-hidden");
+
+            var prevColspan = $("colgroup>col:not(.column-hidden)", this.$element).length;
+            colElement.toggleClass("column-hidden", !visible)
+            var colspan = $("colgroup>col:not(.column-hidden)", this.$element).length;
+
+            $(">table>>tr", this.$element.find(".griddly-scrollable-container")).each(function () {
+                $(">:eq(" + colIdx + "):not([colspan])", $(this)).toggleClass("column-hidden", !visible);
+                $(">[colspan='" + prevColspan + "']", $(this)).attr("colspan", colspan);
+            });
+
+            return visible;
+        },
+
         getSelected: function (arrayIdNames)
         {
             if (arrayIdNames === "all")

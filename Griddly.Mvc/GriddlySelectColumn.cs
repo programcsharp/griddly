@@ -10,6 +10,8 @@ namespace Griddly.Mvc
 {
     public class GriddlySelectColumn : GriddlyColumn
     {
+        public GriddlySelectColumn() : base() { }
+
         public Func<object, bool> IsRowSelectable { get; set; }
 
         public GriddlySelectColumn(GriddlySettings settings)

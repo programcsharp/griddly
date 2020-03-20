@@ -207,14 +207,14 @@
             <colgroup>
                 @foreach (GriddlyColumn column in settings.Columns)
                 {
-                    <col @Html.AttributeIf("style", column.Width != null, "width:" + column.Width) data-field="@Griddly.Mvc.GriddlyFilterExtensions.GetField(column)" />
+                    <col @Html.AttributeIf("style", column.Width != null, "width:" + column.Width) data-field="@Griddly.Mvc.GriddlyFilterExtensions.GetField(column)" @Html.AttributeNullable("data-columnid", column.ColumnId) @Html.AttributeIf("class", !column.Visible, "column-hidden") />
                 }
             </colgroup>
     <thead>
         @if (!string.IsNullOrWhiteSpace(settings.Title))
         {
             <tr class="header">
-                <td colspan="@settings.Columns.Count">@settings.Title
+                <td colspan="@settings.Columns.Where(x => x.Visible).Count()">@settings.Title
                     
                     @if (settings.ShowRowSelectCount)
                     {
@@ -229,7 +229,7 @@
         @if (settings.AllowedFilterModes != FilterMode.None && settings.AllowedFilterModes.Value.HasFlag(FilterMode.Form) && settings.IsFilterFormInline)
         {
         <tr class="griddly-filters griddly-filters-form" style="@(settings.InitialFilterMode?.HasFlag(FilterMode.Form) == true ? null : "display:none")">
-            <td colspan="@settings.Columns.Count">
+            <td colspan="@settings.Columns.Where(x => x.Visible).Count()">
                 @if (settings.FilterTemplate != null)
                 {
                     @settings.FilterTemplate(settings)
@@ -243,7 +243,7 @@
                 SortField sort = Model.SortFields==null?null:Model.SortFields.FirstOrDefault(x => x.Field == column.ExpressionString);
 
                 bool isSortable = !simple && !string.IsNullOrWhiteSpace(column.ExpressionString);
-                <th class="@column.ClassName @(isSortable ? "sortable" : null) @(column is GriddlySelectColumn ? "select" : null) @(sort != null ? (sort.Direction == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.ExpressionString) @column.HeaderHtmlAttributes.ToHtmlAttributes()>
+                <th class="@column.ClassName @(isSortable ? "sortable" : null) @(!column.Visible ? "column-hidden" : null) @(column is GriddlySelectColumn ? "select" : null) @(sort != null ? (sort.Direction == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.ExpressionString) @column.HeaderHtmlAttributes.ToHtmlAttributes()>
                     @if (!string.IsNullOrWhiteSpace(column.ExpressionString))
                     {
                         <text>@Html.Raw(column.Caption)<span class="icon">&nbsp;</span></text>
@@ -270,7 +270,7 @@
             if (template != null)
             {
                 <tr class="griddly-header">
-                    <td colspan="@settings.Columns.Count">
+                    <td colspan="@settings.Columns.Where(x => x.Visible).Count()">
                         @template
                     </td>
                 </tr>
@@ -294,7 +294,7 @@
             @foreach (GriddlyColumn column in settings.Columns)
             {
                 var underlyingValue = column.RenderUnderlyingValue(row);
-                <td class="@column.RenderClassName(row, Model)" @column.GenerateHtmlAttributes(row, Model).ToHtmlAttributes()  @if (underlyingValue != null) { <text>data-value="@underlyingValue"</text> }>@column.RenderCell(row, settings)</td>
+                <td class="@column.RenderClassName(row, Model) @(!column.Visible ? "column-hidden" : null)" @column.GenerateHtmlAttributes(row, Model).ToHtmlAttributes() @if (underlyingValue != null) { <text>data-value="@underlyingValue"</text> }>@column.RenderCell(row, settings)</td>
             }
         </tr>
     }
@@ -305,7 +305,7 @@
         <tr>
             @foreach (GriddlyColumn column in settings.Columns)
             {
-                <td class="@column.ClassName">@column.RenderValue(column.SummaryValue)</td>
+                <td class="@column.ClassName @(!column.Visible ? "column-hidden" : null)">@column.RenderValue(column.SummaryValue)</td>
             }
         </tr>
     </tfoot>
@@ -314,7 +314,7 @@
 @if (settings.EmptyGridMessage != null) {
     <tfoot class="empty-grid-message" style="@(Model.Total > 0 ? "display:none;" : null)">
         <tr>
-            <td colspan="@settings.Columns.Count">
+            <td colspan="@settings.Columns.Where(x => x.Visible).Count()">
                 @if (settings.EmptyGridMessageTemplate != null)
                 {
                     @settings.EmptyGridMessageTemplate(new EmptyGridMessageTemplateParams() { ResultPage = Model, Settings = settings })

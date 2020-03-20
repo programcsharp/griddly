@@ -17,7 +17,7 @@
 {
     GriddlyColumn column = Model.Columns[i];
 
-    <td class="@column.ClassName @(column.DefaultSort != null ? (column.DefaultSort == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)">
+    <td class="@column.ClassName @(!column.Visible ? "column-hidden" : null) @(column.DefaultSort != null ? (column.DefaultSort == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)">
         @if (column.Filter != null)
         {
             GriddlyFilter filter = column.Filter;

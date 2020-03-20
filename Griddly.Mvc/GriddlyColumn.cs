@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Helpers;
@@ -15,10 +16,29 @@ namespace Griddly.Mvc
         public GriddlyColumn()
         {
             HeaderHtmlAttributes = new RouteValueDictionary();
-
             RenderMode = ColumnRenderMode.Both;
         }
 
+        public GriddlyColumn(LambdaExpression expression, string caption, string columnId) : this()
+        {
+            Expression = expression;
+            Caption = caption;
+            ColumnId = columnId != null ? columnId : expression != null ? GetIdFromExpression(expression) : Caption;
+        }
+
+        string GetIdFromExpression(LambdaExpression expression)
+        {
+            string expressionString = expression.Body.ToString();
+
+            //trim the parameter for a cleaner expression
+            string parameter = expression.Parameters.Single().Name;
+            if (expressionString.StartsWith(parameter + "."))
+                return expressionString.Substring(parameter.Length + 1);
+            else
+                return expressionString;
+        }
+
+        public LambdaExpression Expression { get; protected set; }
         public string Caption { get; set; }
         public string ExpressionString { get; set; }
         public string Format { get; set; }
@@ -28,6 +48,8 @@ namespace Griddly.Mvc
         public string Width { get; set; }
         public double? ExportWidth { get; set; }
         public ColumnRenderMode RenderMode { get; set; }
+        public bool Visible { get; set; } = true;
+        public string ColumnId { get; set; }
         public SummaryAggregateFunction? SummaryFunction { get; set; }
         public object SummaryValue { get; set; }
         public IDictionary<string, object> HeaderHtmlAttributes { get; set; }
@@ -68,6 +90,7 @@ namespace Griddly.Mvc
 
             if (value == null)
                 return null;
+
             if (value is HtmlString)
                 return (HtmlString)value;
             else if (encode)
@@ -79,6 +102,8 @@ namespace Griddly.Mvc
 
     public class GriddlyColumn<TRow> : GriddlyColumn
     {
+        public GriddlyColumn(LambdaExpression expression, string caption, string columnId) : base(expression, caption, columnId) { }
+
         public Func<TRow, object> Template { get; set; }
         public Func<TRow, object> UnderlyingValueTemplate { get; set; }
         public Func<TRow, string> ClassNameTemplate { get; set; }

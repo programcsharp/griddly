@@ -249,3 +249,7 @@
     {
         font-weight:bold;
     }
+
+.griddly .column-hidden{
+    display:none;
+}

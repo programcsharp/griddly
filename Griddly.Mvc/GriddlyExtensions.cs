@@ -125,11 +125,10 @@ namespace Griddly.Mvc
             return htmlHelper.GriddlyColumnFor<TRow>(template, null);
         }
 
-        public static GriddlyColumn<TRow> GriddlyColumnFor<TRow>(this HtmlHelper<IEnumerable<TRow>> htmlHelper, Func<TRow, object> template, string caption)
+        public static GriddlyColumn<TRow> GriddlyColumnFor<TRow>(this HtmlHelper<IEnumerable<TRow>> htmlHelper, Func<TRow, object> template, string caption, string columnId = null)
         {
-            return new GriddlyColumn<TRow>()
+            return new GriddlyColumn<TRow>(null, caption, columnId)
             {
-                Caption = caption,
                 Template = template
             };
         }

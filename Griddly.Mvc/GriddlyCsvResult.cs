@@ -38,7 +38,7 @@ namespace Griddly.Mvc
                 if (export != null && export.UseGridColumns)
                     columns.InsertRange(0, _settings.Columns);
 
-                columns.RemoveAll(x => !x.RenderMode.HasFlag(ColumnRenderMode.Export));
+                columns.RemoveAll(x => !x.Visible || !x.RenderMode.HasFlag(ColumnRenderMode.Export));
 
                 for (int i = 0; i < columns.Count; i++)
                     w.WriteField(columns[i].Caption);

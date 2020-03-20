@@ -448,7 +448,7 @@ namespace Griddly.Mvc
             return this;
         }
 
-        public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> expression, string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, ColumnRenderMode renderMode = ColumnRenderMode.Both, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0, Expression<Func<TRow, object>> value = null, double? exportWidth = null, Func<TRow, string> linkUrl = null)
+        public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> expression, string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, ColumnRenderMode renderMode = ColumnRenderMode.Both, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0, Expression<Func<TRow, object>> value = null, double? exportWidth = null, Func<TRow, string> linkUrl = null, bool visible = true, string columnId = null)
         {
             ModelMetadata metadata = null;
 
@@ -501,10 +501,10 @@ namespace Griddly.Mvc
                 headerHtmlAttributes = HtmlHelper.AnonymousObjectToHtmlAttributes(headerHtmlAttributes);
 
             var valueTemplate = value == null ? null : value.Compile();
-            Add(new GriddlyColumn<TRow>()
+            Add(new GriddlyColumn<TRow>(expression, caption, columnId)
             {
+                Visible = visible,
                 Template = template,
-                Caption = caption,
                 Format = format,
                 ExpressionString = expressionString,
                 SummaryFunction = summaryFunction,
