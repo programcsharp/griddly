@@ -311,7 +311,7 @@
     </tfoot>
 }
 
-@if (settings.EmptyGridMessage != null) {
+@if (settings.EmptyGridMessage != null || settings.EmptyGridMessageTemplate != null) {
     <tfoot class="empty-grid-message" style="@(Model.Total > 0 ? "display:none;" : null)">
         <tr>
             <td colspan="@settings.Columns.Where(x => x.Visible).Count()">
@@ -321,7 +321,7 @@
                 }
                 else
                 {
-                    @Model.Settings.EmptyGridMessage
+                    @settings.EmptyGridMessage
                 }
             </td>
         </tr>
