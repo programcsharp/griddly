@@ -29,5 +29,6 @@ namespace Griddly.Mvc
     {
         public Dictionary<string, string[]> Values { get; set; }
         public SortField[] SortFields { get; set; }
+        public DateTime? CreatedUtc { get; set; }
     }
 }

@@ -87,7 +87,8 @@ namespace Griddly.Mvc
 
                         GriddlyFilterCookieData data = new GriddlyFilterCookieData()
                         {
-                            Values = new Dictionary<string, string[]>()
+                            Values = new Dictionary<string, string[]>(),
+                            CreatedUtc = DateTime.UtcNow
                         };
 
                         if (context.SortFields?.Length > 0)

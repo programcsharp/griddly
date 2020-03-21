@@ -66,10 +66,16 @@ namespace Griddly.Mvc
                         {
                             var data = JsonConvert.DeserializeObject<GriddlyFilterCookieData>(cookie.Value);
 
-                            context.CookieData = data;
-                            context.IsDefaultSkipped = true;
+                            // chrome/ff don't delete session cookies if they're set to "continue where you left off"
+                            // https://stackoverflow.com/questions/10617954/chrome-doesnt-delete-session-cookies
+                            // only use a cookie if it's new within 100 minutes
+                            if (data.CreatedUtc != null && (DateTime.UtcNow - data.CreatedUtc.Value).TotalMilliseconds < 100)
+                            {
+                                context.CookieData = data;
+                                context.IsDefaultSkipped = true;
 
-                            return new GriddlyCookieFilterValueProvider(context);
+                                return new GriddlyCookieFilterValueProvider(context);
+                            }
                         }
                         catch
                         {
