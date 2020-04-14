@@ -5,9 +5,16 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Web;
+#if NET45
 using System.Web.Helpers;
 using System.Web.Mvc;
 using System.Web.Routing;
+#else
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#endif
 
 namespace Griddly.Mvc
 {
@@ -29,15 +36,25 @@ namespace Griddly.Mvc
             : base(name, useGridColumns)
         {
         }
-        public GriddlyExport<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> expression, string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, ColumnRenderMode renderMode = ColumnRenderMode.Both, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0, Expression<Func<TRow, object>> value = null, double? exportWidth = null, bool visible = true, string columnId = null)
+        public GriddlyExport<TRow> Column<TProperty>(
+#if !NET45
+            IHtmlHelper html,
+#endif
+            Expression<Func<TRow, TProperty>> expression, string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, ColumnRenderMode renderMode = ColumnRenderMode.Both, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0, Expression<Func<TRow, object>> value = null, double? exportWidth = null, bool visible = true, string columnId = null)
         {
             ModelMetadata metadata = null;
 
             if (expression != null)
             {
+#if NET45
                 metadata = ModelMetadata.FromLambdaExpression<TRow, TProperty>(expression, new ViewDataDictionary<TRow>());
                 string htmlFieldName = ExpressionHelper.GetExpressionText(expression);
-
+#else
+                var metadataProvider = html.ViewContext.HttpContext.RequestServices.GetService<ModelExpressionProvider>();
+                var modelExpression = metadataProvider.CreateModelExpression(new ViewDataDictionary<TRow>(null), expression);
+                metadata = modelExpression.Metadata;
+                string htmlFieldName = metadata.Name;
+#endif
                 Type type = metadata.ModelType;
 
                 if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
@@ -86,9 +103,17 @@ namespace Griddly.Mvc
             return this;
         }
 
-        public GriddlyExport<TRow> Column(string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, ColumnRenderMode renderMode = ColumnRenderMode.Both, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0, Expression<Func<TRow, object>> value = null, double? exportWidth = null)
+        public GriddlyExport<TRow> Column(
+#if !NET45
+            IHtmlHelper html,
+#endif
+            string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, ColumnRenderMode renderMode = ColumnRenderMode.Both, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0, Expression<Func<TRow, object>> value = null, double? exportWidth = null)
         {
-            return Column<object>(null, caption, format, expressionString, defaultSort, className, renderMode, width, summaryFunction, summaryValue, template, htmlAttributes, headerHtmlAttributes, defaultSortOrder, value, exportWidth);
+            return Column<object>(
+#if !NET45
+            html,
+#endif
+                null, caption, format, expressionString, defaultSort, className, renderMode, width, summaryFunction, summaryValue, template, htmlAttributes, headerHtmlAttributes, defaultSortOrder, value, exportWidth);
         }
     }
 }

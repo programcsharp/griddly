@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data.Entity.Design.PluralizationServices;
 using System.Globalization;
 using System.Linq;
+#if NET45
+using System.Data.Entity.Design.PluralizationServices;
 using System.Web.Mvc;
+#else
+using Microsoft.AspNetCore.Mvc.Rendering;
+#endif
 
 namespace Griddly.Mvc
 {
@@ -12,8 +16,11 @@ namespace Griddly.Mvc
     {
         string _caption;
 
-        static readonly PluralizationService _pluralizationService
-            = PluralizationService.CreateService(CultureInfo.GetCultureInfo("en-US"));
+#if NET45
+        static readonly PluralizationService _pluralizationService = PluralizationService.CreateService(CultureInfo.GetCultureInfo("en-US"));
+#else
+        static readonly PluralizationServiceInstance _pluralizationService = new PluralizationServiceInstance();
+#endif
 
         public string Caption
         {

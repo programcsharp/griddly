@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+#if NET45
 using System.Web.Helpers;
 using Griddly.Mvc.Linq.Dynamic;
+#else
+using System.Linq.Dynamic.Core;
+#endif
 
 namespace Griddly.Mvc.Results
 {

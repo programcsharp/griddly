@@ -4,9 +4,19 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Web;
+#if NET45
 using System.Web.Helpers;
 using System.Web.Mvc;
 using System.Web.Routing;
+#else
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
+#endif
 
 namespace Griddly.Mvc
 {
@@ -24,12 +34,12 @@ namespace Griddly.Mvc
         [Obsolete("Use Css.IsBootstrap4")]
         public static bool IsBootstrap4 => DefaultCss.IsBootstrap4;
         #endregion
-        
+
         public static string ButtonTemplate = "~/Views/Shared/Griddly/BootstrapButton.cshtml";
         public static string ButtonListTemplate = "~/Views/Shared/Griddly/ButtonStrip.cshtml";
         public static HtmlString DefaultBoolTrueHtml = null;
         public static HtmlString DefaultBoolFalseHtml = null;
-        public static string ColumnLinkTemplate = "<a href=\"{0}\">{1}</a>";
+        public static string ColumnLinkTemplate { get; set; } = "<a href=\"{0}\">{1}</a>";
         public static int? DefaultPageSize = null;
         public static FilterMode? DefaultInitialFilterMode = FilterMode.Form;
         //public static FilterMode? DefaultAllowedFilterModes = FilterMode.Inline;
@@ -41,6 +51,8 @@ namespace Griddly.Mvc
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultHeaderTemplate = null;
 
+
+#if NET45
         /// <summary>
         /// Defines an event handler for custom export requests.
         /// 
@@ -50,8 +62,24 @@ namespace Griddly.Mvc
         public static Action<GriddlySettings, GriddlyResultPage, HtmlHelper, bool> OnBeforeRender = null;
         public static Action<GriddlySettings, ControllerContext> OnGriddlyResultExecuting = null;
         public static Action<GriddlySettings, GriddlyContext, ControllerContext> OnGriddlyPageExecuting = null;
-        
+#else
+        /// <summary>
+        /// Defines an event handler for custom export requests.
+        /// 
+        /// First argument is the record set. Second argument is the posted form values.
+        /// </summary>
+        public static Func<GriddlyResult, NameValueCollection, ActionContext, ActionResult> HandleCustomExport = null;
+        public static Action<GriddlySettings, GriddlyResultPage, IHtmlHelper, bool> OnBeforeRender = null;
+        public static Action<GriddlySettings, ActionContext> OnGriddlyResultExecuting = null;
+        public static Action<GriddlySettings, GriddlyContext, ActionContext> OnGriddlyPageExecuting = null;
+#endif
+
+#if NET45
         public GriddlySettings()
+#else
+        public GriddlySettings(IHtmlHelper html)
+#endif
+
         {
             IdProperty = "Id";
 
@@ -73,6 +101,10 @@ namespace Griddly.Mvc
             InitialFilterMode = DefaultInitialFilterMode;
             //AllowedFilterModes = DefaultAllowedFilterModes;
             ShowRowSelectCount = DefaultShowRowSelectCount;
+
+#if !NET45
+            Html = html;
+#endif
         }
 
         public static void ConfigureBootstrap4Defaults()
@@ -84,6 +116,9 @@ namespace Griddly.Mvc
         public HtmlString BoolTrueHtml = DefaultBoolTrueHtml;
         public HtmlString BoolFalseHtml = DefaultBoolFalseHtml;
 
+#if !NET45
+        public IHtmlHelper Html { get; set; }
+#endif
         public string[] DefaultRowIds { get; set; }
         public string IdProperty { get; set; }
         public string Title { get; set; }
@@ -104,7 +139,11 @@ namespace Griddly.Mvc
         public List<GriddlyButton> Buttons { get; set; }
         public List<GriddlyExport> Exports { get; set; }
 
+#if NET45
         public Action<GriddlySettings, GriddlyResultPage, HtmlHelper, bool> BeforeRender = null;
+#else
+        public Action<GriddlySettings, GriddlyResultPage, IHtmlHelper, bool> BeforeRender = null;
+#endif
 
         public Func<object, object> BeforeTemplate { get; set; }
         public Func<object, object> AfterButtonsTemplate { get; set; }
@@ -185,8 +224,12 @@ namespace Griddly.Mvc
         {
             if (name == null)
             {
+#if NET45
                 var meta = ModelMetadata.FromLambdaExpression(expression, new ViewDataDictionary<object>());
                 name = ExpressionHelper.GetExpressionText(expression);
+#else
+                //TODO: implement
+#endif
             }
 
             RowIds[name ?? "id"] = expression.Compile();
@@ -380,6 +423,10 @@ namespace Griddly.Mvc
 
     public class GriddlySettings<TRow> : GriddlySettings
     {
+#if !NET45
+        public GriddlySettings(IHtmlHelper html) : base(html) { }
+#endif
+
         public new Func<GriddlySettings<TRow>, object> FilterTemplate
         {
             set
@@ -439,8 +486,12 @@ namespace Griddly.Mvc
         {
             if (name == null)
             {
+#if NET45
                 var meta = ModelMetadata.FromLambdaExpression(expression, new ViewDataDictionary<TRow>());
                 name = ExpressionHelper.GetExpressionText(expression);
+#else
+                //TODO: implement
+#endif
             }
 
             RowIds[name ?? "id"] = (x) => expression.Compile()((TRow)x);
@@ -454,8 +505,17 @@ namespace Griddly.Mvc
 
             if (expression != null)
             {
+#if NET45
                 metadata = ModelMetadata.FromLambdaExpression<TRow, TProperty>(expression, new ViewDataDictionary<TRow>());
                 string htmlFieldName = ExpressionHelper.GetExpressionText(expression);
+#else
+                var expressionProvider = this.Html.ViewContext.HttpContext.RequestServices.GetService<ModelExpressionProvider>();
+                var metadataProvider = this.Html.ViewContext.HttpContext.RequestServices.GetService<IModelMetadataProvider>();
+
+                var modelExpression = expressionProvider.CreateModelExpression(new ViewDataDictionary<TRow>(metadataProvider, new ModelStateDictionary()), expression);
+                metadata = modelExpression.Metadata;
+                string htmlFieldName = metadata.Name;
+#endif
 
                 Type type = metadata.ModelType;
 

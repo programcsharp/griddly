@@ -5,7 +5,12 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#if NET45
 using System.Web.Mvc;
+#else
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+#endif
 
 namespace Griddly.Mvc
 {
@@ -38,10 +43,15 @@ namespace Griddly.Mvc
             if (value != null)
                 attemptedValue = string.Join(",", value);
 
+#if NET45
             return new ValueProviderResult(value, attemptedValue, CultureInfo.CurrentCulture);
+#else
+            return new ValueProviderResult(value, CultureInfo.CurrentCulture);
+#endif
         }
     }
 
+#if NET45
     public class GriddlyCookieFilterValueProviderFactory : ValueProviderFactory
     {
         Func<ControllerContext, bool> _canProvide = null;
@@ -88,4 +98,55 @@ namespace Griddly.Mvc
             return null;
         }
     }
+#else
+    public class GriddlyCookieFilterValueProviderFactory : IValueProviderFactory
+    {
+        Func<ActionContext, bool> _canProvide = null;
+
+        public GriddlyCookieFilterValueProviderFactory(Func<ActionContext, bool> canProvide = null)
+        {
+            _canProvide = canProvide;
+        }
+
+        public Task CreateValueProviderAsync(ValueProviderFactoryContext vpfc)
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                var isChildAction = vpfc.ActionContext.HttpContext.Items.ContainsKey("IsChildAction");
+
+                if (isChildAction && vpfc.ActionContext.HttpContext.Request.Query.Count == 0)
+                {
+                    if (_canProvide?.Invoke(vpfc.ActionContext) != false)
+                    {
+                        var context = vpfc.ActionContext.GetOrCreateGriddlyContext();
+                        var cookie = vpfc.ActionContext.HttpContext.Request.Cookies[context.CookieName];
+
+                        if (cookie != null && !string.IsNullOrWhiteSpace(cookie))
+                        {
+                            try
+                            {
+                                var data = JsonConvert.DeserializeObject<GriddlyFilterCookieData>(cookie);
+
+                                // chrome/ff don't delete session cookies if they're set to "continue where you left off"
+                                // https://stackoverflow.com/questions/10617954/chrome-doesnt-delete-session-cookies
+                                // only use a cookie if it's new within 100 minutes
+                                if (data.CreatedUtc != null && (DateTime.UtcNow - data.CreatedUtc.Value).TotalMilliseconds < 100)
+                                {
+                                    context.CookieData = data;
+                                    context.IsDefaultSkipped = true;
+
+                                    vpfc.ValueProviders.Add(new GriddlyCookieFilterValueProvider(context));
+                                }
+                            }
+                            catch
+                            {
+                                // TODO: log it?
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+#endif
 }
