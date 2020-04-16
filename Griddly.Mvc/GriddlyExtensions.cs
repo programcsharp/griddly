@@ -44,28 +44,28 @@ namespace Griddly.Mvc
 #if NET45
         public static MvcHtmlString Griddly(this HtmlHelper htmlHelper, string actionName)
 #else
-        public static IHtmlContent Griddly(this IHtmlHelper htmlHelper, string actionName)
+        public static async Task<IHtmlContent> Griddly(this IHtmlHelper htmlHelper, string actionName)
 #endif
         {
-            return htmlHelper.Griddly(actionName, null);
+            return await htmlHelper.Griddly(actionName, null);
         }
 
 #if NET45
         public static MvcHtmlString Griddly(this HtmlHelper htmlHelper, string actionName, object routeValues)
 #else
-        public static IHtmlContent Griddly(this IHtmlHelper htmlHelper, string actionName, object routeValues)
+        public static async Task<IHtmlContent> Griddly(this IHtmlHelper htmlHelper, string actionName, object routeValues)
 #endif
         {
-            return htmlHelper.Griddly(actionName, null, routeValues);
+            return await htmlHelper.Griddly(actionName, null, routeValues);
         }
 
 #if NET45
         public static MvcHtmlString Griddly(this HtmlHelper htmlHelper, string actionName, string controllerName)
 #else
-        public static IHtmlContent Griddly(this IHtmlHelper htmlHelper, string actionName, string controllerName)
+        public static async Task<IHtmlContent> Griddly(this IHtmlHelper htmlHelper, string actionName, string controllerName)
 #endif
         {
-            return htmlHelper.Griddly(actionName, controllerName, null);
+            return await htmlHelper.Griddly(actionName, controllerName, null);
         }
 
 #if NET45
@@ -75,10 +75,10 @@ namespace Griddly.Mvc
             return htmlHelper.Action(actionName, controllerName, routeValues);
         }
 #else
-        public static IHtmlContent Griddly(this IHtmlHelper htmlHelper, string actionName, string controllerName, object routeValues)
+        public static async Task<IHtmlContent> Griddly(this IHtmlHelper htmlHelper, string actionName, string controllerName, object routeValues)
         {
             // TODO: validate that we got a GriddlyResult
-            return htmlHelper.RenderAction(actionName, controllerName, routeValues);
+            return await htmlHelper.RenderAction(actionName, controllerName, routeValues);
         }
 #endif
 
@@ -571,7 +571,11 @@ namespace Griddly.Mvc
                         .ToDictionary(p => p.Name, p => p.GetValue(value, null));
         }
 
+#if NET45
         public static string Current(this UrlHelper helper, object routeValues = null, bool includeQueryString = false)
+#else
+        public static string Current(this IUrlHelper helper, object routeValues = null, bool includeQueryString = false)
+#endif
         {
             RouteValueDictionary values = new RouteValueDictionary();
             StringBuilder arrayVals = new StringBuilder();

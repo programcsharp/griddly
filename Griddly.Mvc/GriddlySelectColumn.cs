@@ -3,6 +3,9 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Web;
+using System.IO;
+using System.Text;
+using System.Text.Encodings.Web;
 #if NET45
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -74,8 +77,12 @@ namespace Griddly.Mvc
 #if NET45
                 return new HtmlString(input.ToString(TagRenderMode.SelfClosing));
 #else
-                input.TagRenderMode = TagRenderMode.SelfClosing;
-                return new HtmlString(input.ToString());
+                var sb = new StringBuilder();
+                using (TextWriter tw = new StringWriter(sb))
+                {
+                    input.RenderSelfClosingTag().WriteTo(tw, HtmlEncoder.Default);
+                    return new HtmlString(sb.ToString());
+                }
 #endif
             }
             else

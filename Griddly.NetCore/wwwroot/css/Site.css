@@ -1,0 +1,149 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Set padding to keep content from hitting the edges */
+/*.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}*/
+
+/* Set width on the form input elements since they're 100% wide by default */
+/*input,
+select,
+textarea {
+    max-width: 280px;
+}*/
+
+/* styles for validation helpers */
+.field-validation-error {
+    color: #b94a48;
+}
+
+.field-validation-valid {
+    display: none;
+}
+
+input.input-validation-error {
+    border: 1px solid #b94a48;
+}
+
+input[type="checkbox"].input-validation-error {
+    border: 0 none;
+}
+
+.validation-summary-errors {
+    color: #b94a48;
+}
+
+.validation-summary-valid {
+    display: none;
+}
+
+.page-header
+{
+    background-image:url(griddly-64.png);
+    background-position:right center;
+    background-repeat:no-repeat;
+}
+
+.docs-social {
+    margin-bottom: 20px;
+    text-align: center
+}
+
+.docs-social-buttons {
+    display: inline-block;
+    padding-left: 0;
+    margin-bottom: 0;
+    list-style: none
+}
+
+.docs-social-buttons li {
+    display: inline-block;
+    padding: 5px 8px;
+    line-height: 1
+}
+
+.docs-social-buttons .twitter-follow-button {
+    width: 225px!important
+}
+
+.docs-social-buttons .twitter-share-button {
+    width: 98px!important
+}
+
+.github-btn {
+    overflow: hidden;
+    border: 0
+}
+
+.nuget-badge code {
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    background-color: #202020;
+    border: 4px solid silver;
+    border-radius: 5px;
+    box-shadow: 2px 2px 3px #6e6e6e;
+    color: #e2e2e2;
+    display: block;
+    font: 1.4em 'andale mono','lucida console',monospace;
+    line-height: 1.4em;
+    overflow: auto;
+    padding: 15px
+}
+
+.syntaxhighlighter
+{
+    overflow-y:hidden !important;
+    padding: 10px 20px;
+    margin: 0 0 20px;
+    font-size: 0.95em !important;
+    border-left: 5px solid #eee;
+}
+
+.syntaxhighlighter .line
+{
+}
+
+.dropdown-menu {
+    max-height: 450px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.multiselect-container > li > a > label.radio,
+.multiselect-container > li > a > label.checkbox {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+}
+
+li.multiselect-selectbuttons {
+    padding: 6px 5px;
+    background-color: #f0f0f0;
+    margin-top: -5px;
+    -webkit-border-radius: 6px 6px 0 0;
+    -moz-border-radius: 6px 6px 0 0;
+    border-radius: 6px 6px 0 0;
+    border-bottom: 1px solid #ccc;
+}
+
+    li.multiselect-selectbuttons div {
+        width: 155px;
+        margin: 0 auto;
+    }
+
+    li.multiselect-selectbuttons a.btn {
+        float: left;
+        clear: none;
+        margin: 0 3px;
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+
+.multiselect-group {
+    font-weight: bold;
+}

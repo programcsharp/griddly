@@ -1,0 +1,21 @@
+﻿@{
+    Layout = null;    
+}
+
+@await Html.Griddly(new GriddlySettings<SimpleOrder>(Html)
+    {
+        ClassName = "index-grid"
+    }
+    .Column(x => x.Item,
+        filter: x => x.FilterBox(FilterDataType.String), summaryValue: "Total")
+    .Column(x => x.Quantity,
+        filter: x => x.FilterRange(FilterDataType.Integer, htmlClass: "testing"), summaryFunction: SummaryAggregateFunction.Sum)
+    .Column(x => x.Total, format: "c", defaultSort: SortDirection.Descending,
+        filter: x => x.FilterRange(FilterDataType.Currency), summaryFunction: SummaryAggregateFunction.Sum)
+    .Column(x => x.Person.FirstName, "First Name",
+        filter: x => x.FilterBox(FilterDataType.String))
+    .Column(x => x.Person.LastName, "Last Name",
+        filter: x => x.FilterBox(FilterDataType.String))
+    .Column(x => x.IsApproved, "Approved?",
+        filter: x => x.FilterBool(nullItemText: "Both"))
+)

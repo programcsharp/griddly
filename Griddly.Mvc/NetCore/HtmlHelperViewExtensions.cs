@@ -14,27 +14,23 @@ namespace Griddly.Mvc
 {
     public static class HtmlHelperViewExtensions
     {
-        public static IHtmlContent RenderAction(this IHtmlHelper helper, string action, object parameters = null)
+        public static async Task<IHtmlContent> RenderAction(this IHtmlHelper helper, string action, string controller = null, object parameters = null)
         {
-            var controller = (string)helper.ViewContext.RouteData.Values["controller"];
-            return RenderAction(helper, action, controller, parameters);
-        }
+            if (controller == null)
+                controller = (string)helper.ViewContext.RouteData.Values["controller"];
 
-        public static IHtmlContent RenderAction(this IHtmlHelper helper, string action, string controller, object parameters = null)
-        {
             var area = (string)helper.ViewContext.RouteData.Values["area"];
-            return RenderAction(helper, action, controller, area, parameters);
+            return await RenderAction(helper, action, controller, area, parameters);
         }
 
-        public static IHtmlContent RenderAction(this IHtmlHelper helper, string action, string controller, string area, object parameters = null)
+        public static async Task<IHtmlContent> RenderAction(this IHtmlHelper helper, string action, string controller, string area, object parameters = null)
         {
             if (action == null)
-                throw new ArgumentNullException(nameof(controller));
-            if (controller == null)
                 throw new ArgumentNullException(nameof(action));
+            if (controller == null)
+                throw new ArgumentNullException(nameof(controller));
 
-            var task = RenderActionAsync(helper, action, controller, area, parameters);
-            return task.Result;
+            return await RenderActionAsync(helper, action, controller, area, parameters);
         }
 
         private static async Task<IHtmlContent> RenderActionAsync(this IHtmlHelper helper, string action, string controller, string area, object parameters = null)
@@ -51,6 +47,7 @@ namespace Griddly.Mvc
             var routeValues = new RouteValueDictionary(new { area, controller, action });
             var newHttpContext = httpContextFactory.Create(currentHttpContext.Features);
             newHttpContext.Items["IsChildAction"] = true;
+            newHttpContext.Items["ParentActionViewContext"] = helper.ViewContext;
 
             newHttpContext.Response.Body = new MemoryStream();
 

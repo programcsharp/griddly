@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Web;
 #if NET45
 using System.Web.Helpers;
@@ -81,7 +82,9 @@ namespace Griddly.Mvc
 #endif
 
         {
+#if NET45
             IdProperty = "Id";
+#endif
 
             Columns = new List<GriddlyColumn>();
             Filters = new List<GriddlyFilter>();
@@ -120,7 +123,11 @@ namespace Griddly.Mvc
         public IHtmlHelper Html { get; set; }
 #endif
         public string[] DefaultRowIds { get; set; }
+#if NET45
         public string IdProperty { get; set; }
+#else
+        public abstract object TryGetId(object row);
+#endif
         public string Title { get; set; }
         public string ClassName { get; set; }
         public string TableClassName { get; set; }
@@ -424,7 +431,38 @@ namespace Griddly.Mvc
     public class GriddlySettings<TRow> : GriddlySettings
     {
 #if !NET45
+        static MethodInfo _idPropGetter = typeof(TRow).GetProperty("Id", BindingFlags.IgnoreCase)?.GetGetMethod();
+
         public GriddlySettings(IHtmlHelper html) : base(html) { }
+
+        public GriddlySettings<TRow> Id(Expression<Func<TRow, object>> expression)
+        {
+            IdProperty = expression.Compile();
+            return this;
+        }
+        public Func<TRow, object> IdProperty { get; set; }
+        public override object TryGetId(object row)
+        {
+            if (IdProperty != null) 
+            {
+                return IdProperty((TRow)row);
+            }
+            else if(_idPropGetter != null)
+            {
+                try
+                {
+                    return _idPropGetter.Invoke(row, null);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                return null;
+            }
+        }
 #endif
 
         public new Func<GriddlySettings<TRow>, object> FilterTemplate

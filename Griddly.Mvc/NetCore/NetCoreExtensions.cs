@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Primitives;
 using System.Collections.Specialized;
 using System.IO;
@@ -54,6 +55,10 @@ namespace Griddly.Mvc
         public static bool IsChildAction(this HttpContext context)
         {
             return context.Items["IsChildAction"] != null && (bool)context.Items["IsChildAction"];
+        }
+        public static ViewContext ParentActionViewContext(this HttpContext context)
+        {
+            return context.Items["IsChildAction"] != null && (bool)context.Items["IsChildAction"] ? (context.Items["ParentActionViewContext"] as ViewContext) : null;
         }
     }
 }

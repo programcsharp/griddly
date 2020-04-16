@@ -1,0 +1,34 @@
+﻿@{
+    var gridSettings = new GriddlySettings<TestGridItem>(Html)
+    {
+        PageSize = 20,
+        RowClickUrl = x => "http://microsoft.com",
+        EmptyGridMessageTemplate =@<text><div class="alert alert-warning">@item.Settings.EmptyGridMessage</div></text>,
+        EmptyGridMessage = "Sorry, no records were found"
+    };
+
+    gridSettings
+        .SelectColumn(x => x.Id)
+        .Column(x => x.Id)
+        .Column(x => x.FirstName, "First Name")
+        .Column(x => x.LastName, "Last Name", filter: x => x.FilterBox(FilterDataType.String, field: "lastName"))
+        .Column(x => x.Address)
+        .Column(x => x.City)
+        .Column(x => x.State)
+        .Column(x => x.PostalCode, "Zip")
+        .Column(x => x.Quantity)
+        .Column(x => x.Total, format: "c");
+
+    gridSettings//.Button(Url.Action("Columns"), "Navigate");
+        .ButtonSeparator()
+        //.Button(Url.Action("ButtonsPostCriteria"), "Post Filter Criteria", action: GriddlyButtonAction.PostCriteria)
+        .Button("CallJavascriptFunction", "Call Javascript Function", action: GriddlyButtonAction.Javascript)
+        .Button("modal-id", "Open A Modal", action: GriddlyButtonAction.Modal)
+        .ButtonSeparator()
+        //.Button(Url.Action("ButtonsPost"), "Post All Selected", action: GriddlyButtonAction.Post)
+        //.Button(Url.Action("ButtonsAjax"), "Ajax Foreach Selected", action: GriddlyButtonAction.Ajax)
+        //.Button(Url.Action("ButtonsAjaxBulk"), "Ajax All Selected", action: GriddlyButtonAction.AjaxBulk);
+        ;
+}
+
+@await Html.Griddly(gridSettings)

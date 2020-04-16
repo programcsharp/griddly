@@ -143,9 +143,9 @@ namespace Griddly.Mvc
 #if NET45
                     ViewData = new ViewDataDictionary(result),
 #else
-                    ViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()),
+                    ViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { Model = result },
 #endif
-                    ViewName = ViewName
+                    ViewName = ViewName,
                 };
 
 #if NET45

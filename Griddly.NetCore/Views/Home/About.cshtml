@@ -1,0 +1,12 @@
+﻿@{
+    ViewBag.Title = "About";
+}
+<div class="row">
+    <div class="col-md-12">
+        <h2>@ViewBag.Title</h2>
+        <p>After researching all of the ASP.NET MVC grid components like <a href="http://msdn.microsoft.com/en-us/library/system.web.helpers.webgrid(v=vs.111).aspx">WebGrid</a> and the Javascript grid components like <a href="http://www.datatables.net/">DataTables</a>, I found them all lacking – either the grid is rendered on the server and is kludgy or its rendered client only giving an extra request on page load. Data and render logic is tightly coupled, etc.</p>
+        <p>Griddly solves those problems by separating render and data logic, rendering in page during the first render, then requesting subsequent pages from the same MVC action method using a hybrid approach.</p>
+        <p>Griddly is built to be extremely configurable, end to end, from data source to rendering. You can use the default IQueryable data source or write your own. There are default template hooks for most things you would want to change. If not, let us know and we’ll add what you need.</p>
+        <p>The default UI is rendered using <a href="http://getbootstrap.com">Bootstrap 3</a>, but you can add templates for whatever UI framework you use.</p>
+    </div>
+</div>

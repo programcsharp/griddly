@@ -1,0 +1,255 @@
+﻿/*
+ * Griddly default styles
+ * http://griddly.com
+ * Copyright 2013-2014 Chris Hynes and Data Research Group, Inc.
+ * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
+ *
+ * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
+ *
+ */
+
+.griddly
+{
+}
+
+    .griddly table
+    {
+        border-collapse: collapse;
+        margin-bottom: 0;
+        /*overflow-y:hidden*/
+    }
+
+        .griddly table tbody tr td
+        {
+            cursor: pointer;
+            white-space:nowrap;
+        }
+
+        .griddly-init-flag[value=loaded] + .griddly.griddly-init
+        {
+            display:none
+        }
+
+    .griddly th
+    {
+        background-color: #c8c8c8;
+        white-space: nowrap;
+        border-width: 1px !important;
+        color: #333;
+    }
+
+        .griddly th.select
+        {
+            width: 22px;
+        }
+
+        .griddly th.sortable
+        {
+            cursor: pointer;
+            position:relative;
+        }
+
+            .griddly th.sortable span.icon,
+            .griddly th.sorted_a span.icon,
+            .griddly th.sorted_a span.icon {
+                width: 0;
+                height: 0;
+                vertical-align: top;
+                border-right: 4px solid transparent;
+                border-left: 4px solid transparent;
+                content: "";
+                margin-top: 7px;
+                display: none;
+            }
+
+        .griddly th.sortable:hover {
+            color: black;
+            background-color: #bbb
+        }
+
+            .griddly th.sortable:hover span.icon {
+                border-bottom-color: #000
+            }
+
+            .griddly th.sortable.sorted_a:hover span.icon,
+            .griddly th.sortable:hover span.icon {
+                border-top: none;
+                border-bottom: 4px solid #000;
+            }
+
+        .griddly th.sortable.sorted_d:hover span.icon {
+            border-top: 4px solid #000;
+            border-bottom: none;
+        }
+
+        .griddly th.sorted_a span.icon
+        {
+            display: inline-block;
+            border-bottom: 4px solid #000000;
+        }
+
+        .griddly th.sorted_d span.icon
+        {
+            display: inline-block;
+            border-top: 4px solid #000000;
+        }
+
+        .griddly th.sorted_a,
+        .griddly th.sorted_d
+        {
+            background-color: #aeaeae;
+            color: #000;
+        }
+
+    .griddly td.sorted_a,
+    .griddly td.sorted_d
+    {
+        background-color: #f0f0f0;
+    }
+
+/* https://css-tricks.com/simple-css-row-column-highlighting/ */
+/*.griddly th.sortable:hover::after {
+    content: "";
+    position: absolute;
+    background-color: #ffa;
+    left: 0;
+    top: 0;
+    height: 10000px;
+    width: 100%;
+    z-index: -1;
+}*/
+    .griddly .griddly-footer
+    {
+        background-color: #f0f0f0;
+        border: 2px solid #ccc;
+        border-top-width:1px;
+        border-radius: 0 0 4px 4px;
+    }
+
+.griddly-filter-form .griddly-scrollable-container,
+.griddly-filter-none .griddly-scrollable-container {
+    overflow-x: auto;
+    clear: both;
+    border: 2px solid #ccc;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+}
+
+.griddly-scrollable-container::-webkit-scrollbar {  
+    width: 8px;  
+    height:8px;
+}  
+.griddly-scrollable-container::-webkit-scrollbar-track {  
+    background: #fafafa;
+}  
+.griddly-scrollable-container::-webkit-scrollbar-thumb {  
+    background: #888;
+}  
+.griddly-scrollable-container::-webkit-scrollbar-thumb:hover {  
+    background-color: #aaa;  
+}
+
+.griddly-filter-popover .popover-content
+{
+    padding:0;
+    width:200px;
+}
+
+.filter-content
+{
+    padding:0;
+    display:none
+}
+
+.filter-content .input-group, .filter-content .dropdown-menu
+{
+    padding:4px;
+}
+
+.filter-content .dropdown-menu
+{
+    display:block;
+    border:none;
+    box-shadow:none;
+    position:relative;
+    margin:0;
+    width: 100%;
+    max-height:400px;
+    overflow-y:auto;
+    top:auto;
+}
+
+.filter-content .dropdown-menu a
+{
+    padding: 3px 6px; 
+    white-space: normal;
+    cursor: pointer
+}
+
+.filter-content .dropdown-menu .griddly-list-group-header
+{
+
+}
+
+.filter-content .dropdown-menu .griddly-list-group a
+{
+    padding-left:16px;
+}
+
+.filter-content .dropdown-menu a input 
+{
+    display:none
+}
+
+    .filter-content .griddly-filter-buttons
+    {
+        margin-right:-1px
+    }
+
+.filter-content .griddly-select-all,
+.filter-content .griddly-clear
+{
+    width:100%
+}
+
+.griddly .griddly-filter-selected-indicator {
+    float: right;
+    display: none
+}
+
+.griddly .griddly-filter-selected .griddly-filter-selected-indicator {
+    display: block;
+}
+
+.griddly-filter-statusall-show,
+.griddly-filter-statusfiltered-show,
+.griddly-filter-statuscandefault-show
+{
+    display: none
+}
+
+.griddly-filter-statusall .griddly-filter-statusall-show,
+.griddly-filter-statusfiltered .griddly-filter-statusfiltered-show,
+.griddly-filter-statuscandefault .griddly-filter-statuscandefault-show
+{
+    display: inline
+}
+
+.griddly-filter-statusfiltered:not(.griddly-filter-statuscandefault) .griddly-filter-statusfiltered-show.griddly-filter-statuscandefault-show,
+.griddly-filter-statuscandefault:not(.griddly-filter-statusfiltered) .griddly-filter-statusfiltered-show.griddly-filter-statuscandefault-show
+{
+    display: none
+}
+
+.griddly-selection {
+    white-space: nowrap;
+    vertical-align: top;
+}
+    .griddly-selection-count
+    {
+        font-weight:bold;
+    }
+
+.griddly .column-hidden{
+    display:none;
+}

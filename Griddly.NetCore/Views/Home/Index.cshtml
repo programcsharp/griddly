@@ -1,0 +1,175 @@
+﻿@{
+    //ViewBag.Title = "Home Page";
+}
+
+@section header
+{
+    <header class="header clearfix" style="background-color: rgb(248, 248, 248); border-bottom-color: rgb(231, 231, 231); border-bottom-left-radius: 0px; border-bottom-right-radius: 0px; border-bottom-style: solid; border-bottom-width: 1px;padding:30px 0 10px">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-7">
+                    <hgroup style="background-image:url(/css/griddly-192.png);padding-top:5px;padding-left:210px;background-position:-4px -15px;background-repeat:no-repeat;min-height:172px">
+                        <h1 style="margin-top:0;"><a itemprop="name" href="http://griddly.com/"> Griddly</a></h1>
+                        <h2 itemprop="description alternativeHeadline">MVC/AJAX hybrid grid</h2>
+                        <h3 style="font-size:125%">Created by <a rel="author" target="_blank" href="http://programcsharp.com">Chris Hynes</a> and <a rel="author" target="_blank" href="http://ithiprise.com/">Joel Potter</a></h3>
+                    </hgroup>
+                    <div class="docs-social well well-sm">
+                        <ul class="docs-social-buttons">
+                            <li>
+                                <iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=programcsharp&amp;repo=griddly&amp;type=watch&amp;count=true" width="80" height="20" title="Star on GitHub"></iframe>
+                            </li>
+                            <li>
+                                <iframe class="github-btn" src="http://ghbtns.com/github-btn.html?user=programcsharp&amp;repo=griddly&amp;type=fork&amp;count=true" width="80" height="20" title="Fork on GitHub"></iframe>
+                            </li>
+                            @*<li class="follow-btn">
+                                    <a href="https://twitter.com/griddlygrid" class="twitter-follow-button" data-link-color="#0069D6" data-show-count="true">Follow @@griddlygrid</a>
+                                </li>*@
+                            <li class="tweet-btn">
+                                <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://griddly.com/" data-count="horizontal" data-via="griddlygrid" data-related="programcsharp:Creator of Griddly">Tweet</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <p>Griddly is an extremely configurable MVC/AJAX grid that separates render and data logic. Data is returned from an action method, settings are done in the view.</p>
+                    <p>First render is done server side during the containing page render. Subsequent paging/filtering requests are done via AJAX to the same MVC action method using a hybrid approach.</p>
+                    <p>First, <a href="http://docs.nuget.org/docs/start-here/installing-nuget">install NuGet</a>, then get Griddly from NuGet:</p>
+                    <div class="nuget-badge">
+                        <p>
+                            <code>
+                                PM&gt; Install-Package Griddly
+                            </code>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1>Getting started</h1>
+        <ol>
+            <li>Install the Griddly NuGet. This will set up the Javascript, CSS, and views.</li>
+            <li>Add references to griddly.css and griddly.js in your _Layout.</li>
+        </ol>
+        <p>You can also manually install by adding all the dependencies in the correct places. Until we get a manual install guide written, the best way is to look at this example project.</p>
+        <h2>Hello World</h2>
+        <p>This will use a simplified version of your standard order/person schema, with random data populated using <a href="https://www.nuget.org/packages/FFaker.Net/">FFaker.Net</a>.</p>
+        <h3>Domain</h3>
+        <pre class="brush: csharp">
+            public class SimplePerson
+            {
+                public int Id { get; set; }
+                public string FirstName { get; set; }
+                public string LastName { get; set; }
+            }
+
+            public class SimpleOrder
+            {
+                public int Id { get; set; }
+                public string Item { get; set; }
+                public int Quantity { get; set; }
+                public decimal Total { get; set; }
+                public SimplePerson Person { get; set; }
+            }
+        </pre>
+        <h3>Sample Data</h3>
+        <pre class="brush: csharp">
+            static readonly IQueryable&lt;SimpleOrder&gt; _indexTestData = BuildIndexTestData().AsQueryable();
+
+            static IEnumerable&lt;SimpleOrder&gt; BuildIndexTestData()
+            {
+                List&lt;SimpleOrder&gt; items = new List&lt;SimpleOrder&gt;();
+                Random r = new Random();
+                int count = r.Next(10000);
+                for (int i = 0; i &lt; count; i++)
+                {
+                    yield return new SimpleOrder()
+                    {
+                        Id = i,
+                        Item = Lorem.GetWord(),
+                        Quantity = 1 + r.Next(10),
+                        Total = 1 + (decimal)(r.NextDouble() * 10000),
+                        IsApproved = r.Next(10) > 3,
+                        Person = new SimplePerson()
+                        {
+                            Id = r.Next(10000),
+                            FirstName = Name.GetFirstName(),
+                            LastName = Name.GetLastName(),
+                        }
+                    };
+                }
+            }
+        </pre>
+        <h3>Grid view</h3>
+        <p>Here, we'll set up the columns and filters that make up the grid. This is done by passing a GriddlySettings&lt;T&gt; to the Html.Griddly extension method responsible for setting up and rendering the Griddly. My convention is to call the grid view &lt;Parent View Name&gt;Grid, so this will be IndexGrid.cshtml.</p>
+        <p>I'll add the filters and a couple of QOL tweaks like setting column names and display formats. I'll drop in a total aggregate for good measure.</p>
+        <pre class="brush: razor">
+            @@{
+                Layout = null;    
+            }
+            @@await Html.Griddly(new GriddlySettings&lt;SimpleOrder&gt;()
+                {
+                    ClassName = "index-grid"
+                }
+                .Column(x => x.Item,
+                    filter: x => x.FilterBox(FilterDataType.String))
+                .Column(x => x.Quantity,
+                    filter: x => x.FilterRange(FilterDataType.Integer))
+                .Column(x => x.Total, format: "c", defaultSort: SortDirection.Descending,
+                    filter: x => x.FilterRange(FilterDataType.Currency))
+                .Column(x => x.Person.FirstName, "First Name",
+                    filter: x => x.FilterBox(FilterDataType.String))
+                .Column(x => x.Person.LastName, "Last Name",
+                    filter: x => x.FilterBox(FilterDataType.String))
+            )
+        </pre>
+        <h3>Action Method</h3>
+        <p>This is where the rubber meets the road. We won't do anything fancy here, just grab the data source and implement the filters we set up in the view. We'll also default to only showing approved orders. This example uses parameters on the action method for simplicity, but it could just as easily be using a model.</p>
+        <pre class="brush: csharp">
+            public ActionResult IndexGrid(string item, int? quantityStart, int? quantityEnd, decimal? totalStart, decimal? totalEnd, string firstName, string lastName, bool? isApproved)
+            {
+                this.SetGriddlyDefault(ref isApproved, "isApproved", true);
+
+                IQueryable&lt;SimpleOrder&gt; query = _indexTestData;
+
+                if (!string.IsNullOrWhiteSpace(item))
+                    query = query.Where(x => x.Item.ToLower().Contains(item.ToLower()));
+
+                if (quantityStart != null && quantityEnd != null)
+                    query = query.Where(x => x.Quantity >= quantityStart && x.Quantity <= quantityEnd);
+                if (quantityStart != null)
+                    query = query.Where(x => x.Quantity >= quantityStart);
+                if (quantityEnd != null)
+                    query = query.Where(x => x.Quantity <= quantityEnd);
+
+                if (totalStart != null && totalEnd != null)
+                    query = query.Where(x => x.Total >= totalStart && x.Total <= totalEnd);
+                if (totalStart != null)
+                    query = query.Where(x => x.Total >= totalStart);
+                if (totalEnd != null)
+                    query = query.Where(x => x.Total <= totalEnd);
+
+                if (!string.IsNullOrWhiteSpace(firstName))
+                    query = query.Where(x => x.Person.FirstName.ToLower().Contains(firstName.ToLower()));
+                if (!string.IsNullOrWhiteSpace(lastName))
+                    query = query.Where(x => x.Person.LastName.ToLower().Contains(lastName.ToLower()));
+
+                if (isApproved != null)
+                    query = query.Where(x => x.IsApproved == isApproved);
+
+                return new GriddlyResult&lt;SimpleOrder&gt;(query);
+            }
+        </pre>
+        <h3>Render grid</h3>
+        <p>Now that the grid is all set up, we've just got to render it in the parent view, also done using the Html.Griddly extension method, but here we pass route parameters rather than the GriddlySettings&lt;T&gt; we used in the grid view.</p>
+        <pre class="brush: razor">
+            @@await Html.Griddly("IndexGrid")
+        </pre>
+        <h3>Live Demo</h3>
+        <p>And here's what it looks like after that's all set up.</p>
+        @await Html.Griddly("IndexGrid")
+    </div>
+</div>
