@@ -15,7 +15,7 @@ namespace Griddly.Controllers
             if (lastName != null)
                 query = query.Where(x => x.LastName.IndexOf(lastName, System.StringComparison.InvariantCultureIgnoreCase) > -1);
 
-            return new QueryableResult<TestGridItem>(query);
+            return this.GriddlyQueryable(query);
         }
 
         [HttpPost]

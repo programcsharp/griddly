@@ -61,6 +61,9 @@ namespace Griddly.Mvc
     public abstract class GriddlyResult<T> : GriddlyResult
     {
         public string ViewName { get; set; }
+#if !NET45
+        public ViewDataDictionary ViewData { get; set; }
+#endif
 
         public GriddlyResult(string viewName = null)
         {
@@ -69,10 +72,13 @@ namespace Griddly.Mvc
 
 #if NET45
         public override void ExecuteResult(ControllerContext context)
+        {
 #else
         public override async Task ExecuteResultAsync(ActionContext context)
-#endif
         {
+            if (ViewData == null)
+                throw new ArgumentNullException("ViewData", "Use the controller extension method to create the result, or specify ViewData manually");
+#endif
             if (GriddlySettings.DisableHistoryParameters)
             {
 #if NET45
@@ -157,10 +163,19 @@ namespace Griddly.Mvc
                     foreach (KeyValuePair<string, object> value in context.ParentActionViewContext.ViewData)
                         view.ViewData[value.Key] = value.Value;
                 }
-                 view.ExecuteResult(context);
+                view.ExecuteResult(context);
 #else
-                //TODO: implement
+                if (ViewData != null)
+                {
+                    foreach (KeyValuePair<string, object> value in ViewData.Where(x => x.Key != "_isGriddlySettingsRequest"))
+                        view.ViewData[value.Key] = value.Value;
+                }
 
+                if (context.HttpContext.IsChildAction())
+                {
+                    foreach (KeyValuePair<string, object> value in context.HttpContext.ParentActionViewContext().ViewData)
+                        view.ViewData[value.Key] = value.Value;
+                }
                 await view.ExecuteResultAsync(context);
 #endif
             }

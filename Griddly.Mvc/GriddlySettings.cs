@@ -12,11 +12,9 @@ using System.Web.Routing;
 #else
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
 #endif
 
 namespace Griddly.Mvc
@@ -227,7 +225,11 @@ namespace Griddly.Mvc
             return null;
         }
 
+#if NET45
         public GriddlySettings RowId(Expression<Func<object, object>> expression, string name = null)
+#else
+        public GriddlySettings RowId(Expression<Func<object, object>> expression, string name)
+#endif
         {
             if (name == null)
             {
@@ -235,7 +237,7 @@ namespace Griddly.Mvc
                 var meta = ModelMetadata.FromLambdaExpression(expression, new ViewDataDictionary<object>());
                 name = ExpressionHelper.GetExpressionText(expression);
 #else
-                //TODO: implement
+                throw new ArgumentNullException("name", "The 'name' parameter is required on the non-generic RowId() method");
 #endif
             }
 
@@ -528,7 +530,7 @@ namespace Griddly.Mvc
                 var meta = ModelMetadata.FromLambdaExpression(expression, new ViewDataDictionary<TRow>());
                 name = ExpressionHelper.GetExpressionText(expression);
 #else
-                //TODO: implement
+                name = ExpressionHelper.GetExpressionText(expression, Html);
 #endif
             }
 
@@ -539,20 +541,13 @@ namespace Griddly.Mvc
 
         public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> expression, string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, ColumnRenderMode renderMode = ColumnRenderMode.Both, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0, Expression<Func<TRow, object>> value = null, double? exportWidth = null, Func<TRow, string> linkUrl = null, bool visible = true, string columnId = null)
         {
-            ModelMetadata metadata = null;
-
             if (expression != null)
             {
 #if NET45
-                metadata = ModelMetadata.FromLambdaExpression<TRow, TProperty>(expression, new ViewDataDictionary<TRow>());
+                var metadata = ModelMetadata.FromLambdaExpression<TRow, TProperty>(expression, new ViewDataDictionary<TRow>());
                 string htmlFieldName = ExpressionHelper.GetExpressionText(expression);
 #else
-                var expressionProvider = this.Html.ViewContext.HttpContext.RequestServices.GetService<ModelExpressionProvider>();
-                var metadataProvider = this.Html.ViewContext.HttpContext.RequestServices.GetService<IModelMetadataProvider>();
-
-                var modelExpression = expressionProvider.CreateModelExpression(new ViewDataDictionary<TRow>(metadataProvider, new ModelStateDictionary()), expression);
-                metadata = modelExpression.Metadata;
-                string htmlFieldName = metadata.Name;
+                string htmlFieldName = ExpressionHelper.GetExpressionText(expression, Html, out var metadata);
 #endif
 
                 Type type = metadata.ModelType;

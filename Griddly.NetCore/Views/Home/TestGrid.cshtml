@@ -53,7 +53,7 @@
                         new GriddlyButton() { Text = "3" }
             }
         })
-        .Add(new GriddlyExport<TestGridItem>("test-export", true));
+        .Add(new GriddlyExport<TestGridItem>(Html, "test-export", true));
 }
 
 @await Html.Griddly(grid)

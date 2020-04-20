@@ -26,7 +26,7 @@ namespace Griddly.Controllers
             if (isApproved != null)
                 query = query.Where(x => x.IsApproved == isApproved.Value);
 
-            return new QueryableResult<TestGridItem>(query);
+            return this.GriddlyQueryable(query);
         }
     }
 }

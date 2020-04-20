@@ -4,12 +4,17 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
+using System.Linq.Expressions;
+using System;
 
 namespace Griddly.Mvc
 {
@@ -59,6 +64,28 @@ namespace Griddly.Mvc
         public static ViewContext ParentActionViewContext(this HttpContext context)
         {
             return context.Items["IsChildAction"] != null && (bool)context.Items["IsChildAction"] ? (context.Items["ParentActionViewContext"] as ViewContext) : null;
+        }
+    }
+
+    internal static class ExpressionHelper
+    {
+        public static string GetExpressionText<TRow, TProp>(Expression<Func<TRow, TProp>> expression, IHtmlHelper html)
+            => GetExpressionText(expression, html, out _);
+
+        public static string GetExpressionText<TRow, TProp>(Expression<Func<TRow, TProp>> expression, IHtmlHelper html, out ModelMetadata metadata)
+            => GetExpressionText(expression, html.ViewContext.HttpContext, out metadata);
+
+        public static string GetExpressionText<TRow, TProp>(Expression<Func<TRow, TProp>> expression, HttpContext context)
+            => GetExpressionText(expression, context, out _);
+
+        public static string GetExpressionText<TRow, TProp>(Expression<Func<TRow, TProp>> expression, HttpContext context, out ModelMetadata metadata)
+        {
+            var expressionProvider = context.RequestServices.GetService<ModelExpressionProvider>();
+            var metadataProvider = context.RequestServices.GetService<IModelMetadataProvider>();
+
+            var modelExpression = expressionProvider.CreateModelExpression(new ViewDataDictionary<TRow>(metadataProvider, new ModelStateDictionary()), expression);
+            metadata = modelExpression.Metadata;
+            return modelExpression.Metadata.Name;
         }
     }
 }

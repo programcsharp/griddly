@@ -42,7 +42,7 @@ namespace Griddly.Controllers
             else if (totalPositive == false)
                 query = query.Where(x => x.Total < 0);
 
-            return new QueryableResult<TestGridItem>(query);
+            return this.GriddlyQueryable(query);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿#if !NET45
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -45,7 +46,9 @@ namespace Griddly.Mvc
             var routeData = new RouteData();
             var routeParams = new RouteValueDictionary(parameters ?? new { });
             var routeValues = new RouteValueDictionary(new { area, controller, action });
-            var newHttpContext = httpContextFactory.Create(currentHttpContext.Features);
+            var features = new FeatureCollection(currentHttpContext.Features);
+            features.Set<IItemsFeature>(new ItemsFeature()); //the child request should have it's own collection of Items
+            var newHttpContext = httpContextFactory.Create(features);
             newHttpContext.Items["IsChildAction"] = true;
             newHttpContext.Items["ParentActionViewContext"] = helper.ViewContext;
 

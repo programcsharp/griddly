@@ -67,26 +67,6 @@
                     throw new InvalidOperationException("Invalid InitialFilterMode: " + settings.InitialFilterMode + ".");
                 }
             }
-
-            if (settings.AllowedFilterModes.Value.HasFlag(FilterMode.Inline) && settings.InlineFilterTemplate == null && settings.Columns.Any(x => x.Filter != null))
-            {
-                //TODO: Don't do GetAwaiter().GetResult()
-                settings.InlineFilterTemplate = (x) => { RenderInlineFilters(x).GetAwaiter().GetResult(); return null; };
-            }
-
-            if (settings.AllowedFilterModes.Value.HasFlag(FilterMode.Form) && settings.FilterTemplate == null && settings.Filters.Any())
-            {
-                if (settings.IsFilterFormInline)
-                {
-                    //TODO: Don't do GetAwaiter().GetResult()
-                    settings.FilterTemplate = (x) => { RenderFormFiltersInline(x).GetAwaiter().GetResult(); return null; };
-                }
-                else
-                {
-                    //TODO: Don't do GetAwaiter().GetResult()
-                    settings.FilterTemplate = (x) => { RenderFormFiltersModal(x).GetAwaiter().GetResult(); return null; };
-                }
-            }
         }
         else
         {
@@ -203,6 +183,18 @@
             {
                 @settings.FilterTemplate(settings)
             }
+            else if (settings.AllowedFilterModes.Value.HasFlag(FilterMode.Form) && settings.Filters.Any())
+            {
+                if (settings.IsFilterFormInline)
+                {
+                    await RenderFormFiltersInline(settings);
+                }
+                else
+                {
+                    await RenderFormFiltersModal(settings);
+                }
+            }
+
         </div>
     }
     @:<div class="griddly-scrollable-container">
@@ -237,6 +229,17 @@
                 {
                     @settings.FilterTemplate(settings)
                 }
+                else if (settings.AllowedFilterModes.Value.HasFlag(FilterMode.Form) && settings.Filters.Any())
+                {
+                    if (settings.IsFilterFormInline)
+                    {
+                        await RenderFormFiltersInline(settings);
+                    }
+                    else
+                    {
+                        await RenderFormFiltersModal(settings);
+                    }
+                }
             </td>
         </tr>
         }
@@ -264,7 +267,17 @@
         </tr>
         @if (settings.AllowedFilterModes != FilterMode.None && settings.AllowedFilterModes.Value.HasFlag(FilterMode.Inline))
         {
-            <tr class="griddly-filters griddly-filters-inline" style="@(settings.InitialFilterMode?.HasFlag(FilterMode.Inline) == true ? null : "display:none")">@settings.InlineFilterTemplate(settings)</tr>
+            <tr class="griddly-filters griddly-filters-inline" style="@(settings.InitialFilterMode?.HasFlag(FilterMode.Inline) == true ? null : "display:none")">
+
+            @if(settings.InlineFilterTemplate != null)
+            {
+                @settings.InlineFilterTemplate(settings)
+            }
+            else if (settings.Columns.Any(x => x.Filter != null))
+            {
+                await RenderInlineFilters(settings);
+            }
+            </tr>
         }
         @if (settings.HeaderTemplate != null)
         {

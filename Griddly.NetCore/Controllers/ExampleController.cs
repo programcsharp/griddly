@@ -90,7 +90,7 @@ namespace Griddly.Controllers
                     Company = Company.Name(),
                     Address = r.Next(short.MaxValue) + " " + Address.StreetName(),
                     City = Address.City(),
-                    State = Address.UsState(),
+                    State = Address.UsStateAbbr(),
                     PostalCode = Address.ZipCode(),
                     Quantity = 1 + r.Next(10),
                     Total = 1 + (decimal)(r.NextDouble() * 10000),

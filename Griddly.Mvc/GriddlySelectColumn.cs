@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Web;
 using System.IO;
 using System.Text;
-using System.Text.Encodings.Web;
 #if NET45
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -14,6 +13,7 @@ using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
+using System.Text.Encodings.Web;
 #endif
 
 namespace Griddly.Mvc

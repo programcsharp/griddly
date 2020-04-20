@@ -27,6 +27,11 @@ namespace Griddly.NetCore
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            services.AddMvc(options => {
+                options.Filters.Add(new GriddlyParameterAttribute());
+                options.ValueProviderFactories.Add(new GriddlyCookieFilterValueProviderFactory());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

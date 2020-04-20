@@ -43,30 +43,39 @@ namespace Griddly.Mvc
 
 #if NET45
         public static MvcHtmlString Griddly(this HtmlHelper htmlHelper, string actionName)
+        {
+            return htmlHelper.Griddly(actionName, null);
+        }
 #else
         public static async Task<IHtmlContent> Griddly(this IHtmlHelper htmlHelper, string actionName)
-#endif
         {
             return await htmlHelper.Griddly(actionName, null);
         }
+#endif
 
 #if NET45
         public static MvcHtmlString Griddly(this HtmlHelper htmlHelper, string actionName, object routeValues)
+        {
+            return htmlHelper.Griddly(actionName, null, routeValues);
+        }
 #else
         public static async Task<IHtmlContent> Griddly(this IHtmlHelper htmlHelper, string actionName, object routeValues)
-#endif
         {
             return await htmlHelper.Griddly(actionName, null, routeValues);
         }
+#endif
 
 #if NET45
         public static MvcHtmlString Griddly(this HtmlHelper htmlHelper, string actionName, string controllerName)
+        {
+            return htmlHelper.Griddly(actionName, controllerName, null);
+        }
 #else
         public static async Task<IHtmlContent> Griddly(this IHtmlHelper htmlHelper, string actionName, string controllerName)
-#endif
         {
             return await htmlHelper.Griddly(actionName, controllerName, null);
         }
+#endif
 
 #if NET45
         public static MvcHtmlString Griddly(this HtmlHelper htmlHelper, string actionName, string controllerName, object routeValues)
@@ -274,16 +283,20 @@ namespace Griddly.Mvc
 
 #if NET45
             if (controller.ControllerContext.IsChildAction
+#else
+            if (controller.HttpContext.IsChildAction()
+#endif
                 && (!context.IsDefaultSkipped || ignoreSkipped.Value)
-                && EqualityComparer<T>.Default.Equals(parameter, default(T)))
+                && (EqualityComparer<T>.Default.Equals(parameter, default(T))
+#if !NET45
+                || typeof(T).IsArray && (parameter as Array)?.Length == 0 //In .NET core, the default value for array is null, but MVC binds the parameter as zero length array
+#endif
+                ))
             {
                 parameter = value;
 
                 context.Parameters[field] = parameter;
             }
-#else
-            //TODO: implement
-#endif
         }
 
 #if NET45
@@ -301,6 +314,9 @@ namespace Griddly.Mvc
 
 #if NET45
             if (controller.ControllerContext.IsChildAction
+#else
+            if (controller.HttpContext.IsChildAction()
+#endif
                 && (!context.IsDefaultSkipped || ignoreSkipped.Value)
                 && parameter == null)
             {
@@ -308,9 +324,6 @@ namespace Griddly.Mvc
 
                 context.Parameters[field] = parameter;
             }
-#else
-            //TODO: implement
-#endif
         }
 
 #if NET45
@@ -329,6 +342,9 @@ namespace Griddly.Mvc
 
 #if NET45
             if (controller.ControllerContext.IsChildAction
+#else
+            if (controller.HttpContext.IsChildAction()
+#endif
                 && (!context.IsDefaultSkipped || ignoreSkipped.Value)
                 && parameter == null)
             {
@@ -336,12 +352,8 @@ namespace Griddly.Mvc
 
                 context.Parameters[field] = parameter;
             }
-#else
-            //TODO: implement
-#endif
         }
 
-#if NET45
         public static void SetGriddlyDefault<TController, TModel, TProp>(this TController controller, TModel model,
             Expression<Func<TModel, TProp>> expression, TProp defaultValue, bool? ignoreSkipped = null)
             where TController : Controller
@@ -351,13 +363,21 @@ namespace Griddly.Mvc
 
             var context = controller.GetOrCreateGriddlyContext();
 
+#if NET45
             var field = ExpressionHelper.GetExpressionText(expression);
+#else
+            var field = ExpressionHelper.GetExpressionText(expression, controller.HttpContext);
+#endif
             context.Defaults[field] = defaultValue;
 
             var compiledExpression = expression.Compile();
             TProp parameter = compiledExpression(model);
 
+#if NET45
             if (controller.ControllerContext.IsChildAction
+#else
+            if (controller.HttpContext.IsChildAction()
+#endif
                 && (!context.IsDefaultSkipped || ignoreSkipped.Value)
                 && EqualityComparer<TProp>.Default.Equals(parameter, default(TProp)))
             {
@@ -376,9 +396,6 @@ namespace Griddly.Mvc
                 }
             }
         }
-#else
-        //TODO: implement
-#endif
 
 #if NET45
         public static object GetGriddlyDefault(this WebViewPage page, string field)
@@ -454,9 +471,12 @@ namespace Griddly.Mvc
         }
 
 #if !NET45
-        public static GriddlyContext GetOrCreateGriddlyContext(this ActionContext context)
+        public static GriddlyContext GetOrCreateGriddlyContext(this ActionContext actionContext)
         {
-            return GetOrCreateGriddlyContext(context.RouteData, context.HttpContext);
+            var context = GetOrCreateGriddlyContext(actionContext.RouteData, actionContext.HttpContext);
+            if (actionContext is ViewContext vc)
+                vc.ViewData[_contextKey] = context;
+            return context;
         }
 
         public static GriddlyContext GetOrCreateGriddlyContext(this Controller controller)
@@ -472,8 +492,8 @@ namespace Griddly.Mvc
 #else
         private static GriddlyContext GetOrCreateGriddlyContext(RouteData routeData, HttpContext httpContext)
         {
-            var key = _contextKey + "_" + (routeData.Values["controller"] as string).ToLower() + "_" + (routeData.Values["action"] as string).ToLower();
-            var context = httpContext.Items[key] as GriddlyContext;
+            //var key = _contextKey + "_" + (routeData.Values["controller"] as string).ToLower() + "_" + (routeData.Values["action"] as string).ToLower();
+            var context = httpContext.Items[_contextKey] as GriddlyContext;
 #endif
 
             if (context == null)
@@ -523,7 +543,7 @@ namespace Griddly.Mvc
 #if NET45
                 controller.ViewData[_contextKey] = context;
 #else
-                httpContext.Items[key] = context; //TODO: Review
+                httpContext.Items[_contextKey] = context;
 #endif
             }
 

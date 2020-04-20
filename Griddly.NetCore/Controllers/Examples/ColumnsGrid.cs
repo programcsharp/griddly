@@ -12,7 +12,7 @@ namespace Griddly.Controllers
         {
             IQueryable<TestGridItem> query = _testData.AsQueryable();
 
-            return new QueryableResult<TestGridItem>(query);
+            return this.GriddlyQueryable(query);
         }
     }
 }

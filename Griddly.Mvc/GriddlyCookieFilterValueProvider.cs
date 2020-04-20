@@ -79,7 +79,7 @@ namespace Griddly.Mvc
                             // chrome/ff don't delete session cookies if they're set to "continue where you left off"
                             // https://stackoverflow.com/questions/10617954/chrome-doesnt-delete-session-cookies
                             // only use a cookie if it's new within 100 minutes
-                            if (data.CreatedUtc != null && (DateTime.UtcNow - data.CreatedUtc.Value).TotalMilliseconds < 100)
+                            if (data.CreatedUtc != null && (DateTime.UtcNow - data.CreatedUtc.Value).TotalMinutes < 100)
                             {
                                 context.CookieData = data;
                                 context.IsDefaultSkipped = true;
@@ -112,7 +112,7 @@ namespace Griddly.Mvc
         {
             return Task.Factory.StartNew(() =>
             {
-                var isChildAction = vpfc.ActionContext.HttpContext.Items.ContainsKey("IsChildAction");
+                var isChildAction = vpfc.ActionContext.HttpContext.IsChildAction();
 
                 if (isChildAction && vpfc.ActionContext.HttpContext.Request.Query.Count == 0)
                 {
@@ -130,7 +130,7 @@ namespace Griddly.Mvc
                                 // chrome/ff don't delete session cookies if they're set to "continue where you left off"
                                 // https://stackoverflow.com/questions/10617954/chrome-doesnt-delete-session-cookies
                                 // only use a cookie if it's new within 100 minutes
-                                if (data.CreatedUtc != null && (DateTime.UtcNow - data.CreatedUtc.Value).TotalMilliseconds < 100)
+                                if (data.CreatedUtc != null && (DateTime.UtcNow - data.CreatedUtc.Value).TotalMinutes < 100)
                                 {
                                     context.CookieData = data;
                                     context.IsDefaultSkipped = true;

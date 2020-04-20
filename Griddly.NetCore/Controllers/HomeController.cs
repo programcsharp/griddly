@@ -43,7 +43,7 @@ namespace Griddly.Controllers
             if (!string.IsNullOrWhiteSpace(city))
                 query = query.Where(x => x.City.Contains(city));
 
-            return new QueryableResult<TestGridItem>(query);
+            return this.GriddlyQueryable(query);
         }
 
         public GriddlyResult Test2Grid(string lastName, string city)
@@ -58,7 +58,7 @@ namespace Griddly.Controllers
             if (!string.IsNullOrWhiteSpace(city))
                 query = query.Where(x => x.City.Contains(city));
 
-            return new QueryableResult<TestGridItem>(query);
+            return this.GriddlyQueryable(query);
         }
 
         public IActionResult FilterBar()
@@ -82,7 +82,7 @@ namespace Griddly.Controllers
             else if (zipEnd != null)
                 query = query.Where(x => x.PostalCodePrefix <= zipEnd.Value);
 
-            return new QueryableResult<TestGridItem>(query);
+            return this.GriddlyQueryable(query);
         }
 
         public GriddlyResult FilterBoxGrid(string lastName, DateTime? city, string[] item)
@@ -105,7 +105,7 @@ namespace Griddly.Controllers
             //else if (zipEnd != null)
             //    query = query.Where(x => x.PostalCodePrefix <= zipEnd.Value);
 
-            return new QueryableResult<TestGridItem>(query);
+            return this.GriddlyQueryable(query);
         }
 
         public GriddlyResult FilterRangeGrid(DateTime? stateStart, int[] company)
@@ -125,7 +125,7 @@ namespace Griddly.Controllers
             //else if (zipEnd != null)
             //    query = query.Where(x => x.PostalCodePrefix <= zipEnd.Value);
 
-            return new QueryableResult<TestGridItem>(query);
+            return this.GriddlyQueryable(query);
         }
 
         public GriddlyResult FilterListGrid()
@@ -142,7 +142,7 @@ namespace Griddly.Controllers
             //else if (zipEnd != null)
             //    query = query.Where(x => x.PostalCodePrefix <= zipEnd.Value);
 
-            return new QueryableResult<TestGridItem>(query);
+            return this.GriddlyQueryable(query);
         }
 
         public IActionResult About()
@@ -172,7 +172,7 @@ namespace Griddly.Controllers
                     Company = Company.Name(),
                     Address = r.Next(short.MaxValue) + " " + Address.StreetName(),
                     City = Address.City(),
-                    State = Address.UsState(),
+                    State = Address.UsStateAbbr(),
                     PostalCode = Address.ZipCode(),
                     Quantity = 1 + r.Next(10),
                     Total = 1 + (decimal)(r.NextDouble() * 10000),
@@ -228,7 +228,7 @@ namespace Griddly.Controllers
             if (isApproved != null)
                 query = query.Where(x => x.IsApproved == isApproved);
 
-            return new QueryableResult<SimpleOrder>(query);
+            return this.GriddlyQueryable(query);
         }
 
         static readonly IQueryable<SimpleOrder> _indexTestData = BuildIndexTestData().ToList().AsQueryable();

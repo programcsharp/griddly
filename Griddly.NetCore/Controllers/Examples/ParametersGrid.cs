@@ -25,7 +25,7 @@ namespace Griddly.Controllers
             if (!string.IsNullOrWhiteSpace(lastname))
                 query = query.Where(x => x.LastName.StartsWith(lastname, StringComparison.InvariantCultureIgnoreCase));
 
-            return new QueryableResult<TestGridItem>(query);
+            return this.GriddlyQueryable(query);
         }
     }
 }
