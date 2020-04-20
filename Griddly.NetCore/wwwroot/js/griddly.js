@@ -890,7 +890,7 @@
 
                     for (var i = 0; i < this.options.sortFields.length; i++)
                     {
-                        if (this.options.sortFields[i].Field == sortField)
+                        if (this.options.sortFields[i].field == sortField)
                         {
                             currentPos = i;
 
@@ -898,7 +898,7 @@
                         }
                     }
 
-                    var currentDirection = currentPos != -1 ? this.options.sortFields[currentPos].Direction : "Descending";
+                    var currentDirection = currentPos != -1 ? this.options.sortFields[currentPos].direction : "Descending";
                     var newDirection = currentDirection == "Descending" ? "Ascending" : "Descending";
 
                     var inlineFilters = $("tr.griddly-filters-inline", this.$element);
@@ -907,7 +907,7 @@
                     {
                         for (var i = 0; i < this.options.sortFields.length; i++)
                         {
-                            var thisSortField = this.options.sortFields[i].Field;
+                            var thisSortField = this.options.sortFields[i].field;
 
                             if (thisSortField != sortField)
                             {
@@ -924,9 +924,9 @@
                     }
 
                     if (currentPos != -1 && this.options.sortFields.length)
-                        this.options.sortFields[currentPos].Direction = newDirection;
+                        this.options.sortFields[currentPos].direction = newDirection;
                     else
-                        this.options.sortFields.push({ Field: sortField, Direction: newDirection });
+                        this.options.sortFields.push({ field: sortField, direction: newDirection });
 
 
                     var newSortDisplay = [event.currentTarget];
@@ -1595,15 +1595,15 @@
                 {
                     var sort = this.options.sortFields[i];
 
-                    var header = $("th[data-griddly-sortfield='" + sort.Field + "']", this.$element);
+                    var header = $("th[data-griddly-sortfield='" + sort.field + "']", this.$element);
 
-                    header.addClass(sort.Direction == "Ascending" ? "sorted_a" : "sorted_d");
+                    header.addClass(sort.direction == "Ascending" ? "sorted_a" : "sorted_d");
 
                     if (inlineFilters.length)
                     {
                         var inlineFilter = inlineFilters[0].cells[header[0].cellIndex];
 
-                        $(inlineFilter).addClass(sort.Direction == "Ascending" ? "sorted_a" : "sorted_d");
+                        $(inlineFilter).addClass(sort.direction == "Ascending" ? "sorted_a" : "sorted_d");
                     }
                 }
             }
@@ -1629,7 +1629,7 @@
                 {
                     var field = this.options.sortFields[i];
 
-                    postData["sortFields[" + i + "][" + field.Field + "]"] = field.Direction;
+                    postData["sortFields[" + i + "][" + field.field + "]"] = field.direction;
                 }
             }
 
