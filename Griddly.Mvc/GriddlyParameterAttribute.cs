@@ -35,7 +35,13 @@ namespace Griddly.Mvc
                         context.IsDeepLink = true;
                     }
 
-                    foreach (var param in filterContext.ActionParameters.ToList())
+                    var actionParams = new List<KeyValuePair<string, object>>(filterContext.ActionParameters);
+                    //add any properties of model classes
+                    foreach (var ap in filterContext.ActionParameters.Where(x => x.Value?.GetType().IsClass == true))
+                        foreach (var pi in ap.Value.GetType().GetProperties().Where(x => x.CanRead))
+                            actionParams.Add(new KeyValuePair<string, object>(pi.Name, pi.GetValue(ap.Value)));
+
+                    foreach (var param in actionParams)
                     {
                         if (param.Value != null && (param.Value.GetType().IsValueType || typeof(IEnumerable).IsAssignableFrom(param.Value.GetType())))
                         {
@@ -97,14 +103,14 @@ namespace Griddly.Mvc
                         // now, we could use the context.Parameters... but the raw string values seems more like what we want here...
                         foreach (var param in filterContext.ActionDescriptor.GetParameters())
                         {
-                            var valueResult = filterContext.Controller.ValueProvider.GetValue(param.ParameterName);
-
-                            if (valueResult?.RawValue != null)
+                            if (param.ParameterType.IsClass)
                             {
-                                if (valueResult.RawValue is string[] array)
-                                    data.Values[param.ParameterName] = array;
-                                else
-                                    data.Values[param.ParameterName] = new[] { valueResult.RawValue.ToString() };
+                                foreach (var pi in param.ParameterType.GetProperties())
+                                    AddParameter(filterContext, data, pi.Name);
+                            }
+                            else
+                            {
+                                AddParameter(filterContext, data, param.ParameterName);
                             }
                         }
 
@@ -131,6 +137,19 @@ namespace Griddly.Mvc
             }
 
             base.OnActionExecuted(filterContext);
+        }
+
+        void AddParameter(ActionExecutedContext filterContext, GriddlyFilterCookieData data, string parameterName)
+        {
+            var valueResult = filterContext.Controller.ValueProvider.GetValue(parameterName);
+
+            if (valueResult?.RawValue != null)
+            {
+                if (valueResult.RawValue is string[] array)
+                    data.Values[parameterName] = array;
+                else
+                    data.Values[parameterName] = new[] { valueResult.RawValue.ToString() };
+            }
         }
     }
 }
