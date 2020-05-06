@@ -37,8 +37,8 @@ namespace Griddly.Mvc
 
                     var actionParams = new List<KeyValuePair<string, object>>(filterContext.ActionParameters);
                     //add any properties of model classes
-                    foreach (var ap in filterContext.ActionParameters.Where(x => x.Value?.GetType().IsClass == true))
-                        foreach (var pi in ap.Value.GetType().GetProperties().Where(x => x.CanRead))
+                    foreach (var ap in filterContext.ActionParameters.Where(x => x.Value?.GetType().IsClass == true && x.Value.GetType() != typeof(string)))
+                        foreach (var pi in ap.Value.GetType().GetProperties().Where(x => x.CanRead && x.GetIndexParameters().Length == 0))
                             actionParams.Add(new KeyValuePair<string, object>(pi.Name, pi.GetValue(ap.Value)));
 
                     foreach (var param in actionParams)
@@ -103,9 +103,9 @@ namespace Griddly.Mvc
                         // now, we could use the context.Parameters... but the raw string values seems more like what we want here...
                         foreach (var param in filterContext.ActionDescriptor.GetParameters())
                         {
-                            if (param.ParameterType.IsClass)
+                            if (param.ParameterType.IsClass && param.ParameterType != typeof(string))
                             {
-                                foreach (var pi in param.ParameterType.GetProperties())
+                                foreach (var pi in param.ParameterType.GetProperties().Where(x => x.CanRead && x.GetIndexParameters().Length == 0))
                                     AddParameter(filterContext, data, pi.Name);
                             }
                             else
