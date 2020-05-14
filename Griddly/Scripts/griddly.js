@@ -382,7 +382,7 @@
         }, this));
 
         // clear any none's that were inadvertently reset
-        if (resetContext)
+        if (resetContext && !isPatch)
         {
             resetContext
                 .find("[data-griddly-filter-isnoneall=true] [multiple] option[value='']")
@@ -424,7 +424,7 @@
                     {
                         display = filter.data("filter-name");
 
-                        if (filter.hasClass("griddly-filter-box"))
+                        if (filter.hasClass("griddly-filter-box") || filter.hasClass("griddly-html-filter"))
                         {
                             if (dataType == "String")
                                 display += ': "' + getFormattedValue(val, dataType, currencySymbol) + '"';
