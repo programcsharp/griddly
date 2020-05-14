@@ -5,13 +5,11 @@
     <id>Griddly</id>
     <version></version>
     <authors>Chris Hynes, Joel Potter</authors>
-    <!--<licenseUrl></licenseUrl>-->
     <projectUrl>http://griddly.com</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/programcsharp/griddly/master/Griddly/Content/griddly-32.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <!--<license type="expression">MIT</license>-->
+    <license type="expression">MIT</license>
     <description>Pagable, sortable, MVC enabled grid</description>
-    <!--<summary></summary>-->
     <language>en-US</language>
     <dependencies> 
       <group>

@@ -362,7 +362,7 @@
         }
         else
         {
-            if (typeof value === typeof undefined && input.is("[multiple]"))
+            if ((value === null || typeof value === typeof undefined) && input.is("[multiple]"))
                 input.find("option:selected").prop("selected", false);
             else
                 input.val([].concat(value));
