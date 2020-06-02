@@ -68,12 +68,18 @@ namespace Griddly.Mvc
             }
 
             var griddlyContext = context.Controller.GetOrCreateGriddlyContext();
-            GriddlySettings settings = null;
+            GriddlySettings settings = GriddlySettingsResult.GetSettings(context, ViewName);
+
+            if (griddlyContext.SortFields?.Length > 0)
+            {
+                // white list for sql injection
+                griddlyContext.SortFields = griddlyContext.SortFields
+                    .Where(x => settings.Columns.Any(y => y.ExpressionString == x.Field))
+                    .ToArray();
+            }
 
             if (context.IsChildAction)
             {
-                settings = GriddlySettingsResult.GetSettings(context, ViewName);
-
                 GriddlySettings.OnGriddlyResultExecuting?.Invoke(settings, context);
 
                 // TODO: should we always pull sort fields?
@@ -101,7 +107,6 @@ namespace Griddly.Mvc
                     Total = GetCount(),
                     PageSize = griddlyContext.PageSize,
                     SortFields = griddlyContext.SortFields,
-                    Settings = settings,
                     PopulateSummaryValues = PopulateSummaryValues
                 };
 
@@ -127,8 +132,6 @@ namespace Griddly.Mvc
             }
             else
             {
-                settings = GriddlySettingsResult.GetSettings(context, ViewName);
-
                 settings.Columns.RemoveAll(x => x is GriddlySelectColumn);
 
                 ActionResult result;
