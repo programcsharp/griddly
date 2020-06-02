@@ -16,6 +16,8 @@ namespace Griddly.Mvc
 
         public int PageSize { get; set; }
 
+        public GriddlySettings Settings { get; set; }
+
         public Action<GriddlySettings> PopulateSummaryValues { get; set; }
     }
 

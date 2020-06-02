@@ -102,6 +102,9 @@ namespace Griddly.Mvc
 
     public class GriddlyColumn<TRow> : GriddlyColumn
     {
+        public GriddlyColumn() : base()
+        { }
+
         public GriddlyColumn(LambdaExpression expression, string caption, string columnId) : base(expression, caption, columnId) { }
 
         public Func<TRow, object> Template { get; set; }

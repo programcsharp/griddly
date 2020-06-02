@@ -109,6 +109,7 @@ namespace Griddly.Mvc
                     Total = GetCount(),
                     PageSize = griddlyContext.PageSize,
                     SortFields = griddlyContext.SortFields,
+                    Settings = settings,
                     PopulateSummaryValues = PopulateSummaryValues
                 };
 
