@@ -93,6 +93,8 @@ namespace Griddly.Mvc
                     griddlyContext.PageSize = settings.PageSize.Value;
             }
 
+            GriddlyParameterAttribute.AddCookieDataIfNeeded(griddlyContext, context);
+
             if (griddlyContext.ExportFormat == null)
             {
                 GriddlySettings.OnGriddlyPageExecuting?.Invoke(settings, griddlyContext, context);

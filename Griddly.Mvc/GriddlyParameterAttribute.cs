@@ -97,9 +97,6 @@ namespace Griddly.Mvc
                             CreatedUtc = DateTime.UtcNow
                         };
 
-                        if (context.SortFields?.Length > 0)
-                            data.SortFields = context.SortFields;
-
                         // now, we could use the context.Parameters... but the raw string values seems more like what we want here...
                         foreach (var param in filterContext.ActionDescriptor.GetParameters())
                         {
@@ -129,14 +126,30 @@ namespace Griddly.Mvc
                             }
                         }
 
-                        cookie.Value = JsonConvert.SerializeObject(data);
-
-                        filterContext.HttpContext.Response.Cookies.Add(cookie);
+                        filterContext.Controller.ViewData["_griddlyCookie"] = cookie;
+                        filterContext.Controller.ViewData["_griddlyCookieData"] = data;
                     }
                 }
             }
 
             base.OnActionExecuted(filterContext);
+        }
+
+        public static void AddCookieDataIfNeeded(GriddlyContext context, ControllerContext controllerContext)
+        {
+            var cookie = (HttpCookie)controllerContext.Controller.ViewData["_griddlyCookie"];
+            var data = (GriddlyFilterCookieData)controllerContext.Controller.ViewData["_griddlyCookieData"];
+
+            if (cookie != null && data != null)
+            {
+                // we have to use the whitelisted hunk
+                if (context.SortFields?.Length > 0)
+                    data.SortFields = context.SortFields;
+
+                cookie.Value = JsonConvert.SerializeObject(data);
+
+                controllerContext.HttpContext.Response.Cookies.Add(cookie);
+            }
         }
 
         void AddParameter(ActionExecutedContext filterContext, GriddlyFilterCookieData data, string parameterName)
