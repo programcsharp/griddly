@@ -166,7 +166,7 @@
                 }
                 else if (filterHtml != null)
                 {
-                    @filterHtml.HtmlTemplate(filter)
+                    @filterHtml.HtmlTemplate(new GriddlyHtmlFilterModel(filterHtml, defaultValue))
                 }
             </div>
         </div>

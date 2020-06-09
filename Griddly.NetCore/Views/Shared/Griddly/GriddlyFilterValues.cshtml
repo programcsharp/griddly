@@ -29,7 +29,7 @@
                 if (defaultValue != null || defaultValueEnd != null)
                 {
                     FieldValue(filter.Field,
-                    @<text>@filter.Caption@if (filterBox != null)
+                    @<text>@filter.Caption@if (filterBox != null || filterHtml != null)
                     {
                         if (filter.DataType == FilterDataType.String)
                         {<text>: "@filter.GetFormattedValue(defaultValue)"</text>}

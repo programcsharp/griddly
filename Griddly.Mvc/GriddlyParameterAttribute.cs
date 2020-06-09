@@ -6,9 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using OfficeOpenXml.ConditionalFormatting;
 #if NET45
 using System.Web.Mvc;
 using System.Web.Mvc.Async;
+using COOKIE = System.Web.HttpCookie;
 #else
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Net;
+using COOKIE = System.Net.Cookie;
 #endif
 
 namespace Griddly.Mvc
@@ -24,20 +27,22 @@ namespace Griddly.Mvc
     {
         public static bool DefaultIgnoreSkipped { get; set; } = true;
 
+
 #if !NET45
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            Before(context);
+            OnActionExecuting(context);
             var executedContext = await next(); //Execute the action
-            await After(executedContext);
+            await OnActionExecuted(executedContext);
         }
 #endif
 
 #if NET45
-        public override void OnActionExecuting(ActionExecutingContext filterContext)
+        public override
 #else
-        void Before(ActionExecutingContext filterContext)
+        private new 
 #endif
+        void OnActionExecuting(ActionExecutingContext filterContext)
         {
             if (filterContext.Controller is Controller controller)
             {
@@ -52,11 +57,8 @@ namespace Griddly.Mvc
                 {
                     var request = filterContext.HttpContext.Request;
                     var context = controller.GetOrCreateGriddlyContext();
-#if (NET45)
-                    var args = filterContext.ActionParameters;
-                    if (filterContext.IsChildAction)
-                    {
-                        string[] parentKeys = request.QueryString.AllKeys;
+#if NET45
+                    var args = new Dictionary<string, object>(filterContext.ActionParameters);
 #else
                     var args = new Dictionary<string, object>(filterContext.ActionArguments);
                     //Add in the default parameter values
@@ -65,11 +67,21 @@ namespace Griddly.Mvc
                         if (pd.ParameterInfo.HasDefaultValue && !args.ContainsKey(pd.Name))
                             args.Add(pd.Name, pd.ParameterInfo.DefaultValue);
                     }
-
-                    if (filterContext.HttpContext.IsChildAction())
-                    {
-                        string[] parentKeys = request.Query.Keys.ToArray();
 #endif
+
+                    //add any properties of model classes
+                    foreach (var ap in args.ToList().Where(x => x.Value?.GetType().IsClass == true && x.Value.GetType() != typeof(string))) 
+                    {
+                        foreach (var pi in ap.Value.GetType().GetProperties().Where(x => x.CanRead && x.GetIndexParameters().Length == 0)) 
+                        {
+                            if (!args.ContainsKey(pi.Name))
+                                args[pi.Name] = pi.GetValue(ap.Value);
+                        } 
+                    }
+
+                    if (IsChildAction(filterContext))
+                    {
+                        string[] parentKeys = GetQueryStringKeys(request);
 
                         // if a param came in on querystring, skip the defaults. cookie already does its own skip.
                         if (!context.IsDefaultSkipped && args.Any(x => x.Value != null && parentKeys.Contains(x.Key)))
@@ -108,10 +120,11 @@ namespace Griddly.Mvc
         }
 
 #if NET45
-        public override void OnActionExecuted(ActionExecutedContext filterContext)
+        public override void
 #else
-        async Task After(ActionExecutedContext filterContext)
+        new async Task
 #endif
+        OnActionExecuted(ActionExecutedContext filterContext)
         {
             if (filterContext.Result is GriddlyResult result && filterContext.Controller is Controller controller)
             {
@@ -138,23 +151,18 @@ namespace Griddly.Mvc
                             CreatedUtc = DateTime.UtcNow
                         };
 
-                        if (context.SortFields?.Length > 0)
-                            data.SortFields = context.SortFields;
-
                         // now, we could use the context.Parameters... but the raw string values seems more like what we want here...
 #if NET45
                         foreach (var param in filterContext.ActionDescriptor.GetParameters())
                         {
-                            var name = param.ParameterName;
-                            
-                            var valueResult = filterContext.Controller.ValueProvider.GetValue(name);
-
-                            if (valueResult?.RawValue != null)
+                            if (param.ParameterType.IsClass && param.ParameterType != typeof(string))
                             {
-                                if (valueResult.RawValue is string[] array)
-                                    data.Values[name] = array;
-                                else
-                                    data.Values[name] = new[] { valueResult.RawValue.ToString() };
+                                foreach (var pi in param.ParameterType.GetProperties().Where(x => x.CanRead && x.GetIndexParameters().Length == 0))
+                                    AddParameter(filterContext, data, pi.Name);
+                            }
+                            else
+                            {
+                                AddParameter(filterContext, data, param.ParameterName);
                             }
                         }
 #else
@@ -163,17 +171,20 @@ namespace Griddly.Mvc
                         {
                             var name = param.Name;
 
-                            var valueResult = valueProvider.GetValue(name);
-                            data.Values[name] = valueResult.Values.ToArray();
+                            if (param.ParameterType.IsClass && param.ParameterType != typeof(string))
+                            {
+                                foreach (var pi in param.ParameterType.GetProperties().Where(x => x.CanRead && x.GetIndexParameters().Length == 0))
+                                    AddParameter(valueProvider, data, pi.Name);
+                            }
+                            else
+                            {
+                                AddParameter(valueProvider, data, name);
+                            }
                         }
 #endif
 
                         // ... but if it is a defaults situation, we actually need to grab those
-#if NET45
-                        if (filterContext.IsChildAction && !context.IsDefaultSkipped && context.Defaults.Count > 0)
-#else
-                        if (filterContext.HttpContext.IsChildAction() && !context.IsDefaultSkipped && context.Defaults.Count > 0)
-#endif
+                        if (IsChildAction(filterContext) && !context.IsDefaultSkipped && context.Defaults.Count > 0)
                         {
                             foreach (var param in context.Defaults)
                             {
@@ -186,21 +197,87 @@ namespace Griddly.Mvc
                                 }
                             }
                         }
-                        var cookieValue = JsonConvert.SerializeObject(data);
 
+                        string cookieName = "gf_" + context.Name;
 #if NET45
-                        HttpCookie cookie = new HttpCookie("gf_" + context.Name)
+                        HttpCookie cookie = new HttpCookie(cookieName)
                         {
-                            Path = parentPathString,
-                            Value = cookieValue
+                            Path = parentPathString
                         };
-                        filterContext.HttpContext.Response.Cookies.Add(cookie);
 #else
-                        filterContext.HttpContext.Response.Cookies.Append("gf_" + context.Name, cookieValue, new CookieOptions() { Path = parentPathString });
+                        Cookie cookie = new Cookie(cookieName, null, parentPathString);
 #endif
+                        filterContext.HttpContext.Items["_griddlyCookie"] = cookie;
+                        filterContext.HttpContext.Items["_griddlyCookieData"] = data;
                     }
                 }
             }
         }
+
+#if NET45
+        public static void AddCookieDataIfNeeded(GriddlyContext context, HttpContextBase httpContext)
+#else
+        public static void AddCookieDataIfNeeded(GriddlyContext context, HttpContext httpContext)
+#endif
+        {
+            var cookie = (COOKIE)httpContext.Items["_griddlyCookie"];
+            var data = (GriddlyFilterCookieData)httpContext.Items["_griddlyCookieData"];
+
+            if (cookie != null && data != null)
+            {
+                // we have to use the whitelisted hunk
+                if (context.SortFields?.Length > 0)
+                    data.SortFields = context.SortFields;
+
+                cookie.Value = JsonConvert.SerializeObject(data);
+
+#if NET45
+                httpContext.Response.Cookies.Add(cookie);
+#else
+                httpContext.Response.Cookies.Append(cookie.Name, cookie.Value, new CookieOptions() { Path = cookie.Path });
+#endif
+            }
+        }
+
+#if NET45
+        void AddParameter(ActionExecutedContext filterContext, GriddlyFilterCookieData data, string parameterName)
+        {
+            var valueResult = filterContext.Controller.ValueProvider.GetValue(parameterName);
+
+            if (valueResult?.RawValue != null)
+            {
+                if (valueResult.RawValue is string[] array)
+                    data.Values[parameterName] = array;
+                else
+                    data.Values[parameterName] = new[] { valueResult.RawValue.ToString() };
+            }
+        }
+#else
+        void AddParameter(IValueProvider valueProvider, GriddlyFilterCookieData data, string parameterName)
+        {
+            var valueResult = valueProvider.GetValue(parameterName);
+            data.Values[parameterName] = valueResult.Values.ToArray();
+        }
+#endif
+
+        bool IsChildAction(ActionExecutingContext context) =>
+#if NET45
+            context.IsChildAction;
+#else
+            context.HttpContext.IsChildAction();
+#endif
+
+        bool IsChildAction(ActionExecutedContext context) =>
+#if NET45
+            context.IsChildAction;
+#else
+            context.HttpContext.IsChildAction();
+#endif
+
+#if NET45
+        string[] GetQueryStringKeys(HttpRequestBase request) => request.QueryString.AllKeys;
+#else
+        string[] GetQueryStringKeys(HttpRequest request) => request.Query.Keys.ToArray();
+#endif
     }
 }

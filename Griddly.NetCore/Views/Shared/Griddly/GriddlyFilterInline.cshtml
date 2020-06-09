@@ -103,7 +103,7 @@
                 }
                 @if (filterHtml != null)
                 {
-                    @filterHtml.HtmlTemplate(filterHtml)
+                    @filterHtml.HtmlTemplate(new GriddlyHtmlFilterModel(filterHtml, defaultValue))
                 }
                 else
                 {

@@ -93,12 +93,20 @@ namespace Griddly.Mvc
 #if NET45
             var griddlyContext = context.Controller.GetOrCreateGriddlyContext();
             var httpContext = context.HttpContext;
+            GriddlySettings settings = GriddlySettingsResult.GetSettings(context, ViewName);
 #else
             var griddlyContext = context.GetOrCreateGriddlyContext();
             var httpContext = context.HttpContext;
-
+            GriddlySettings settings = await GriddlySettingsResult.GetSettings(context, ViewName);
 #endif
-            GriddlySettings settings = null;
+
+            if (griddlyContext.SortFields?.Length > 0)
+            {
+                // white list for sql injection
+                griddlyContext.SortFields = griddlyContext.SortFields
+                    .Where(x => settings.Columns.Any(y => y.ExpressionString == x.Field))
+                    .ToArray();
+            }
 
 #if NET45
             if (context.IsChildAction)
@@ -122,6 +130,8 @@ namespace Griddly.Mvc
                 if (settings.PageSize != null)
                     griddlyContext.PageSize = settings.PageSize.Value;
             }
+
+            GriddlyParameterAttribute.AddCookieDataIfNeeded(griddlyContext, context.HttpContext);
 
             if (griddlyContext.ExportFormat == null)
             {
@@ -182,11 +192,9 @@ namespace Griddly.Mvc
             else
             {
 #if NET45
-                settings = GriddlySettingsResult.GetSettings(context, ViewName);
                 var routeData = context.Controller.ControllerContext.RouteData;
                 var parms = context.HttpContext.Request.Params;
 #else
-                settings = await GriddlySettingsResult.GetSettings(context, ViewName);
                 var routeData = context.RouteData;
                 var parms = context.HttpContext.Request.GetParams();
 #endif

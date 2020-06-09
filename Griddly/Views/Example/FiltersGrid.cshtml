@@ -31,14 +31,14 @@
     {
         PageSize = 20,
         RowClickUrl = x => "http://microsoft.com",
-        EmptyGridMessageTemplate =@<text><div class="alert alert-warning">@item.Settings.EmptyGridMessage</div></text>,
+        EmptyGridMessageTemplate = @<text><div class="alert alert-warning">@item.Settings.EmptyGridMessage</div></text>,
         EmptyGridMessage = "Sorry, no records were found"
     };
 
     // Filters on columns
     gridSettings
         .Column(x => x.Id)
-        .Column(x => x.Item, filter: x => x.FilterList(groupedList))
+        .Column(x => x.Item, filter: x => x.FilterList(groupedList, nullItemText: "[Not Set]"))
         .Column(x => x.FirstName, "First Name")
         .Column(x => x.LastName, "Last Name", filter: x => x.FilterBox(FilterDataType.String))
         .Column(x => x.Address)
@@ -57,6 +57,17 @@
 
     // Non-column based filter:
     gridSettings.FilterBool("totalPositive", "Total Is Positive", nullItemText: "All");
+
+    // Custom HTML filter:
+    gridSettings.Add(new GriddlyHtmlFilter()
+    {
+        Caption = "First Name",
+        Field = "firstName",
+        DataType = FilterDataType.String,
+        HtmlTemplate = @<input class="form-control" name="firstName" type="text" value="@item.Filter.GetFormattedValue(item.DefaultValue)"
+                               placeholder="This is a custom html filter. It can be used for all sorts of things." />
+    });
+
 }
 
 @Html.Griddly(gridSettings)

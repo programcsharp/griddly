@@ -492,7 +492,6 @@ namespace Griddly.Mvc
 #else
         private static GriddlyContext GetOrCreateGriddlyContext(RouteData routeData, HttpContext httpContext)
         {
-            //var key = _contextKey + "_" + (routeData.Values["controller"] as string).ToLower() + "_" + (routeData.Values["action"] as string).ToLower();
             var context = httpContext.Items[_contextKey] as GriddlyContext;
 #endif
 

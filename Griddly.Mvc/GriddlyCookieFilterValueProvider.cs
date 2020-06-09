@@ -33,6 +33,10 @@ namespace Griddly.Mvc
 
         public ValueProviderResult GetValue(string key)
         {
+            int pos = key.LastIndexOf(".", StringComparison.Ordinal);
+            if (pos != -1)
+                key = key.Substring(pos + 1);
+
             string[] value = null;
 
             if (_context.CookieData.Values?.TryGetValue(key, out value) != true)
@@ -54,43 +58,41 @@ namespace Griddly.Mvc
 #if NET45
     public class GriddlyCookieFilterValueProviderFactory : ValueProviderFactory
     {
-        Func<ControllerContext, bool> _canProvide = null;
+        Func<ControllerContext, bool> _canProvide = (controllerContext) => controllerContext.HttpContext.Request.QueryString.Count == 0;
 
         public GriddlyCookieFilterValueProviderFactory(Func<ControllerContext, bool> canProvide = null)
         {
+            if (canProvide != null)
             _canProvide = canProvide;
         }
 
         public override IValueProvider GetValueProvider(ControllerContext controllerContext)
         {
-            if (controllerContext.IsChildAction && controllerContext.HttpContext.Request.QueryString.Count == 0)
+            if (controllerContext.IsChildAction && _canProvide.Invoke(controllerContext))
             {
-                if (_canProvide?.Invoke(controllerContext) != false)
+                var context = controllerContext.Controller.GetOrCreateGriddlyContext();
+                var cookie = controllerContext.HttpContext.Request.Cookies[context.CookieName];
+
+                if (cookie != null && !string.IsNullOrWhiteSpace(cookie.Value))
                 {
-                    var context = controllerContext.Controller.GetOrCreateGriddlyContext();
-                    var cookie = controllerContext.HttpContext.Request.Cookies[context.CookieName];
-
-                    if (cookie != null && !string.IsNullOrWhiteSpace(cookie.Value))
+                    try
                     {
-                        try
-                        {
-                            var data = JsonConvert.DeserializeObject<GriddlyFilterCookieData>(cookie.Value);
+                        var data = JsonConvert.DeserializeObject<GriddlyFilterCookieData>(cookie.Value);
 
-                            // chrome/ff don't delete session cookies if they're set to "continue where you left off"
-                            // https://stackoverflow.com/questions/10617954/chrome-doesnt-delete-session-cookies
-                            // only use a cookie if it's new within 100 minutes
-                            if (data.CreatedUtc != null && (DateTime.UtcNow - data.CreatedUtc.Value).TotalMinutes < 100)
-                            {
-                                context.CookieData = data;
-                                context.IsDefaultSkipped = true;
-
-                                return new GriddlyCookieFilterValueProvider(context);
-                            }
-                        }
-                        catch
+                        // chrome/ff don't delete session cookies if they're set to "continue where you left off"
+                        // https://stackoverflow.com/questions/10617954/chrome-doesnt-delete-session-cookies
+                        // only use a cookie if it's new within 100 minutes
+                        if (data.CreatedUtc != null && (DateTime.UtcNow - data.CreatedUtc.Value).TotalMinutes < 100)
                         {
-                            // TODO: log it?
+                            context.CookieData = data;
+                            context.IsDefaultSkipped = true;
+
+                            return new GriddlyCookieFilterValueProvider(context);
                         }
+                    }
+                    catch
+                    {
+                        // TODO: log it?
                     }
                 }
             }
@@ -101,47 +103,43 @@ namespace Griddly.Mvc
 #else
     public class GriddlyCookieFilterValueProviderFactory : IValueProviderFactory
     {
-        Func<ActionContext, bool> _canProvide = null;
+        Func<ActionContext, bool> _canProvide = (actionContext) => actionContext.HttpContext.Request.Query.Count == 0;
 
         public GriddlyCookieFilterValueProviderFactory(Func<ActionContext, bool> canProvide = null)
         {
-            _canProvide = canProvide;
+            if (canProvide != null)
+                _canProvide = canProvide;
         }
 
         public Task CreateValueProviderAsync(ValueProviderFactoryContext vpfc)
         {
             return Task.Factory.StartNew(() =>
             {
-                var isChildAction = vpfc.ActionContext.HttpContext.IsChildAction();
-
-                if (isChildAction && vpfc.ActionContext.HttpContext.Request.Query.Count == 0)
+                if (vpfc.ActionContext.HttpContext.IsChildAction() && _canProvide.Invoke(vpfc.ActionContext))
                 {
-                    if (_canProvide?.Invoke(vpfc.ActionContext) != false)
+                    var context = vpfc.ActionContext.GetOrCreateGriddlyContext();
+                    var cookie = vpfc.ActionContext.HttpContext.Request.Cookies[context.CookieName];
+
+                    if (cookie != null && !string.IsNullOrWhiteSpace(cookie))
                     {
-                        var context = vpfc.ActionContext.GetOrCreateGriddlyContext();
-                        var cookie = vpfc.ActionContext.HttpContext.Request.Cookies[context.CookieName];
-
-                        if (cookie != null && !string.IsNullOrWhiteSpace(cookie))
+                        try
                         {
-                            try
-                            {
-                                var data = JsonConvert.DeserializeObject<GriddlyFilterCookieData>(cookie);
+                            var data = JsonConvert.DeserializeObject<GriddlyFilterCookieData>(cookie);
 
-                                // chrome/ff don't delete session cookies if they're set to "continue where you left off"
-                                // https://stackoverflow.com/questions/10617954/chrome-doesnt-delete-session-cookies
-                                // only use a cookie if it's new within 100 minutes
-                                if (data.CreatedUtc != null && (DateTime.UtcNow - data.CreatedUtc.Value).TotalMinutes < 100)
-                                {
-                                    context.CookieData = data;
-                                    context.IsDefaultSkipped = true;
-
-                                    vpfc.ValueProviders.Add(new GriddlyCookieFilterValueProvider(context));
-                                }
-                            }
-                            catch
+                            // chrome/ff don't delete session cookies if they're set to "continue where you left off"
+                            // https://stackoverflow.com/questions/10617954/chrome-doesnt-delete-session-cookies
+                            // only use a cookie if it's new within 100 minutes
+                            if (data.CreatedUtc != null && (DateTime.UtcNow - data.CreatedUtc.Value).TotalMinutes < 100)
                             {
-                                // TODO: log it?
+                                context.CookieData = data;
+                                context.IsDefaultSkipped = true;
+
+                                vpfc.ValueProviders.Add(new GriddlyCookieFilterValueProvider(context));
                             }
+                        }
+                        catch
+                        {
+                            // TODO: log it?
                         }
                     }
                 }
