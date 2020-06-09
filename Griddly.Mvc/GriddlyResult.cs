@@ -1,13 +1,22 @@
-﻿using Griddly.Mvc.Linq.Dynamic;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+#if NET45
+using Griddly.Mvc.Linq.Dynamic;
 using System.Web.Helpers;
 using System.Web.Mvc;
+#else
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ViewEngines;
+#endif
 
 namespace Griddly.Mvc
 {
@@ -52,23 +61,44 @@ namespace Griddly.Mvc
     public abstract class GriddlyResult<T> : GriddlyResult
     {
         public string ViewName { get; set; }
+#if !NET45
+        public ViewDataDictionary ViewData { get; set; }
+#endif
 
         public GriddlyResult(string viewName = null)
         {
             ViewName = viewName;
         }
 
+#if NET45
         public override void ExecuteResult(ControllerContext context)
         {
+#else
+        public override async Task ExecuteResultAsync(ActionContext context)
+        {
+            if (ViewData == null)
+                throw new ArgumentNullException("ViewData", "Use the controller extension method to create the result, or specify ViewData manually");
+#endif
             if (GriddlySettings.DisableHistoryParameters)
             {
+#if NET45
                 // not using history, so make sure we don't get half junk in FF etc from back buttons
                 context.RequestContext.HttpContext.Response.Cache.SetNoServerCaching();
                 context.RequestContext.HttpContext.Response.Cache.SetNoStore();
+#else
+                context.HttpContext.Response.Headers["Cache-Control"] = "no-cache, no-store";
+#endif
             }
 
+#if NET45
             var griddlyContext = context.Controller.GetOrCreateGriddlyContext();
+            var httpContext = context.HttpContext;
             GriddlySettings settings = GriddlySettingsResult.GetSettings(context, ViewName);
+#else
+            var griddlyContext = context.GetOrCreateGriddlyContext();
+            var httpContext = context.HttpContext;
+            GriddlySettings settings = await GriddlySettingsResult.GetSettings(context, ViewName);
+#endif
 
             if (griddlyContext.SortFields?.Length > 0)
             {
@@ -78,8 +108,16 @@ namespace Griddly.Mvc
                     .ToArray();
             }
 
+#if NET45
             if (context.IsChildAction)
             {
+                settings = GriddlySettingsResult.GetSettings(context, ViewName);
+#else
+            if (context.HttpContext.IsChildAction())
+            {
+                settings = await GriddlySettingsResult.GetSettings(context, ViewName);
+#endif
+
                 GriddlySettings.OnGriddlyResultExecuting?.Invoke(settings, context);
 
                 // TODO: should we always pull sort fields?
@@ -93,7 +131,7 @@ namespace Griddly.Mvc
                     griddlyContext.PageSize = settings.PageSize.Value;
             }
 
-            GriddlyParameterAttribute.AddCookieDataIfNeeded(griddlyContext, context);
+            GriddlyParameterAttribute.AddCookieDataIfNeeded(griddlyContext, context.HttpContext);
 
             if (griddlyContext.ExportFormat == null)
             {
@@ -113,15 +151,20 @@ namespace Griddly.Mvc
                     PopulateSummaryValues = PopulateSummaryValues
                 };
 
-                context.RequestContext.HttpContext.Response.Headers["X-Griddly-Count"] = result.Total.ToString();
-                context.RequestContext.HttpContext.Response.Headers["X-Griddly-CurrentPageSize"] = result.Count.ToString();
+                httpContext.Response.Headers["X-Griddly-Count"] = result.Total.ToString();
+                httpContext.Response.Headers["X-Griddly-CurrentPageSize"] = result.Count.ToString();
 
                 PartialViewResult view = new PartialViewResult()
                 {
+#if NET45
                     ViewData = new ViewDataDictionary(result),
-                    ViewName = ViewName
+#else
+                    ViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { Model = result },
+#endif
+                    ViewName = ViewName,
                 };
 
+#if NET45
                 foreach (KeyValuePair<string, object> value in context.Controller.ViewData.Where(x => x.Key != "_isGriddlySettingsRequest"))
                     view.ViewData[value.Key] = value.Value;
 
@@ -130,16 +173,37 @@ namespace Griddly.Mvc
                     foreach (KeyValuePair<string, object> value in context.ParentActionViewContext.ViewData)
                         view.ViewData[value.Key] = value.Value;
                 }
-
                 view.ExecuteResult(context);
+#else
+                if (ViewData != null)
+                {
+                    foreach (KeyValuePair<string, object> value in ViewData.Where(x => x.Key != "_isGriddlySettingsRequest"))
+                        view.ViewData[value.Key] = value.Value;
+                }
+
+                if (context.HttpContext.IsChildAction())
+                {
+                    foreach (KeyValuePair<string, object> value in context.HttpContext.ParentActionViewContext().ViewData)
+                        view.ViewData[value.Key] = value.Value;
+                }
+                await view.ExecuteResultAsync(context);
+#endif
             }
             else
             {
+#if NET45
+                var routeData = context.Controller.ControllerContext.RouteData;
+                var parms = context.HttpContext.Request.Params;
+#else
+                var routeData = context.RouteData;
+                var parms = context.HttpContext.Request.GetParams();
+#endif
+
                 settings.Columns.RemoveAll(x => x is GriddlySelectColumn);
 
                 ActionResult result;
 
-                string fileName = settings.Title ?? context.Controller.ControllerContext.RouteData.Values["controller"].ToString();
+                string fileName = settings.Title ?? routeData.Values["controller"].ToString();
 
                 if (fileName != null)
                 {
@@ -147,7 +211,7 @@ namespace Griddly.Mvc
                         fileName = fileName.Replace(c, '_');
                 }
 
-                NameValueCollection items = new NameValueCollection(context.HttpContext.Request.Params);
+                NameValueCollection items = new NameValueCollection(parms);
 
                 if (griddlyContext.ExportFormat == GriddlyExportFormat.Custom)
                 {
@@ -166,8 +230,12 @@ namespace Griddly.Mvc
                         result = new GriddlyCsvResult<T>(records, settings, fileName, griddlyContext.ExportFormat.Value, items["exportName"]);
                     }
                 }
-                
+
+#if NET45
                 result.ExecuteResult(context);
+#else
+                await result.ExecuteResultAsync(context);
+#endif
             }
         }
 
@@ -196,13 +264,5 @@ namespace Griddly.Mvc
         {
             PopulateSummaryValues((GriddlySettings<T>)settings);
         }
-    }
-
-    public enum GriddlyExportFormat
-    {
-        Xlsx,
-        Csv,
-        Tsv,
-        Custom
     }
 }

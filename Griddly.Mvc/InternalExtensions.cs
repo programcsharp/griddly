@@ -7,7 +7,12 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web;
+#if NET45
 using System.Web.Mvc;
+#else
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#endif
 
 namespace Griddly.Mvc
 {
@@ -26,6 +31,7 @@ namespace Griddly.Mvc
             return castable;
         }
 
+#if NET45
         internal static Type GetExpectedReturnType(this ActionExecutingContext filterContext)
         {
             if (filterContext.ActionDescriptor is ReflectedActionDescriptor)
@@ -56,6 +62,7 @@ namespace Griddly.Mvc
             else
                 return null;
         }
+#endif
 
         static readonly Regex _urlRegex = new Regex(@"(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\.,@?^=%&amp;:/~\+#]*[\w\-\@?^=%&amp;/~\+#])?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 

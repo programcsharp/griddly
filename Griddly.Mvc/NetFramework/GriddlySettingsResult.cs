@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NET45
+using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.IO;
@@ -210,3 +211,4 @@ namespace Griddly.Mvc
         }
     }
 }
+#endif

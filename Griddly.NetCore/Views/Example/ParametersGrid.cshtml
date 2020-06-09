@@ -1,0 +1,20 @@
+﻿@{
+    var gridSettings = new GriddlySettings<TestGridItem>(Html)
+    {
+        Title = ViewBag.TitleParameter,
+        PageSize = 20,
+        EmptyGridMessageTemplate = @<text><div class="alert alert-warning">@item.Settings.EmptyGridMessage</div></text>,
+        EmptyGridMessage = "Sorry, no records were found"
+    };
+
+    gridSettings
+        .Column(x => x.Id)
+        .Column(x => x.FirstName, "First Name")
+        .Column(x => x.LastName, "Last Name")
+        .Column(x => x.Address)
+        .Column(x => x.City)
+        .Column(x => x.State)
+        .Column(x => x.PostalCode, "Zip");
+}
+
+@await Html.Griddly(gridSettings)

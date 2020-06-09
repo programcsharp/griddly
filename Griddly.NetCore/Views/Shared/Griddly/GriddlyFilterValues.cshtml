@@ -1,0 +1,89 @@
+﻿@*
+    * GriddlyFilter value renderer using Bootstrap html and styles
+    * http://griddly.com
+    * Copyright 2013-2020 Chris Hynes and Data Research Group, Inc.
+    * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
+    *
+    * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
+    *          Use the static properties on GriddlySettings to make config changes.
+    *
+*@
+
+@using Microsoft.AspNetCore.Html;
+@model List<GriddlyFilter>
+
+<span class="griddly-filter-values">
+    @foreach (GriddlyFilter filter in Model.OrderBy(x => x.Caption))
+    {
+        GriddlyFilterBox filterBox = filter as GriddlyFilterBox;
+        GriddlyFilterRange filterRange = filter as GriddlyFilterRange;
+        GriddlyFilterList filterList = filter as GriddlyFilterList;
+        GriddlyHtmlFilter filterHtml = filter as GriddlyHtmlFilter;
+
+        object defaultValue = this.GetGriddlyParameter(filter.Field);
+        object defaultValueEnd = filterRange != null ? this.GetGriddlyParameter(filterRange.FieldEnd) : null;
+
+        <span class="filter-display" data-filter-field="@filter.Field">
+            @if (filterList == null)
+            {
+                if (defaultValue != null || defaultValueEnd != null)
+                {
+                    FieldValue(filter.Field,
+                    @<text>@filter.Caption@if (filterBox != null || filterHtml != null)
+                    {
+                        if (filter.DataType == FilterDataType.String)
+                        {<text>: "@filter.GetFormattedValue(defaultValue)"</text>}
+                        else
+                        {<text>: @filter.GetFormattedValue(defaultValue)</text>}
+                    }
+                    else if (filterRange != null)
+                    {
+                        if (defaultValue != null && defaultValueEnd != null)
+                        {<text> from @filter.GetFormattedValue(defaultValue) to @filter.GetFormattedValue(defaultValueEnd)</text>}
+                        else if (defaultValue != null)
+                        {<text>@(filter.DataType == FilterDataType.Date ? " after" : " >=") @filter.GetFormattedValue(defaultValue)</text>}
+                        else if (defaultValueEnd != null)
+                        {<text>@(filter.DataType == FilterDataType.Date ? " before" : " <=") @filter.GetFormattedValue(defaultValueEnd)</text>}
+                    }
+                    </text>);
+                }
+            }
+            else
+            {
+                filterList.SetSelectedItems(defaultValue);
+
+                int allCount = filterList.SelectableItems.Count;
+                int selectedCount = filterList.SelectableItems.Count(x => x.Selected);
+
+                if (selectedCount == allCount
+                    || (filterList.IsNoneAll && selectedCount == 0)
+                    || (!filterList.IsMultiple && defaultValue == null))
+                {
+                }
+                else if (selectedCount > filterList.DisplayItemCount)
+                {
+                    FieldValue(filter.Field, @<text>@(selectedCount) @filter.CaptionPlural</text>);
+                }
+                else if (selectedCount > 0 && selectedCount <= filterList.DisplayItemCount)
+                {
+                    foreach (var selected in filterList.SelectableItems.Where(x => x.Selected).Take(Math.Min(selectedCount, filterList.DisplayItemCount)))
+                    {
+                        FieldValue(filter.Field, @<text>@(filterList.DisplayIncludeCaption ? filter.Caption + ": " : "")@selected.Text</text>, fieldValue: selected.Value);
+                    }
+                }
+            }
+        </span>
+    }
+</span>
+
+@functions{
+void FieldValue(string field, Func<dynamic, IHtmlContent> content, string fieldValue = null)
+{
+    var css = (GriddlyCss?)ViewBag.GriddlyCss ?? GriddlySettings.DefaultCss;
+
+    <span class="filter-display-value" @Html.AttributeNullable("data-filter-fieldvalue", fieldValue)>
+        @content(null)
+        <a href="javascript:void(0)" class="griddly-remove-filter-value"><i class="@(css.Icons.Remove)"></i></a>
+    </span>
+}
+}

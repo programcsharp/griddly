@@ -1,0 +1,33 @@
+﻿@using Griddly.Mvc;
+@{
+    //ViewBag.Title = "Home Page";
+
+    var filters = new GriddlyFilterBarSettings()
+    {
+
+    }
+        .FilterBox("test", "Availability", FilterDataType.String, group: "Properties")
+        .FilterRange("guestsStart", "guestsEnd", "Guests", group: "Properties")
+        .FilterBool("bar", "Payment Status", nullItemText: "Both", group: "Bookings")
+        .FilterBool("test", "Listing Site", group: "Bookings")
+    ;
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1>Filter Bar</h1>
+
+        @await Html.PartialAsync("Griddly/GriddlyFilterBar", filters)
+    </div>
+</div>
+
+@section head
+{
+}
+
+@section scripts
+{
+    <script>
+
+    </script>
+}

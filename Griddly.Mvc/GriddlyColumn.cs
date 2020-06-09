@@ -4,10 +4,17 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using System.Web;
+#if NET45
 using System.Web.Helpers;
 using System.Web.Mvc;
 using System.Web.Routing;
 using System.Web.WebPages;
+#else
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Routing;
+#endif
 
 namespace Griddly.Mvc
 {

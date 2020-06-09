@@ -1,8 +1,13 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
 using System.Collections.Generic;
-using System.Web.Mvc;
+using System.IO;
 using System.Linq;
+#if NET45
+using System.Web.Mvc;
+#else
+using Microsoft.AspNetCore.Mvc;
+#endif
 
 namespace Griddly.Mvc
 {
@@ -23,14 +28,24 @@ namespace Griddly.Mvc
             _exportName = exportName;
         }
 
+#if NET45
         public override void ExecuteResult(ControllerContext context)
+#else
+        public override void ExecuteResult(ActionContext context)
+#endif
         {
             string format = _format == GriddlyExportFormat.Tsv ? "tsv" : "csv";
 
             context.HttpContext.Response.ContentType = "text/" + format;
-            context.HttpContext.Response.AddHeader("content-disposition", "attachment;  filename=" + _name + "." + format);
 
-            using (CsvWriter w = new CsvWriter(context.HttpContext.Response.Output, new CsvConfiguration() { HasHeaderRecord = true, Delimiter = _format == GriddlyExportFormat.Tsv ? "\t" : "," }))
+            context.HttpContext.Response.Headers.Add("content-disposition", "attachment;  filename=" + _name + "." + format);
+
+#if NET45
+            var tw = context.HttpContext.Response.Output;
+#else
+            using (var tw = new StreamWriter(context.HttpContext.Response.Body))
+#endif
+            using (CsvWriter w = new CsvWriter(tw, new Configuration() { HasHeaderRecord = true, Delimiter = _format == GriddlyExportFormat.Tsv ? "\t" : "," }))
             {
                 var export = _settings.Exports.FirstOrDefault(x => x.Name == _exportName);
                 var columns = export == null ? _settings.Columns : export.Columns;

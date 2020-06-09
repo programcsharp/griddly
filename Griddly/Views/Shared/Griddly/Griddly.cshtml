@@ -172,8 +172,8 @@
         @: data-griddly-defaultrowids="@Json.Encode(settings.DefaultRowIds != null ? settings.DefaultRowIds.Select(x => x.ToLower()).ToArray() : new[] { "value" })"
         @: data-griddly-filter-defaults="@Newtonsoft.Json.JsonConvert.SerializeObject(defaultFilters, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.Converters.IsoDateTimeConverter() { DateTimeFormat = "d" })"
         @: data-griddly-currency-symbol="@Griddly.Mvc.GriddlyExtensions.CurrencySymbol"
-        @: @Html.AttributeIf("data-griddly-currentsort", Model.SortFields != null && Model.SortFields.Any(), (z) => Html.AttributeEncode(Json.Encode(Model.SortFields.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))))
-        @: @Html.AttributeIf("data-griddly-defaultsort", defaultSort != null && defaultSort.Any(), (z) => Html.AttributeEncode(Json.Encode(defaultSort.Select(x => new { Field = x.Field, Direction = x.Direction.ToString() }))))
+        @: @Html.AttributeIf("data-griddly-currentsort", Model.SortFields != null && Model.SortFields.Any(), (z) => Html.AttributeEncode(Json.Encode(Model.SortFields.Select(x => new { field = x.Field, direction = x.Direction.ToString() }))))
+        @: @Html.AttributeIf("data-griddly-defaultsort", defaultSort != null && defaultSort.Any(), (z) => Html.AttributeEncode(Json.Encode(defaultSort.Select(x => new { field = x.Field, direction = x.Direction.ToString() }))))
         @: @settings.HtmlAttributes.ToHtmlAttributes()>
     if (settings.BeforeTemplate != null)
     {

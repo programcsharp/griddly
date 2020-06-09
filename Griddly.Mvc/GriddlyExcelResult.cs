@@ -2,10 +2,14 @@
 using OfficeOpenXml.Style;
 using System;
 using System.Collections.Generic;
-using System.Web.Mvc;
 using System.Linq;
 using System.Web;
 using System.Text.RegularExpressions;
+#if NET45
+using System.Web.Mvc;
+#else
+using Microsoft.AspNetCore.Mvc;
+#endif
 
 namespace Griddly.Mvc
 {
@@ -29,7 +33,11 @@ namespace Griddly.Mvc
         static readonly Regex _htmlMatch = new Regex(@"<[^>]*>", RegexOptions.Compiled);
         // static readonly Regex _aMatch = new Regex(@"<a\s[^>]*\s?href=""(.*?)"">(.*?)</a>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+#if NET45
         public override void ExecuteResult(ControllerContext context)
+#else
+        public override void ExecuteResult(ActionContext context)
+#endif
         {
             using (ExcelPackage p = new ExcelPackage())
             {
@@ -101,9 +109,13 @@ namespace Griddly.Mvc
                     ws.Cells[1, 1, 1 + y, columns.Count].AutoFilter = true;
 
                 context.HttpContext.Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                context.HttpContext.Response.AddHeader("content-disposition", "attachment;  filename=" + _name + ".xlsx");
+                context.HttpContext.Response.Headers.Add("content-disposition", "attachment;  filename=" + _name + ".xlsx");
 
+#if NET45
                 p.SaveAs(context.HttpContext.Response.OutputStream);
+#else
+                p.SaveAs(context.HttpContext.Response.Body);
+#endif
             }
         }
     }

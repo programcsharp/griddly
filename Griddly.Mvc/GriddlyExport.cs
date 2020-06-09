@@ -5,39 +5,62 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Web;
+#if NET45
 using System.Web.Helpers;
 using System.Web.Mvc;
 using System.Web.Routing;
+#else
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Mvc.Rendering;
+#endif
 
 namespace Griddly.Mvc
 {
     public class GriddlyExport
     {
+#if NET45
         public GriddlyExport(string name, bool useGridColumns = false)
+#else
+        public GriddlyExport(IHtmlHelper html, string name, bool useGridColumns = false)
+#endif
+
         {
             this.UseGridColumns = useGridColumns;
             this.Name = name;
             this.Columns = new List<GriddlyColumn>();
+#if !NET45
+            this.Html = html;
+#endif
         }
         public string Name { get; set; }
         public bool UseGridColumns { get; set; }
         public List<GriddlyColumn> Columns { get; set; }
+#if !NET45
+        public IHtmlHelper Html { get; set; }
+#endif
     }
     public class GriddlyExport<TRow> : GriddlyExport
     {
+#if NET45
         public GriddlyExport(string name, bool useGridColumns = false)
             : base(name, useGridColumns)
+#else
+        public GriddlyExport(IHtmlHelper html, string name, bool useGridColumns = false)
+            : base(html, name, useGridColumns)
+#endif
         {
         }
         public GriddlyExport<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> expression, string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, ColumnRenderMode renderMode = ColumnRenderMode.Both, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0, Expression<Func<TRow, object>> value = null, double? exportWidth = null, bool visible = true, string columnId = null)
         {
-            ModelMetadata metadata = null;
-
             if (expression != null)
             {
-                metadata = ModelMetadata.FromLambdaExpression<TRow, TProperty>(expression, new ViewDataDictionary<TRow>());
+#if NET45
+                ModelMetadata metadata = ModelMetadata.FromLambdaExpression<TRow, TProperty>(expression, new ViewDataDictionary<TRow>());
                 string htmlFieldName = ExpressionHelper.GetExpressionText(expression);
-
+#else
+                string htmlFieldName = ExpressionHelper.GetExpressionText(expression, Html, out var metadata);
+#endif
                 Type type = metadata.ModelType;
 
                 if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))

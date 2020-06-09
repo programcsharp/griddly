@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
+#if NET45
 using System.Web.Helpers;
+#endif
 
 namespace Griddly.Mvc.Results
 {

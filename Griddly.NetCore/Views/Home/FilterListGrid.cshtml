@@ -1,0 +1,25 @@
+﻿
+@{
+    ViewBag.Title = "TestGrid";
+}
+
+@await Html.Griddly(new GriddlySettings<TestGridItem>(Html)
+    {
+        PageSize = 5,
+        ClassName = "filter-list-grid",
+        FilterTemplate = @<form>xxx testing testing <input type="text" /></form>
+    }
+    
+    .Column(x => x.FirstName, "First Name", filter: x => x.FilterBox() )
+    .Column(x => x.LastName, "Last Name", defaultSort: SortDirection.Ascending)
+    .Column(x => x.City, "City")
+    .Column(x => x.State, "State")
+    .Column(x => x.Address, "Address")
+    .Column(x => x.PostalCode, "Gender")
+    .Column(x => x.PostalCode, "Gender")
+    .Column(x => x.PostalCode, "Gender")
+    
+    .Button("Scrolly", "Scrollify with floatThead.js", action: GriddlyButtonAction.Javascript)
+        .Add(new GriddlyButton("btn-search") { Text = "Show Filter Form" })
+
+)

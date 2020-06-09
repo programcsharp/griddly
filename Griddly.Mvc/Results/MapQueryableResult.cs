@@ -1,13 +1,15 @@
-﻿using Griddly.Mvc.Linq.Dynamic;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+#if NET45
+using Griddly.Mvc.Linq.Dynamic;
 using System.Web.Helpers;
 using System.Web.Mvc;
+#endif
 
 namespace Griddly.Mvc.Results
 {

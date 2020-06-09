@@ -4,9 +4,13 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Web;
+#if NET45
 using System.Web.Helpers;
 using System.Web.Mvc;
 using System.Web.Routing;
+#else
+using Microsoft.AspNetCore.Mvc.Rendering;
+#endif
 
 namespace Griddly.Mvc
 {

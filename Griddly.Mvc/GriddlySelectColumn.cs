@@ -3,8 +3,18 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Web;
+using System.IO;
+using System.Text;
+#if NET45
 using System.Web.Mvc;
 using System.Web.Routing;
+#else
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Routing;
+using System.Text.Encodings.Web;
+#endif
 
 namespace Griddly.Mvc
 {
@@ -64,7 +74,16 @@ namespace Griddly.Mvc
                     input.MergeAttributes(inputAttributes);
                 }
 
+#if NET45
                 return new HtmlString(input.ToString(TagRenderMode.SelfClosing));
+#else
+                var sb = new StringBuilder();
+                using (TextWriter tw = new StringWriter(sb))
+                {
+                    input.RenderSelfClosingTag().WriteTo(tw, HtmlEncoder.Default);
+                    return new HtmlString(sb.ToString());
+                }
+#endif
             }
             else
                 return null;

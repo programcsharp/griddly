@@ -7,7 +7,7 @@
     <PackageDir>$(BuildDir)\Packages</PackageDir>
     <SolutionFile>$(BaseDir)\Griddly.sln</SolutionFile>
     <MSBuildExtensions>$(BaseDir)\.build\MSBuild.Community.Tasks.dll</MSBuildExtensions>
-    <VisualStudioVersion>14.0</VisualStudioVersion>
+    <VisualStudioVersion>16.0</VisualStudioVersion>
   </PropertyGroup>
  
   <UsingTask AssemblyFile="$(MSBuildExtensions)" TaskName="MSBuild.Community.Tasks.XmlUpdate" />
@@ -23,7 +23,7 @@
     <RemoveDir Directories="$(BaseDir)\Griddly\obj" />
 
     <ItemGroup>
-      <Libs Include="$(BaseDir)\Griddly.Mvc\bin\$(Configuration)\Griddly.Mvc.dll" />
+      <Libs Include="$(BaseDir)\Griddly.Mvc\bin\$(Configuration)\net45\Griddly.Mvc.dll" />
       <Content Include="$(BaseDir)\Griddly\**\griddly.js" />
       <Content Include="$(BaseDir)\Griddly\**\griddly.css" />
       <Content Include="$(BaseDir)\Griddly\**\Views\Shared\Griddly\*.*" />

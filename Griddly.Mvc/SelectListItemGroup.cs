@@ -1,5 +1,10 @@
 ﻿using System.Collections.Generic;
+#if NET45
 using System.Web.Mvc;
+#else
+using Microsoft.AspNetCore.Mvc.Rendering;
+#endif
+
 
 namespace Griddly.Mvc
 {

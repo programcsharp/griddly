@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+#if NET45
 using System.Web.Mvc;
+#else
+using System.Net.Http;
+#endif
 
 namespace Griddly.Mvc
 {
@@ -65,25 +69,44 @@ namespace Griddly.Mvc
             return this;
         }
 
-        public HttpVerbs Verb
+        public
+#if NET45
+            HttpVerbs
+#else
+            HttpMethod
+#endif
+            Verb
         {
             get
             {
                 switch (Action)
                 {
                     case GriddlyButtonAction.Navigate:
+#if NET45
                         return HttpVerbs.Get;
+#else
+                        return HttpMethod.Get;
+#endif
                     case GriddlyButtonAction.Post:
                     case GriddlyButtonAction.PostCriteria:
                     case GriddlyButtonAction.Ajax:
                     case GriddlyButtonAction.AjaxBulk:
+#if NET45
                         return HttpVerbs.Post;
+#else
+                        return HttpMethod.Post;
+#endif
                     default:
+#if NET45
                         return HttpVerbs.Get;
+#else
+                        return HttpMethod.Get;
+#endif
                 }
 
             }
         }
+
     }
 
     public enum GriddlyButtonAction
