@@ -27,7 +27,7 @@ if(-not (test-path $keyfile)) {
 else {  
   pushd $packagespath
  
-  # get our secret key. This is not in the repository.
+  # get our secret key. This is not in the repository. 
   $key = get-content $keyfile
  
   # Find all the packages and display them for confirmation
