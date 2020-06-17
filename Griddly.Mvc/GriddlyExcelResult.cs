@@ -53,7 +53,9 @@ namespace Griddly.Mvc
 
                 for (int i = 0; i < columns.Count; i++)
                 {
-                    string caption = HttpUtility.HtmlDecode(_htmlMatch.Replace(columns[i].Caption, "").Trim().Replace("  ", " "));
+                    string caption = columns[i].Caption;
+                    if (!string.IsNullOrEmpty(caption))
+                        caption = HttpUtility.HtmlDecode(_htmlMatch.Replace(caption, "").Trim().Replace("  ", " "));
                     ws.Cells[1, i + 1].Value = caption;
                     ws.Cells[1, i + 1].Style.Font.Bold = true;
                 }

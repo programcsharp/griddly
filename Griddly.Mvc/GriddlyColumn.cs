@@ -270,8 +270,8 @@ namespace Griddly.Mvc
                 // value = (DateTime)value; -- BAD: can't unbox a value type as a different type
                 value = Convert.ChangeType(value, typeof(DateTime));
 
-            if (stripHtml && value is string)
-                value = HttpUtility.HtmlDecode(_htmlMatch.Replace(value.ToString(), "").Trim().Replace("  ", " "));
+            if (stripHtml && value is string valueString && !string.IsNullOrEmpty(valueString))
+                value = HttpUtility.HtmlDecode(_htmlMatch.Replace(valueString, "").Trim().Replace("  ", " "));
 
             return value;
         }
