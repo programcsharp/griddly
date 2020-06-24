@@ -379,13 +379,13 @@
 
 @functions
 {
-    async Task RenderFormFiltersModal(GriddlySettings settings)
+    async System.Threading.Tasks.Task RenderFormFiltersModal(GriddlySettings settings)
     {
         ViewBag.GriddlyCss = settings.Css;
         await Html.RenderPartialAsync("Griddly/GriddlyFilters", settings);
     }
 
-    async Task RenderFormFiltersInline(GriddlySettings settings)
+    async System.Threading.Tasks.Task RenderFormFiltersInline(GriddlySettings settings)
     {
         ViewBag.GriddlyCss = settings.Css;
         <form class="form-horizontal">
@@ -401,7 +401,7 @@
         </form>
     }
 
-    async Task RenderInlineFilters(GriddlySettings settings)
+    async System.Threading.Tasks.Task RenderInlineFilters(GriddlySettings settings)
     {
         await Html.RenderPartialAsync("Griddly/GriddlyFilterInline", settings);
     }
