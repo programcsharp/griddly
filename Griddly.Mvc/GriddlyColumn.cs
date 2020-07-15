@@ -272,7 +272,8 @@ namespace Griddly.Mvc
 
             if (stripHtml && value is string valueString && !string.IsNullOrEmpty(valueString))
                 value = HttpUtility.HtmlDecode(_htmlMatch.Replace(valueString, "").Trim().Replace("  ", " "));
-
+            if (value is IEnumerable<object> coll)
+                value = string.Join(",", coll.Select(x => x?.ToString()));
             return value;
         }
     }
