@@ -49,8 +49,7 @@ namespace Griddly.Mvc
         public static Func<GriddlyButton, object> IconTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultHeaderTemplate = null;
-
-
+        
 #if NET45
         /// <summary>
         /// Defines an event handler for custom export requests.
@@ -169,6 +168,7 @@ namespace Griddly.Mvc
 
         public Func<GriddlyResultPage, object> FooterTemplate { get; set; }
         public Func<GriddlyResultPage, object> HeaderTemplate { get; set; }
+        public Func<GriddlyResultPage, object> TitleAppend { get; set; }
 
         public static Func<EmptyGridMessageTemplateParams, object> DefaultEmptyGridMessageTemplate { get; set; }
         public Func<EmptyGridMessageTemplateParams, object> EmptyGridMessageTemplate { get; set; }

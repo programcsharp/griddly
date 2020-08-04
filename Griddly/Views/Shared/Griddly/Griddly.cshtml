@@ -223,6 +223,11 @@
                             <span><a class="griddly-selection-clear" href="javascript:;">Clear</a></span>
                         </span>
                     }
+
+                    @if (settings.TitleAppend != null)
+                    {
+                        @settings.TitleAppend(Model)
+                    }
                 </td>
             </tr>
         }
