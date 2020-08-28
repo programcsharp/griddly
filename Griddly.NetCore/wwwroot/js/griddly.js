@@ -636,14 +636,16 @@
                 {
                     var filter = $(this);
 
-                    var tip;
-                    if ($.isFunction(filter.data('bs.popover').tip))
-                        tip = filter.data('bs.popover').tip(); /*BS3*/
-                    else
-                        tip = filter.data('bs.popover').tip; /*BS4*/
+                    if (filter.data('bs.popover')) {
+                        var tip;
+                        if ($.isFunction(filter.data('bs.popover').tip))
+                            tip = filter.data('bs.popover').tip(); /*BS3*/
+                        else
+                            tip = filter.data('bs.popover').tip; /*BS4*/
 
-                    if ($(tip).hasClass('in') || $(tip).hasClass('show')/*BS4*/)
-                        filter.popover("hide");
+                        if ($(tip).hasClass('in') || $(tip).hasClass('show')/*BS4*/)
+                            filter.popover("hide");
+                    }
                 });
             }
         }, this));
