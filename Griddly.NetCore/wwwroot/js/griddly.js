@@ -855,11 +855,14 @@
                     {
                         if (this.options.rowClickModal)
                         {
-                            $(this.options.rowClickModal).removeData("bs.modal").modal({ show: false });
-                            $(".modal-content", this.options.rowClickModal).load($.trim(url), $.proxy(function (event)
-                            {
-                                $(this.options.rowClickModal).modal("show");
-                            }, this));
+                            if (this.options.handleRowClickModal) {
+                                this.options.handleRowClickModal($.trim(url), this.options.rowClickModal);
+                            } else {
+                                $(this.options.rowClickModal).removeData("bs.modal").modal({ show: false });
+                                $(".modal-content", this.options.rowClickModal).load($.trim(url), $.proxy(function (event) {
+                                    $(this.options.rowClickModal).modal("show");
+                                }, this));
+                            }
                         }
                         else
                         {
@@ -1948,6 +1951,7 @@
         isMultiSort: true,
         lastSelectedRow: null,
         rowClickModal: null,
+        handleRowClickModal: null,
         selectedRows: null,
         autoRefreshOnFilter: true,
         filterMode: null,
