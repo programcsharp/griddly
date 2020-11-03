@@ -29,7 +29,8 @@ namespace Griddly.Mvc
 
             var sp = context.HttpContext.RequestServices;
 
-            var httpContext = new DefaultHttpContext { RequestServices = sp };
+            var httpContext = sp.GetRequiredService<IHttpContextFactory>().Create(context.HttpContext.Features);
+
             var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
 
             var viewEngine = sp.GetRequiredService<IRazorViewEngine>();

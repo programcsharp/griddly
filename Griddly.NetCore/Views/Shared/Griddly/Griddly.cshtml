@@ -147,16 +147,16 @@
         @: data-griddly-count="@Model.Total"
         @: @Html.AttributeIf("data-griddly-isdeeplink", context.IsDeepLink, true)
         @: @Html.AttributeNullable("data-griddly-filtermode", activeFilterMode != FilterMode.None ? activeFilterMode.ToString() : null)
-        @: @Html.AttributeNullable("data-griddly-allowedfiltermodes", settings.AllowedFilterModes != FilterMode.None ? Html.Encode(Json.Serialize(Enum.GetValues(typeof(FilterMode)).Cast<FilterMode>().Where(x => settings.AllowedFilterModes.Value.HasFlag(x) && x != FilterMode.Both && x != FilterMode.None).Select(x => x.ToString()))) : null)
+        @: @Html.AttributeNullable("data-griddly-allowedfiltermodes", settings.AllowedFilterModes != FilterMode.None ? Newtonsoft.Json.JsonConvert.SerializeObject(Enum.GetValues(typeof(FilterMode)).Cast<FilterMode>().Where(x => settings.AllowedFilterModes.Value.HasFlag(x) && x != FilterMode.Both && x != FilterMode.None).Select(x => x.ToString())) : null)
         @: data-griddly-isfilterforminline="@settings.IsFilterFormInline.ToString().ToLower()"
         @: data-griddly-remove-icon-css-class="@settings.Css.Icons.Remove"
         @: data-griddly-pagesize="@(settings.PageSize ?? Model.PageSize)"
         @: @Html.AttributeNullable("data-griddly-rowclickmodal", settings.RowClickModal)
-        @: data-griddly-defaultrowids="@Json.Serialize(settings.DefaultRowIds != null ? settings.DefaultRowIds.Select(x => x.ToLower()).ToArray() : new[] { "value" })"
+        @: data-griddly-defaultrowids="@Newtonsoft.Json.JsonConvert.SerializeObject(settings.DefaultRowIds != null ? settings.DefaultRowIds.Select(x => x.ToLower()).ToArray() : new[] { "value" })"
         @: data-griddly-filter-defaults="@Newtonsoft.Json.JsonConvert.SerializeObject(defaultFilters, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.Converters.IsoDateTimeConverter() { DateTimeFormat = "d" })"
         @: data-griddly-currency-symbol="@Griddly.Mvc.GriddlyExtensions.CurrencySymbol"
-        @: @Html.AttributeIf("data-griddly-currentsort", Model.SortFields != null && Model.SortFields.Any(), (z) => Html.Encode(Json.Serialize(Model.SortFields.Select(x => new { field = x.Field, direction = x.Direction.ToString() }))))
-        @: @Html.AttributeIf("data-griddly-defaultsort", defaultSort != null && defaultSort.Any(), (z) => Html.Encode(Json.Serialize(defaultSort.Select(x => new { field = x.Field, direction = x.Direction.ToString() }))))
+        @: @Html.AttributeIf("data-griddly-currentsort", Model.SortFields != null && Model.SortFields.Any(), (z) => Newtonsoft.Json.JsonConvert.SerializeObject(Model.SortFields.Select(x => new { field = x.Field, direction = x.Direction.ToString() })))
+        @: @Html.AttributeIf("data-griddly-defaultsort", defaultSort != null && defaultSort.Any(), (z) => Newtonsoft.Json.JsonConvert.SerializeObject(defaultSort.Select(x => new { field = x.Field, direction = x.Direction.ToString() })))
         @: @settings.HtmlAttributes.ToHtmlAttributes()>
     if (settings.BeforeTemplate != null)
     {
@@ -302,9 +302,9 @@
 <tbody class="data">
     @foreach (object row in Model.Data)
     {
-        <tr @Html.AttributeIf("data-griddly-url", settings.RowClickUrl != null, @<text> @settings.RowClickUrl(row) </text> )
-            @Html.AttributeIf("data-griddly-urltarget", settings.RowClickTarget != null, @<text> @settings.RowClickTarget </text>)
-            @Html.AttributeIf("class", settings.RowClass != null, @<text> @settings.RowClass(row) </text> )
+        <tr @Html.AttributeIf("data-griddly-url", settings.RowClickUrl != null, settings.RowClickUrl?.Invoke(row))
+            @Html.AttributeIf("data-griddly-urltarget", settings.RowClickTarget != null, settings.RowClickTarget)
+            @Html.AttributeIf("class", settings.RowClass != null, settings.RowClass?.Invoke(row))
             @Html.AttributeNullable("data-id", settings.TryGetId(row)?.ToString())
             @foreach (var x in settings.RowIds)
             {

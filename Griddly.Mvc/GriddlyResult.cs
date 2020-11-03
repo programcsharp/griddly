@@ -111,11 +111,11 @@ namespace Griddly.Mvc
 #if NET45
             if (context.IsChildAction)
             {
-                settings = GriddlySettingsResult.GetSettings(context, ViewName);
+                //settings = GriddlySettingsResult.GetSettings(context, ViewName); - this looks redundant to me.
 #else
             if (context.HttpContext.IsChildAction())
             {
-                settings = await GriddlySettingsResult.GetSettings(context, ViewName);
+                //settings = await GriddlySettingsResult.GetSettings(context, ViewName);
 #endif
 
                 GriddlySettings.OnGriddlyResultExecuting?.Invoke(settings, context);
