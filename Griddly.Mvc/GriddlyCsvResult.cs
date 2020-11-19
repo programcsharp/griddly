@@ -3,6 +3,7 @@ using CsvHelper.Configuration;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 #if NET45
 using System.Web.Mvc;
 #else
@@ -31,7 +32,7 @@ namespace Griddly.Mvc
 #if NET45
         public override void ExecuteResult(ControllerContext context)
 #else
-        public override void ExecuteResult(ActionContext context)
+        public override async Task ExecuteResultAsync(ActionContext context)
 #endif
         {
             string format = _format == GriddlyExportFormat.Tsv ? "tsv" : "csv";
@@ -70,11 +71,14 @@ namespace Griddly.Mvc
 
                         w.WriteField(renderedValue);
                     }
-
+#if NET45
                     w.NextRecord();
-
+#else
+                    await w.NextRecordAsync(); //Fix: Synchronous operations are disallowed. Call WriteAsync or set AllowSynchronousIO to true instead.
+#endif
                     y++;
                 }
+
             }
         }
     }

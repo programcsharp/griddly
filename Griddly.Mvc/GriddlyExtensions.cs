@@ -19,6 +19,7 @@ using System.Web.WebPages.Instrumentation;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -592,17 +593,17 @@ namespace Griddly.Mvc
 
 #if NET45
         public static string Current(this UrlHelper helper, object routeValues = null, bool includeQueryString = false)
-#else
-        public static string Current(this IUrlHelper helper, object routeValues = null, bool includeQueryString = false)
-#endif
         {
+            var actionRouteValues = helper.RequestContext.RouteData.Values;
+#else
+        public static string Current(this IUrlHelper helper, ViewContext vc, object routeValues = null, bool includeQueryString = false)
+        {
+            var actionRouteValues = vc.RouteData.Values;
+#endif
             RouteValueDictionary values = new RouteValueDictionary();
             StringBuilder arrayVals = new StringBuilder();
-#if NET45
-            foreach (KeyValuePair<string, object> value in helper.RequestContext.RouteData.Values)
-#else
-            foreach (KeyValuePair<string, object> value in helper.ActionContext.RouteData.Values)
-#endif
+
+            foreach (var value in actionRouteValues)
             {
                 if (value.Value != null)
                 {

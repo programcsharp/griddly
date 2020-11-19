@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 #if NET45
 using System.Web.Mvc;
 #else
@@ -36,7 +37,7 @@ namespace Griddly.Mvc
 #if NET45
         public override void ExecuteResult(ControllerContext context)
 #else
-        public override void ExecuteResult(ActionContext context)
+        public override async Task ExecuteResultAsync(ActionContext context)
 #endif
         {
             using (ExcelPackage p = new ExcelPackage())
@@ -116,7 +117,8 @@ namespace Griddly.Mvc
 #if NET45
                 p.SaveAs(context.HttpContext.Response.OutputStream);
 #else
-                p.SaveAs(context.HttpContext.Response.Body);
+                var bytes = p.GetAsByteArray();
+                await context.HttpContext.Response.Body.WriteAsync(bytes); //Fix: Synchronous operations are disallowed. Call WriteAsync or set AllowSynchronousIO to true instead.
 #endif
             }
         }

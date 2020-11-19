@@ -142,7 +142,7 @@
     var activeFilterMode = settings.InitialFilterMode == FilterMode.Both ? FilterMode.Inline : settings.InitialFilterMode;
 
     @:<div class="griddly griddly-init @settings.ClassName griddly-filter-@activeFilterMode.ToString().ToLower() griddly-filter-status@(isFiltered ? "filtered" : "all") @((!isDefaultFilter && defaultFilters.Count > 0) || !isDefaultSort ? "griddly-filter-statuscandefault" : null)" data-role="griddly"
-        @: @Html.AttributeNullable("data-griddly-url", !simple ? Url.Current() : null)
+        @: @Html.AttributeNullable("data-griddly-url", !simple ? Url.Current(ViewContext) : null)
         @: @Html.AttributeNullable("data-griddly-urltarget", !simple ? settings.RowClickTarget : null)
         @: data-griddly-count="@Model.Total"
         @: @Html.AttributeIf("data-griddly-isdeeplink", context.IsDeepLink, true)
