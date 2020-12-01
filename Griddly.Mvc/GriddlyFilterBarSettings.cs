@@ -9,6 +9,7 @@ using System.Web.Helpers;
 using System.Web.Mvc;
 using System.Web.Routing;
 #else
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.Rendering;
 #endif
 
@@ -17,7 +18,13 @@ namespace Griddly.Mvc
     public class GriddlyFilterBarSettings : IGriddlyFilterSettings
     {
         public List<GriddlyFilter> Filters { get; set; } = new List<GriddlyFilter>();
+
+#if NET45
         public Func<object, object> FilterButtonTemplate { get; set; }
+#else
+        public Func<object, IHtmlContent> FilterButtonTemplate { get; set; }
+#endif
+
 
         public GriddlyFilterBarSettings FilterBox(string field, string caption, FilterDataType dataType = FilterDataType.Decimal, string htmlClass = null, string captionPlural = null, string group = null)
         {

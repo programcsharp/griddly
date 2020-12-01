@@ -145,16 +145,21 @@ namespace Griddly.Mvc
 
 #if NET45
         public Action<GriddlySettings, GriddlyResultPage, HtmlHelper, bool> BeforeRender = null;
-#else
-        public Action<GriddlySettings, GriddlyResultPage, IHtmlHelper, bool> BeforeRender = null;
-#endif
-
         public Func<object, object> BeforeTemplate { get; set; }
         public Func<object, object> AfterButtonsTemplate { get; set; }
         public Func<object, object> AfterTemplate { get; set; }
         public Func<GriddlySettings, object> FilterTemplate { get; set; }
         public Func<GriddlySettings, object> InlineFilterTemplate { get; set; }
         public Func<object, object> FilterButtonTemplate { get; set; }
+#else
+        public Action<GriddlySettings, GriddlyResultPage, IHtmlHelper, bool> BeforeRender = null;
+        public Func<object, IHtmlContent> BeforeTemplate { get; set; }
+        public Func<object, IHtmlContent> AfterButtonsTemplate { get; set; }
+        public Func<object, IHtmlContent> AfterTemplate { get; set; }
+        public Func<GriddlySettings, IHtmlContent> FilterTemplate { get; set; }
+        public Func<GriddlySettings, IHtmlContent> InlineFilterTemplate { get; set; }
+        public Func<object, IHtmlContent> FilterButtonTemplate { get; set; }
+#endif
 
         public Func<object, object> RowClickUrl { get; set; }
 
@@ -467,7 +472,11 @@ namespace Griddly.Mvc
         }
 #endif
 
+#if NET45
         public new Func<GriddlySettings<TRow>, object> FilterTemplate
+#else
+        public new Func<GriddlySettings<TRow>, IHtmlContent> FilterTemplate
+#endif
         {
             set
             {
@@ -478,7 +487,11 @@ namespace Griddly.Mvc
             }
         }
 
+#if NET45
         public new Func<GriddlySettings<TRow>, object> InlineFilterTemplate
+#else
+        public new Func<GriddlySettings<TRow>, IHtmlContent> InlineFilterTemplate
+#endif
         {
             set
             {
