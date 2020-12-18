@@ -62,12 +62,19 @@ namespace Griddly.Mvc
     {
         public string ViewName { get; set; }
 #if !NET45
-        public ViewDataDictionary ViewData { get; set; }
+        public ViewDataDictionary ViewData { get; private set; }
 #endif
 
-        public GriddlyResult(string viewName = null)
+        public GriddlyResult (
+#if !NET45
+            ViewDataDictionary viewData,
+#endif
+            string viewName = null)
         {
             ViewName = viewName;
+#if !NET45
+            ViewData = viewData;
+#endif
         }
 
 #if NET45

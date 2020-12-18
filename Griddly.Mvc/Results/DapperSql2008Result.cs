@@ -5,12 +5,24 @@ using System.Data;
 using System.Linq;
 using System.Text;
 
+#if !NET45
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+#endif
+
 namespace Griddly.Mvc.Results
 {
     public class DapperSql2008Result<T> : DapperResult<T>
     {
-        public DapperSql2008Result(Func<IDbConnection> getConnection, string sql, object param, Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map = null, Action<IDbConnection, IDbTransaction, IList<T>> massage = null, bool fixedSort = false, Func<IDbTransaction> getTransaction = null, string outerSqlTemplate = "{0}", int? commandTimeout = null)
-            : base(getConnection, sql, param, map, massage, fixedSort, getTransaction, outerSqlTemplate, commandTimeout)
+        public DapperSql2008Result(Func<IDbConnection> getConnection, string sql, object param,
+#if !NET45
+            ViewDataDictionary viewData,
+#endif
+            Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map = null, Action<IDbConnection, IDbTransaction, IList<T>> massage = null, bool fixedSort = false, Func<IDbTransaction> getTransaction = null, string outerSqlTemplate = "{0}", int? commandTimeout = null)
+            : base(getConnection, sql, param,
+#if !NET45
+                  viewData,
+#endif
+                  map, massage, fixedSort, getTransaction, outerSqlTemplate, commandTimeout)
         { }
 
         public override IList<T> GetPage(int pageNumber, int pageSize, SortField[] sortFields)

@@ -8,6 +8,7 @@ using System.Web.Helpers;
 using Griddly.Mvc.Linq.Dynamic;
 #else
 using System.Linq.Dynamic.Core;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #endif
 
 namespace Griddly.Mvc.Results
@@ -20,8 +21,16 @@ namespace Griddly.Mvc.Results
 
         static readonly bool _typeHasId = typeof(T).GetProperty("Id") != null;
 
-        public QueryableResult(IQueryable<T> result, string viewName = null, Func<IQueryable<T>, IQueryable<T>> massage = null, string finalSortField = null)
-            : base(viewName)
+        public QueryableResult(IQueryable<T> result,
+#if !NET45
+            ViewDataDictionary viewData,
+#endif
+            string viewName = null, Func<IQueryable<T>, IQueryable<T>> massage = null, string finalSortField = null)
+            : base(
+#if !NET45
+                  viewData,
+#endif
+                  viewName)
         {
             _result = result;
             _massage = massage;

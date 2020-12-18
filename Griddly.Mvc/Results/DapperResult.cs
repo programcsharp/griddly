@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 #if NET45
 using System.Web.Helpers;
+#else
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #endif
 
 namespace Griddly.Mvc.Results
@@ -26,8 +28,16 @@ namespace Griddly.Mvc.Results
         protected bool _fixedSort;
         protected static readonly bool _hasOverallCount = typeof(IHasOverallCount).IsAssignableFrom(typeof(T));
 
-        public DapperResult(Func<IDbConnection> getConnection, string sql, object param, Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map, Action<IDbConnection, IDbTransaction, IList<T>> massage, bool fixedSort, Func<IDbTransaction> getTransaction, string outerSqlTemplate, int? commandTimout = null)
-            : base(null)
+        public DapperResult(Func<IDbConnection> getConnection, string sql, object param, 
+#if !NET45
+            ViewDataDictionary viewData,
+#endif
+            Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map, Action<IDbConnection, IDbTransaction, IList<T>> massage, bool fixedSort, Func<IDbTransaction> getTransaction, string outerSqlTemplate, int? commandTimout = null)
+            : base(
+#if !NET45
+                  viewData,
+#endif
+                  null)
         {
             _getConnection = getConnection;
             _sql = sql;

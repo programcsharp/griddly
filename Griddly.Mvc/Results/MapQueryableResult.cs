@@ -9,6 +9,8 @@ using System.Reflection;
 using Griddly.Mvc.Linq.Dynamic;
 using System.Web.Helpers;
 using System.Web.Mvc;
+#else
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #endif
 
 namespace Griddly.Mvc.Results
@@ -19,10 +21,21 @@ namespace Griddly.Mvc.Results
 
         Func<IEnumerable<TIn>, IEnumerable<TOut>> _map = null;
 
-        public MapQueryableResult(IQueryable<TIn> result, Func<IEnumerable<TIn>, IEnumerable<TOut>> map, string viewName = null, Func<IQueryable<TIn>, IQueryable<TIn>> massage = null)
-            : base(viewName)
+        public MapQueryableResult(IQueryable<TIn> result,
+#if !NET45
+            ViewDataDictionary viewData,
+#endif
+            Func<IEnumerable<TIn>, IEnumerable<TOut>> map, string viewName = null, Func<IQueryable<TIn>, IQueryable<TIn>> massage = null) : base(
+#if !NET45
+                viewData,
+#endif
+                viewName)
         {
-            _result = new QueryableResult<TIn>(result, massage: massage);
+            _result = new QueryableResult<TIn>(result,
+#if !NET45
+                viewData,
+#endif
+                massage: massage);
             _map = map;
         }
 
