@@ -31,9 +31,11 @@ namespace Griddly.Mvc.Results
                 _finalSortField = "Id";
         }
 
+        protected virtual IQueryable<T> GetQuery() => _result;
+
         public override IEnumerable<T> GetAll(SortField[] sortFields)
         {
-            IQueryable<T> sortedQuery = ApplySortFields(_result, sortFields, _finalSortField);
+            IQueryable<T> sortedQuery = ApplySortFields(GetQuery(), sortFields, _finalSortField);
 
             if (_massage != null)
                 sortedQuery = _massage(sortedQuery);
@@ -43,7 +45,7 @@ namespace Griddly.Mvc.Results
 
         public override IList<T> GetPage(int pageNumber, int pageSize, SortField[] sortFields)
         {
-            IQueryable<T> sortedQuery = ApplySortFields(_result, sortFields, _finalSortField);
+            IQueryable<T> sortedQuery = ApplySortFields(GetQuery(), sortFields, _finalSortField);
 
             if (_massage != null)
                 sortedQuery = _massage(sortedQuery);
@@ -99,7 +101,7 @@ namespace Griddly.Mvc.Results
                     try
                     {
 
-                        IQueryable q = _result;
+                        IQueryable q = GetQuery();
                         if (c.ExpressionString.Contains("."))
                             q = q.Select(c.ExpressionString.Substring(0, c.ExpressionString.LastIndexOf('.')));
 
@@ -122,13 +124,13 @@ namespace Griddly.Mvc.Results
 
         public override IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields)
         {
-            return ApplySortFields(_result, sortFields, _finalSortField)
+            return ApplySortFields(GetQuery(), sortFields, _finalSortField)
                 .Select<P>(propertyName, null);
         }
 
         public override long GetCount()
         {
-            return _result.Count();
+            return GetQuery().Count();
         }
 
         protected static IQueryable<T> ApplySortFields(IQueryable<T> source, SortField[] sortFields, string finalSortField)
