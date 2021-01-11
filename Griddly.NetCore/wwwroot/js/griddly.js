@@ -824,24 +824,24 @@
                 event.preventDefault();
             }, this));
 
-            $(".griddly-filter-invoke", this.$element).on("click", $.proxy(function (event)
-            {
-                this.invokeFilterModal();
+            $(".griddly-filter-invoke, a.btn-search, button.btn-search", this.$element).on("click", $.proxy(function (event) {
+                if ($(event.currentTarget).is(".btn-search")) {
+                    //M3-specific implementation. Should be refactored out of Griddly
+                    if (!this.options.isFilterFormInline) {
+                        if (this.options.filterMode == "Inline")
+                            this.setFilterMode("Form", true);
 
-                event.preventDefault();
-            }, this));
-
-            $("a.btn-search, button.btn-search", this.$element).on("click", $.proxy(function (event)
-            {
-                if (!this.options.isFilterFormInline)
-                {
-                    if (this.options.filterMode == "Inline")
-                        this.setFilterMode("Form", true);
+                        this.invokeFilterModal();
+                    }
+                    else
+                        this.toggleFilterMode();
+                }
+                else {
 
                     this.invokeFilterModal();
+
+                    event.preventDefault();
                 }
-                else
-                    this.toggleFilterMode();
             }, this));
 
             $(this.$element).on("mouseup", "tbody.data tr td:not(:has(input))", $.proxy(function (e)
