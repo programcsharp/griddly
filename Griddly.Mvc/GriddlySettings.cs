@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
@@ -19,7 +20,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Griddly.Mvc
 {
-    public abstract class GriddlySettings: IGriddlyFilterSettings
+    public abstract class GriddlySettings : IGriddlyFilterSettings
     {
         public static GriddlyCss DefaultCss = GriddlyCss.Bootstrap3Defaults;
 
@@ -49,7 +50,9 @@ namespace Griddly.Mvc
         public static Func<GriddlyButton, object> IconTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultHeaderTemplate = null;
-        
+        public static Func<IEnumerable, GriddlySettings, IEnumerable> OnGriddlyExportExecuting = null;
+
+
 #if NET45
         /// <summary>
         /// Defines an event handler for custom export requests.

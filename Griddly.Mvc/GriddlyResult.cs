@@ -226,7 +226,10 @@ namespace Griddly.Mvc
                 }
                 else
                 {
-                    var records = GetAll(griddlyContext.SortFields);
+                    IEnumerable<T> records = GetAll(griddlyContext.SortFields);
+
+                    if (GriddlySettings.OnGriddlyExportExecuting != null)
+                        records = GriddlySettings.OnGriddlyExportExecuting(records, settings).Cast<T>();
 
                     if (griddlyContext.ExportFormat == GriddlyExportFormat.Xlsx)
                     {
