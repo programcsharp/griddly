@@ -54,6 +54,8 @@ namespace Griddly.Mvc
         public string Field { get; set; }
         public virtual FilterDataType DataType { get; set; }
 
+        public IDictionary<string, object> InputHtmlAttributes { get; set; }
+
         public string GetFormattedValue(object value)
         {
             return Extensions.GetFormattedValue(value, DataType);

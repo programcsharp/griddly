@@ -75,7 +75,7 @@
                         }
                     }
                     <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@filter.Field" name="@filter.Field" type="text" autocomplete="off" role="presentation" value="@filter.GetEditValue(defaultValue)"
-                            data-griddly-filter-data-type="@filter.DataType" />
+                            data-griddly-filter-data-type="@filter.DataType" @if (filter.InputHtmlAttributes != null) { foreach (var attr in filter.InputHtmlAttributes) { <text> @attr.Key="@attr.Value" </text>  } } />
                     if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
                     {
                         @*@if (filter.DataType == FilterDataType.Percent)
@@ -102,7 +102,7 @@
                                 }
                             }
                             <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@filter.Field" name="@filter.Field" type="text" autocomplete="off" role="presentation" value="@filter.GetEditValue(defaultValue)"
-                                   data-griddly-filter-data-type="@filter.DataType" />
+                                   data-griddly-filter-data-type="@filter.DataType" @if (filter.InputHtmlAttributes != null) { foreach (var attr in filter.InputHtmlAttributes) { <text> @attr.Key="@attr.Value" </text>  } } />
                             @if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
                             {
                                 @*@if (filter.DataType == FilterDataType.Percent)
@@ -127,7 +127,7 @@
                                 }
                             }
                             <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@(filter.Field)-to" name="@filterRange.FieldEnd" type="text" autocomplete="off" role="presentation" value="@filter.GetEditValue(defaultValueEnd)"
-                                   data-griddly-filter-data-type="@filter.DataType" />
+                                   data-griddly-filter-data-type="@filter.DataType" @if (filter.InputHtmlAttributes != null) { foreach (var attr in filter.InputHtmlAttributes) { <text> @attr.Key="@attr.Value" </text>  } } />
                             @if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
                             {
                                 @*@if (filter.DataType == FilterDataType.Percent)
@@ -143,7 +143,7 @@
                 {
                     filterList.SetSelectedItems(defaultValue);
 
-                    <select class="form-control" id="griddly-filter-@filter.Field" name="@filter.Field" @(filterList.IsMultiple ? "multiple" : null)>
+                    <select class="form-control" id="griddly-filter-@filter.Field" name="@filter.Field" @(filterList.IsMultiple ? "multiple" : null) @if (filter.InputHtmlAttributes != null) { foreach (var attr in filter.InputHtmlAttributes) { <text> @attr.Key="@attr.Value" </text>  } }>
                         @foreach (SelectListItem item in filterList.Items)
                         {
                             SelectListItemGroup group = item as SelectListItemGroup;

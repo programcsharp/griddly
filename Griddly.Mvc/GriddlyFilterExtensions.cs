@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 #if NET45
 using System.Web.Mvc;
+using System.Web.Mvc;
 #else
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #endif
 
 namespace Griddly.Mvc
@@ -14,7 +16,7 @@ namespace Griddly.Mvc
         // ********
         // NOTE: these methods can be called with null column by the ones on GriddlySettings
         // ********
-        public static GriddlyFilterBox FilterBox(this GriddlyColumn column, FilterDataType dataType = FilterDataType.Decimal, string field = null, string caption = null, string htmlClass = null, string captionPlural = null, string group = null, string captionInline = null)
+        public static GriddlyFilterBox FilterBox(this GriddlyColumn column, FilterDataType dataType = FilterDataType.Decimal, string field = null, string caption = null, string htmlClass = null, string captionPlural = null, string group = null, string captionInline = null, object inputHtmlAttributes = null)
         {
             if (caption == null)
                 caption = column.Caption;
@@ -36,6 +38,9 @@ namespace Griddly.Mvc
                 Group = group
             };
 
+            if (inputHtmlAttributes != null)
+                filter.InputHtmlAttributes = HtmlHelper.AnonymousObjectToHtmlAttributes(inputHtmlAttributes);
+
             if (captionPlural != null)
                 filter.CaptionPlural = captionPlural;
 
@@ -45,7 +50,7 @@ namespace Griddly.Mvc
             return filter;
         }
 
-        public static GriddlyFilterRange FilterRange(this GriddlyColumn column, FilterDataType dataType = FilterDataType.Decimal, string field = null, string fieldEnd = null, string caption = null, string htmlClass = null, string captionPlural = null, string group = null, string captionInline = null)
+        public static GriddlyFilterRange FilterRange(this GriddlyColumn column, FilterDataType dataType = FilterDataType.Decimal, string field = null, string fieldEnd = null, string caption = null, string htmlClass = null, string captionPlural = null, string group = null, string captionInline = null, object inputHtmlAttributes = null)
         {
             if (caption == null)
                 caption = column.Caption;
@@ -72,6 +77,9 @@ namespace Griddly.Mvc
                 Group = group
             };
 
+            if (inputHtmlAttributes != null)
+                filter.InputHtmlAttributes = HtmlHelper.AnonymousObjectToHtmlAttributes(inputHtmlAttributes);
+
             if (captionPlural != null)
                 filter.CaptionPlural = captionPlural;
 
@@ -81,7 +89,7 @@ namespace Griddly.Mvc
             return filter;
         }
 
-        public static GriddlyFilterList FilterList(this GriddlyColumn column, IEnumerable<SelectListItem> items, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null, string htmlClass = null, string captionPlural = null, bool displayIncludeCaption = false, string group = null, string captionInline = null)
+        public static GriddlyFilterList FilterList(this GriddlyColumn column, IEnumerable<SelectListItem> items, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null, string htmlClass = null, string captionPlural = null, bool displayIncludeCaption = false, string group = null, string captionInline = null, object inputHtmlAttributes = null)
         {
             if (caption == null)
                 caption = column.Caption;
@@ -121,6 +129,9 @@ namespace Griddly.Mvc
                 Group = group
             };
 
+            if (inputHtmlAttributes != null)
+                filter.InputHtmlAttributes = HtmlHelper.AnonymousObjectToHtmlAttributes(inputHtmlAttributes);
+
             if (captionPlural != null)
                 filter.CaptionPlural = captionPlural;
 
@@ -145,23 +156,23 @@ namespace Griddly.Mvc
             return value;
         }
 
-        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null, string htmlClass = null, string captionPlural = null, bool displayIncludeCaption = false, string group = null, string captionInline = null)
+        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null, string htmlClass = null, string captionPlural = null, bool displayIncludeCaption = false, string group = null, string captionInline = null, object inputHtmlAttributes = null)
             where T : struct
         {
-            return column.FilterList(Extensions.ToSelectListItems<T>().OrderBy(x => x.Text), isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural, displayIncludeCaption, group, captionInline);
+            return column.FilterList(Extensions.ToSelectListItems<T>().OrderBy(x => x.Text), isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural, displayIncludeCaption, group, captionInline, inputHtmlAttributes);
         }
 
-        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, IEnumerable<T> items, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null, string htmlClass = null, string captionPlural = null, bool displayIncludeCaption = false, string group = null, string captionInline = null, bool sort = true)
+        public static GriddlyFilterList FilterEnum<T>(this GriddlyColumn column, IEnumerable<T> items, bool isMultiple = true, bool defaultSelectAll = false, string nullItemText = null, bool isNoneAll = true, string field = null, string caption = null, string htmlClass = null, string captionPlural = null, bool displayIncludeCaption = false, string group = null, string captionInline = null, bool sort = true, object inputHtmlAttributes = null)
             where T : struct
         {
             var sl = Extensions.ToSelectListItems(items);
             if (sort) sl = sl.OrderBy(x => x.Text);
-            return column.FilterList(sl, isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural, displayIncludeCaption, group, captionInline);
+            return column.FilterList(sl, isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural, displayIncludeCaption, group, captionInline, inputHtmlAttributes);
         }
 
-        public static GriddlyFilterList FilterBool(this GriddlyColumn column, string trueLabel = "Yes", string falseLabel = "No", string nullItemText = null, bool isMultiple = false, bool defaultSelectAll = false, bool isNoneAll = false, string field = null, string caption = null, string htmlClass = null, string captionPlural = null, bool displayIncludeCaption = true, string group = null, string captionInline = null)
+        public static GriddlyFilterList FilterBool(this GriddlyColumn column, string trueLabel = "Yes", string falseLabel = "No", string nullItemText = null, bool isMultiple = false, bool defaultSelectAll = false, bool isNoneAll = false, string field = null, string caption = null, string htmlClass = null, string captionPlural = null, bool displayIncludeCaption = true, string group = null, string captionInline = null, object inputHtmlAttributes = null)
         {
-            return column.FilterList(BuildBoolItems(trueLabel, falseLabel), isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural, displayIncludeCaption, group, captionInline);
+            return column.FilterList(BuildBoolItems(trueLabel, falseLabel), isMultiple, defaultSelectAll, nullItemText, isNoneAll, field, caption, htmlClass, captionPlural, displayIncludeCaption, group, captionInline, inputHtmlAttributes);
         }
 
         static List<SelectListItem> BuildBoolItems(string trueLabel, string falseLabel)
