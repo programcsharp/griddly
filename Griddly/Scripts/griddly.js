@@ -1732,7 +1732,7 @@
 
                 this.$element.find("input.pageNumber").val(this.options.pageNumber + 1);
 
-                if (startRecord > this.options.count - this.options.pageSize)
+                if (startRecord >= this.options.count - this.options.pageSize)
                     this.$element.find(".next").hide();
                 else
                     this.$element.find(".next").show();
