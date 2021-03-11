@@ -169,13 +169,13 @@ namespace Griddly.Mvc.Results
                 }
             }
 
-            if (finalSortField != null)
+            if (finalSortField != null && (sortFields == null || !sortFields.Any(x => x.Field == finalSortField)))
             {
                 if (sortedQuery == null)
                     sortedQuery = source is IOrderedQueryable<T> sourceOrdered && OrderingVisitor.HasOrderBy(sourceOrdered.Expression)
-                        ? ThenByDescending(sourceOrdered, finalSortField) : OrderByDescending(source, finalSortField);
+                        ? ThenBy(sourceOrdered, finalSortField) : OrderBy(source, finalSortField);
                 else
-                    sortedQuery = ThenByDescending(sortedQuery, finalSortField);
+                    sortedQuery = ThenBy(sortedQuery, finalSortField);
             }
 
             return sortedQuery ?? source;
