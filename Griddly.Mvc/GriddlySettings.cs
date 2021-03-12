@@ -154,6 +154,7 @@ namespace Griddly.Mvc
         public Func<GriddlySettings, object> FilterTemplate { get; set; }
         public Func<GriddlySettings, object> InlineFilterTemplate { get; set; }
         public Func<object, object> FilterButtonTemplate { get; set; }
+        public Func<object, object> BeforeColumnHeadersTemplate { get; set; }
 #else
         public Action<GriddlySettings, GriddlyResultPage, IHtmlHelper, bool> BeforeRender = null;
         public Func<object, IHtmlContent> BeforeTemplate { get; set; }
@@ -162,6 +163,7 @@ namespace Griddly.Mvc
         public Func<GriddlySettings, IHtmlContent> FilterTemplate { get; set; }
         public Func<GriddlySettings, IHtmlContent> InlineFilterTemplate { get; set; }
         public Func<object, IHtmlContent> FilterButtonTemplate { get; set; }
+        public Func<object, IHtmlContent> BeforeColumnHeadersTemplate { get; set; }
 #endif
 
         public Func<object, object> RowClickUrl { get; set; }

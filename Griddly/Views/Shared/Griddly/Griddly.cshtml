@@ -242,6 +242,11 @@
             </td>
         </tr>
         }
+        
+        @if (settings.BeforeColumnHeadersTemplate != null)
+        {
+            @settings.BeforeColumnHeadersTemplate(null);
+        }
          <tr class="columnHeaders">
             @foreach (GriddlyColumn column in settings.Columns)
             {
