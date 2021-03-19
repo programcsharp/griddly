@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Threading.Tasks;
@@ -19,7 +20,7 @@ namespace Griddly.Mvc
 {
     public class GriddlySettingsResult
     {
-        public static async Task<GriddlySettings> GetSettings(ActionContext context, string viewName)
+        public static async Task<GriddlySettings> GetSettings(ActionContext context, string viewName, ViewDataDictionary viewData)
         {
             if (context == null)
                 throw new ArgumentNullException("context");
@@ -46,6 +47,12 @@ namespace Griddly.Mvc
                 var vdd = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary());
 
                 vdd["_isGriddlySettingsRequest"] = true;
+
+                if (viewData != null)
+                {
+                    foreach (KeyValuePair<string, object> value in viewData)
+                        vdd[value.Key] = value.Value;
+                }
 
                 var tdd = new TempDataDictionary(actionContext.HttpContext, sp.GetRequiredService<ITempDataProvider>());
 

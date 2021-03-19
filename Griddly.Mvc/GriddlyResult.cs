@@ -104,7 +104,7 @@ namespace Griddly.Mvc
 #else
             var griddlyContext = context.GetOrCreateGriddlyContext();
             var httpContext = context.HttpContext;
-            GriddlySettings settings = await GriddlySettingsResult.GetSettings(context, ViewName);
+            GriddlySettings settings = await GriddlySettingsResult.GetSettings(context, ViewName, ViewData);
 #endif
 
             if (griddlyContext.SortFields?.Length > 0)
