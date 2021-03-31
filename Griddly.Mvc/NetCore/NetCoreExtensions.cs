@@ -85,7 +85,7 @@ namespace Griddly.Mvc
 
             var modelExpression = expressionProvider.CreateModelExpression(new ViewDataDictionary<TRow>(metadataProvider, new ModelStateDictionary()), expression);
             metadata = modelExpression.Metadata;
-            return modelExpression.Metadata.Name;
+            return modelExpression.Name;
         }
     }
 }
