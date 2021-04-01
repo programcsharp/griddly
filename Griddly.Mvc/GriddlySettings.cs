@@ -443,7 +443,7 @@ namespace Griddly.Mvc
     public class GriddlySettings<TRow> : GriddlySettings
     {
 #if !NET45
-        static MethodInfo _idPropGetter = typeof(TRow).GetProperty("Id", BindingFlags.IgnoreCase)?.GetGetMethod();
+        static MethodInfo _idPropGetter = typeof(TRow).GetProperty("Id", BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public)?.GetGetMethod();
 
         public GriddlySettings(IHtmlHelper html) : base(html) { }
 
