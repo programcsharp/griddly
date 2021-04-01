@@ -28,10 +28,11 @@ namespace Griddly.Mvc
     {
         public static string ToHtmlString(this HelperResult value)
         {
-            var sb = new StringBuilder();
-            var tw = new StringWriter();
-            value.WriteTo(tw, HtmlEncoder.Default);
-            return sb.ToString();
+            using (var tw = new StringWriter())
+            {
+                value.WriteTo(tw, HtmlEncoder.Default);
+                return tw.ToString();
+            }
         }
         public static string ToHtmlString(this HtmlString value)
         {
