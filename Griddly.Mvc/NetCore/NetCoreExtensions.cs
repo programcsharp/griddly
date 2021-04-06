@@ -36,7 +36,7 @@ namespace Griddly.Mvc
         }
         public static string ToHtmlString(this HtmlString value)
         {
-            return HtmlEncoder.Default.Encode(value.ToString());
+            return value.Value;
         }
         public static NameValueCollection GetParams(this HttpRequest request)
         {
