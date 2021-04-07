@@ -636,14 +636,17 @@
                 {
                     var filter = $(this);
 
-                    var tip;
-                    if ($.isFunction(filter.data('bs.popover').tip))
-                        tip = filter.data('bs.popover').tip(); /*BS3*/
-                    else
-                        tip = filter.data('bs.popover').tip; /*BS4*/
+                    if (filter.data('bs.popover'))
+                    {
+                        var tip;
+                        if ($.isFunction(filter.data('bs.popover').tip))
+                            tip = filter.data('bs.popover').tip(); /*BS3*/
+                        else
+                            tip = filter.data('bs.popover').tip; /*BS4*/
 
-                    if ($(tip).hasClass('in') || $(tip).hasClass('show')/*BS4*/)
-                        filter.popover("hide");
+                        if ($(tip).hasClass('in') || $(tip).hasClass('show')/*BS4*/)
+                            filter.popover("hide");
+                    }
                 });
             }
         }, this));
@@ -822,17 +825,10 @@
                 event.preventDefault();
             }, this));
 
-            $(".griddly-filter-invoke", this.$element).on("click", $.proxy(function (event)
-            {
-                this.invokeFilterModal();
-
-                event.preventDefault();
-            }, this));
-
-            $("a.btn-search, button.btn-search", this.$element).on("click", $.proxy(function (event)
-            {
-                if (!this.options.isFilterFormInline)
-                {
+            $(".griddly-filter-invoke, a.btn-search, button.btn-search", this.$element).on("click", $.proxy(function (event) {
+                if ($(event.currentTarget).is(".btn-search")) {
+                    //M3-specific implementation. Should be refactored out of Griddly
+                    if (!this.options.isFilterFormInline) {
                     if (this.options.filterMode == "Inline")
                         this.setFilterMode("Form", true);
 
@@ -840,6 +836,13 @@
                 }
                 else
                     this.toggleFilterMode();
+                }
+                else {
+
+                    this.invokeFilterModal();
+
+                    event.preventDefault();
+                }
             }, this));
 
             $(this.$element).on("mouseup", "tbody.data tr td:not(:has(input))", $.proxy(function (e)
@@ -853,12 +856,15 @@
                     {
                         if (this.options.rowClickModal)
                         {
+                            if (this.options.handleRowClickModal) {
+                                this.options.handleRowClickModal($.trim(url), this.options.rowClickModal);
+                            } else {
                             $(this.options.rowClickModal).removeData("bs.modal").modal({ show: false });
-                            $(".modal-content", this.options.rowClickModal).load($.trim(url), $.proxy(function (event)
-                            {
+                                $(".modal-content", this.options.rowClickModal).load($.trim(url), $.proxy(function (event) {
                                 $(this.options.rowClickModal).modal("show");
                             }, this));
                         }
+}
                         else
                         {
                             if (e.which == 2 || e.ctrlKey || target == "_blank")
@@ -1946,6 +1952,7 @@
         isMultiSort: true,
         lastSelectedRow: null,
         rowClickModal: null,
+        handleRowClickModal: null,
         selectedRows: null,
         autoRefreshOnFilter: true,
         filterMode: null,

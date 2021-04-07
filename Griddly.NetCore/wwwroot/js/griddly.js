@@ -636,7 +636,8 @@
                 {
                     var filter = $(this);
 
-                    if (filter.data('bs.popover')) {
+                    if (filter.data('bs.popover'))
+                    {
                         var tip;
                         if ($.isFunction(filter.data('bs.popover').tip))
                             tip = filter.data('bs.popover').tip(); /*BS3*/
