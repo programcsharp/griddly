@@ -51,7 +51,7 @@ namespace Griddly.Mvc
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultHeaderTemplate = null;
         public static Func<IEnumerable, GriddlySettings, IEnumerable> OnGriddlyExportExecuting = null;
-
+        public static IGriddlyColumnValueFilter ColumnValueFilter = null;
 
 #if NET45
         /// <summary>

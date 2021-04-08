@@ -11,7 +11,9 @@ using System.Web.Routing;
 using System.Web.WebPages;
 #else
 using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 #endif
@@ -63,9 +65,29 @@ namespace Griddly.Mvc
 
         public GriddlyFilter Filter { get; set; }
 
-        public abstract HtmlString RenderUnderlyingValue(object row);
-        public abstract HtmlString RenderCell(object row, GriddlySettings settings, bool encode = true);
-        public abstract object RenderCellValue(object row, bool stripHtml = false);
+        public abstract HtmlString RenderUnderlyingValue(object row,
+#if NET45
+            HtmlHelper html
+#else
+            IHtmlHelper html
+#endif
+        );
+
+        public abstract HtmlString RenderCell(object row, GriddlySettings settings,
+#if NET45
+            HtmlHelper html,
+#else
+            IHtmlHelper html,
+#endif
+            bool encode = true);
+
+        public abstract object RenderCellValue(object row,
+#if NET45
+            HttpContextBase httpContext,
+#else
+            HttpContext httpContext,
+#endif
+            bool stripHtml = false);
 
         public virtual string RenderClassName(object row, GriddlyResultPage page)
         {
@@ -77,10 +99,19 @@ namespace Griddly.Mvc
             return null;
         }
 
-        public virtual HtmlString RenderValue(object value, bool encode = true)
+        public virtual HtmlString RenderValue(object value,
+#if NET45
+            HtmlHelper html,
+#else
+            IHtmlHelper html,
+#endif
+            bool encode = true)
         {
             if (value == null)
                 return null;
+
+            if (GriddlySettings.ColumnValueFilter != null)
+                value = GriddlySettings.ColumnValueFilter.Filter(this, value, html.ViewContext.HttpContext);
 
             if (Format == null)
             {
@@ -169,7 +200,13 @@ namespace Griddly.Mvc
             return attributes;
         }
 
-        public override HtmlString RenderCell(object row, GriddlySettings settings, bool encode = true)
+        public override HtmlString RenderCell(object row, GriddlySettings settings,
+#if NET45
+            HtmlHelper html,
+#else
+            IHtmlHelper html,
+#endif
+            bool encode = true)
         {
             object value = null;
 
@@ -199,8 +236,8 @@ namespace Griddly.Mvc
                 valueString = ((HelperResult)value).ToString();
             else
             {
-                if (LinkUrl == null) return RenderValue(value, encode); //Return directly, to avoid converting to string and back to HtmlString unnecessarily
-                else valueString = RenderValue(value, encode)?.ToHtmlString();
+                if (LinkUrl == null) return RenderValue(value, html, encode); //Return directly, to avoid converting to string and back to HtmlString unnecessarily
+                else valueString = RenderValue(value, html, encode)?.ToHtmlString();
             }
 
             if (row != null && LinkUrl != null && !string.IsNullOrWhiteSpace(valueString))
@@ -213,7 +250,13 @@ namespace Griddly.Mvc
             return new HtmlString(valueString);
         }
 
-        public override HtmlString RenderUnderlyingValue(object row)
+        public override HtmlString RenderUnderlyingValue(object row,
+#if NET45
+            HtmlHelper html
+#else
+            IHtmlHelper html
+#endif
+            )
         {
             if (UnderlyingValueTemplate == null) return null;
 
@@ -232,6 +275,9 @@ namespace Griddly.Mvc
                 throw new InvalidOperationException("Error rendering underlying value or column \"" + Caption + "\"", ex);
             }
 
+            if (GriddlySettings.ColumnValueFilter != null)
+                value = GriddlySettings.ColumnValueFilter.Filter(this, value, html.ViewContext.HttpContext);
+
             if (value == null)
                 return null;
             else if (value is HtmlString)
@@ -240,7 +286,13 @@ namespace Griddly.Mvc
                 return new HtmlString(value.ToString());
         }
 
-        public override object RenderCellValue(object row, bool stripHtml = false)
+        public override object RenderCellValue(object row,
+#if NET45
+            HttpContextBase httpContext,
+#else
+            HttpContext httpContext,
+#endif
+            bool stripHtml = false)
         {
             object value = null;
 
@@ -257,6 +309,8 @@ namespace Griddly.Mvc
                 throw new InvalidOperationException("Error rendering column \"" + Caption + "\"", ex);
             }
 
+            if (GriddlySettings.ColumnValueFilter != null)
+                value = GriddlySettings.ColumnValueFilter.Filter(this, value, httpContext);
 
             // TODO: test if we need to match separately -- maybe we get a real string here and could strip?
             if (value is HelperResult)

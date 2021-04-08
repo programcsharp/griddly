@@ -67,7 +67,7 @@ namespace Griddly.Mvc
                 {
                     for (int x = 0; x < columns.Count; x++)
                     {
-                        object renderedValue = columns[x].RenderCellValue(row, true);
+                        object renderedValue = columns[x].RenderCellValue(row, context.HttpContext, true);
 
                         w.WriteField(renderedValue);
                     }

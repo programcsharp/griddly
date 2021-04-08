@@ -9,6 +9,7 @@ using System.Text;
 using System.Web.Mvc;
 using System.Web.Routing;
 #else
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -34,7 +35,13 @@ namespace Griddly.Mvc
             return null;
         }
                 
-        public override HtmlString RenderCell(object row, GriddlySettings settings, bool encode = true)
+        public override HtmlString RenderCell(object row, GriddlySettings settings,
+#if NET45
+            HtmlHelper html,
+#else
+            IHtmlHelper html,
+#endif
+            bool encode = true)
         {
             if (IsRowSelectable?.Invoke(row) != false)
             {
@@ -89,12 +96,24 @@ namespace Griddly.Mvc
                 return null;
         }
 
-        public override object RenderCellValue(object row, bool stripHtml = false)
+        public override object RenderCellValue(object row,
+#if NET45
+            HttpContextBase httpContext,
+#else
+            HttpContext httpContext,
+#endif
+            bool stripHtml = false)
         {
             return null;
         }
 
-        public override HtmlString RenderUnderlyingValue(object row)
+        public override HtmlString RenderUnderlyingValue(object row,
+#if NET45
+            HtmlHelper html
+#else
+            IHtmlHelper html
+#endif
+        )
         {
             return null;
         }

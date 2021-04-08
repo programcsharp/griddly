@@ -318,8 +318,8 @@
             @settings.GenerateRowHtmlAttributes(row).ToHtmlAttributes()>
             @foreach (GriddlyColumn column in settings.Columns)
             {
-                var underlyingValue = column.RenderUnderlyingValue(row);
-                <td class="@column.RenderClassName(row, Model) @(!column.Visible ? "column-hidden" : null)" @column.GenerateHtmlAttributes(row, Model).ToHtmlAttributes() @if (underlyingValue != null) { <text>data-value="@underlyingValue"</text> }>@column.RenderCell(row, settings)</td>
+                var underlyingValue = column.RenderUnderlyingValue(row, Html);
+                <td class="@column.RenderClassName(row, Model) @(!column.Visible ? "column-hidden" : null)" @column.GenerateHtmlAttributes(row, Model).ToHtmlAttributes() @if (underlyingValue != null) { <text>data-value="@underlyingValue"</text> }>@column.RenderCell(row, settings, Html)</td>
             }
         </tr>
     }
@@ -330,7 +330,7 @@
         <tr>
             @foreach (GriddlyColumn column in settings.Columns)
             {
-                <td class="@column.ClassName @(!column.Visible ? "column-hidden" : null)">@column.RenderValue(column.SummaryValue)</td>
+                <td class="@column.ClassName @(!column.Visible ? "column-hidden" : null)">@column.RenderValue(column.SummaryValue, Html)</td>
             }
         </tr>
     </tfoot>
