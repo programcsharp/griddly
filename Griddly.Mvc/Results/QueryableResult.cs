@@ -142,7 +142,7 @@ namespace Griddly.Mvc.Results
             return GetQuery().Count();
         }
 
-        protected static IQueryable<T> ApplySortFields(IQueryable<T> source, SortField[] sortFields, string finalSortField)
+        protected virtual IQueryable<T> ApplySortFields(IQueryable<T> source, SortField[] sortFields, string finalSortField)
         {
             IOrderedQueryable<T> sortedQuery = null;
 
