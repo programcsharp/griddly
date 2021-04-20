@@ -773,14 +773,15 @@
             {
                 var value = parseInt($(event.target).val());
 
-                if (value < 1)
+                if (value < 1 || this.options.pageCount == 0)
                     value = 1;
                 else if (value > this.options.pageCount)
                     value = this.options.pageCount;
 
-                this.options.pageNumber = value - 1;
-
-                this.refresh();
+                if (this.options.pageNumber != value - 1) {
+                    this.options.pageNumber = value - 1;
+                    this.refresh();
+                }
             }, this));
 
             $("select.pageSize", this.$element).on("change", $.proxy(function (event)
