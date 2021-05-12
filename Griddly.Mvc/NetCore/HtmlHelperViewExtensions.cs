@@ -84,10 +84,10 @@ namespace Griddly.Mvc
                     return new HtmlString(reader.ReadToEnd());
                 }
             }
-            catch (Exception ex)
-            {
-                return new HtmlString(ex.Message);
-            }
+            //catch (Exception ex)
+            //{
+            //    return new HtmlString(ex.Message);
+            //}
             finally
             {
                 actionContextAccessor.ActionContext = originalActionContext;
