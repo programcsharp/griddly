@@ -28,7 +28,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{F03210
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Griddly.Mvc", "Griddly.Mvc\Griddly.Mvc.csproj", "{E48FA5CB-AF1E-4D40-93AC-B73C36CC03C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Griddly.NetCore", "Griddly.NetCore\Griddly.NetCore.csproj", "{D8B8F37D-6466-49BD-93CA-102ADB01360D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Griddly.NetCore", "Griddly.NetCore\Griddly.NetCore.csproj", "{D8B8F37D-6466-49BD-93CA-102ADB01360D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Griddly.NetCore.Razor", "Griddly.NetCore.Razor\Griddly.NetCore.Razor.csproj", "{6D58C544-6AB0-4318-9563-092859F4959A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,6 +50,10 @@ Global
 		{D8B8F37D-6466-49BD-93CA-102ADB01360D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8B8F37D-6466-49BD-93CA-102ADB01360D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8B8F37D-6466-49BD-93CA-102ADB01360D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D58C544-6AB0-4318-9563-092859F4959A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D58C544-6AB0-4318-9563-092859F4959A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D58C544-6AB0-4318-9563-092859F4959A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D58C544-6AB0-4318-9563-092859F4959A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

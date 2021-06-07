@@ -35,8 +35,14 @@ namespace Griddly.Mvc
         public static bool IsBootstrap4 => DefaultCss.IsBootstrap4;
         #endregion
 
+#if NET45
         public static string ButtonTemplate = "~/Views/Shared/Griddly/BootstrapButton.cshtml";
         public static string ButtonListTemplate = "~/Views/Shared/Griddly/ButtonStrip.cshtml";
+#else
+        public static string ButtonTemplate = "~/Pages/Shared/Griddly/BootstrapButton.cshtml";
+        public static string ButtonListTemplate = "~/Pages/Shared/Griddly/ButtonStrip.cshtml";
+#endif
+
         public static HtmlString DefaultBoolTrueHtml = null;
         public static HtmlString DefaultBoolFalseHtml = null;
         public static string ColumnLinkTemplate { get; set; } = "<a href=\"{0}\">{1}</a>";

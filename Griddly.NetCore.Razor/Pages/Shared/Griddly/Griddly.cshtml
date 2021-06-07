@@ -1,0 +1,418 @@
+﻿@*
+    * Griddly renderer
+    * http://griddly.com
+    * Copyright 2013-2021 Chris Hynes and Data Research Group, Inc.
+    * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
+    *
+    * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
+    *          Use the static properties on GriddlySettings to make config changes.
+    *
+*@
+@using Griddly.Mvc
+
+@model GriddlyResultPage
+
+@{
+    GriddlySettings settings = (GriddlySettings)ViewBag.settings;
+    var context = ViewContext.GetOrCreateGriddlyContext();
+
+    settings.Columns.RemoveAll(x => !x.RenderMode.HasFlag(ColumnRenderMode.View));
+
+    bool simple = ViewBag.isSimpleGriddly == true;
+    bool isFirstRender = simple || ViewContext.HttpContext.IsChildAction();
+
+    if (GriddlySettings.OnBeforeRender != null)
+    {
+        GriddlySettings.OnBeforeRender(settings, Model, Html, isFirstRender);
+    }
+
+    if (settings.BeforeRender != null)
+    {
+        settings.BeforeRender(settings, Model, Html, isFirstRender);
+    }
+
+    if (isFirstRender)
+    {
+        if (settings.AllowedFilterModes == null)
+        {
+            FilterMode allowedModes = FilterMode.None;
+
+            if (settings.InlineFilterTemplate != null || settings.Columns.Any(x => x.Filter != null))
+            {
+                allowedModes |= FilterMode.Inline;
+            }
+
+            if (settings.FilterTemplate != null || settings.Columns.Any(x => x.Filter != null))
+            {
+                allowedModes |= FilterMode.Form;
+            }
+
+            settings.AllowedFilterModes = allowedModes;
+        }
+
+        if (settings.AllowedFilterModes != FilterMode.None)
+        {
+            if (settings.InitialFilterMode == null)
+            {
+                if (settings.AllowedFilterModes.Value.HasFlag(FilterMode.Form))
+                {
+                    settings.InitialFilterMode = FilterMode.Form;
+                }
+                else if (settings.AllowedFilterModes.Value.HasFlag(FilterMode.Inline))
+                {
+                    settings.InitialFilterMode = FilterMode.Inline;
+                }
+
+                if (settings.InitialFilterMode == null || settings.InitialFilterMode == FilterMode.Both)
+                {
+                    throw new InvalidOperationException("Invalid InitialFilterMode: " + settings.InitialFilterMode + ".");
+                }
+            }
+        }
+        else
+        {
+            settings.InitialFilterMode = FilterMode.None;
+        }
+    }
+
+    if (Model.PopulateSummaryValues != null)
+    {
+        Model.PopulateSummaryValues(settings);
+    }
+}
+
+@if (isFirstRender)
+{
+    var defaultFilters = this.GetGriddlyDefaults();
+    SortField[] defaultSort = settings.DefaultSort;
+    bool isFiltered = settings.Filters.Any(x =>
+    {
+        GriddlyFilterRange filterRange = x as GriddlyFilterRange;
+
+        return this.GetGriddlyParameter(x.Field) != null || (filterRange != null && this.GetGriddlyParameter(filterRange.FieldEnd) != null);
+    });
+
+    bool isDefaultFilter = defaultFilters.Count == this.GetGriddlyParameterCount()
+        && defaultFilters.All(x =>
+        {
+            var param = this.GetGriddlyParameter(x.Key);
+
+            if (param != null)
+            {
+                return Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(x.Value).SequenceEqual(Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(param));
+            }
+
+            return false;
+        });
+
+    bool isDefaultSort = true;
+
+    if (defaultSort != null && Model.SortFields != null && defaultSort.Length == Model.SortFields.Length)
+    {
+        for (int i = 0; i < defaultSort.Length; i++)
+        {
+            if (defaultSort[i].Field != Model.SortFields[i].Field || defaultSort[i].Direction != Model.SortFields[i].Direction)
+            {
+                isDefaultSort = false;
+
+                break;
+            }
+        }
+    }
+    else if ((defaultSort != null && Model.SortFields == null)
+        || (defaultSort == null && Model.SortFields != null)
+        || (defaultSort.Length != Model.SortFields.Length))
+    {
+        isDefaultSort = false;
+    }
+
+    // TODO: make js know how to do real bools
+    foreach (var pair in defaultFilters.ToList())
+    {
+        if (pair.Value as bool? != null)
+        {
+            defaultFilters[pair.Key] = pair.Value.ToString().ToLower();
+        }
+    }
+
+    if (!GriddlySettings.DisableHistoryParameters)
+    {
+        <input class="griddly-init-flag" type="hidden" />
+    }
+
+    var activeFilterMode = settings.InitialFilterMode == FilterMode.Both ? FilterMode.Inline : settings.InitialFilterMode;
+
+    @:<div class="griddly griddly-init @settings.ClassName griddly-filter-@activeFilterMode.ToString().ToLower() griddly-filter-status@(isFiltered ? "filtered" : "all") @((!isDefaultFilter && defaultFilters.Count > 0) || !isDefaultSort ? "griddly-filter-statuscandefault" : null)" data-role="griddly"
+            @: @Html.AttributeNullable("data-griddly-url", !simple ? Url.Current(ViewContext) : null)
+            @: @Html.AttributeNullable("data-griddly-urltarget", !simple ? settings.RowClickTarget : null)
+            @: data-griddly-count="@Model.Total"
+            @: @Html.AttributeIf("data-griddly-isdeeplink", context.IsDeepLink, true)
+            @: @Html.AttributeNullable("data-griddly-filtermode", activeFilterMode != FilterMode.None ? activeFilterMode.ToString() : null)
+            @: @Html.AttributeNullable("data-griddly-allowedfiltermodes", settings.AllowedFilterModes != FilterMode.None ? Newtonsoft.Json.JsonConvert.SerializeObject(Enum.GetValues(typeof(FilterMode)).Cast<FilterMode>().Where(x => settings.AllowedFilterModes.Value.HasFlag(x) && x != FilterMode.Both && x != FilterMode.None).Select(x => x.ToString())) : null)
+            @: data-griddly-isfilterforminline="@settings.IsFilterFormInline.ToString().ToLower()"
+            @: data-griddly-remove-icon-css-class="@settings.Css.Icons.Remove"
+            @: data-griddly-pagesize="@(settings.PageSize ?? Model.PageSize)"
+            @: @Html.AttributeNullable("data-griddly-rowclickmodal", settings.RowClickModal)
+            @: data-griddly-defaultrowids="@Newtonsoft.Json.JsonConvert.SerializeObject(settings.DefaultRowIds != null ? settings.DefaultRowIds.Select(x => x.ToLower()).ToArray() : new[] { "value" })"
+            @: data-griddly-filter-defaults="@Newtonsoft.Json.JsonConvert.SerializeObject(defaultFilters, Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.Converters.IsoDateTimeConverter() { DateTimeFormat = "d" })"
+            @: data-griddly-currency-symbol="@Griddly.Mvc.GriddlyExtensions.CurrencySymbol"
+            @if (Model.SortFields != null && Model.SortFields.Any()) { <text> data-griddly-currentsort="@Newtonsoft.Json.JsonConvert.SerializeObject(Model.SortFields.Select(x => new { field = x.Field, direction = x.Direction.ToString() }))" </text> }   @if (defaultSort != null && defaultSort.Any()) { <text> data-griddly-defaultsort="@Newtonsoft.Json.JsonConvert.SerializeObject(defaultSort.Select(x => new { field = x.Field, direction = x.Direction.ToString() }))" </text> }   @: @settings.HtmlAttributes.ToHtmlAttributes()>
+        if (settings.BeforeTemplate != null)
+        {
+            @settings.BeforeTemplate(null)
+        }
+        if (settings.Buttons.Any())
+        {
+            <div class="buttons">
+                @await Html.PartialAsync(GriddlySettings.ButtonListTemplate, settings.Buttons, new ViewDataDictionary<IList<GriddlyButton>>(ViewData, settings.Buttons)
+                {
+                    { "GriddlyCss", settings.Css },
+                    { "ResolveContext", this.ViewContext.HttpContext.IsChildAction() ? this.ViewContext.HttpContext.ParentActionViewContext().ViewData.Model : null }
+                })
+            </div>
+        }
+        if (settings.AfterButtonsTemplate != null)
+        {
+            @settings.AfterButtonsTemplate(null)
+        }
+        if (settings.AllowedFilterModes != FilterMode.None && settings.AllowedFilterModes.Value.HasFlag(FilterMode.Form) && !settings.IsFilterFormInline)
+        {
+            <div class="griddly-filters griddly-filters-form" style="@(settings.InitialFilterMode?.HasFlag(FilterMode.Form) == true ? null : "display:none")">
+                @if (settings.FilterTemplate != null)
+                {
+                    @settings.FilterTemplate(settings)
+                }
+                else if (settings.AllowedFilterModes.Value.HasFlag(FilterMode.Form) && settings.Filters.Any())
+                {
+                    if (settings.IsFilterFormInline)
+                    {
+                        await RenderFormFiltersInline(settings);
+                    }
+                    else
+                    {
+                        await RenderFormFiltersModal(settings);
+                    }
+                }
+
+            </div>
+        }
+        @:<div class="griddly-scrollable-container">
+            @:<table class="@settings.TableClassName" @settings.TableHtmlAttributes.ToHtmlAttributes()>
+                <colgroup>
+                    @foreach (GriddlyColumn column in settings.Columns)
+                    {
+                        <col @Html.AttributeIf("style", column.Width != null, "width:" + column.Width) data-field="@Griddly.Mvc.GriddlyFilterExtensions.GetField(column)" @Html.AttributeNullable("data-columnid", column.ColumnId) @Html.AttributeIf("class", !column.Visible, "column-hidden") />
+                    }
+                </colgroup>
+                <thead>
+                    @if (!string.IsNullOrWhiteSpace(settings.Title))
+                    {
+                        <tr class="header">
+                            <td colspan="@settings.Columns.Where(x => x.Visible).Count()">
+                                @settings.Title
+
+                            @if (settings.ShowRowSelectCount)
+                            {
+                                <span class="griddly-selection" style="display:none;">
+                                    <span><span class="griddly-selection-count">0</span> <span class="griddly-selection-singular" style="display:none">row</span><span class="griddly-selection-plural">rows</span> selected</span>
+                                    <span><a class="griddly-selection-clear" href="javascript:;">Clear</a></span>
+                                </span>
+                            }
+
+                            @if (settings.TitleAppend != null)
+                            {
+                                @settings.TitleAppend(Model)
+                            }
+                        </td>
+                    </tr>
+                }
+                    @if (settings.AllowedFilterModes != FilterMode.None && settings.AllowedFilterModes.Value.HasFlag(FilterMode.Form) && settings.IsFilterFormInline)
+                    {
+                        <tr class="griddly-filters griddly-filters-form" style="@(settings.InitialFilterMode?.HasFlag(FilterMode.Form) == true ? null : "display:none")">
+                            <td colspan="@settings.Columns.Where(x => x.Visible).Count()">
+                                @if (settings.FilterTemplate != null)
+                                {
+                                    @settings.FilterTemplate(settings)
+                                }
+                                else if (settings.AllowedFilterModes.Value.HasFlag(FilterMode.Form) && settings.Filters.Any())
+                                {
+                                    if (settings.IsFilterFormInline)
+                                    {
+                                        await RenderFormFiltersInline(settings);
+                                    }
+                                    else
+                                    {
+                                        await RenderFormFiltersModal(settings);
+                                    }
+                                }
+                            </td>
+                        </tr>
+                    }
+                    @if (settings.BeforeColumnHeadersTemplate != null)
+                    {
+                        @settings.BeforeColumnHeadersTemplate(null);
+                    }
+                    <tr class="columnHeaders">
+                        @foreach (GriddlyColumn column in settings.Columns)
+                        {
+                            SortField sort = Model.SortFields == null ? null : Model.SortFields.FirstOrDefault(x => x.Field == column.ExpressionString);
+
+                            bool isSortable = !simple && !string.IsNullOrWhiteSpace(column.ExpressionString);
+                            <th class="@column.ClassName @(isSortable ? "sortable" : null) @(!column.Visible ? "column-hidden" : null) @(column is GriddlySelectColumn ? "select" : null) @(sort != null ? (sort.Direction == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.ExpressionString) @column.HeaderHtmlAttributes.ToHtmlAttributes()>
+                                @if (!string.IsNullOrWhiteSpace(column.ExpressionString))
+                                {
+                                    <text>@Html.Raw(column.Caption)<span class="icon">&nbsp;</span></text>
+                                }
+                                else if (column is GriddlySelectColumn)
+                                {
+                                    <i class="@(settings.Css.Icons.Check)"></i>
+                                }
+                                else
+                                {
+                                    @Html.Raw(column.Caption)
+                                }
+                            </th>
+                        }
+                    </tr>
+                    @if (settings.AllowedFilterModes != FilterMode.None && settings.AllowedFilterModes.Value.HasFlag(FilterMode.Inline))
+                    {
+                        <tr class="griddly-filters griddly-filters-inline" style="@(settings.InitialFilterMode?.HasFlag(FilterMode.Inline) == true ? null : "display:none")">
+
+                            @if (settings.InlineFilterTemplate != null)
+                            {
+                                @settings.InlineFilterTemplate(settings)
+                            }
+                            else if (settings.Columns.Any(x => x.Filter != null))
+                            {
+                                await RenderInlineFilters(settings);
+                            }
+                        </tr>
+                    }
+                    @if (settings.HeaderTemplate != null)
+                    {
+                        var template = settings.HeaderTemplate(Model);
+
+                        if (template != null)
+                        {
+                            <tr class="griddly-header">
+                                <td colspan="@settings.Columns.Where(x => x.Visible).Count()">
+                                    @template
+                                </td>
+                            </tr>
+                        }
+                    }
+                </thead>
+            }
+<tbody class="data">
+    @foreach (object row in Model.Data)
+    {
+        <tr @Html.AttributeIf("data-griddly-url", settings.RowClickUrl != null, settings.RowClickUrl?.Invoke(row))
+            @Html.AttributeIf("data-griddly-urltarget", settings.RowClickTarget != null, settings.RowClickTarget)
+            @Html.AttributeIf("class", settings.RowClass != null, settings.RowClass?.Invoke(row))
+            @Html.AttributeNullable("data-id", settings.TryGetId(row)?.ToString())
+            @foreach (var x in settings.RowIds) { @: data-rowid-@(x.Key)="@(x.Value(row))"
+            }
+            data-rowkey="@("_" + string.Join("_", settings.RowIds.Select(x => { var val = x.Value(row); return val == null ? "" : val.ToString(); }).ToArray()))"
+            @settings.GenerateRowHtmlAttributes(row).ToHtmlAttributes()>
+            @foreach (GriddlyColumn column in settings.Columns)
+            {
+                var underlyingValue = column.RenderUnderlyingValue(row, Html);
+                <td class="@column.RenderClassName(row, Model) @(!column.Visible ? "column-hidden" : null)" @column.GenerateHtmlAttributes(row, Model).ToHtmlAttributes() @if (underlyingValue != null) { <text> data-value="@underlyingValue" </text> }>@column.RenderCell(row, settings, Html)</td>
+            }
+        </tr>
+    }
+</tbody>
+@if (settings.Columns.Any(x => x.SummaryFunction != null || x.SummaryValue != null))
+{
+    <tfoot class="totals-tfoot">
+        <tr>
+            @foreach (GriddlyColumn column in settings.Columns)
+            {
+                <td class="@column.ClassName @(!column.Visible ? "column-hidden" : null)">@column.RenderValue(column.SummaryValue, Html)</td>
+            }
+        </tr>
+    </tfoot>
+}
+
+@if (settings.EmptyGridMessage != null || settings.EmptyGridMessageTemplate != null)
+{
+    <tfoot class="empty-grid-message" style="@(Model.Total > 0 ? "display:none;" : null)">
+        <tr>
+            <td colspan="@settings.Columns.Where(x => x.Visible).Count()">
+                @if (settings.EmptyGridMessageTemplate != null)
+                {
+                    @settings.EmptyGridMessageTemplate(new EmptyGridMessageTemplateParams() { ResultPage = Model, Settings = settings })
+                }
+                else
+                {
+                    @settings.EmptyGridMessage
+                }
+            </td>
+        </tr>
+    </tfoot>
+}
+
+@if (isFirstRender)
+{
+@:</table>
+@:</div>
+
+
+<div class="griddly-footer">
+    @if (settings.FooterTemplate == null || simple)
+    {
+        <span class="griddly-summary">
+            <span class="@(settings.Css.IsBootstrap4 ? "d-none d-sm-inline" : "hidden-xs")">Records</span>
+            <span class="griddly-recordstart">@(Model.PageNumber * Model.PageSize + (Model.Total > 0 ? 1 : 0))</span>
+            <span class="@(settings.Css.IsBootstrap4 ? "d-none d-sm-inline" : "hidden-xs")">through</span><span class="@(settings.Css.IsBootstrap4 ? "d-inline d-sm-none" : "visible-xs-inline")">-</span>
+            <span class="griddly-recordend">@(Model.PageNumber * Model.PageSize + Model.Count)</span>
+            of <span class="griddly-recordtotal">@Model.Total</span>
+        </span>
+        <span class="griddly-pager" style="@(Model.Total <= Model.PageSize ? "display:none" : null)">
+            <a class="prev" href="javascript:;" style="@(Model.PageNumber == 0 ? "display:none" : null)">&lt;&lt; Previous</a>Page
+            <input type="text" class="pageNumber" value="@(Model.Total > 0 ? (Model.PageNumber + 1) : 0)"> of <span class="pageCount">@(Model.Total > 0 ? (Model.Total / Model.PageSize + 1) : 0)</span>
+            <a class="next" style="@(Model.Total < Model.PageSize ? "display:none" : null)" href="javascript:;">Next &gt;&gt;</a>
+        </span>
+    }
+    else
+    {
+        @settings.FooterTemplate(Model)
+    }
+</div>
+
+if (settings.AfterTemplate != null)
+{
+    @settings.AfterTemplate(null)
+}
+@:</div>
+}
+
+@functions
+{
+    async System.Threading.Tasks.Task RenderFormFiltersModal(GriddlySettings settings)
+    {
+        ViewBag.GriddlyCss = settings.Css;
+        await Html.RenderPartialAsync("Griddly/GriddlyFilters", settings);
+    }
+
+    async System.Threading.Tasks.Task RenderFormFiltersInline(GriddlySettings settings)
+    {
+        ViewBag.GriddlyCss = settings.Css;
+        <form class="form-horizontal">
+            @await Html.PartialAsync("Griddly/GriddlyFilterForm", settings)
+
+            <div class="form-group form-group-sm">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                    <button type="reset" class="@settings.Css.ButtonDefault griddly-search-reset">Reset</button>
+                    <button type="reset" class="@settings.Css.ButtonDefault griddly-search-clear">Clear</button>
+                </div>
+            </div>
+        </form>
+    }
+
+    async System.Threading.Tasks.Task RenderInlineFilters(GriddlySettings settings)
+    {
+        await Html.RenderPartialAsync("Griddly/GriddlyFilterInline", settings);
+    }
+}

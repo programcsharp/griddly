@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Griddly.Mvc\Griddly.Mvc.csproj" />
+    <ProjectReference Include="..\Griddly.NetCore.Razor\Griddly.NetCore.Razor.csproj" />
   </ItemGroup>
 
   <ItemGroup>

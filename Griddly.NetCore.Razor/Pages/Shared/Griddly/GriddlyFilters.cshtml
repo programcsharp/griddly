@@ -8,10 +8,10 @@
     *          Use the static properties on GriddlySettings to make config changes.
     *
 *@
-
+@using Griddly.Mvc
 @model IGriddlyFilterSettings
 
-@{ 
+@{
     var css = ViewBag.GriddlyCss = (GriddlyCss?)ViewBag.GriddlyCss ?? GriddlySettings.DefaultCss;
 }
 
@@ -33,19 +33,22 @@ else
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                @if (css.IsBootstrap4) { <h4 class="modal-title">Filter</h4>}
+                @if (css.IsBootstrap4)
+                {<h4 class="modal-title">Filter</h4>}
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                @if (!css.IsBootstrap4) { <h4 class="modal-title">Filter</h4>}
+                @if (!css.IsBootstrap4)
+                {<h4 class="modal-title">Filter</h4>}
             </div>
             <form class="@(css.IsBootstrap4?"":"form-horizontal")">
                 <div class="modal-body">
                     @await Html.PartialAsync("Griddly/GriddlyFilterForm", Model.Filters)
                 </div>
-                <div class="modal-footer" style="@(css.IsBootstrap4 ? "justify-content:flex-start" : null@*fix for IE flex bug*@)" >
+                <div class="modal-footer" style="@(css.IsBootstrap4 ? "justify-content:flex-start" : null@*fix for IE flex bug*@)">
 
                     <div class="btn-group @(css.IsBootstrap4 ? "mr-auto" : "pull-left")">
                         <button type="button" class="@css.ButtonDefault dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Reset @if (!css.IsBootstrap4){<span class="@css.Icons.CaretDown"></span>}
+                            Reset @if (!css.IsBootstrap4)
+                            {<span class="@css.Icons.CaretDown"></span>}
                         </button>
                         @if (css.IsBootstrap4)
                         {

@@ -44,6 +44,7 @@ namespace Griddly.NetCore
             services.AddMvc(options => {
                 options.Filters.Add(new GriddlyParameterAttribute());
                 options.ValueProviderFactories.Add(new GriddlyCookieFilterValueProviderFactory());
+                
             });
         }
 
@@ -59,7 +60,7 @@ namespace Griddly.NetCore
                 app.UseExceptionHandler("/Home/Error");
             }
             app.UseStaticFiles();
-
+            
             app.UseRouting();
 
             app.UseAuthorization();

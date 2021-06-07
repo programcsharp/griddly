@@ -8,25 +8,26 @@
     *          Use the static properties on GriddlySettings to make config changes.
     *
 *@
+@using Griddly.Mvc
 @using Microsoft.AspNetCore.Html;
 @model List<GriddlyFilter>
 
-@{ 
+@{
     bool isFirstGroup = true;
     var css = (GriddlyCss?)ViewBag.GriddlyCss ?? GriddlySettings.DefaultCss;
 
     Func<SelectListItem, IHtmlContent> RenderListItem = @<option value="@item.Value" selected="@item.Selected">@item.Text</option>;
 
-    Func<(Func<dynamic, IHtmlContent> content, bool prepend), IHtmlContent> InputGroupAddon = @<text>@{
+Func<(Func<dynamic, IHtmlContent> content, bool prepend), IHtmlContent> InputGroupAddon = @<text>@{
         if (css.IsBootstrap4)
         {
-        <div class="input-group-@(item.prepend ? "prepend" : "append")"><span class="input-group-text">@item.content(null)</span></div>
+            <div class="input-group-@(item.prepend ? "prepend" : "append")"><span class="input-group-text">@item.content(null)</span></div>
         }
         else
         {
-        <span class="input-group-addon">@item.content(null)</span>
+            <span class="input-group-addon">@item.content(null)</span>
         }
-    }</text>;
+}</text>;
 }
 
 @foreach (var filterGroup in Model.GroupBy(x => x.Group).OrderBy(x => x.Key))
@@ -49,15 +50,15 @@
         object defaultValueEnd = filterRange != null ? this.GetGriddlyParameter(filterRange.FieldEnd) : null;
 
         <div class="griddly-filter-form-group form-group row form-group-sm griddly-filter @(filterBox != null ? "griddly-filter-box" : null) @(filterRange != null ? "griddly-filter-range" : null) @(filterList != null ? "griddly-filter-list" : null) @(filterHtml != null ? "griddly-html-filter" : null)"
-                        data-filter-name="@filter.Caption" data-filter-name-plural="@filter.CaptionPlural"
-                        data-filter-field="@filter.Field"
-                        @Html.AttributeIf("data-filter-fieldend", filterRange != null, x => filterRange.FieldEnd)
-                        data-filter-datatype="@filter.DataType.ToString()"
-                        @Html.AttributeIf("data-griddly-filter-ismultiple", filterList != null, x => filterList.IsMultiple.ToString().ToLower())
-                        @Html.AttributeIf("data-griddly-filter-isnoneall", filterList != null, x => filterList.IsNoneAll.ToString().ToLower())
-                        @Html.AttributeIf("data-griddly-filter-isnullable", filterList != null, x => filterList.IsNullable.ToString().ToLower())
-                        @Html.AttributeIf("data-griddly-filter-displayitemcount", filterList != null, x => filterList.DisplayItemCount)
-                        @Html.AttributeIf("data-griddly-filter-displayincludecaption", filterList != null, x => filterList.DisplayIncludeCaption.ToString().ToLower())>
+             data-filter-name="@filter.Caption" data-filter-name-plural="@filter.CaptionPlural"
+             data-filter-field="@filter.Field"
+             @Html.AttributeIf("data-filter-fieldend", filterRange != null, x => filterRange.FieldEnd)
+             data-filter-datatype="@filter.DataType.ToString()"
+             @Html.AttributeIf("data-griddly-filter-ismultiple", filterList != null, x => filterList.IsMultiple.ToString().ToLower())
+             @Html.AttributeIf("data-griddly-filter-isnoneall", filterList != null, x => filterList.IsNoneAll.ToString().ToLower())
+             @Html.AttributeIf("data-griddly-filter-isnullable", filterList != null, x => filterList.IsNullable.ToString().ToLower())
+             @Html.AttributeIf("data-griddly-filter-displayitemcount", filterList != null, x => filterList.DisplayItemCount)
+             @Html.AttributeIf("data-griddly-filter-displayincludecaption", filterList != null, x => filterList.DisplayIncludeCaption.ToString().ToLower())>
             <label for="griddly-filter-@filter.Field" class="col-sm-3 @(css.IsBootstrap4 ? "col-form-label" : "control-label")">@filter.Caption</label>
             <div class="col-sm-9">
                 @if (filterBox != null)
@@ -65,23 +66,23 @@
                     if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
                     {
                         @:<div class="input-group input-group-sm">
-                        if (filter.DataType == FilterDataType.Currency)
-                        {
-                            @InputGroupAddon((@<text>@Griddly.Mvc.GriddlyExtensions.CurrencySymbol</text>, true))
-                        }
-                        else if (filter.DataType == FilterDataType.Date)
-                        {
-                            @InputGroupAddon((@<text><i class="@(css.Icons.Calendar)"></i></text>, true))
-                        }
-                    }
-                    <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@filter.Field" name="@filter.Field" type="text" autocomplete="off" role="presentation" value="@filter.GetEditValue(defaultValue)"
-                            data-griddly-filter-data-type="@filter.DataType" @if (filter.InputHtmlAttributes != null) { foreach (var attr in filter.InputHtmlAttributes) { <text> @attr.Key="@attr.Value" </text>  } } />
-                    if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
-                    {
-                        @*@if (filter.DataType == FilterDataType.Percent)
+                            if (filter.DataType == FilterDataType.Currency)
                             {
-                                <span class="input-group-addon">%</span>
-                            }*@
+                                @InputGroupAddon((@<text>@Griddly.Mvc.GriddlyExtensions.CurrencySymbol</text>, true))
+                            }
+                            else if (filter.DataType == FilterDataType.Date)
+                            {
+                                @InputGroupAddon((@<text><i class="@(css.Icons.Calendar)"></i></text>, true))
+                            }
+                        }
+                        <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@filter.Field" name="@filter.Field" type="text" autocomplete="off" role="presentation" value="@filter.GetEditValue(defaultValue)"
+                               data-griddly-filter-data-type="@filter.DataType" @if (filter.InputHtmlAttributes != null) { foreach (var attr in filter.InputHtmlAttributes) { <text> @attr.Key="@attr.Value" </text> } } />
+                        if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
+                        {
+                            @*@if (filter.DataType == FilterDataType.Percent)
+                                {
+                                    <span class="input-group-addon">%</span>
+                                }*@
                         @:</div>
                     }
                 }
@@ -92,50 +93,50 @@
                             @if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
                             {
                                 @:<div class="input-group input-group-sm">
-                                if (filter.DataType == FilterDataType.Currency)
-                                {
-                                    @InputGroupAddon((@<text>@Griddly.Mvc.GriddlyExtensions.CurrencySymbol</text>, true))
+                                    if (filter.DataType == FilterDataType.Currency)
+                                    {
+                                        @InputGroupAddon((@<text>@Griddly.Mvc.GriddlyExtensions.CurrencySymbol</text>, true))
+                                    }
+                                    else if (filter.DataType == FilterDataType.Date)
+                                    {
+                                        @InputGroupAddon((@<text><i class="@(css.Icons.Calendar)"></i></text>, true))
+                                    }
                                 }
-                                else if (filter.DataType == FilterDataType.Date)
-                                {
-                                    @InputGroupAddon((@<text><i class="@(css.Icons.Calendar)"></i></text>, true))
-                                }
-                            }
                             <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@filter.Field" name="@filter.Field" type="text" autocomplete="off" role="presentation" value="@filter.GetEditValue(defaultValue)"
-                                   data-griddly-filter-data-type="@filter.DataType" @if (filter.InputHtmlAttributes != null) { foreach (var attr in filter.InputHtmlAttributes) { <text> @attr.Key="@attr.Value" </text>  } } />
+                                   data-griddly-filter-data-type="@filter.DataType" @if (filter.InputHtmlAttributes != null) { foreach (var attr in filter.InputHtmlAttributes) { <text> @attr.Key="@attr.Value" </text> } } />
                             @if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
                             {
                                 @*@if (filter.DataType == FilterDataType.Percent)
                                     {
                                         <span class="input-group-addon">%</span>
                                     }*@
-                                @:</div>
-                            }
+                            @:</div>
+                        }
                         </div>
                         <div class="col-sm-2 control-label" style="text-align:center">to</div>
                         <div class="col-sm-5">
                             @if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
                             {
                                 @:<div class="input-group input-group-sm">
-                                if (filter.DataType == FilterDataType.Currency)
-                                {
-                                    @InputGroupAddon((@<text>@Griddly.Mvc.GriddlyExtensions.CurrencySymbol</text>, true))
+                                    if (filter.DataType == FilterDataType.Currency)
+                                    {
+                                        @InputGroupAddon((@<text>@Griddly.Mvc.GriddlyExtensions.CurrencySymbol</text>, true))
+                                    }
+                                    else if (filter.DataType == FilterDataType.Date)
+                                    {
+                                        @InputGroupAddon((@<text><i class="@(css.Icons.Calendar)"></i></text>, true))
+                                    }
                                 }
-                                else if (filter.DataType == FilterDataType.Date)
-                                {
-                                    @InputGroupAddon((@<text><i class="@(css.Icons.Calendar)"></i></text>, true))
-                                }
-                            }
                             <input class="form-control @(filter.HtmlClass)" id="griddly-filter-@(filter.Field)-to" name="@filterRange.FieldEnd" type="text" autocomplete="off" role="presentation" value="@filter.GetEditValue(defaultValueEnd)"
-                                   data-griddly-filter-data-type="@filter.DataType" @if (filter.InputHtmlAttributes != null) { foreach (var attr in filter.InputHtmlAttributes) { <text> @attr.Key="@attr.Value" </text>  } } />
+                                   data-griddly-filter-data-type="@filter.DataType" @if (filter.InputHtmlAttributes != null) { foreach (var attr in filter.InputHtmlAttributes) { <text> @attr.Key="@attr.Value" </text> } } />
                             @if (filter.DataType == FilterDataType.Currency || filter.DataType == FilterDataType.Date)
                             {
                                 @*@if (filter.DataType == FilterDataType.Percent)
                                     {
                                         <span class="input-group-addon">%</span>
                                     }*@
-                                @:</div>
-                            }
+                            @:</div>
+                        }
                         </div>
                     </div>
                 }
@@ -143,7 +144,7 @@
                 {
                     filterList.SetSelectedItems(defaultValue);
 
-                    <select class="form-control" id="griddly-filter-@filter.Field" name="@filter.Field" @(filterList.IsMultiple ? "multiple" : null) @if (filter.InputHtmlAttributes != null) { foreach (var attr in filter.InputHtmlAttributes) { <text> @attr.Key="@attr.Value" </text>  } }>
+                    <select class="form-control" id="griddly-filter-@filter.Field" name="@filter.Field" @(filterList.IsMultiple ? "multiple" : null) @if (filter.InputHtmlAttributes != null) { foreach (var attr in filter.InputHtmlAttributes) { <text> @attr.Key="@attr.Value" </text> } }>
                         @foreach (SelectListItem item in filterList.Items)
                         {
                             SelectListItemGroup group = item as SelectListItemGroup;

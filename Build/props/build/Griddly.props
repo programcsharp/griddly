@@ -1,0 +1,11 @@
+<Project>
+  <ItemGroup>
+    <StaticWebAsset Include="$(MSBuildThisFileDirectory)..\staticwebassets\**">
+      <SourceType>Package</SourceType>
+      <SourceId>Griddly</SourceId>
+      <ContentRoot>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)..\staticwebassets'))</ContentRoot>
+      <BasePath>/Griddly</BasePath>
+      <RelativePath>%(RecursiveDir)%(FileName)%(Extension)</RelativePath>
+    </StaticWebAsset>
+  </ItemGroup>
+</Project>

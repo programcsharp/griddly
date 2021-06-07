@@ -171,7 +171,7 @@ namespace Griddly.Mvc
 #if NET45
                 return htmlHelper.Partial("~/Views/Shared/Griddly/Griddly.cshtml", viewData);
 #else
-                return await htmlHelper.PartialAsync("~/Views/Shared/Griddly/Griddly.cshtml", model, viewData);
+                return await htmlHelper.PartialAsync("~/Pages/Shared/Griddly/Griddly.cshtml", model, viewData);
 #endif
             }
             else
@@ -190,7 +190,7 @@ namespace Griddly.Mvc
 #else
         public static async Task<IHtmlContent> GriddlyFilterBar(this IHtmlHelper htmlHelper, GriddlyFilterBarSettings settings)
         {
-            return await htmlHelper.PartialAsync("~/Views/Shared/Griddly/GriddlyFilterBar.cshtml", settings, null);
+            return await htmlHelper.PartialAsync("~/Pages/Shared/Griddly/GriddlyFilterBar.cshtml", settings, null);
         }
 #endif
 

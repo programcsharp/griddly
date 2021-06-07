@@ -23,11 +23,18 @@
     <RemoveDir Directories="$(BaseDir)\Griddly\obj" />
 
     <ItemGroup>
-      <Libs Include="$(BaseDir)\Griddly.Mvc\bin\$(Configuration)\net45\Griddly.Mvc.dll" />
-      <Content Include="$(BaseDir)\Griddly\**\griddly.js" />
+	  <!--net45 items-->
+	  <Content Include="$(BaseDir)\Griddly\**\griddly.js" />
       <Content Include="$(BaseDir)\Griddly\**\griddly.css" />
       <Content Include="$(BaseDir)\Griddly\**\Views\Shared\Griddly\*.*" />
-    </ItemGroup>
+	  <Libs Include="$(BaseDir)\Griddly.Mvc\bin\$(Configuration)\net45\Griddly.Mvc.dll" />
+	
+	  <!--coreapp items-->
+      <LibsCoreApp Include="$(BaseDir)\Griddly.Mvc\bin\$(Configuration)\netcoreapp3.1\Griddly.Mvc.dll" />
+	  <LibsCoreAppRazor Include="$(BaseDir)\Griddly.NetCore.Razor\bin\$(Configuration)\netcoreapp3.1\Griddly.NetCore.Razor*.dll" />
+	  <ContentCoreApp Include="$(BaseDir)\Griddly.NetCore.Razor\wwwroot\**\*.*" />
+      <BuildCoreApp Include="$(BaseDir)\Build\props\**\*.props" />
+	</ItemGroup>
  
     <Exec Command="rd $(PackageDir) /s /q" />
     <RemoveDir Directories="$(PackageDir)" />
@@ -39,8 +46,12 @@
     <Copy SourceFiles="$(MSBuildProjectDirectory)\Griddly.Core.nuspec" DestinationFolder="$(PackageDir)\Griddly.Core" />
 
     <!-- Copy the source files to the package dir -->
-    <Copy SourceFiles="@(Content)" DestinationFolder="$(PackageDir)\Griddly\content\%(RecursiveDir)" />
-    <Copy SourceFiles="@(Libs)" DestinationFolder="$(PackageDir)\Griddly.Core\lib\net45\%(RecursiveDir)" />
+	<Copy SourceFiles="@(Content)" DestinationFolder="$(PackageDir)\Griddly\content\net45\%(RecursiveDir)" />
+	<Copy SourceFiles="@(Libs)" DestinationFolder="$(PackageDir)\Griddly.Core\lib\net45\%(RecursiveDir)" />
+	<Copy SourceFiles="@(ContentCoreApp)" DestinationFolder="$(PackageDir)\Griddly\staticwebassets\%(RecursiveDir)" />
+	<Copy SourceFiles="@(LibsCoreApp)" DestinationFolder="$(PackageDir)\Griddly.Core\lib\netcoreapp3.1\%(RecursiveDir)" />
+	<Copy SourceFiles="@(LibsCoreAppRazor)" DestinationFolder="$(PackageDir)\Griddly\lib\netcoreapp3.1\%(RecursiveDir)" />
+	<Copy SourceFiles="@(BuildCoreApp)" DestinationFolder="$(PackageDir)\Griddly\%(RecursiveDir)" />
 
     <!-- Get the version number of the main assembly to insert into the nuspec files -->
     <GetAssemblyIdentity AssemblyFiles="$(PackageDir)\Griddly.Core\lib\net45\Griddly.Mvc.dll">

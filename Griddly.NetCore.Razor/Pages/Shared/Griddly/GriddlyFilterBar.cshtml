@@ -8,11 +8,12 @@
     *          Use the static properties on GriddlySettings to make config changes.
     *
 *@
+@using Griddly.Mvc
 
 @model GriddlyFilterBarSettings
 
 <div class="griddly-filter-bar" data-role="griddly-filter-bar"
-    data-griddly-filter-defaults="@Newtonsoft.Json.JsonConvert.SerializeObject(this.GetGriddlyDefaults())"
-    data-griddly-currency-symbol="@Griddly.Mvc.GriddlyExtensions.CurrencySymbol">
+     data-griddly-filter-defaults="@Newtonsoft.Json.JsonConvert.SerializeObject(this.GetGriddlyDefaults())"
+     data-griddly-currency-symbol="@Griddly.Mvc.GriddlyExtensions.CurrencySymbol">
     @await Html.PartialAsync("Griddly/GriddlyFilters")
 </div>

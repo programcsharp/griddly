@@ -11,10 +11,14 @@
     <license type="expression">MIT</license>
     <description>Pagable, sortable, MVC enabled grid</description>
     <language>en-US</language>
-    <dependencies> 
+	<dependencies> 
       <group>
         <dependency id="Griddly.Core" version="" />
       </group>
     </dependencies>
+	<frameworkAssemblies>
+		<frameworkAssembly assemblyName="Griddly.NetCore.Razor" targetFramework=".NETCoreApp3.1" />
+		<frameworkAssembly assemblyName="Griddly.NetCore.Razor.Views" targetFramework=".NETCoreApp3.1" />
+	</frameworkAssemblies>
   </metadata>
 </package>

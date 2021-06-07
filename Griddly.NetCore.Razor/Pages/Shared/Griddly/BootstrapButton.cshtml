@@ -1,0 +1,154 @@
+﻿@*
+    * GriddlyButton renderer using Bootstrap html and styles
+    * http://griddly.com
+    * Copyright 2013-2021 Chris Hynes and Data Research Group, Inc.
+    * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
+    *
+    * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
+    *          Use the static properties on GriddlySettings to make config changes.
+    *
+*@
+@using Griddly.Mvc
+@using Microsoft.AspNetCore.Html;
+@model GriddlyButton
+@{
+    bool isListOnly = ViewBag.IsListOnly == true;
+    var css = (GriddlyCss?)ViewBag.GriddlyCss ?? GriddlySettings.DefaultCss;
+
+    Func<(GriddlyButton button, bool isDropdown, bool isMenuItem), IHtmlContent> RenderLink = @<text>@{
+
+            var button = item.button;
+
+            if (button.ArgumentTemplate != null)
+            {
+                button.Argument = button.ArgumentTemplate(ViewData["ResolveContext"]).ToString();
+            }
+
+            string href = null;
+            if (button.Action != GriddlyButtonAction.Modal && (button.Action != GriddlyButtonAction.Navigate || (item.isDropdown && button.DropdownCaret != GriddlyDropdownCaret.Split)))
+            {
+                href = "javascript:;";
+            }
+            else if ((button.Action == GriddlyButtonAction.Navigate && (!item.isDropdown || button.DropdownCaret == GriddlyDropdownCaret.Split)) || (button.Action == GriddlyButtonAction.Modal && !string.IsNullOrWhiteSpace(button.Target)))
+            {
+                href = button.Argument;
+            }
+            else if (button.Action == GriddlyButtonAction.Modal && string.IsNullOrWhiteSpace(button.Target))
+            {
+                href = "#" + button.Argument;
+            }
+
+            bool clearSelectionOnAction = button.ClearSelectionOnAction ?? (button.Action == GriddlyButtonAction.Ajax || button.Action == GriddlyButtonAction.AjaxBulk);
+
+            <a data-role="griddly-button" class="@(!item.isMenuItem ? css.ButtonDefault : null) @button.ClassName @(item.isDropdown && button.DropdownCaret != GriddlyDropdownCaret.Split ? "dropdown-toggle" : null) @(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null) @(!string.IsNullOrWhiteSpace(button.Icon) ? "btn-with-icon" : null) @(item.isMenuItem && css.IsBootstrap4 ? "dropdown-item" : null)"
+               @*onclick="@(button.Action == GriddlyButtonAction.Javascript ? button.Argument : null)"*@
+               title="@button.Title"
+               @Html.AttributeIf("target", button.Action == GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
+               href="@(href ?? "javscript:void()")"
+               @Html.AttributeIf("data-toggle", button.Action != GriddlyButtonAction.Navigate && button.Action != GriddlyButtonAction.Javascript, button.Action.ToString().ToLower())
+               @Html.AttributeIf("data-toggle", item.isDropdown && button.DropdownCaret != GriddlyDropdownCaret.Split, "dropdown")
+               @Html.AttributeIf("data-onclick", button.Action == GriddlyButtonAction.Javascript && !string.IsNullOrWhiteSpace(button.Argument), button.Argument)
+               @Html.AttributeIf("data-url", button.Action == GriddlyButtonAction.Ajax || button.Action == GriddlyButtonAction.AjaxBulk || button.Action == GriddlyButtonAction.Post || button.Action == GriddlyButtonAction.PostCriteria, button.Argument)
+               @Html.AttributeIf("data-target", button.Action != GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
+               @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())
+               @Html.AttributeIf("data-clear-selection-on-action", clearSelectionOnAction, clearSelectionOnAction.ToString().ToLower())
+               @Html.AttributeIf("data-confirm-message", button.ConfirmMessage != null, button.ConfirmMessage)
+               @Html.AttributeIf("data-confirm-prompt-function", button.ConfirmPromptFunction != null, button.ConfirmPromptFunction)
+               @Html.AttributeIf("data-rowids", button.RowIds != null, button.RowIds != null ? Html.Encode(Json.Serialize(button.RowIds.Select(x => x.ToLower()).ToArray())) : null)
+               @Html.AttributeIf("data-append-rowids-to-url", (button.Action == GriddlyButtonAction.Modal || button.Action == GriddlyButtonAction.Navigate) && button.AppendRowIdsToUrl, "")
+               @if (button.HtmlAttributes != null) { foreach (var attr in button.HtmlAttributes) { <text> @attr.Key="@attr.Value" </text> } }>
+
+                @if (!string.IsNullOrWhiteSpace(button.Icon) && GriddlySettings.IconTemplate != null)
+                {
+                    @GriddlySettings.IconTemplate(button)
+                }
+
+                @if (button.TextTemplate != null)
+                {
+                    @button.TextTemplate(button)
+                }
+                @button.Text
+
+                @if (item.isDropdown && button.DropdownCaret == GriddlyDropdownCaret.Inline && !css.IsBootstrap4)
+                {
+                    <span class="@css.Icons.CaretDown"></span>
+                }
+            </a>
+    }</text>;
+
+Func<List<GriddlyButton>, IHtmlContent> RenderList = @<text>@{
+        foreach (GriddlyButton button in item)
+        {
+            if (css.IsBootstrap4)
+            {
+                if (button.IsSeparator)
+                {
+                    <div class="dropdown-divider"></div>
+                }
+                else if (button is GriddlyHtmlButton)
+                {@(((GriddlyHtmlButton)button).HtmlTemplate(button))}
+                else
+                {@RenderLink((button, false, true))}
+        }
+        else
+        {
+            if (button.IsSeparator)
+            {
+                <li class="divider"></li>
+            }
+            else
+            {
+                <li class="@(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null)" @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())>
+                    @if (button is GriddlyHtmlButton)
+                    {@(((GriddlyHtmlButton)button).HtmlTemplate(button))}
+                    else
+                    {@RenderLink((button, false, true))}
+                </li>
+            }
+        }
+    }
+}</text>;
+}
+
+@if (Model is GriddlyHtmlButton)
+{
+    @(((GriddlyHtmlButton)Model).HtmlTemplate(Model))
+}
+else if (!Model.Buttons.Any())
+{
+    @RenderLink((Model, false, false))
+}
+else
+{
+    if (!isListOnly)
+    {
+        <div class="btn-group">
+            @RenderLink((Model, true, false))
+            @if (Model.DropdownCaret == GriddlyDropdownCaret.Split)
+            {
+                <button type="button" class="dropdown-toggle dropdown-toggle-split @css.ButtonDefault" data-toggle="dropdown">
+                    @if (!css.IsBootstrap4)
+                    {
+                        <span class="@css.Icons.CaretDown"></span>
+                    }
+                </button>
+            }
+            @if (css.IsBootstrap4)
+            {
+                <div class="dropdown-menu @(Model.AlignRight ? "dropdown-menu-right float-right" : "")">
+                    @RenderList(Model.Buttons)
+                </div>
+            }
+            else
+            {
+                <ul class="dropdown-menu @(Model.AlignRight ? "pull-right" : "")">
+                    @RenderList(Model.Buttons)
+                </ul>
+            }
+        </div>
+    }
+    else
+    {
+        @RenderList(Model.Buttons)
+    }
+}

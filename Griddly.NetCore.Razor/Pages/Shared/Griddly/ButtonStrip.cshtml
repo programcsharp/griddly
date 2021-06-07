@@ -1,14 +1,15 @@
 ﻿@*
- * GriddlyButton button strip renderer using Bootstrap html and styles
- * http://griddly.com
- * Copyright 2013-2021 Chris Hynes and Data Research Group, Inc.
- * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
- *
- * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
- *          Use the static properties on GriddlySettings to make config changes.
- *
- *@
- 
+    * GriddlyButton button strip renderer using Bootstrap html and styles
+    * http://griddly.com
+    * Copyright 2013-2021 Chris Hynes and Data Research Group, Inc.
+    * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
+    *
+    * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
+    *          Use the static properties on GriddlySettings to make config changes.
+    *
+*@
+@using Griddly.Mvc
+
 @model IList<GriddlyButton>
 
 @functions{
@@ -58,14 +59,14 @@
                 if (group.Count() > 1 || group.First().Buttons.Count() == 0)
                 {
                     @:<div class="btn-group">
-                }
-                foreach (GriddlyButton button in group)
-                {
-                    button.AlignRight = true;
-                    @await Html.PartialAsync(GriddlySettings.ButtonTemplate, button);
-                }
-                if (group.Count() > 1 || group.First().Buttons.Count() == 0)
-                {
+                    }
+                    foreach (GriddlyButton button in group)
+                    {
+                        button.AlignRight = true;
+                        @await Html.PartialAsync(GriddlySettings.ButtonTemplate, button);
+                    }
+                    if (group.Count() > 1 || group.First().Buttons.Count() == 0)
+                    {
                     @:</div>
                 }
             }
@@ -79,13 +80,13 @@
                 if (group.Count() > 1 || group.First().Buttons.Count() == 0)
                 {
                     @:<div class="btn-group">
-                }
-                foreach (GriddlyButton button in group)
-                {
-                    @await Html.PartialAsync(GriddlySettings.ButtonTemplate, button);
-                }
-                if (group.Count() > 1 || group.First().Buttons.Count() == 0)
-                {
+                    }
+                    foreach (GriddlyButton button in group)
+                    {
+                        @await Html.PartialAsync(GriddlySettings.ButtonTemplate, button);
+                    }
+                    if (group.Count() > 1 || group.First().Buttons.Count() == 0)
+                    {
                     @:</div>
                 }
             }
