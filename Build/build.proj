@@ -49,8 +49,8 @@
 	<Copy SourceFiles="@(Content)" DestinationFolder="$(PackageDir)\Griddly\content\net45\%(RecursiveDir)" />
 	<Copy SourceFiles="@(Libs)" DestinationFolder="$(PackageDir)\Griddly.Core\lib\net45\%(RecursiveDir)" />
 	<Copy SourceFiles="@(ContentCoreApp)" DestinationFolder="$(PackageDir)\Griddly\staticwebassets\%(RecursiveDir)" />
-	<Copy SourceFiles="@(LibsCoreApp)" DestinationFolder="$(PackageDir)\Griddly.Core\lib\netcoreapp3.1\%(RecursiveDir)" />
-	<Copy SourceFiles="@(LibsCoreAppRazor)" DestinationFolder="$(PackageDir)\Griddly\lib\netcoreapp3.1\%(RecursiveDir)" />
+	<Copy SourceFiles="@(LibsCoreApp)" DestinationFolder="$(PackageDir)\Griddly.Core\lib\netcoreapp\%(RecursiveDir)" />
+	<Copy SourceFiles="@(LibsCoreAppRazor)" DestinationFolder="$(PackageDir)\Griddly\lib\netcoreapp\%(RecursiveDir)" />
 	<Copy SourceFiles="@(BuildCoreApp)" DestinationFolder="$(PackageDir)\Griddly\%(RecursiveDir)" />
 
     <!-- Get the version number of the main assembly to insert into the nuspec files -->

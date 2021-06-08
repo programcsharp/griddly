@@ -12,13 +12,21 @@
     <description>Pagable, sortable, MVC enabled grid</description>
     <language>en-US</language>
 	<dependencies> 
-      <group>
-        <dependency id="Griddly.Core" version="" />
-      </group>
+        <group targetFramework="net45">
+            <dependency id="Griddly.Core" version="" />
+        </group>
+        <group targetFramework="netcoreapp3.1">
+            <dependency id="Griddly.Core" version="" />
+        </group>
+		<group targetFramework="net5.0">
+			<dependency id="Griddly.Core" version="" />
+		</group>
     </dependencies>
 	<frameworkAssemblies>
-		<frameworkAssembly assemblyName="Griddly.NetCore.Razor" targetFramework=".NETCoreApp3.1" />
-		<frameworkAssembly assemblyName="Griddly.NetCore.Razor.Views" targetFramework=".NETCoreApp3.1" />
+		<frameworkAssembly assemblyName="Griddly.NetCore.Razor" targetFramework="netcoreapp3.1" />
+		<frameworkAssembly assemblyName="Griddly.NetCore.Razor.Views" targetFramework="netcoreapp3.1" />
+		<frameworkAssembly assemblyName="Griddly.NetCore.Razor" targetFramework="net5.0" />
+		<frameworkAssembly assemblyName="Griddly.NetCore.Razor.Views" targetFramework="net5.0" />
 	</frameworkAssemblies>
   </metadata>
 </package>
