@@ -14,21 +14,21 @@
 		<language>en-US</language>
 
 		<dependencies>
-			<group targetFramework="net45">
-				<dependency id="CsvHelper" version="6.1.1" />
-				<dependency id="Dapper" version="1.50.2" />
+			<group targetFramework="net461">
+				<dependency id="CsvHelper" version="27.1.1" />
+				<dependency id="Dapper" version="2.0.90" />
 				<dependency id="EPPlus" version="4.5.3" />
 				<dependency id="Newtonsoft.Json" version="11.0.2" />
 			</group>
 			<group targetFramework="netcoreapp3.1">
-				<dependency id="CsvHelper" version="6.1.1" />
-				<dependency id="Dapper" version="1.50.2" />
+				<dependency id="CsvHelper" version="27.1.1" />
+				<dependency id="Dapper" version="2.0.90" />
 				<dependency id="EPPlus" version="4.5.3" />
 				<dependency id="Newtonsoft.Json" version="11.0.2" />
 			</group>
 			<group targetFramework="net5.0">
-				<dependency id="CsvHelper" version="6.1.1" />
-				<dependency id="Dapper" version="1.50.2" />
+				<dependency id="CsvHelper" version="27.1.1" />
+				<dependency id="Dapper" version="2.0.90" />
 				<dependency id="EPPlus" version="4.5.3" />
 				<dependency id="Newtonsoft.Json" version="11.0.2" />
 			</group>

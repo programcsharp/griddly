@@ -1,4 +1,4 @@
-﻿#if NET45
+﻿#if NET45_OR_GREATER
 using System.Web.Helpers;
 #endif
 

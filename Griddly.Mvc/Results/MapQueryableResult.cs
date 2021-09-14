@@ -5,7 +5,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-#if NET45
+#if NET45_OR_GREATER
 using Griddly.Mvc.Linq.Dynamic;
 using System.Web.Helpers;
 using System.Web.Mvc;
@@ -22,17 +22,17 @@ namespace Griddly.Mvc.Results
         Func<IEnumerable<TIn>, IEnumerable<TOut>> _map = null;
 
         public MapQueryableResult(IQueryable<TIn> result,
-#if !NET45
+#if !NET45_OR_GREATER
             ViewDataDictionary viewData,
 #endif
             Func<IEnumerable<TIn>, IEnumerable<TOut>> map, string viewName = null, Func<IQueryable<TIn>, IQueryable<TIn>> massage = null) : base(
-#if !NET45
+#if !NET45_OR_GREATER
                 viewData,
 #endif
                 viewName)
         {
             _result = new QueryableResult<TIn>(result,
-#if !NET45
+#if !NET45_OR_GREATER
                 viewData,
 #endif
                 massage: massage);

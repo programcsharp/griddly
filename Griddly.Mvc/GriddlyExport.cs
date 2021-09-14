@@ -5,7 +5,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Web;
-#if NET45
+#if NET45_OR_GREATER
 using System.Web.Helpers;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -19,7 +19,7 @@ namespace Griddly.Mvc
 {
     public class GriddlyExport
     {
-#if NET45
+#if NET45_OR_GREATER
         public GriddlyExport(string name, bool useGridColumns = false)
 #else
         public GriddlyExport(IHtmlHelper html, string name, bool useGridColumns = false)
@@ -29,20 +29,20 @@ namespace Griddly.Mvc
             this.UseGridColumns = useGridColumns;
             this.Name = name;
             this.Columns = new List<GriddlyColumn>();
-#if !NET45
+#if !NET45_OR_GREATER
             this.Html = html;
 #endif
         }
         public string Name { get; set; }
         public bool UseGridColumns { get; set; }
         public List<GriddlyColumn> Columns { get; set; }
-#if !NET45
+#if !NET45_OR_GREATER
         public IHtmlHelper Html { get; set; }
 #endif
     }
     public class GriddlyExport<TRow> : GriddlyExport
     {
-#if NET45
+#if NET45_OR_GREATER
         public GriddlyExport(string name, bool useGridColumns = false)
             : base(name, useGridColumns)
 #else
@@ -55,7 +55,7 @@ namespace Griddly.Mvc
         {
             if (expression != null)
             {
-#if NET45
+#if NET45_OR_GREATER
                 ModelMetadata metadata = ModelMetadata.FromLambdaExpression<TRow, TProperty>(expression, new ViewDataDictionary<TRow>());
                 string htmlFieldName = ExpressionHelper.GetExpressionText(expression);
 #else

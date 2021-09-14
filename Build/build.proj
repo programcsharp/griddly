@@ -23,11 +23,11 @@
     <RemoveDir Directories="$(BaseDir)\Griddly\obj" />
 
     <ItemGroup>
-	  <!--net45 items-->
+	  <!--net461 items-->
 	  <Content Include="$(BaseDir)\Griddly\**\griddly.js" />
       <Content Include="$(BaseDir)\Griddly\**\griddly.css" />
       <Content Include="$(BaseDir)\Griddly\**\Views\Shared\Griddly\*.*" />
-	  <Libs Include="$(BaseDir)\Griddly.Mvc\bin\$(Configuration)\net45\Griddly.Mvc.dll" />
+	  <Libs Include="$(BaseDir)\Griddly.Mvc\bin\$(Configuration)\net461\Griddly.Mvc.dll" />
 	
 	  <!--coreapp items-->
       <LibsCoreApp Include="$(BaseDir)\Griddly.Mvc\bin\$(Configuration)\netcoreapp3.1\Griddly.Mvc.dll" />
@@ -46,18 +46,18 @@
     <Copy SourceFiles="$(MSBuildProjectDirectory)\Griddly.Core.nuspec" DestinationFolder="$(PackageDir)\Griddly.Core" />
 
     <!-- Copy the source files to the package dir -->
-	<Copy SourceFiles="@(Content)" DestinationFolder="$(PackageDir)\Griddly\content\net45\%(RecursiveDir)" />
-	<Copy SourceFiles="@(Libs)" DestinationFolder="$(PackageDir)\Griddly.Core\lib\net45\%(RecursiveDir)" />
+	<Copy SourceFiles="@(Content)" DestinationFolder="$(PackageDir)\Griddly\content\net461\%(RecursiveDir)" />
+	<Copy SourceFiles="@(Libs)" DestinationFolder="$(PackageDir)\Griddly.Core\lib\net461\%(RecursiveDir)" />
 	<Copy SourceFiles="@(ContentCoreApp)" DestinationFolder="$(PackageDir)\Griddly\staticwebassets\%(RecursiveDir)" />
 	<Copy SourceFiles="@(LibsCoreApp)" DestinationFolder="$(PackageDir)\Griddly.Core\lib\netcoreapp\%(RecursiveDir)" />
 	<Copy SourceFiles="@(LibsCoreAppRazor)" DestinationFolder="$(PackageDir)\Griddly\lib\netcoreapp\%(RecursiveDir)" />
 	<Copy SourceFiles="@(BuildCoreApp)" DestinationFolder="$(PackageDir)\Griddly\%(RecursiveDir)" />
 
     <!-- Get the version number of the main assembly to insert into the nuspec files -->
-    <GetAssemblyIdentity AssemblyFiles="$(PackageDir)\Griddly.Core\lib\net45\Griddly.Mvc.dll">
+    <GetAssemblyIdentity AssemblyFiles="$(PackageDir)\Griddly.Core\lib\net461\Griddly.Mvc.dll">
       <Output TaskParameter="Assemblies" ItemName="AsmInfo" />
     </GetAssemblyIdentity>
-    <GetAssemblyInformationalVersion AssemblyFile="$(PackageDir)\Griddly.Core\lib\net45\Griddly.Mvc.dll">
+    <GetAssemblyInformationalVersion AssemblyFile="$(PackageDir)\Griddly.Core\lib\net461\Griddly.Mvc.dll">
       <Output TaskParameter="Value" ItemName="AssemblyVersion" />
     </GetAssemblyInformationalVersion>
     <PropertyGroup>

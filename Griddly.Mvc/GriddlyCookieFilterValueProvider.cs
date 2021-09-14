@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-#if NET45
+#if NET45_OR_GREATER
 using System.Web.Mvc;
 #else
 using Microsoft.AspNetCore.Mvc;
@@ -47,7 +47,7 @@ namespace Griddly.Mvc
             if (value != null)
                 attemptedValue = string.Join(",", value);
 
-#if NET45
+#if NET45_OR_GREATER
             return new ValueProviderResult(value, attemptedValue, CultureInfo.CurrentCulture);
 #else
             return new ValueProviderResult(value, CultureInfo.CurrentCulture);
@@ -55,7 +55,7 @@ namespace Griddly.Mvc
         }
     }
 
-#if NET45
+#if NET45_OR_GREATER
     public class GriddlyCookieFilterValueProviderFactory : ValueProviderFactory
     {
         Func<ControllerContext, bool> _canProvide = (controllerContext) => controllerContext.HttpContext.Request.QueryString.Count == 0;

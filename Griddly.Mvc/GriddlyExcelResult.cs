@@ -6,7 +6,7 @@ using System.Linq;
 using System.Web;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-#if NET45
+#if NET45_OR_GREATER
 using System.Web.Mvc;
 #else
 using Microsoft.AspNetCore.Mvc;
@@ -34,7 +34,7 @@ namespace Griddly.Mvc
         static readonly Regex _htmlMatch = new Regex(@"<[^>]*>", RegexOptions.Compiled);
         // static readonly Regex _aMatch = new Regex(@"<a\s[^>]*\s?href=""(.*?)"">(.*?)</a>", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-#if NET45
+#if NET45_OR_GREATER
         public override void ExecuteResult(ControllerContext context)
 #else
         public override async Task ExecuteResultAsync(ActionContext context)
@@ -114,7 +114,7 @@ namespace Griddly.Mvc
                 context.HttpContext.Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                 context.HttpContext.Response.Headers.Add("content-disposition", "attachment;  filename=" + _name + ".xlsx");
 
-#if NET45
+#if NET45_OR_GREATER
                 p.SaveAs(context.HttpContext.Response.OutputStream);
 #else
                 var bytes = p.GetAsByteArray();

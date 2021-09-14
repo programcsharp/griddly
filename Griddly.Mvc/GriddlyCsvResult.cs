@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-#if NET45
+using System.Globalization;
+#if NET45_OR_GREATER
 using System.Web.Mvc;
 #else
 using Microsoft.AspNetCore.Mvc;
@@ -29,7 +30,7 @@ namespace Griddly.Mvc
             _exportName = exportName;
         }
 
-#if NET45
+#if NET45_OR_GREATER
         public override void ExecuteResult(ControllerContext context)
 #else
         public override async Task ExecuteResultAsync(ActionContext context)
@@ -41,12 +42,12 @@ namespace Griddly.Mvc
 
             context.HttpContext.Response.Headers.Add("content-disposition", "attachment;  filename=" + _name + "." + format);
 
-#if NET45
+#if NET45_OR_GREATER
             var tw = context.HttpContext.Response.Output;
 #else
             using (var tw = new StreamWriter(context.HttpContext.Response.Body))
 #endif
-            using (CsvWriter w = new CsvWriter(tw, new Configuration() { HasHeaderRecord = true, Delimiter = _format == GriddlyExportFormat.Tsv ? "\t" : "," }))
+            using (CsvWriter w = new CsvWriter(tw, new CsvConfiguration(CultureInfo.CurrentCulture) { HasHeaderRecord = true, Delimiter = _format == GriddlyExportFormat.Tsv ? "\t" : "," }))
             {
                 var export = _settings.Exports.FirstOrDefault(x => x.Name == _exportName);
                 var columns = export == null ? _settings.Columns : export.Columns;
@@ -71,7 +72,7 @@ namespace Griddly.Mvc
 
                         w.WriteField(renderedValue);
                     }
-#if NET45
+#if NET45_OR_GREATER
                     w.NextRecord();
 #else
                     await w.NextRecordAsync(); //Fix: Synchronous operations are disallowed. Call WriteAsync or set AllowSynchronousIO to true instead.

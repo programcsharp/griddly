@@ -1,4 +1,4 @@
-﻿#if !NET45
+﻿#if !NET45_OR_GREATER
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;

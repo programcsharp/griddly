@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-#if NET45
+#if NET45_OR_GREATER
 using System.Web.Mvc;
 #else
 using System.Net.Http;
@@ -70,7 +70,7 @@ namespace Griddly.Mvc
         }
 
         public
-#if NET45
+#if NET45_OR_GREATER
             HttpVerbs
 #else
             HttpMethod
@@ -82,7 +82,7 @@ namespace Griddly.Mvc
                 switch (Action)
                 {
                     case GriddlyButtonAction.Navigate:
-#if NET45
+#if NET45_OR_GREATER
                         return HttpVerbs.Get;
 #else
                         return HttpMethod.Get;
@@ -91,13 +91,13 @@ namespace Griddly.Mvc
                     case GriddlyButtonAction.PostCriteria:
                     case GriddlyButtonAction.Ajax:
                     case GriddlyButtonAction.AjaxBulk:
-#if NET45
+#if NET45_OR_GREATER
                         return HttpVerbs.Post;
 #else
                         return HttpMethod.Post;
 #endif
                     default:
-#if NET45
+#if NET45_OR_GREATER
                         return HttpVerbs.Get;
 #else
                         return HttpMethod.Get;

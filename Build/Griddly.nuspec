@@ -12,7 +12,7 @@
     <description>Pagable, sortable, MVC enabled grid</description>
     <language>en-US</language>
 	<dependencies> 
-        <group targetFramework="net45">
+        <group targetFramework="net461">
             <dependency id="Griddly.Core" version="" />
         </group>
         <group targetFramework="netcoreapp3.1">

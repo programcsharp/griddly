@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Web;
-#if NET45
+#if NET45_OR_GREATER
 using Griddly.Mvc.Linq.Dynamic;
 using System.Web.Mvc;
 using System.Web.Mvc.Html;
@@ -42,7 +42,7 @@ namespace Griddly.Mvc
             }
         }
 
-#if NET45
+#if NET45_OR_GREATER
         public static MvcHtmlString Griddly(this HtmlHelper htmlHelper, string actionName)
         {
             return htmlHelper.Griddly(actionName, null);
@@ -54,7 +54,7 @@ namespace Griddly.Mvc
         }
 #endif
 
-#if NET45
+#if NET45_OR_GREATER
         public static MvcHtmlString Griddly(this HtmlHelper htmlHelper, string actionName, object routeValues)
         {
             return htmlHelper.Griddly(actionName, null, routeValues);
@@ -66,7 +66,7 @@ namespace Griddly.Mvc
         }
 #endif
 
-#if NET45
+#if NET45_OR_GREATER
         public static MvcHtmlString Griddly(this HtmlHelper htmlHelper, string actionName, string controllerName)
         {
             return htmlHelper.Griddly(actionName, controllerName, null);
@@ -78,7 +78,7 @@ namespace Griddly.Mvc
         }
 #endif
 
-#if NET45
+#if NET45_OR_GREATER
         public static MvcHtmlString Griddly(this HtmlHelper htmlHelper, string actionName, string controllerName, object routeValues)
         {
             // TODO: validate that we got a GriddlyResult
@@ -92,7 +92,7 @@ namespace Griddly.Mvc
         }
 #endif
 
-#if NET45
+#if NET45_OR_GREATER
         public static MvcHtmlString Griddly(this HtmlHelper htmlHelper, GriddlySettings settings)
         {
             return htmlHelper.Griddly((GriddlyResultPage)htmlHelper.ViewData.Model, settings);
@@ -104,7 +104,7 @@ namespace Griddly.Mvc
         }
 #endif
 
-#if NET45
+#if NET45_OR_GREATER
         public static MvcHtmlString SimpleGriddly<T>(this HtmlHelper htmlHelper, GriddlySettings<T> settings, IEnumerable<T> data)
 #else
         public static async Task<IHtmlContent> SimpleGriddly<T>(this IHtmlHelper htmlHelper, GriddlySettings<T> settings, IEnumerable<T> data)
@@ -114,7 +114,7 @@ namespace Griddly.Mvc
             foreach (GriddlyColumn c in settings.Columns.Where(x => x.SummaryFunction != null))
                 PopulateSummaryValue(data, c);
 
-#if NET45
+#if NET45_OR_GREATER
             return htmlHelper.Griddly(new GriddlyResultPage<T>(data), settings, true);
 #else
             return await htmlHelper.Griddly(new GriddlyResultPage<T>(data), settings, true);
@@ -153,7 +153,7 @@ namespace Griddly.Mvc
             }
         }
 
-#if NET45
+#if NET45_OR_GREATER
         public static MvcHtmlString Griddly(this HtmlHelper htmlHelper, GriddlyResultPage model, GriddlySettings settings, bool isSimpleGriddly = false)
 #else
         public static async Task<IHtmlContent> Griddly(this IHtmlHelper htmlHelper, GriddlyResultPage model, GriddlySettings settings, bool isSimpleGriddly = false)
@@ -168,7 +168,7 @@ namespace Griddly.Mvc
                 viewData["settings"] = settings;
                 viewData["isSimpleGriddly"] = isSimpleGriddly;
 
-#if NET45
+#if NET45_OR_GREATER
                 return htmlHelper.Partial("~/Views/Shared/Griddly/Griddly.cshtml", viewData);
 #else
                 return await htmlHelper.PartialAsync("~/Pages/Shared/Griddly/Griddly.cshtml", model, viewData);
@@ -182,7 +182,7 @@ namespace Griddly.Mvc
             }
         }
 
-#if NET45
+#if NET45_OR_GREATER
         public static MvcHtmlString GriddlyFilterBar(this HtmlHelper htmlHelper, GriddlyFilterBarSettings settings)
         {
             return htmlHelper.Partial("~/Views/Shared/Griddly/GriddlyFilterBar.cshtml", settings);
@@ -194,7 +194,7 @@ namespace Griddly.Mvc
         }
 #endif
 
-#if NET45
+#if NET45_OR_GREATER
         public static GriddlyColumn<TRow> GriddlyColumnFor<TRow>(this HtmlHelper<IEnumerable<TRow>> htmlHelper, Func<TRow, object> template)
 #else
         public static GriddlyColumn<TRow> GriddlyColumnFor<TRow>(this IHtmlHelper<IEnumerable<TRow>> htmlHelper, Func<TRow, object> template)
@@ -203,7 +203,7 @@ namespace Griddly.Mvc
             return htmlHelper.GriddlyColumnFor<TRow>(template, null);
         }
 
-#if NET45
+#if NET45_OR_GREATER
         public static GriddlyColumn<TRow> GriddlyColumnFor<TRow>(this HtmlHelper<IEnumerable<TRow>> htmlHelper, Func<TRow, object> template, string caption, string columnId = null)
 #else
         public static GriddlyColumn<TRow> GriddlyColumnFor<TRow>(this IHtmlHelper<IEnumerable<TRow>> htmlHelper, Func<TRow, object> template, string caption, string columnId = null)
@@ -215,7 +215,7 @@ namespace Griddly.Mvc
             };
         }
 
-#if NET45
+#if NET45_OR_GREATER
         public static HtmlString AttributeNullable(this HtmlHelper helper, string name, string value)
 #else
         public static HtmlString AttributeNullable(this IHtmlHelper helper, string name, string value)
@@ -227,7 +227,7 @@ namespace Griddly.Mvc
                 return new HtmlString(name + "=\"" + helper.Encode(value) + "\"");
         }
 
-#if NET45
+#if NET45_OR_GREATER
         public static HtmlString AttributeIf(this HtmlHelper helper, string name, bool shouldShow, Func<object, object> value)
 #else
         public static HtmlString AttributeIf(this IHtmlHelper helper, string name, bool shouldShow, Func<object, object> value)
@@ -239,7 +239,7 @@ namespace Griddly.Mvc
                 return null;
         }
 
-#if NET45
+#if NET45_OR_GREATER
         public static HtmlString AttributeIf(this HtmlHelper helper, string name, bool shouldShow, object value)
 #else
         public static HtmlString AttributeIf(this IHtmlHelper helper, string name, bool shouldShow, object value)
@@ -269,7 +269,7 @@ namespace Griddly.Mvc
 
         static readonly string _contextKey = "_griddlycontext";
 
-#if NET45
+#if NET45_OR_GREATER
         public static void SetGriddlyDefault<T>(this ControllerBase controller, ref T parameter, string field, T value, bool? ignoreSkipped = null)
 #else
         public static void SetGriddlyDefault<T>(this Controller controller, ref T parameter, string field, T value, bool? ignoreSkipped = null)
@@ -282,14 +282,14 @@ namespace Griddly.Mvc
 
             context.Defaults[field] = value;
 
-#if NET45
+#if NET45_OR_GREATER
             if (controller.ControllerContext.IsChildAction
 #else
             if (controller.HttpContext.IsChildAction()
 #endif
                 && (!context.IsDefaultSkipped || ignoreSkipped.Value)
                 && (EqualityComparer<T>.Default.Equals(parameter, default(T))
-#if !NET45
+#if !NET45_OR_GREATER
                 || typeof(T).IsArray && (parameter as Array)?.Length == 0 //In .NET core, the default value for array is null, but MVC binds the parameter as zero length array
 #endif
                 ))
@@ -300,7 +300,7 @@ namespace Griddly.Mvc
             }
         }
 
-#if NET45
+#if NET45_OR_GREATER
         public static void SetGriddlyDefault<T>(this ControllerBase controller, ref T[] parameter, string field, IEnumerable<T> value, bool? ignoreSkipped = null)
 #else
         public static void SetGriddlyDefault<T>(this Controller controller, ref T[] parameter, string field, IEnumerable<T> value, bool? ignoreSkipped = null)
@@ -313,7 +313,7 @@ namespace Griddly.Mvc
 
             context.Defaults[field] = value;
 
-#if NET45
+#if NET45_OR_GREATER
             if (controller.ControllerContext.IsChildAction
 #else
             if (controller.HttpContext.IsChildAction()
@@ -327,7 +327,7 @@ namespace Griddly.Mvc
             }
         }
 
-#if NET45
+#if NET45_OR_GREATER
         public static void SetGriddlyDefault<T>(this ControllerBase controller, ref T?[] parameter, string field, IEnumerable<T> value, bool? ignoreSkipped = null)
 #else
         public static void SetGriddlyDefault<T>(this Controller controller, ref T?[] parameter, string field, IEnumerable<T> value, bool? ignoreSkipped = null)
@@ -341,7 +341,7 @@ namespace Griddly.Mvc
 
             context.Defaults[field] = value;
 
-#if NET45
+#if NET45_OR_GREATER
             if (controller.ControllerContext.IsChildAction
 #else
             if (controller.HttpContext.IsChildAction()
@@ -364,7 +364,7 @@ namespace Griddly.Mvc
 
             var context = controller.GetOrCreateGriddlyContext();
 
-#if NET45
+#if NET45_OR_GREATER
             var field = ExpressionHelper.GetExpressionText(expression);
 #else
             var field = ExpressionHelper.GetExpressionText(expression, controller.HttpContext);
@@ -374,7 +374,7 @@ namespace Griddly.Mvc
             var compiledExpression = expression.Compile();
             TProp parameter = compiledExpression(model);
 
-#if NET45
+#if NET45_OR_GREATER
             if (controller.ControllerContext.IsChildAction
 #else
             if (controller.HttpContext.IsChildAction()
@@ -398,7 +398,7 @@ namespace Griddly.Mvc
             }
         }
 
-#if NET45
+#if NET45_OR_GREATER
         public static object GetGriddlyDefault(this WebViewPage page, string field)
 #else
         public static object GetGriddlyDefault(this RazorPageBase page, string field)
@@ -412,7 +412,7 @@ namespace Griddly.Mvc
             return value;
         }
 
-#if NET45
+#if NET45_OR_GREATER
         public static object GetGriddlyParameter(this WebViewPage page, string field)
 #else
         public static object GetGriddlyParameter(this RazorPageBase page, string field)
@@ -426,7 +426,7 @@ namespace Griddly.Mvc
             return value;
         }
 
-#if NET45
+#if NET45_OR_GREATER
         public static int GetGriddlyParameterCount(this WebViewPage page)
 #else
         public static int GetGriddlyParameterCount(this RazorPageBase page)
@@ -435,7 +435,7 @@ namespace Griddly.Mvc
             return (page.ViewContext.ViewData[_contextKey] as GriddlyContext)?.Parameters.Count ?? 0;
         }
 
-#if NET45
+#if NET45_OR_GREATER
         public static Dictionary<string, object> GetGriddlyDefaults(this WebViewPage page)
 #else
         public static Dictionary<string, object> GetGriddlyDefaults(this RazorPageBase page)
@@ -471,7 +471,7 @@ namespace Griddly.Mvc
             return defaults;
         }
 
-#if !NET45
+#if !NET45_OR_GREATER
         public static GriddlyContext GetOrCreateGriddlyContext(this ActionContext actionContext)
         {
             var context = GetOrCreateGriddlyContext(actionContext.RouteData, actionContext.HttpContext);
@@ -486,7 +486,7 @@ namespace Griddly.Mvc
         }
 #endif
 
-#if NET45
+#if NET45_OR_GREATER
         public static GriddlyContext GetOrCreateGriddlyContext(this ControllerBase controller)
         {
             var context = controller.ViewData[_contextKey] as GriddlyContext;
@@ -503,7 +503,7 @@ namespace Griddly.Mvc
 
                 NameValueCollection items;
 
-#if NET45
+#if NET45_OR_GREATER
                 if (controller.ControllerContext.HttpContext.Request.Params != null)
                     items = new NameValueCollection(controller.ControllerContext.HttpContext.Request.Params);
 #else
@@ -528,7 +528,7 @@ namespace Griddly.Mvc
 
                 context = new GriddlyContext()
                 {
-#if NET45
+#if NET45_OR_GREATER
                     Name = (controller.GetType().Name + "_" + controller.ControllerContext.RouteData.Values["action"] as string).ToLower(),
 #else
                     Name = (routeData.Values["controller"] as string).ToLower() + "_" + (routeData.Values["action"] as string).ToLower(),
@@ -540,7 +540,7 @@ namespace Griddly.Mvc
                 };
 
                 // NOTE: for 2020 Chris... yes, this is unique for multiple griddlies on a page as it is in the grid action context of each one
-#if NET45
+#if NET45_OR_GREATER
                 controller.ViewData[_contextKey] = context;
 #else
                 httpContext.Items[_contextKey] = context;
@@ -591,7 +591,7 @@ namespace Griddly.Mvc
                         .ToDictionary(p => p.Name, p => p.GetValue(value, null));
         }
 
-#if NET45
+#if NET45_OR_GREATER
         public static string Current(this UrlHelper helper, object routeValues = null, bool includeQueryString = false)
         {
             var actionRouteValues = helper.RequestContext.RouteData.Values;
@@ -625,7 +625,7 @@ namespace Griddly.Mvc
 
             if (includeQueryString)
             {
-#if NET45
+#if NET45_OR_GREATER
                 foreach (string key in helper.RequestContext.HttpContext.Request.QueryString)
                     values[key] = helper.RequestContext.HttpContext.Request.QueryString[key];
 #else
@@ -659,7 +659,7 @@ namespace Griddly.Mvc
             return route;
         }
 
-#if NET45
+#if NET45_OR_GREATER
         static readonly PropertyInfo _instrumentationService = typeof(WebPageExecutingBase).GetProperty("InstrumentationService", BindingFlags.NonPublic | BindingFlags.Instance);
         static readonly PropertyInfo _isAvailableProperty = typeof(InstrumentationService).GetProperty("IsAvailable");
 

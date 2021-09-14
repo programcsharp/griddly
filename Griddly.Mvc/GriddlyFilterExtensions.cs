@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-#if NET45
+#if NET45_OR_GREATER
 using System.Web.Mvc;
 using System.Web.Mvc;
 #else

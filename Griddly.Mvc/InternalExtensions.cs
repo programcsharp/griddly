@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web;
-#if NET45
+#if NET45_OR_GREATER
 using System.Web.Mvc;
 #else
 using Microsoft.AspNetCore.Html;
@@ -31,7 +31,7 @@ namespace Griddly.Mvc
             return castable;
         }
 
-#if NET45
+#if NET45_OR_GREATER
         internal static Type GetExpectedReturnType(this ActionExecutingContext filterContext)
         {
             if (filterContext.ActionDescriptor is ReflectedActionDescriptor)

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using System.Web;
-#if NET45
+#if NET45_OR_GREATER
 using System.Web.Helpers;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -66,7 +66,7 @@ namespace Griddly.Mvc
         public GriddlyFilter Filter { get; set; }
 
         public abstract HtmlString RenderUnderlyingValue(object row,
-#if NET45
+#if NET45_OR_GREATER
             HtmlHelper html
 #else
             IHtmlHelper html
@@ -74,7 +74,7 @@ namespace Griddly.Mvc
         );
 
         public abstract HtmlString RenderCell(object row, GriddlySettings settings,
-#if NET45
+#if NET45_OR_GREATER
             HtmlHelper html,
 #else
             IHtmlHelper html,
@@ -82,7 +82,7 @@ namespace Griddly.Mvc
             bool encode = true);
 
         public abstract object RenderCellValue(object row,
-#if NET45
+#if NET45_OR_GREATER
             HttpContextBase httpContext,
 #else
             HttpContext httpContext,
@@ -100,7 +100,7 @@ namespace Griddly.Mvc
         }
 
         public virtual HtmlString RenderValue(object value,
-#if NET45
+#if NET45_OR_GREATER
             HtmlHelper html,
 #else
             IHtmlHelper html,
@@ -201,7 +201,7 @@ namespace Griddly.Mvc
         }
 
         public override HtmlString RenderCell(object row, GriddlySettings settings,
-#if NET45
+#if NET45_OR_GREATER
             HtmlHelper html,
 #else
             IHtmlHelper html,
@@ -251,7 +251,7 @@ namespace Griddly.Mvc
         }
 
         public override HtmlString RenderUnderlyingValue(object row,
-#if NET45
+#if NET45_OR_GREATER
             HtmlHelper html
 #else
             IHtmlHelper html
@@ -287,7 +287,7 @@ namespace Griddly.Mvc
         }
 
         public override object RenderCellValue(object row,
-#if NET45
+#if NET45_OR_GREATER
             HttpContextBase httpContext,
 #else
             HttpContext httpContext,
