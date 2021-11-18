@@ -1,4 +1,4 @@
-﻿#if !NET45_OR_GREATER
+﻿#if NETCOREAPP
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;

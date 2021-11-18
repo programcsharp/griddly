@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
 using System.Web.Mvc;
 #else
 using Microsoft.AspNetCore.Mvc.Rendering;

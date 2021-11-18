@@ -1,4 +1,4 @@
-﻿#if !NET45_OR_GREATER
+﻿#if NETCOREAPP
 
 using System.Linq;
 using System;

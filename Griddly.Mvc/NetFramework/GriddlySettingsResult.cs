@@ -1,4 +1,4 @@
-﻿#if NET45_OR_GREATER
+﻿#if NETFRAMEWORK
 using System;
 using System.Collections;
 using System.Collections.Specialized;

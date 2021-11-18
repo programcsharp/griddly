@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using OfficeOpenXml.ConditionalFormatting;
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
 using System.Web.Mvc;
 using System.Web.Mvc.Async;
 using COOKIE = System.Web.HttpCookie;
@@ -28,7 +28,7 @@ namespace Griddly.Mvc
         public static bool DefaultIgnoreSkipped { get; set; } = true;
 
 
-#if !NET45_OR_GREATER
+#if NETCOREAPP
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             OnActionExecuting(context);
@@ -37,7 +37,7 @@ namespace Griddly.Mvc
         }
 #endif
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
         public override
 #else
         private new 
@@ -46,7 +46,7 @@ namespace Griddly.Mvc
         {
             if (filterContext.Controller is Controller controller)
             {
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
                 if (filterContext.ActionDescriptor.ActionName.EndsWith("grid", StringComparison.OrdinalIgnoreCase)
                     || (filterContext.ActionDescriptor as ReflectedActionDescriptor)?.MethodInfo.ReturnType == typeof(GriddlyResult)
                     || (filterContext.ActionDescriptor as TaskAsyncActionDescriptor)?.TaskMethodInfo.ReturnType == typeof(GriddlyResult))
@@ -57,7 +57,7 @@ namespace Griddly.Mvc
                 {
                     var request = filterContext.HttpContext.Request;
                     var context = controller.GetOrCreateGriddlyContext();
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
                     var args = new Dictionary<string, object>(filterContext.ActionParameters);
 #else
                     var args = new Dictionary<string, object>(filterContext.ActionArguments);
@@ -119,7 +119,7 @@ namespace Griddly.Mvc
             }
         }
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
         public override void
 #else
         new async Task
@@ -134,7 +134,7 @@ namespace Griddly.Mvc
                 {
                     var request = filterContext.HttpContext.Request;
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
                     Uri parentPath = filterContext.IsChildAction ? request.Url : request.UrlReferrer;
                     string parentPathString = parentPath?.PathAndQuery.Split('?')[0]; // TODO: less allocations than split
 #else
@@ -152,7 +152,7 @@ namespace Griddly.Mvc
                         };
 
                         // now, we could use the context.Parameters... but the raw string values seems more like what we want here...
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
                         foreach (var param in filterContext.ActionDescriptor.GetParameters())
                         {
                             if (param.ParameterType.IsClass && param.ParameterType != typeof(string))
@@ -199,7 +199,7 @@ namespace Griddly.Mvc
                         }
 
                         string cookieName = "gf_" + context.Name;
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
                         HttpCookie cookie = new HttpCookie(cookieName)
                         {
                             Path = parentPathString
@@ -214,7 +214,7 @@ namespace Griddly.Mvc
             }
         }
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
         public static void AddCookieDataIfNeeded(GriddlyContext context, HttpContextBase httpContext)
 #else
         public static void AddCookieDataIfNeeded(GriddlyContext context, HttpContext httpContext)
@@ -231,7 +231,7 @@ namespace Griddly.Mvc
 
                 cookie.Value = JsonConvert.SerializeObject(data);
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
                 httpContext.Response.Cookies.Add(cookie);
 #else
                 httpContext.Response.Cookies.Append(cookie.Name, cookie.Value, new CookieOptions() { Path = cookie.Path });
@@ -239,7 +239,7 @@ namespace Griddly.Mvc
             }
         }
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
         void AddParameter(ActionExecutedContext filterContext, GriddlyFilterCookieData data, string parameterName)
         {
             var valueResult = filterContext.Controller.ValueProvider.GetValue(parameterName);
@@ -261,20 +261,20 @@ namespace Griddly.Mvc
 #endif
 
         bool IsChildAction(ActionExecutingContext context) =>
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
             context.IsChildAction;
 #else
             context.HttpContext.IsChildAction();
 #endif
 
         bool IsChildAction(ActionExecutedContext context) =>
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
             context.IsChildAction;
 #else
             context.HttpContext.IsChildAction();
 #endif
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
         string[] GetQueryStringKeys(HttpRequestBase request) => request.QueryString.AllKeys;
 #else
         string[] GetQueryStringKeys(HttpRequest request) => request.Query.Keys.ToArray();

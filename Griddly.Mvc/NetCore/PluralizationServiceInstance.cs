@@ -1,4 +1,4 @@
-﻿#if !NET45_OR_GREATER
+﻿#if NETCOREAPP
 using PluralizationService;
 using PluralizationService.English;
 using System;

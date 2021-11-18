@@ -6,7 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Web;
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
 using System.Web.Helpers;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -35,7 +35,7 @@ namespace Griddly.Mvc
         public static bool IsBootstrap4 => DefaultCss.IsBootstrap4;
         #endregion
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
         public static string ButtonTemplate = "~/Views/Shared/Griddly/BootstrapButton.cshtml";
         public static string ButtonListTemplate = "~/Views/Shared/Griddly/ButtonStrip.cshtml";
 #else
@@ -59,7 +59,7 @@ namespace Griddly.Mvc
         public static Func<IEnumerable, GriddlySettings, IEnumerable> OnGriddlyExportExecuting = null;
         public static IGriddlyColumnValueFilter ColumnValueFilter = null;
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
         /// <summary>
         /// Defines an event handler for custom export requests.
         /// 
@@ -81,14 +81,14 @@ namespace Griddly.Mvc
         public static Action<GriddlySettings, GriddlyContext, ActionContext> OnGriddlyPageExecuting = null;
 #endif
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
         public GriddlySettings()
 #else
         public GriddlySettings(IHtmlHelper html)
 #endif
 
         {
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
             IdProperty = "Id";
 #endif
 
@@ -111,7 +111,7 @@ namespace Griddly.Mvc
             //AllowedFilterModes = DefaultAllowedFilterModes;
             ShowRowSelectCount = DefaultShowRowSelectCount;
 
-#if !NET45_OR_GREATER
+#if NETCOREAPP
             Html = html;
 #endif
         }
@@ -125,11 +125,11 @@ namespace Griddly.Mvc
         public HtmlString BoolTrueHtml = DefaultBoolTrueHtml;
         public HtmlString BoolFalseHtml = DefaultBoolFalseHtml;
 
-#if !NET45_OR_GREATER
+#if NETCOREAPP
         public IHtmlHelper Html { get; set; }
 #endif
         public string[] DefaultRowIds { get; set; }
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
         public string IdProperty { get; set; }
 #else
         public abstract object TryGetId(object row);
@@ -152,7 +152,7 @@ namespace Griddly.Mvc
         public List<GriddlyButton> Buttons { get; set; }
         public List<GriddlyExport> Exports { get; set; }
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
         public Action<GriddlySettings, GriddlyResultPage, HtmlHelper, bool> BeforeRender = null;
         public Func<object, object> BeforeTemplate { get; set; }
         public Func<object, object> AfterButtonsTemplate { get; set; }
@@ -241,7 +241,7 @@ namespace Griddly.Mvc
             return null;
         }
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
         public GriddlySettings RowId(Expression<Func<object, object>> expression, string name = null)
 #else
         public GriddlySettings RowId(Expression<Func<object, object>> expression, string name)
@@ -249,7 +249,7 @@ namespace Griddly.Mvc
         {
             if (name == null)
             {
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
                 var meta = ModelMetadata.FromLambdaExpression(expression, new ViewDataDictionary<object>());
                 name = ExpressionHelper.GetExpressionText(expression);
 #else
@@ -448,7 +448,7 @@ namespace Griddly.Mvc
 
     public class GriddlySettings<TRow> : GriddlySettings
     {
-#if !NET45_OR_GREATER
+#if NETCOREAPP
         static MethodInfo _idPropGetter = typeof(TRow).GetProperty("Id", BindingFlags.IgnoreCase | BindingFlags.Instance | BindingFlags.Public)?.GetGetMethod();
 
         public GriddlySettings(IHtmlHelper html) : base(html) { }
@@ -483,7 +483,7 @@ namespace Griddly.Mvc
         }
 #endif
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
         public new Func<GriddlySettings<TRow>, object> FilterTemplate
 #else
         public new Func<GriddlySettings<TRow>, IHtmlContent> FilterTemplate
@@ -498,7 +498,7 @@ namespace Griddly.Mvc
             }
         }
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
         public new Func<GriddlySettings<TRow>, object> InlineFilterTemplate
 #else
         public new Func<GriddlySettings<TRow>, IHtmlContent> InlineFilterTemplate
@@ -550,7 +550,7 @@ namespace Griddly.Mvc
         {
             if (name == null)
             {
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
                 var meta = ModelMetadata.FromLambdaExpression(expression, new ViewDataDictionary<TRow>());
                 name = ExpressionHelper.GetExpressionText(expression);
 #else
@@ -567,7 +567,7 @@ namespace Griddly.Mvc
         {
             if (expression != null)
             {
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
                 var metadata = ModelMetadata.FromLambdaExpression<TRow, TProperty>(expression, new ViewDataDictionary<TRow>());
                 string htmlFieldName = ExpressionHelper.GetExpressionText(expression);
 #else

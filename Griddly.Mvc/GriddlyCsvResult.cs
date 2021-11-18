@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Globalization;
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
 using System.Web.Mvc;
 #else
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +30,7 @@ namespace Griddly.Mvc
             _exportName = exportName;
         }
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
         public override void ExecuteResult(ControllerContext context)
 #else
         public override async Task ExecuteResultAsync(ActionContext context)
@@ -42,7 +42,7 @@ namespace Griddly.Mvc
 
             context.HttpContext.Response.Headers.Add("content-disposition", "attachment;  filename=" + _name + "." + format);
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
             var tw = context.HttpContext.Response.Output;
 #else
             using (var tw = new StreamWriter(context.HttpContext.Response.Body))
@@ -72,7 +72,7 @@ namespace Griddly.Mvc
 
                         w.WriteField(renderedValue);
                     }
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
                     w.NextRecord();
 #else
                     await w.NextRecordAsync(); //Fix: Synchronous operations are disallowed. Call WriteAsync or set AllowSynchronousIO to true instead.

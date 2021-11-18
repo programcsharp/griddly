@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
 using System.Web.Helpers;
 using Griddly.Mvc.Linq.Dynamic;
 #else
@@ -22,12 +22,12 @@ namespace Griddly.Mvc.Results
         static readonly bool _typeHasId = typeof(T).GetProperty("Id") != null;
 
         public QueryableResult(IQueryable<T> result,
-#if !NET45_OR_GREATER
+#if NETCOREAPP
             ViewDataDictionary viewData,
 #endif
             string viewName = null, Func<IQueryable<T>, IQueryable<T>> massage = null, string finalSortField = null)
             : base(
-#if !NET45_OR_GREATER
+#if NETCOREAPP
                   viewData,
 #endif
                   viewName)

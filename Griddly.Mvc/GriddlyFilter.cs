@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
 using System.Data.Entity.Design.PluralizationServices;
 using System.Web.Mvc;
 #else
@@ -16,7 +16,7 @@ namespace Griddly.Mvc
     {
         string _caption;
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
         static readonly PluralizationService _pluralizationService = PluralizationService.CreateService(CultureInfo.GetCultureInfo("en-US"));
 #else
         static readonly PluralizationServiceInstance _pluralizationService = new PluralizationServiceInstance();

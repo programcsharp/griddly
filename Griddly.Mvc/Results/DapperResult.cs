@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
 using System.Web.Helpers;
 #else
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -29,12 +29,12 @@ namespace Griddly.Mvc.Results
         protected static readonly bool _hasOverallCount = typeof(IHasOverallCount).IsAssignableFrom(typeof(T));
 
         public DapperResult(Func<IDbConnection> getConnection, string sql, object param, 
-#if !NET45_OR_GREATER
+#if NETCOREAPP
             ViewDataDictionary viewData,
 #endif
             Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map, Action<IDbConnection, IDbTransaction, IList<T>> massage, bool fixedSort, Func<IDbTransaction> getTransaction, string outerSqlTemplate, int? commandTimout = null)
             : base(
-#if !NET45_OR_GREATER
+#if NETCOREAPP
                   viewData,
 #endif
                   null)

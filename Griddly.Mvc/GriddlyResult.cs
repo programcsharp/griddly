@@ -5,7 +5,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
 using Griddly.Mvc.Linq.Dynamic;
 using System.Web.Helpers;
 using System.Web.Mvc;
@@ -61,23 +61,23 @@ namespace Griddly.Mvc
     public abstract class GriddlyResult<T> : GriddlyResult
     {
         public string ViewName { get; set; }
-#if !NET45_OR_GREATER
+#if NETCOREAPP
         public ViewDataDictionary ViewData { get; private set; }
 #endif
 
         public GriddlyResult (
-#if !NET45_OR_GREATER
+#if NETCOREAPP
             ViewDataDictionary viewData,
 #endif
             string viewName = null)
         {
             ViewName = viewName;
-#if !NET45_OR_GREATER
+#if NETCOREAPP
             ViewData = viewData;
 #endif
         }
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
         public override void ExecuteResult(ControllerContext context)
         {
 #else
@@ -88,7 +88,7 @@ namespace Griddly.Mvc
 #endif
             if (GriddlySettings.DisableHistoryParameters)
             {
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
                 // not using history, so make sure we don't get half junk in FF etc from back buttons
                 context.RequestContext.HttpContext.Response.Cache.SetNoServerCaching();
                 context.RequestContext.HttpContext.Response.Cache.SetNoStore();
@@ -97,7 +97,7 @@ namespace Griddly.Mvc
 #endif
             }
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
             var griddlyContext = context.Controller.GetOrCreateGriddlyContext();
             var httpContext = context.HttpContext;
             GriddlySettings settings = GriddlySettingsResult.GetSettings(context, ViewName);
@@ -115,7 +115,7 @@ namespace Griddly.Mvc
                     .ToArray();
             }
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
             if (context.IsChildAction)
             {
                 //settings = GriddlySettingsResult.GetSettings(context, ViewName); - this looks redundant to me.
@@ -163,7 +163,7 @@ namespace Griddly.Mvc
 
                 PartialViewResult view = new PartialViewResult()
                 {
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
                     ViewData = new ViewDataDictionary(result),
 #else
                     ViewData = new ViewDataDictionary(new EmptyModelMetadataProvider(), new ModelStateDictionary()) { Model = result },
@@ -171,7 +171,7 @@ namespace Griddly.Mvc
                     ViewName = ViewName,
                 };
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
                 foreach (KeyValuePair<string, object> value in context.Controller.ViewData.Where(x => x.Key != "_isGriddlySettingsRequest"))
                     view.ViewData[value.Key] = value.Value;
 
@@ -198,7 +198,7 @@ namespace Griddly.Mvc
             }
             else
             {
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
                 var routeData = context.Controller.ControllerContext.RouteData;
                 var parms = context.HttpContext.Request.Params;
 #else
@@ -241,7 +241,7 @@ namespace Griddly.Mvc
                     }
                 }
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
                 result.ExecuteResult(context);
 #else
                 await result.ExecuteResultAsync(context);

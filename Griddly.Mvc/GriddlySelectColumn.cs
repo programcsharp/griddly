@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Web;
 using System.IO;
 using System.Text;
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
 using System.Web.Mvc;
 using System.Web.Routing;
 #else
@@ -36,7 +36,7 @@ namespace Griddly.Mvc
         }
                 
         public override HtmlString RenderCell(object row, GriddlySettings settings,
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
             HtmlHelper html,
 #else
             IHtmlHelper html,
@@ -81,7 +81,7 @@ namespace Griddly.Mvc
                     input.MergeAttributes(inputAttributes);
                 }
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
                 return new HtmlString(input.ToString(TagRenderMode.SelfClosing));
 #else
                 var sb = new StringBuilder();
@@ -97,7 +97,7 @@ namespace Griddly.Mvc
         }
 
         public override object RenderCellValue(object row,
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
             HttpContextBase httpContext,
 #else
             HttpContext httpContext,
@@ -108,7 +108,7 @@ namespace Griddly.Mvc
         }
 
         public override HtmlString RenderUnderlyingValue(object row,
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
             HtmlHelper html
 #else
             IHtmlHelper html

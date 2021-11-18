@@ -5,7 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 
-#if !NET45_OR_GREATER
+#if NETCOREAPP
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 #endif
 
@@ -14,12 +14,12 @@ namespace Griddly.Mvc.Results
     public class DapperSql2008Result<T> : DapperResult<T>
     {
         public DapperSql2008Result(Func<IDbConnection> getConnection, string sql, object param,
-#if !NET45_OR_GREATER
+#if NETCOREAPP
             ViewDataDictionary viewData,
 #endif
             Func<IDbConnection, IDbTransaction, string, object, IEnumerable<T>> map = null, Action<IDbConnection, IDbTransaction, IList<T>> massage = null, bool fixedSort = false, Func<IDbTransaction> getTransaction = null, string outerSqlTemplate = "{0}", int? commandTimeout = null)
             : base(getConnection, sql, param,
-#if !NET45_OR_GREATER
+#if NETCOREAPP
                   viewData,
 #endif
                   map, massage, fixedSort, getTransaction, outerSqlTemplate, commandTimeout)

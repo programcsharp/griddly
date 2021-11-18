@@ -4,7 +4,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Web;
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
 using System.Web.Helpers;
 using System.Web.Mvc;
 using System.Web.Routing;
@@ -19,7 +19,7 @@ namespace Griddly.Mvc
     {
         public List<GriddlyFilter> Filters { get; set; } = new List<GriddlyFilter>();
 
-#if NET45_OR_GREATER
+#if NETFRAMEWORK
         public Func<object, object> FilterButtonTemplate { get; set; }
 #else
         public Func<object, IHtmlContent> FilterButtonTemplate { get; set; }
