@@ -48,9 +48,9 @@ namespace Griddly.Mvc
             return htmlHelper.Griddly(actionName, null);
         }
 #else
-        public static async Task<IHtmlContent> Griddly(this IHtmlHelper htmlHelper, string actionName)
+        public static async Task<IHtmlContent> GriddlyAsync(this IHtmlHelper htmlHelper, string actionName)
         {
-            return await htmlHelper.Griddly(actionName, null);
+            return await htmlHelper.GriddlyAsync(actionName, null);
         }
 #endif
 
@@ -60,9 +60,9 @@ namespace Griddly.Mvc
             return htmlHelper.Griddly(actionName, null, routeValues);
         }
 #else
-        public static async Task<IHtmlContent> Griddly(this IHtmlHelper htmlHelper, string actionName, object routeValues)
+        public static async Task<IHtmlContent> GriddlyAsync(this IHtmlHelper htmlHelper, string actionName, object routeValues)
         {
-            return await htmlHelper.Griddly(actionName, null, routeValues);
+            return await htmlHelper.GriddlyAsync(actionName, null, routeValues);
         }
 #endif
 
@@ -72,9 +72,9 @@ namespace Griddly.Mvc
             return htmlHelper.Griddly(actionName, controllerName, null);
         }
 #else
-        public static async Task<IHtmlContent> Griddly(this IHtmlHelper htmlHelper, string actionName, string controllerName)
+        public static async Task<IHtmlContent> GriddlyAsync(this IHtmlHelper htmlHelper, string actionName, string controllerName)
         {
-            return await htmlHelper.Griddly(actionName, controllerName, null);
+            return await htmlHelper.GriddlyAsync(actionName, controllerName, null);
         }
 #endif
 
@@ -85,7 +85,7 @@ namespace Griddly.Mvc
             return htmlHelper.Action(actionName, controllerName, routeValues);
         }
 #else
-        public static async Task<IHtmlContent> Griddly(this IHtmlHelper htmlHelper, string actionName, string controllerName, object routeValues)
+        public static async Task<IHtmlContent> GriddlyAsync(this IHtmlHelper htmlHelper, string actionName, string controllerName, object routeValues)
         {
             // TODO: validate that we got a GriddlyResult
             return await htmlHelper.RenderAction(actionName, controllerName, routeValues);
@@ -98,16 +98,16 @@ namespace Griddly.Mvc
             return htmlHelper.Griddly((GriddlyResultPage)htmlHelper.ViewData.Model, settings);
         }
 #else
-        public static async Task<IHtmlContent> Griddly(this IHtmlHelper htmlHelper, GriddlySettings settings)
+        public static async Task<IHtmlContent> GriddlyAsync(this IHtmlHelper htmlHelper, GriddlySettings settings)
         {
-            return await htmlHelper.Griddly((GriddlyResultPage)htmlHelper.ViewData.Model, settings);
+            return await htmlHelper.GriddlyAsync((GriddlyResultPage)htmlHelper.ViewData.Model, settings);
         }
 #endif
 
 #if NETFRAMEWORK
         public static MvcHtmlString SimpleGriddly<T>(this HtmlHelper htmlHelper, GriddlySettings<T> settings, IEnumerable<T> data)
 #else
-        public static async Task<IHtmlContent> SimpleGriddly<T>(this IHtmlHelper htmlHelper, GriddlySettings<T> settings, IEnumerable<T> data)
+        public static async Task<IHtmlContent> SimpleGriddlyAsync<T>(this IHtmlHelper htmlHelper, GriddlySettings<T> settings, IEnumerable<T> data)
 #endif
         {
             // TODO: figure out how to get this in one query
@@ -117,7 +117,7 @@ namespace Griddly.Mvc
 #if NETFRAMEWORK
             return htmlHelper.Griddly(new GriddlyResultPage<T>(data), settings, true);
 #else
-            return await htmlHelper.Griddly(new GriddlyResultPage<T>(data), settings, true);
+            return await htmlHelper.GriddlyAsync(new GriddlyResultPage<T>(data), settings, true);
 #endif
         }
 
@@ -156,7 +156,7 @@ namespace Griddly.Mvc
 #if NETFRAMEWORK
         public static MvcHtmlString Griddly(this HtmlHelper htmlHelper, GriddlyResultPage model, GriddlySettings settings, bool isSimpleGriddly = false)
 #else
-        public static async Task<IHtmlContent> Griddly(this IHtmlHelper htmlHelper, GriddlyResultPage model, GriddlySettings settings, bool isSimpleGriddly = false)
+        public static async Task<IHtmlContent> GriddlyAsync(this IHtmlHelper htmlHelper, GriddlyResultPage model, GriddlySettings settings, bool isSimpleGriddly = false)
 #endif
         {
             if (htmlHelper.ViewData["_isGriddlySettingsRequest"] as bool? != true)
@@ -188,7 +188,7 @@ namespace Griddly.Mvc
             return htmlHelper.Partial("~/Views/Shared/Griddly/GriddlyFilterBar.cshtml", settings);
         }
 #else
-        public static async Task<IHtmlContent> GriddlyFilterBar(this IHtmlHelper htmlHelper, GriddlyFilterBarSettings settings)
+        public static async Task<IHtmlContent> GriddlyAsyncFilterBar(this IHtmlHelper htmlHelper, GriddlyFilterBarSettings settings)
         {
             return await htmlHelper.PartialAsync("~/Pages/Shared/Griddly/GriddlyFilterBar.cshtml", settings, null);
         }

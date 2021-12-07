@@ -3,7 +3,7 @@
     ViewBag.Title = "Test 1 Grid";
 }
 
-@await Html.Griddly(new GriddlySettings<TestGridItem>(Html)
+@await Html.GriddlyAsync(new GriddlySettings<TestGridItem>(Html)
     {
         PageSize = 5,
         FilterButtonTemplate = @<div class="btn-group">

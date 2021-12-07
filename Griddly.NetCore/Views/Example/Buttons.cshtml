@@ -3,7 +3,7 @@
     <p>@(ViewBag.Selected != null ? string.Join(", ", ViewBag.Selected) : null)</p>
 </div>
 
-@await Html.Griddly("ButtonsGrid", new { lastName = ViewBag.LastName })
+@await Html.GriddlyAsync("ButtonsGrid", new { lastName = ViewBag.LastName })
 
 <div id="modal-id" class="modal fade">
     <div class="modal-dialog">

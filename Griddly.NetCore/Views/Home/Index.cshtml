@@ -110,7 +110,7 @@
             @@{
                 Layout = null;    
             }
-            @@await Html.Griddly(new GriddlySettings&lt;SimpleOrder&gt;()
+            @@await Html.GriddlyAsync(new GriddlySettings&lt;SimpleOrder&gt;()
                 {
                     ClassName = "index-grid"
                 }
@@ -166,10 +166,10 @@
         <h3>Render grid</h3>
         <p>Now that the grid is all set up, we've just got to render it in the parent view, also done using the Html.Griddly extension method, but here we pass route parameters rather than the GriddlySettings&lt;T&gt; we used in the grid view.</p>
         <pre class="brush: razor">
-            @@await Html.Griddly("IndexGrid")
+            @@await Html.GriddlyAsync("IndexGrid")
         </pre>
         <h3>Live Demo</h3>
         <p>And here's what it looks like after that's all set up.</p>
-        @await Html.Griddly("IndexGrid")
+        @await Html.GriddlyAsync("IndexGrid")
     </div>
 </div>

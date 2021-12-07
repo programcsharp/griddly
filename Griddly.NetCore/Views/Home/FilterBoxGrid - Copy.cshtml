@@ -31,7 +31,7 @@
     };
 }
 
-@await Html.Griddly(new GriddlySettings<TestGridItem>(Html)
+@await Html.GriddlyAsync(new GriddlySettings<TestGridItem>(Html)
     {
         PageSize = 5,
         RowClickUrl = x => "http://microsoft.com",

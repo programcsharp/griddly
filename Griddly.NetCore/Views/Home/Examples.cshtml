@@ -15,23 +15,23 @@
         <div class="tab-content">
             <div id="tab-filterbox" class="tab-pane active" role="tabpanel">
                 <p>This example displays Griddly's filtering by text box or select list.</p>
-                @await Html.Griddly("FilterBoxGrid", new { test = SortDirection.Ascending })
+                @await Html.GriddlyAsync("FilterBoxGrid", new { test = SortDirection.Ascending })
             </div>
 
             <div id="tab-filterrange" class="tab-pane" role="tabpanel">
                 <p>This example shows a number of features used for testing.</p>
                 <a href="javascript:GetFilterValues()">get filter values</a> | <a href="javascript:SetFilterValues()">set filter values</a>
-                @await Html.Griddly("FilterRangeGrid")
+                @await Html.GriddlyAsync("FilterRangeGrid")
             </div>
 
             <div id="tab-filterlist" class="tab-pane" role="tabpanel">
                 <p>This example shows a number of features used for testing.</p>
-                @await Html.Griddly("FilterListGrid")
+                @await Html.GriddlyAsync("FilterListGrid")
             </div>
 
             <div id="tab-testgrid" class="tab-pane" role="tabpanel">
                 <p>This example shows a number of features used for testing.</p>
-                @await Html.Griddly("TestGrid")
+                @await Html.GriddlyAsync("TestGrid")
             </div>
         </div>
 

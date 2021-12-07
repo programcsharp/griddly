@@ -47,4 +47,4 @@
         .Column(x => x.IsApproved, "Approved", filter: x => x.FilterBool(nullItemText: "Both", field: "isApproved"));
 }
 
-@await Html.Griddly(gridSettings)
+@await Html.GriddlyAsync(gridSettings)
