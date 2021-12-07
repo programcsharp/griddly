@@ -188,7 +188,7 @@ namespace Griddly.Mvc
             return htmlHelper.Partial("~/Views/Shared/Griddly/GriddlyFilterBar.cshtml", settings);
         }
 #else
-        public static async Task<IHtmlContent> GriddlyAsyncFilterBar(this IHtmlHelper htmlHelper, GriddlyFilterBarSettings settings)
+        public static async Task<IHtmlContent> GriddlyFilterBarAsync(this IHtmlHelper htmlHelper, GriddlyFilterBarSettings settings)
         {
             return await htmlHelper.PartialAsync("~/Pages/Shared/Griddly/GriddlyFilterBar.cshtml", settings, null);
         }
