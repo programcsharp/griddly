@@ -481,6 +481,14 @@ namespace Griddly.Mvc
                 return null;
             }
         }
+#else
+        public GriddlySettings() { }
+
+        /// <summary>
+        /// This overload is only to provide a common signature between .NET Framework and .NET Core.
+        /// </summary>
+        /// <param name="html">Not used in .NET Framework.</param>
+        public GriddlySettings(HtmlHelper html) : this() { }
 #endif
 
 #if NETFRAMEWORK
