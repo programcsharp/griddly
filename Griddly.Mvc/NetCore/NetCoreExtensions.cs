@@ -26,7 +26,7 @@ namespace Griddly.Mvc
 
     public static class NetCoreExtensions
     {
-        public static string ToHtmlString(this HelperResult value)
+        internal static string ToHtmlString(this HelperResult value)
         {
             using (var tw = new StringWriter())
             {
@@ -34,11 +34,11 @@ namespace Griddly.Mvc
                 return tw.ToString();
             }
         }
-        public static string ToHtmlString(this HtmlString value)
+        internal static string ToHtmlString(this HtmlString value)
         {
             return value.Value;
         }
-        public static NameValueCollection GetParams(this HttpRequest request)
+        internal static NameValueCollection GetParams(this HttpRequest request)
         {
             var dict = request.Query.ToDictionary(x => x.Key, x => x.Value);
 

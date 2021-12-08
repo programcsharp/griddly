@@ -16,7 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Griddly.Mvc
 {
     //https://stackoverflow.com/questions/26916664/html-action-in-asp-net-core
-    public static class HtmlHelperViewExtensions
+    internal static class HtmlHelperViewExtensions
     {
         public static async Task<IHtmlContent> RenderAction(this IHtmlHelper helper, string action, string controller = null, object parameters = null)
         {

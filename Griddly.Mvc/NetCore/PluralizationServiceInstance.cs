@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Griddly.Mvc
 {
-    public class PluralizationServiceInstance
+    internal class PluralizationServiceInstance
     {
         private static readonly IPluralizationApi Api;
         private static readonly CultureInfo CultureInfo;
