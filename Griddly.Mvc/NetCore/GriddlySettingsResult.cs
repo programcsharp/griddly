@@ -32,7 +32,7 @@ namespace Griddly.Mvc
 
             var httpContext = sp.GetRequiredService<IHttpContextFactory>().Create(context.HttpContext.Features);
 
-            var actionContext = new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
+            var actionContext = new ActionContext(httpContext, context.RouteData, context.ActionDescriptor);
 
             var viewEngine = sp.GetRequiredService<IRazorViewEngine>();
             var viewResult = viewEngine.FindView(context, viewName, false);
