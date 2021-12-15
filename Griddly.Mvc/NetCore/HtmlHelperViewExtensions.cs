@@ -51,12 +51,28 @@ namespace Griddly.Mvc
             {
                 routeData.PushState(router, null, null);
             }
+
+            foreach (var kv in helper.ViewContext.ActionDescriptor.RouteValues)
+            {
+                if (kv.Key.ToLower() != "controller" && kv.Key.ToLower() != "action" && kv.Key.ToLower() != "area")
+                {
+                    if (area != null && helper.ViewContext.ActionDescriptor.RouteValues.ContainsKey("area") && area == helper.ViewContext.ActionDescriptor.RouteValues["area"])
+                        routeData.PushState(null, new RouteValueDictionary() { { kv.Key, kv.Value } }, null);
+                }
+            }
+
             routeData.PushState(null, new RouteValueDictionary(new { controller = controller, action = action, area = area }), null);
             routeData.PushState(null, new RouteValueDictionary(parameters ?? new { }), null);
 
             //get the actiondescriptor
             RouteContext routeContext = new RouteContext(helper.ViewContext.HttpContext) { RouteData = routeData };
             var candidates = actionSelector.SelectCandidates(routeContext);
+
+            if (!candidates.Any())
+            {
+                throw new Exception("Could not find action");
+            }
+
             var actionDescriptor = actionSelector.SelectBestCandidate(routeContext, candidates);
 
             var originalActionContext = actionContextAccessor.ActionContext;
