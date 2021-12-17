@@ -230,10 +230,17 @@ namespace Griddly.Mvc
                 if (LinkUrl == null) return (HtmlString)value; //Return directly, to avoid converting to string and back to HtmlString unnecessarily
                 else valueString = ((HtmlString)value).ToHtmlString();
             }
+#if NETCOREAPP
+            else if (value is IHtmlContent && encode)
+                valueString = ((IHtmlContent)value).ToHtmlString();
+            else if (value is IHtmlContent && !encode)
+                throw new NotSupportedException("encode == false");
+#else
             else if (value is HelperResult && encode)
                 valueString = ((HelperResult)value).ToHtmlString();
             else if (value is HelperResult && !encode)
                 valueString = ((HelperResult)value).ToString();
+#endif
             else
             {
                 if (LinkUrl == null) return RenderValue(value, html, encode); //Return directly, to avoid converting to string and back to HtmlString unnecessarily
@@ -313,8 +320,13 @@ namespace Griddly.Mvc
                 value = GriddlySettings.ColumnValueFilter.Filter(this, value, httpContext);
 
             // TODO: test if we need to match separately -- maybe we get a real string here and could strip?
+#if NETCOREAPP
+            if (value is IHtmlContent html)
+                value = html.ToHtmlString();
+#else
             if (value is HelperResult)
                 value = new HtmlString(((HelperResult)value).ToString());
+#endif
 
             if (value is HtmlString)
                 value = value.ToString();

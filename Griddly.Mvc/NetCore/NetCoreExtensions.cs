@@ -26,7 +26,7 @@ namespace Griddly.Mvc
 
     public static class NetCoreExtensions
     {
-        internal static string ToHtmlString(this HelperResult value)
+        internal static string ToHtmlString(this IHtmlContent value)
         {
             using (var tw = new StringWriter())
             {
