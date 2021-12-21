@@ -52,12 +52,11 @@ namespace Griddly.Mvc
                 routeData.PushState(router, null, null);
             }
 
-            foreach (var kv in helper.ViewContext.ActionDescriptor.RouteValues)
+            foreach (var kv in helper.ViewContext.RouteData.Values)
             {
                 if (kv.Key.ToLower() != "controller" && kv.Key.ToLower() != "action" && kv.Key.ToLower() != "area")
                 {
-                    if (area != null && helper.ViewContext.ActionDescriptor.RouteValues.ContainsKey("area") && area == helper.ViewContext.ActionDescriptor.RouteValues["area"])
-                        routeData.PushState(null, new RouteValueDictionary() { { kv.Key, kv.Value } }, null);
+                    routeData.PushState(null, new RouteValueDictionary() { { kv.Key, kv.Value } }, null);
                 }
             }
 
