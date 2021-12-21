@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Net;
 using COOKIE = System.Net.Cookie;
+using Griddly.Mvc.InternalExtensions;
 #endif
 
 namespace Griddly.Mvc

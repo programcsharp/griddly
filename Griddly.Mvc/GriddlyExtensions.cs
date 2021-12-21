@@ -28,6 +28,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
+using Griddly.Mvc.InternalExtensions;
 #endif
 
 namespace Griddly.Mvc

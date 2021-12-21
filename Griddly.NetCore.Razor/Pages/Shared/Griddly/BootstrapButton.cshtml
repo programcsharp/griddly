@@ -9,6 +9,7 @@
     *
 *@
 @using Griddly.Mvc
+@using Griddly.Mvc.InternalExtensions
 @using Microsoft.AspNetCore.Html;
 @using System.IO;
 @using System.Text.Encodings.Web;
@@ -23,18 +24,7 @@
         if (button.ArgumentTemplate != null)
         {
             object argument = button.ArgumentTemplate(ViewData["ResolveContext"]);
-            if (argument is IHtmlContent hc) 
-            {
-                using (var tw = new StringWriter())
-                {
-                    hc.WriteTo(tw, HtmlEncoder.Default);
-                    button.Argument = tw.ToString();
-                }
-            }
-            else
-            {
-                button.Argument = argument.ToString();
-            }
+            button.Argument = argument is IHtmlContent hc ? hc.ToHtmlString() : argument.ToString();
         }
 
         string href = null;

@@ -24,16 +24,8 @@ namespace Griddly.Mvc
         Descending
     }
 
-    public static class NetCoreExtensions
+    internal static class NetCoreExtensions
     {
-        internal static string ToHtmlString(this IHtmlContent value)
-        {
-            using (var tw = new StringWriter())
-            {
-                value.WriteTo(tw, HtmlEncoder.Default);
-                return tw.ToString();
-            }
-        }
         internal static string ToHtmlString(this HtmlString value)
         {
             return value.Value;
@@ -58,14 +50,6 @@ namespace Griddly.Mvc
                 result.Add(item.Key, string.Join(",", item.Value));
             return result;
         }
-        public static bool IsChildAction(this HttpContext context)
-        {
-            return context.Items["IsChildAction"] != null && (bool)context.Items["IsChildAction"];
-        }
-        public static ViewContext ParentActionViewContext(this HttpContext context)
-        {
-            return context.Items["IsChildAction"] != null && (bool)context.Items["IsChildAction"] ? (context.Items["ParentActionViewContext"] as ViewContext) : null;
-        }
     }
 
     internal static class ExpressionHelper
@@ -87,6 +71,29 @@ namespace Griddly.Mvc
             var modelExpression = expressionProvider.CreateModelExpression(new ViewDataDictionary<TRow>(metadataProvider, new ModelStateDictionary()), expression);
             metadata = modelExpression.Metadata;
             return modelExpression.Name;
+        }
+    }
+}
+
+namespace Griddly.Mvc.InternalExtensions
+{
+    public static class NetCoreInternalExtensions
+    {
+        public static string ToHtmlString(this IHtmlContent value)
+        {
+            using (var tw = new StringWriter())
+            {
+                value.WriteTo(tw, HtmlEncoder.Default);
+                return tw.ToString();
+            }
+        }
+        public static bool IsChildAction(this HttpContext context)
+        {
+            return context.Items["IsChildAction"] != null && (bool)context.Items["IsChildAction"];
+        }
+        public static ViewContext ParentActionViewContext(this HttpContext context)
+        {
+            return context.Items["IsChildAction"] != null && (bool)context.Items["IsChildAction"] ? (context.Items["ParentActionViewContext"] as ViewContext) : null;
         }
     }
 }

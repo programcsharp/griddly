@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Griddly.Mvc.InternalExtensions;
 #endif
 
 namespace Griddly.Mvc

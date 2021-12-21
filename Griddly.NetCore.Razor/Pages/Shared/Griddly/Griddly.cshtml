@@ -9,6 +9,8 @@
     *
 *@
 @using Griddly.Mvc
+@using Griddly.Mvc.InternalExtensions
+@using Microsoft.AspNetCore.Html;
 
 @model GriddlyResultPage
 
@@ -306,7 +308,9 @@
 <tbody class="data">
     @foreach (object row in Model.Data)
     {
-        <tr @Html.AttributeIf("data-griddly-url", settings.RowClickUrl != null, settings.RowClickUrl?.Invoke(row))
+        object rowClickUrl = settings.RowClickUrl?.Invoke(row);
+
+        <tr @Html.AttributeIf("data-griddly-url", rowClickUrl != null, rowClickUrl is IHtmlContent hc ? hc.ToHtmlString() : rowClickUrl)
             @Html.AttributeIf("data-griddly-urltarget", settings.RowClickTarget != null, settings.RowClickTarget)
             @Html.AttributeIf("class", settings.RowClass != null, settings.RowClass?.Invoke(row))
             @Html.AttributeNullable("data-id", settings.TryGetId(row)?.ToString())
