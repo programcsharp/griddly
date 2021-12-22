@@ -162,9 +162,12 @@ namespace Griddly.Mvc
         {
             if (htmlHelper.ViewData["_isGriddlySettingsRequest"] as bool? != true)
             {
+#if NETFRAMEWORK
                 ViewDataDictionary viewData = new ViewDataDictionary(htmlHelper.ViewData);
-
                 viewData.Model = model;
+#else
+                ViewDataDictionary viewData = new ViewDataDictionary<GriddlyResultPage>(htmlHelper.ViewData, model);
+#endif
 
                 viewData["settings"] = settings;
                 viewData["isSimpleGriddly"] = isSimpleGriddly;
