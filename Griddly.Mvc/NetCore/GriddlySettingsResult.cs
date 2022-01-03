@@ -37,6 +37,10 @@ namespace Griddly.Mvc
             var viewEngine = sp.GetRequiredService<IRazorViewEngine>();
             var viewResult = viewEngine.FindView(context, viewName, false);
 
+            //Workaround for https://github.com/dotnet/aspnetcore/issues/38373
+            if (viewResult.View == null && viewName.StartsWith("~/"))
+                viewResult = viewEngine.GetView("", viewName, true);
+
             if (viewResult.View == null)
             {
                 throw new ArgumentNullException($"{viewName} does not match any available view");
