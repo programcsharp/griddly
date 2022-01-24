@@ -3,6 +3,9 @@ using System;
 using System.Collections;
 using System.Collections.Specialized;
 using System.IO;
+using System.Security.Authentication.ExtendedProtection;
+using System.Security.Principal;
+using System.Threading;
 using System.Web;
 using System.Web.Instrumentation;
 using System.Web.Mvc;
@@ -51,8 +54,10 @@ namespace Griddly.Mvc
                     ViewName = viewName,
                     ViewData = context.Controller.ViewData
                 };
-
-                ControllerContext settingsContext = new ControllerContext(new RequestContext(new EmptyHttpContext(), context.RouteData), context.Controller);
+                var httpContext = new EmptyHttpContext(context.HttpContext.Request);
+                var requestContext = new RequestContext(httpContext, context.RouteData);
+                httpContext.Request.RequestContext = requestContext;
+                ControllerContext settingsContext = new ControllerContext(requestContext, context.Controller);
 
                 settingsResult.ExecuteResult(settingsContext);
 
@@ -66,8 +71,13 @@ namespace Griddly.Mvc
 
         class EmptyHttpContext : HttpContextBase
         {
+            public EmptyHttpContext(HttpRequestBase request)
+            {
+                _request = new EmptyHttpRequest(request);
+            }
+
             Hashtable _items = new Hashtable();
-            HttpRequestBase _request = new EmptyHttpRequest();
+            HttpRequestBase _request;
             HttpResponseBase _response = new EmptyHttpResponse();
             PageInstrumentationService _pageInstrumentation = new PageInstrumentationService();
 
@@ -120,65 +130,55 @@ namespace Griddly.Mvc
 
         class EmptyHttpRequest : HttpRequestBase
         {
-            HttpCookieCollection _cookies = new HttpCookieCollection();
-            NameValueCollection _serverVariables = new NameValueCollection();
-            EmptyHttpBrowserCapabilities _browser = new EmptyHttpBrowserCapabilities();
-
-            public override HttpCookieCollection Cookies
+            public EmptyHttpRequest (HttpRequestBase originalRequest)
             {
-                get
-                {
-                    return _cookies;
-                }
+                _originalRequest = originalRequest;
             }
+            private readonly HttpRequestBase _originalRequest;
 
-            public override string UserAgent
-            {
-                get
-                {
-                    return null;
-                }
-            }
-
-            public override HttpBrowserCapabilitiesBase Browser
-            {
-                get
-                {
-                    return _browser;
-                }
-            }
-
-            public override bool IsLocal
-            {
-                get
-                {
-                    return true;
-                }
-            }
-
-            public override string ApplicationPath
-            {
-                get
-                {
-                    return "/";
-                }
-            }
-
-            public override NameValueCollection ServerVariables
-            {
-                get
-                {
-                    return _serverVariables;
-                }
-            }
-
-            public override Uri Url
-            {
-                get
-                {
-                    return new Uri("http://localhost/");
-                }
-            }
+            public override bool IsAuthenticated => _originalRequest.IsAuthenticated;
+            public override bool IsLocal => _originalRequest.IsLocal;
+            public override bool IsSecureConnection => _originalRequest.IsSecureConnection;
+            public override WindowsIdentity LogonUserIdentity => _originalRequest.LogonUserIdentity;
+            public override NameValueCollection Params => _originalRequest.Params;
+            public override string Path => _originalRequest.Path;
+            public override string PathInfo => _originalRequest.PathInfo;
+            public override string PhysicalApplicationPath => _originalRequest.PhysicalApplicationPath;
+            public override string PhysicalPath => _originalRequest.PhysicalPath;
+            public override string RawUrl => _originalRequest.RawUrl;
+            public override ReadEntityBodyMode ReadEntityBodyMode => _originalRequest.ReadEntityBodyMode;
+            public override NameValueCollection ServerVariables => _originalRequest.ServerVariables;
+            public override CancellationToken TimedOutToken => _originalRequest.TimedOutToken;
+            public override ITlsTokenBindingInfo TlsTokenBindingInfo => _originalRequest.TlsTokenBindingInfo;
+            public override int TotalBytes => _originalRequest.TotalBytes;
+            public override UnvalidatedRequestValuesBase Unvalidated => _originalRequest.Unvalidated;
+            public override Uri Url => _originalRequest.Url;
+            public override Uri UrlReferrer => _originalRequest.UrlReferrer;
+            public override string UserAgent => _originalRequest.UserAgent;
+            public override string[] UserLanguages => _originalRequest.UserLanguages;
+            public override string UserHostAddress => _originalRequest.UserHostAddress;
+            public override string UserHostName => _originalRequest.UserHostName;
+            public override NameValueCollection Headers => _originalRequest.Headers;
+            public override string HttpMethod => _originalRequest.HttpMethod;
+            public override NameValueCollection Form => _originalRequest.Form;
+            public override HttpFileCollectionBase Files => _originalRequest.Files;
+            public override NameValueCollection QueryString => _originalRequest.QueryString;
+            public override string ApplicationPath => _originalRequest.ApplicationPath;
+            public override string AnonymousID => _originalRequest.AnonymousID;
+            public override string AppRelativeCurrentExecutionFilePath => _originalRequest.AppRelativeCurrentExecutionFilePath;
+            public override HttpBrowserCapabilitiesBase Browser => _originalRequest.Browser;
+            public override ChannelBinding HttpChannelBinding => _originalRequest.HttpChannelBinding;
+            public override HttpClientCertificate ClientCertificate => _originalRequest.ClientCertificate;
+            public override string[] AcceptTypes => _originalRequest.AcceptTypes;
+            public override int ContentLength => _originalRequest.ContentLength;
+            public override HttpCookieCollection Cookies => _originalRequest.Cookies;
+            public override string CurrentExecutionFilePath => _originalRequest.CurrentExecutionFilePath;
+            public override string CurrentExecutionFilePathExtension => _originalRequest.CurrentExecutionFilePathExtension;
+            public override string FilePath => _originalRequest.FilePath;
+            public override string RequestType { get { return _originalRequest.RequestType; } set { } }
+            public override string ContentType { get { return _originalRequest.ContentType; } set { } }
+            public override System.Text.Encoding ContentEncoding { get { return _originalRequest.ContentEncoding; } set { } }
+            public override RequestContext RequestContext { get; set; }
         }
 
         class EmptyHttpResponse : HttpResponseBase
