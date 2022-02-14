@@ -34,20 +34,18 @@ namespace Griddly.Mvc
         {
             var dict = request.Query.ToDictionary(x => x.Key, x => x.Value);
 
-            if (request.Method == "POST")
+            if (request.HasFormContentType)
             {
                 foreach (var item in request.Form)
                 {
-                    if (dict.ContainsKey(item.Key))
-                        dict[item.Key] = new StringValues(dict[item.Key].Union(item.Value).ToArray());
-                    else
-                        dict[item.Key] = item.Value;
+                    dict[item.Key] = item.Value;
                 }
             }
 
             var result = new NameValueCollection();
-            foreach (var item in dict)
-                result.Add(item.Key, string.Join(",", item.Value));
+            foreach (var kv in dict)
+                foreach (string val in kv.Value)
+                    result.Add(kv.Key, val);
             return result;
         }
     }
