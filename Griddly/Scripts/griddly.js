@@ -1501,7 +1501,7 @@
                 }
             }
 
-            return serializeObject(allFilters, true, this.options.multipleSelects);
+            return serializeObject(allFilters, this.options.serializeSkipEmpty, this.options.multipleSelects);
         },
 
         setFilterValue: function (field, value)
@@ -1974,7 +1974,8 @@
         isFilterFormInline: false,
         currencySymbol: "$",
         confirmPromptFunction: null,
-        renderFilterDisplay: renderFilterDisplayImpl
+        renderFilterDisplay: renderFilterDisplayImpl,
+        serializeSkipEmpty: true
     }, $.fn.griddlyGlobalDefaults);
 
     var GriddlyFilterBar = function (element, options)
@@ -2095,7 +2096,7 @@
         {
             var allFilters = this.getAllFilterElements();
 
-            return serializeObject(allFilters, true, this.options.multipleSelects);
+            return serializeObject(allFilters, this.options.serializeSkipEmpty, this.options.multipleSelects);
         },
 
         setFilterValue: function (field, value)
