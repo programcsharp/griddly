@@ -545,6 +545,18 @@
         this.setFilterValues(values, true, null, true);
     };
 
+    var hidePopover = function (selector, isBootstrap4) {
+        selector.each(function () {
+            var filter = $(this);
+            filter.popover("hide");
+
+            //Workaround for bug introduced in Bootstrap 3.3.5, where hide() doesn't clear out the click state, so toggle() after hide() does not show.
+            if (!isBootstrap4 && filter.data("bs.popover").inState) {
+                filter.data("bs.popover").inState.click = false;
+            }
+        });
+    }
+
     var Griddly = function (element, options)
     {
         this.$element = $(element);
@@ -644,8 +656,9 @@
                         else
                             tip = filter.data('bs.popover').tip; /*BS4*/
 
-                        if ($(tip).hasClass('in') || $(tip).hasClass('show')/*BS4*/)
-                            filter.popover("hide");
+                        if ($(tip).hasClass('in') || $(tip).hasClass('show')/*BS4*/) {
+                            hidePopover(filter, self.isBootstrap4);
+                        }
                     }
                 });
             }
@@ -769,7 +782,8 @@
                 event.preventDefault();
             }, this));
 
-            $("input.pageNumber", this.$element).on("change", $.proxy(function (event) {
+            $("input.pageNumber", this.$element).on("change", $.proxy(function (event)
+            {
                 var value = parseInt($(event.target).val());
 
                 if (value < 1 || this.options.pageCount == 0)
@@ -829,13 +843,13 @@
                 if ($(event.currentTarget).is(".btn-search")) {
                     //M3-specific implementation. Should be refactored out of Griddly
                     if (!this.options.isFilterFormInline) {
-                        if (this.options.filterMode == "Inline")
-                            this.setFilterMode("Form", true);
+                    if (this.options.filterMode == "Inline")
+                        this.setFilterMode("Form", true);
 
-                        this.invokeFilterModal();
-                    }
-                    else
-                        this.toggleFilterMode();
+                    this.invokeFilterModal();
+                }
+                else
+                    this.toggleFilterMode();
                 }
                 else {
 
@@ -859,12 +873,12 @@
                             if (this.options.handleRowClickModal) {
                                 this.options.handleRowClickModal($.trim(url), this.options.rowClickModal);
                             } else {
-                                $(this.options.rowClickModal).removeData("bs.modal").modal({ show: false });
+                            $(this.options.rowClickModal).removeData("bs.modal").modal({ show: false });
                                 $(".modal-content", this.options.rowClickModal).load($.trim(url), $.proxy(function (event) {
-                                    $(this.options.rowClickModal).modal("show");
-                                }, this));
-                            }
+                                $(this.options.rowClickModal).modal("show");
+                            }, this));
                         }
+}
                         else
                         {
                             if (e.which == 2 || e.ctrlKey || target == "_blank")
@@ -1097,7 +1111,7 @@
                 if (filter.hasClass("griddly-filter-box"))
                 {
                     if (!dontHide)
-                        filter.find(".filter-trigger").popover("hide");
+                        hidePopover(filter.find(".filter-trigger"), self.isBootstrap4);
 
                     var val = trimToNull(getCleanedValue(content.find("input").first().val(), dataType));
 
@@ -1144,7 +1158,7 @@
                 else if (filter.hasClass("griddly-filter-list"))
                 {
                     if (!filter.data("griddly-filter-ismultiple") && !dontHide)
-                        filter.find(".filter-trigger").popover("hide");
+                        hidePopover(filter.find(".filter-trigger"), self.isBootstrap4);
 
                     var allItems = content.find("li:not(.griddly-list-group-header), .dropdown-item");
                     var selectedItems = allItems.filter(":has(:checked)");
@@ -1205,7 +1219,7 @@
 
                     var filter = $(this).data("griddly-filter");
 
-                    filter.find(".filter-trigger").popover("hide");
+                    hidePopover(filter.find(".filter-trigger"), self.isBootstrap4);
                 }
             });
 
@@ -1233,7 +1247,7 @@
                     }
                 }).on("show.bs.popover", function ()
                 {
-                    self.$element.find(".griddly-filters-inline .filter-trigger").not(this).popover("hide");
+                    hidePopover(self.$element.find(".griddly-filters-inline .filter-trigger").not(this), self.isBootstrap4);
 
                     content.find("input:first").select();
 
@@ -1487,7 +1501,7 @@
                 }
             }
 
-            return serializeObject(allFilters, true, this.options.multipleSelects);
+            return serializeObject(allFilters, this.options.serializeSkipEmpty, this.options.multipleSelects);
         },
 
         setFilterValue: function (field, value)
@@ -1960,7 +1974,8 @@
         isFilterFormInline: false,
         currencySymbol: "$",
         confirmPromptFunction: null,
-        renderFilterDisplay: renderFilterDisplayImpl
+        renderFilterDisplay: renderFilterDisplayImpl,
+        serializeSkipEmpty: true
     }, $.fn.griddlyGlobalDefaults);
 
     var GriddlyFilterBar = function (element, options)
@@ -2081,7 +2096,7 @@
         {
             var allFilters = this.getAllFilterElements();
 
-            return serializeObject(allFilters, true, this.options.multipleSelects);
+            return serializeObject(allFilters, this.options.serializeSkipEmpty, this.options.multipleSelects);
         },
 
         setFilterValue: function (field, value)
