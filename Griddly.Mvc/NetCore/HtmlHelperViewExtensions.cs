@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections;
 
 namespace Griddly.Mvc
 {
@@ -61,7 +62,7 @@ namespace Griddly.Mvc
             }
 
             routeData.PushState(null, new RouteValueDictionary(new { controller = controller, action = action, area = area }), null);
-            routeData.PushState(null, new RouteValueDictionary(parameters ?? new { }), null);
+            routeData.PushState(null, FixCollections(new RouteValueDictionary(parameters ?? new { })), null);
 
             //get the actiondescriptor
             RouteContext routeContext = new RouteContext(helper.ViewContext.HttpContext) { RouteData = routeData };
@@ -113,6 +114,47 @@ namespace Griddly.Mvc
                 }
             }
         }
+
+        //https://stackoverflow.com/questions/19960420/adding-array-of-complex-types-to-routevaluedictionary
+        static RouteValueDictionary FixCollections(RouteValueDictionary routeValues)
+        {
+            var newRouteValues = new RouteValueDictionary();
+
+            foreach (var key in routeValues.Keys)
+            {
+                object value = routeValues[key];
+
+                if (value is IEnumerable && !(value is string))
+                {
+                    int index = 0;
+                    foreach (object val in (IEnumerable)value)
+                    {
+                        //if (val is string || val.GetType().IsPrimitive)
+                        //{
+                            newRouteValues.Add(String.Format("{0}[{1}]", key, index), val);
+                        //}
+                        //else
+                        //{
+                        //    var properties = val.GetType().GetProperties();
+                        //    foreach (var propInfo in properties)
+                        //    {
+                        //        newRouteValues.Add(
+                        //            String.Format("{0}[{1}].{2}", key, index, propInfo.Name),
+                        //            propInfo.GetValue(val));
+                        //    }
+                        //}
+                        index++;
+                    }
+                }
+                else
+                {
+                    newRouteValues.Add(key, value);
+                }
+            }
+
+            return newRouteValues;
+        }
+
         //private static async Task<IHtmlContent> RenderActionAsync(this IHtmlHelper helper, string action, string controller, string area, object parameters = null)
         //{
         //    // fetching required services for invocation
