@@ -364,6 +364,8 @@
         {
             if ((value === null || typeof value === typeof undefined) && input.is("[multiple]"))
                 input.find("option:selected").prop("selected", false);
+            else if ((value === null || typeof value === typeof undefined) && input.is(".griddly-filters-inline .dropdown-menu :checkbox"))
+                input.prop("checked", false);
             else
                 input.val([].concat(value));
         }
