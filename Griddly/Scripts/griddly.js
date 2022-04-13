@@ -863,33 +863,34 @@
 
             $(this.$element).on("mouseup", "tbody.data tr td:not(:has(input))", $.proxy(function (e)
             {
-                if (e.which < 3)
+                if (e.which > 2)
+                    return;
+
+                var clickTarget = $(e.target);
+                var url = $.trim(clickTarget.parents("tr").data("griddly-url"));
+                var target = $.trim(clickTarget.parents("tr").data("griddly-urltarget"));
+
+                if (url && clickTarget.closest("a").length == 0 && clickTarget.closest("td").find("[data-toggle=dropdown]").length == 0)
                 {
-                    var url = $.trim($(e.target).parents("tr").data("griddly-url"));
-                    var target = $.trim($(e.target).parents("tr").data("griddly-urltarget"));
+                    e.preventDefault();
 
-                    if (url && $(e.target).closest("a").length == 0 && $(e.target).closest("td").find("[data-toggle=dropdown]").length == 0)
+                    if (clickTarget.hasClass("popover-content"))
+                        return;
+
+                    if (this.options.rowClickModal)
                     {
-                        if (this.options.rowClickModal)
+                        $(this.options.rowClickModal).removeData("bs.modal").modal({ show: false });
+                        $(".modal-content", this.options.rowClickModal).load($.trim(url), $.proxy(function (event)
                         {
-                            if (this.options.handleRowClickModal) {
-                                this.options.handleRowClickModal($.trim(url), this.options.rowClickModal);
-                            } else {
-                            $(this.options.rowClickModal).removeData("bs.modal").modal({ show: false });
-                                $(".modal-content", this.options.rowClickModal).load($.trim(url), $.proxy(function (event) {
-                                $(this.options.rowClickModal).modal("show");
-                            }, this));
-                        }
-}
+                            $(this.options.rowClickModal).modal("show");
+                        }, this));
+                    }
+                    else
+                    {
+                        if (e.which == 2 || e.ctrlKey || target == "_blank")
+                            window.open(url);
                         else
-                        {
-                            if (e.which == 2 || e.ctrlKey || target == "_blank")
-                                window.open(url);
-                            else
-                                window.location = url;
-                        }
-
-                        e.preventDefault();
+                            window.location = url;
                     }
                 }
             }, this));
