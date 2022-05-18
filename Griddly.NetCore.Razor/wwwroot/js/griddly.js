@@ -1674,6 +1674,9 @@
 
         refresh: function (resetPage)
         {
+            if (typeof this.lastRefreshId == 'undefined')
+                this.lastRefreshId = 0;
+
             this.triggerOrQueue(this.$element, "beforerefresh.griddly");
 
             if (!this.options.url)
@@ -1715,6 +1718,9 @@
 
             // TODO: cancel any outstanding calls
 
+            this.lastRefreshId = this.lastRefreshId + 1;
+            var refreshId = this.lastRefreshId;
+
             $.ajax(this.options.url,
             {
                 type: "post",
@@ -1723,70 +1729,72 @@
                 cache: false
             }).done($.proxy(function (data, status, xhr)
             {
-                var count = parseInt(xhr.getResponseHeader("X-Griddly-Count"));
-                var currentPageSize = parseInt(xhr.getResponseHeader("X-Griddly-CurrentPageSize"));
-
-                this.options.count = count;
-                this.options.pageCount = Math.ceil(this.options.count / this.options.pageSize);
-                // TODO: handle smaller count
-
-                var html = $("<table>" + data + "</table>");
-
-                // replaceWith is more performant, but using inner html allows us to maintain the tbody element which is potentially important for some other libraries
-                // https://github.com/programcsharp/griddly/issues/79
-                this.$element.find("tbody.data").html(html.children("tbody").html());
-
-                var tfoot = this.$element.find("tfoot.totals-tfoot");
-                if (tfoot.length && html.children("tfoot.totals-tfoot").length)
-                    tfoot.replaceWith(html.children("tfoot.totals-tfoot"));
-
-                var emptyMessage = this.$element.find("tfoot.empty-grid-message");
-                if (emptyMessage.length && html.children("tfoot.empty-grid-message").length)
-                    emptyMessage.replaceWith(html.children("tfoot.empty-grid-message"));
-
-                var startRecord = this.options.pageNumber * this.options.pageSize;
-
-                this.$element.find(".griddly-recordstart").html(startRecord + (this.options.count ? 1 : 0));
-                this.$element.find(".griddly-recordend").html(startRecord + currentPageSize);
-                this.$element.find(".griddly-recordtotal").html(this.options.count);
-
-                this.$element.find(".pageCount").html(this.options.pageCount);
-
-                this.$element.find("input.pageNumber").val(this.options.pageNumber + 1);
-
-                if (startRecord >= this.options.count - this.options.pageSize)
-                    this.$element.find(".next").hide();
-                else
-                    this.$element.find(".next").show();
-
-                if (startRecord >= this.options.pageSize)
-                    this.$element.find(".prev").show();
-                else
-                    this.$element.find(".prev").hide();
-
-                if (this.options.count <= this.options.pageSize)
-                    this.$element.find(".griddly-pager").hide();
-                else
-                    this.$element.find(".griddly-pager").show();
-
-                //iterate through table and check rows that are in the selected list and have a checkbox
-                var _this = this;
-                $("tbody tr", this.$element).find("input[name=_rowselect]").each(function (index, e)
+                if (this.lastRefreshId == refreshId) //Don't update anything if the refresh request didn't return in order. A subsequent request has already updated the grid.
                 {
-                    var rowkey = $(e).data("rowkey");
-                    if (_this.options.selectedRows[rowkey])
-                        $(e).prop("checked", true);
-                });
+                    var count = parseInt(xhr.getResponseHeader("X-Griddly-Count"));
+                    var currentPageSize = parseInt(xhr.getResponseHeader("X-Griddly-CurrentPageSize"));
 
-                this.triggerOrQueue(this.$element, "refresh.griddly",
-                {
-                    start: startRecord,
-                    pageSize: currentPageSize,
-                    count: count
-                });
+                    this.options.count = count;
+                    this.options.pageCount = Math.ceil(this.options.count / this.options.pageSize);
+                    // TODO: handle smaller count
 
-                this.$element.removeClass("griddly-init");
-                this.$element.prev(".griddly-init-flag").val("loaded");
+                    var html = $("<table>" + data + "</table>");
+
+                    // replaceWith is more performant, but using inner html allows us to maintain the tbody element which is potentially important for some other libraries
+                    // https://github.com/programcsharp/griddly/issues/79
+                    this.$element.find("tbody.data").html(html.children("tbody").html());
+
+                    var tfoot = this.$element.find("tfoot.totals-tfoot");
+                    if (tfoot.length && html.children("tfoot.totals-tfoot").length)
+                        tfoot.replaceWith(html.children("tfoot.totals-tfoot"));
+
+                    var emptyMessage = this.$element.find("tfoot.empty-grid-message");
+                    if (emptyMessage.length && html.children("tfoot.empty-grid-message").length)
+                        emptyMessage.replaceWith(html.children("tfoot.empty-grid-message"));
+
+                    var startRecord = this.options.pageNumber * this.options.pageSize;
+
+                    this.$element.find(".griddly-recordstart").html(startRecord + (this.options.count ? 1 : 0));
+                    this.$element.find(".griddly-recordend").html(startRecord + currentPageSize);
+                    this.$element.find(".griddly-recordtotal").html(this.options.count);
+
+                    this.$element.find(".pageCount").html(this.options.pageCount);
+
+                    this.$element.find("input.pageNumber").val(this.options.pageNumber + 1);
+
+                    if (startRecord >= this.options.count - this.options.pageSize)
+                        this.$element.find(".next").hide();
+                    else
+                        this.$element.find(".next").show();
+
+                    if (startRecord >= this.options.pageSize)
+                        this.$element.find(".prev").show();
+                    else
+                        this.$element.find(".prev").hide();
+
+                    if (this.options.count <= this.options.pageSize)
+                        this.$element.find(".griddly-pager").hide();
+                    else
+                        this.$element.find(".griddly-pager").show();
+
+                    //iterate through table and check rows that are in the selected list and have a checkbox
+                    var _this = this;
+                    $("tbody tr", this.$element).find("input[name=_rowselect]").each(function (index, e) {
+                        var rowkey = $(e).data("rowkey");
+                        if (_this.options.selectedRows[rowkey])
+                            $(e).prop("checked", true);
+                    });
+
+                    this.triggerOrQueue(this.$element, "refresh.griddly",
+                        {
+                            start: startRecord,
+                            pageSize: currentPageSize,
+                            count: count
+                        });
+
+                    this.$element.removeClass("griddly-init");
+                    this.$element.prev(".griddly-init-flag").val("loaded");
+                }
             }, this))
             .fail($.proxy(function (xhr, status, errorThrown)
             {
