@@ -337,6 +337,14 @@
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>copy $(ProjectDir)Content\griddly.css $(SolutionDir)Griddly.NetCore.Razor\wwwroot\css\griddly.css"
+copy $(ProjectDir)Scripts\griddly.js $(SolutionDir)Griddly.NetCore.Razor\wwwroot\js\griddly.js"</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

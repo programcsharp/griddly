@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
@@ -8,5 +8,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Griddly.Mvc\Griddly.Mvc.csproj" />
   </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="copy $(SolutionDir)Griddly\Content\griddly.css $(ProjectDir)wwwroot\css\griddly.css" />
+	<Exec Command="copy $(SolutionDir)Griddly\Scripts\griddly.js $(ProjectDir)wwwroot\js\griddly.js" />
+  </Target>
 
 </Project>
