@@ -1826,11 +1826,11 @@
             if (typeof visible === 'undefined')
                 visible = colElement.hasClass("column-hidden");
 
-            var prevColspan = $("colgroup>col:not(.column-hidden)", this.$element).length;
+            var prevColspan = $("colgroup:first>col:not(.column-hidden)", this.$element).length;
             colElement.toggleClass("column-hidden", !visible)
-            var colspan = $("colgroup>col:not(.column-hidden)", this.$element).length;
+            var colspan = $("colgroup:first>col:not(.column-hidden)", this.$element).length;
 
-            $(">table>>tr", this.$element.find(".griddly-scrollable-container")).each(function () {
+            $(">table>>tr, >table>>fthtr", this.$element.find(".griddly-scrollable-container")).each(function () {
                 $(">:eq(" + colIdx + "):not([colspan])", $(this)).toggleClass("column-hidden", !visible);
                 $(">[colspan='" + prevColspan + "']", $(this)).attr("colspan", colspan);
             });
