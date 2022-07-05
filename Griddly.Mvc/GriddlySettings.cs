@@ -654,30 +654,41 @@ namespace Griddly.Mvc
             return Column<object>(null, caption, format, expressionString, defaultSort, className, renderMode, width, summaryFunction, summaryValue, template, filter, htmlAttributes, headerHtmlAttributes, defaultSortOrder, value, exportWidth, linkUrl: linkUrl);
         }
 
-        public GriddlySettings<TRow> SelectColumn(Expression<Func<TRow, object>> id, object summaryValue = null, Func<TRow, object> inputHtmlAttributesTemplate = null)
+        public GriddlySettings<TRow> SelectColumn(Expression<Func<TRow, object>> id, object summaryValue = null, Func<TRow, object> inputHtmlAttributesTemplate = null, string className = null)
         {
             RowId(id, "id");
 
-            Add(new GriddlySelectColumn<TRow>(this)
+            var col = new GriddlySelectColumn<TRow>(this)
             {
                 SummaryValue = summaryValue,
                 InputHtmlAttributesTemplate = inputHtmlAttributesTemplate
-            });
+            };
+
+            if (className != null)
+                col.ClassName += " " + ClassName;
+
+            Add(col);
 
             return this;
         }
 
-        public GriddlySettings<TRow> SelectColumn(Dictionary<string, Func<TRow, object>> ids, object summaryValue = null)
+        public GriddlySettings<TRow> SelectColumn(Dictionary<string, Func<TRow, object>> ids, object summaryValue = null, string className = null)
         {
             foreach (var x in ids)
             {
                 RowIds[x.Key] = (z) => x.Value((TRow)z);
             }
 
-            Add(new GriddlySelectColumn(this)
+            var col = new GriddlySelectColumn(this)
             {
-                SummaryValue = summaryValue
-            });
+                SummaryValue = summaryValue,
+                ClassName = className
+            };
+
+            Add(col);
+
+            if (className != null)
+                col.ClassName += " " + ClassName;
 
             return this;
         }
