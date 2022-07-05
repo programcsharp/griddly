@@ -861,6 +861,13 @@
                 }
             }, this));
 
+            var defaultRowClickHandler = function (e, url, target) {
+                if (e.which == 2 || e.ctrlKey || target == "_blank")
+                    window.open(url);
+                else
+                    window.location = url;
+            };
+
             $(this.$element).on("mouseup", "tbody.data tr td:not(:has(input))", $.proxy(function (e)
             {
                 if (e.which > 2)
@@ -890,10 +897,11 @@
                     }
                     else
                     {
-                        if (e.which == 2 || e.ctrlKey || target == "_blank")
-                            window.open(url);
-                        else
-                            window.location = url;
+                        if (this.options.handleRowClick) {
+                            this.options.handleRowClick(url, e, function () { defaultRowClickHandler(e, url, target) });
+                        } else {
+                            defaultRowClickHandler(e, url, target)
+                        }
                     }
                 }
             }, this));
@@ -993,7 +1001,7 @@
                 });
             }, this);
 
-            var setRowSelect = $.proxy(function ($checkbox, skipRowChange)
+            var setRowSelect = this.setRowSelect = $.proxy(function ($checkbox, skipRowChange)
             {
                 var rowkey = $checkbox.data("rowkey");
                 var row = this.options.selectedRows[rowkey];
@@ -1012,9 +1020,16 @@
                     delete this.options.selectedRows[rowkey];
                 }
 
+                $checkbox.closest("tr").toggleClass("sel", $checkbox.prop("checked"));
+
                 if (skipRowChange != true)
                     onRowChange();
             }, this);
+
+            $(this.$element).on("click", "input[name=_rowselect]", $.proxy(function (event) {
+                var $checkbox = $(event.target);
+                $checkbox.closest("tr").toggleClass("sel", $checkbox.prop("checked"));
+            }, this));
 
             $(this.$element).on("click", "td.griddly-select", $.proxy(function (event)
             {
@@ -1980,6 +1995,7 @@
         isMultiSort: true,
         lastSelectedRow: null,
         rowClickModal: null,
+        handleRowClick: null,
         handleRowClickModal: null,
         selectedRows: null,
         autoRefreshOnFilter: true,
