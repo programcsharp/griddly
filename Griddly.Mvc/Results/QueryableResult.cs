@@ -215,6 +215,12 @@ namespace Griddly.Mvc.Results
                 expr = Expression.Property(expr, pi);
                 type = pi.PropertyType;
             }
+
+            if (source is EnumerableQuery && props.Length > 1)
+            {
+                expr = Expression.TryCatch(Expression.Block(type, expr), Expression.Catch(typeof(NullReferenceException), Expression.Default(type)));
+            }
+
             Type delegateType = typeof(Func<,>).MakeGenericType(typeof(T), type);
             LambdaExpression lambda = Expression.Lambda(delegateType, expr, arg);
 
