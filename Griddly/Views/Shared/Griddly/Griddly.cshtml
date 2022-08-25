@@ -115,7 +115,7 @@
 
             if (param != null)
             {
-                return Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(x.Value).SequenceEqual(Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(param));
+                return Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(x.Value)?.SequenceEqual(Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(param)) ?? false;
             }
 
             return false;
