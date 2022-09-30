@@ -124,7 +124,7 @@
                                 @InputGroupAddon(@<i class="@(css.Icons.Calendar)"></i>, true)
                             }
 
-                            <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
+                            <input autocomplete="off" class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
                                 data-griddly-filter-data-type="@filter.DataType" />
                             @*@if (filter.DataType == FilterDataType.Percent)
                                 {
@@ -146,7 +146,7 @@
                             {
                                 @InputGroupAddon(@<i class="@(css.Icons.Calendar)"></i>, true)
                             }
-                            <input class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
+                            <input autocomplete="off" class="form-control" name="@filter.Field" type="text" value="@filter.GetEditValue(defaultValue)"
                                 data-griddly-filter-data-type="@filter.DataType" placeholder="Range Start" />
                             @*@if (filter.DataType == FilterDataType.Percent)
                                 {
@@ -166,7 +166,7 @@
                             {
                                 @InputGroupAddon(@<i class="@(css.Icons.Calendar)"></i>, true)
                             }
-                            <input class="form-control" name="@filterRange.FieldEnd" type="text" value="@filter.GetEditValue(defaultValueEnd)"
+                            <input autocomplete="off" class="form-control" name="@filterRange.FieldEnd" type="text" value="@filter.GetEditValue(defaultValueEnd)"
                                 data-griddly-filter-data-type="@filter.DataType" placeholder="Range End"/>
                             @*@if (filter.DataType == FilterDataType.Percent)
                                 {
