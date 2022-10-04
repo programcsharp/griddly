@@ -550,11 +550,13 @@
     var hidePopover = function (selector, isBootstrap4) {
         selector.each(function () {
             var filter = $(this);
-            filter.popover("hide");
+            if (filter.attr("aria-describedby")) { //This attribute will be present only when the popover is currently shown
+                filter.popover("hide");
 
-            //Workaround for bug introduced in Bootstrap 3.3.5, where hide() doesn't clear out the click state, so toggle() after hide() does not show.
-            if (!isBootstrap4 && filter.data("bs.popover").inState) {
-                filter.data("bs.popover").inState.click = false;
+                //Workaround for bug introduced in Bootstrap 3.3.5, where hide() doesn't clear out the click state, so toggle() after hide() does not show.
+                if (!isBootstrap4 && filter.data("bs.popover").inState) {
+                    filter.data("bs.popover").inState.click = false;
+                }
             }
         });
     }
@@ -660,6 +662,10 @@
 
                         if ($(tip).hasClass('in') || $(tip).hasClass('show')/*BS4*/) {
                             hidePopover(filter, self.isBootstrap4);
+
+                            if (!self.options.autoRefreshOnFilter && self.pendingInlineFilterRefresh) {
+                                self.refresh();
+                            }
                         }
                     }
                 });
@@ -1103,16 +1109,11 @@
 
             $(".griddly-filters-inline .griddly-filter .griddly-filter-clear", this.$element).click(function (e)
             {
-                $(this).parents(".input-group").find("input").val("").focus().triggerHandler("change", [true]);/*.on("blur", function()
-                {
-                    $(this).detach("blur");
-
-                    if (!$(this).val())
-                        $(this).change();
-                });*/
+                $(this).parents(".input-group").find("input").val("").focus().triggerHandler("change", [true]);
             });
 
             this.$inlineFilters = $(".griddly-filters-inline .filter-content input, .griddly-filters-inline .griddly-filter.griddly-html-filter input", this.$element);
+            this.pendingInlineFilterRefresh = false;
 
             $(".griddly-filters-inline .filter-content input", this.$element).on("change", $.proxy(function (event, dontHide)
             {
@@ -1131,7 +1132,7 @@
                 // TODO: for dates, push actual formatted date
                 if (filter.hasClass("griddly-filter-box"))
                 {
-                    if (!dontHide)
+                    if (!dontHide && this.options.autoRefreshOnFilter)
                         hidePopover(filter.find(".filter-trigger"), self.isBootstrap4);
 
                     var val = trimToNull(getCleanedValue(content.find("input").first().val(), dataType));
@@ -1178,7 +1179,7 @@
                 }
                 else if (filter.hasClass("griddly-filter-list"))
                 {
-                    if (!filter.data("griddly-filter-ismultiple") && !dontHide)
+                    if (!filter.data("griddly-filter-ismultiple") && !dontHide && this.options.autoRefreshOnFilter)
                         hidePopover(filter.find(".filter-trigger"), self.isBootstrap4);
 
                     var allItems = content.find("li:not(.griddly-list-group-header), .dropdown-item");
@@ -1210,6 +1211,8 @@
 
             $(".griddly-filters-inline input, .griddly-filters-inline select", this.$element).on("change", $.proxy(function (event)
             {
+                this.pendingInlineFilterRefresh = true;
+
                 if (!this._isUpdatingFilters)
                 {
                     this.triggerOrQueue(this.$element, "filterchange.griddly", this.$element, event.target);
@@ -1255,7 +1258,8 @@
                 filter.data("griddly-filter-display", filter.find(".griddly-filter-display"));
                 filter.find("input").data("griddly-filter", filter);
 
-                $(el).popover({
+                var filterTrigger = $(el);
+                filterTrigger.popover({
                     html: true,
                     placement: "bottom",
                     container: $(".griddly-filters-inline", this.$element),
@@ -1290,6 +1294,19 @@
                 {
                     content.hide();
                 });
+
+                if (this.options.autoRefreshOnFilter) {
+                    $(".griddly-inline-filter-update", content).remove();
+                }
+                else {
+                    $(".griddly-inline-filter-update", content).click($.proxy(function (e) {
+                        if (this.pendingInlineFilterRefresh) {
+                            this.refresh();
+                        }
+                        hidePopover(filterTrigger, this.isBootstrap4);
+                    }, this));
+                }
+
             }, this));
 
             $(".griddly-filters-inline .filter-content .dropdown-menu", this.$element).each($.proxy(function (i, el)
@@ -1695,6 +1712,8 @@
         {
             if (typeof this.lastRefreshId == 'undefined')
                 this.lastRefreshId = 0;
+
+            this.pendingInlineFilterRefresh = false;
 
             this.triggerOrQueue(this.$element, "beforerefresh.griddly");
 
