@@ -1235,17 +1235,21 @@
                     this.triggerOrQueue(this.$element, "filterchange.griddly", this.$element, event.target);
             }, this));
 
-            $(".griddly-filters-inline .filter-content input", this.$element).keyup(function (event)
+            $(".griddly-filters-inline .filter-content input", this.$element).keyup($.proxy(function (event)
             {
                 if (event.which == 13)
                 {
-                    $(this).blur();
+                    var $input = $(event.target);
+                    $input.blur();
 
-                    var filter = $(this).data("griddly-filter");
+                    if (!this.options.autoRefreshOnFilter && this.pendingInlineFilterRefresh) {
+                        this.refresh();
+                    }
 
-                    hidePopover(filter.find(".filter-trigger"), self.isBootstrap4);
+                    var filter = $input.data("griddly-filter");
+                    hidePopover(filter.find(".filter-trigger"), this.isBootstrap4);
                 }
-            });
+            }, this));
 
             $(".griddly-filters-inline .filter-trigger", this.$element).each($.proxy(function (i, el)
             {
