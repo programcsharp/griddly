@@ -1141,10 +1141,7 @@
 
                     if (val != null)
                     {
-                        if (dataType == "String")
-                            display = 'Contains "' + getFormattedValue(val, dataType, this.options.currencySymbol) + '"';
-                        else
-                            display = getFormattedValue(val, dataType, this.options.currencySymbol);
+                        display = getFormattedValue(val, dataType, this.options.currencySymbol);
                     }
 
                     if (display == null)

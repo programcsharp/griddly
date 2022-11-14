@@ -1141,10 +1141,7 @@
 
                     if (val != null)
                     {
-                        if (dataType == "String")
-                            display = 'Contains "' + getFormattedValue(val, dataType, this.options.currencySymbol) + '"';
-                        else
-                            display = getFormattedValue(val, dataType, this.options.currencySymbol);
+                        display = getFormattedValue(val, dataType, this.options.currencySymbol);
                     }
 
                     if (display == null)
@@ -1235,7 +1232,7 @@
                     this.triggerOrQueue(this.$element, "filterchange.griddly", this.$element, event.target);
             }, this));
 
-            $(".griddly-filters-inline .filter-content input", this.$element).keyup($.proxy(function (event, a, b)
+            $(".griddly-filters-inline .filter-content input", this.$element).keyup($.proxy(function (event)
             {
                 if (event.which == 13)
                 {
