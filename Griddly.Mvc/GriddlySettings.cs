@@ -665,7 +665,7 @@ namespace Griddly.Mvc
             };
 
             if (className != null)
-                col.ClassName += " " + ClassName;
+                col.ClassName += " " + className;
 
             Add(col);
 
@@ -681,14 +681,13 @@ namespace Griddly.Mvc
 
             var col = new GriddlySelectColumn(this)
             {
-                SummaryValue = summaryValue,
-                ClassName = className
+                SummaryValue = summaryValue
             };
 
             Add(col);
 
             if (className != null)
-                col.ClassName += " " + ClassName;
+                col.ClassName += " " + className;
 
             return this;
         }
