@@ -168,7 +168,7 @@ namespace Griddly.Mvc
                 {
                     // TODO: set default value to all selected
                     for (int i = 0; i < SelectableItems.Count; i++)
-                        Items[i].Selected = (i == 0);
+                        SelectableItems[i].Selected = (i == 0);
                 }
             }
         }
