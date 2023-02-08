@@ -111,7 +111,7 @@ Func<(Func<dynamic, IHtmlContent> content, bool prepend), IHtmlContent> InputGro
                 else
                 {
                     <a class="btn btn-xs btn-link @(filterList == null || filterList.Items.Count > 0 ? "filter-trigger" : "disabled")" href="javascript:;">
-                        <span class="griddly-filter-display">
+                        <span class="griddly-filter-display @(defaultValue == null ? "griddly-filter-display-empty" : null)">
                             @if (filterBox != null)
                             {
                                 if (defaultValue != null)
@@ -174,7 +174,7 @@ Func<(Func<dynamic, IHtmlContent> content, bool prepend), IHtmlContent> InputGro
                         </span>
                         @if (filterList == null || filterList.Items.Count > 0)
                         {
-                            <span class="@css.Icons.CaretDown"></span>
+                            <span class="@(css.InlineFilterUseFilterClass ? css.Icons.Filter : css.Icons.CaretDown)"></span>
                         }
                     </a>
                     <div class="filter-content">

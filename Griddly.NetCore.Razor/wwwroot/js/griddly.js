@@ -1125,6 +1125,7 @@
 
                 var dataType = filter.data("filter-datatype");
                 var display = null;
+                var isEmpty = false;
 
 
                 // TODO: shove formatted values back into boxes to ensure post is correct?
@@ -1146,6 +1147,7 @@
 
                     if (display == null)
                     {
+                        isEmpty = true;
                         display = "Any " + filter.data("filter-name");
 
                         content.find("input").first().val("");
@@ -1168,6 +1170,7 @@
 
                     if (display == null || (dataType != "String" && display.indexOf("null") != -1))
                     {
+                        isEmpty = true;
                         display = "All " + filter.data("filter-name-plural");
 
                         content.find("input").first().val("");
@@ -1186,8 +1189,10 @@
                     allItems.removeClass("griddly-filter-selected");
                     selectedItems.addClass("griddly-filter-selected");
 
-                    if (selectedItems.length == allItems.length || (selectedItems.length == 0 && filter.data("griddly-filter-isnoneall")))
+                    if (selectedItems.length == allItems.length || (selectedItems.length == 0 && filter.data("griddly-filter-isnoneall"))) {
+                        isEmpty = true;
                         display = (allItems.length == 2 && !filter.data("griddly-filter-isnullable") ? "Both " : "All ") + filter.data("filter-name-plural");
+                    }
                     else if (selectedItems.length > displayItemCount)
                         display = selectedItems.length + " " + filter.data("filter-name-plural");
                     else if (selectedItems.length > 0 && selectedItems.length <= displayItemCount)
@@ -1204,6 +1209,8 @@
 
                 if (display)
                     displayEl.text(display);
+                displayEl.toggleClass("griddly-filter-display-empty", isEmpty);
+
             }, this));
 
             $(".griddly-filters-inline input, .griddly-filters-inline select", this.$element).on("change", $.proxy(function (event)

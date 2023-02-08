@@ -22,6 +22,7 @@
         public string ButtonDefault { get; set; }
         public GriddlyCssIcons Icons { get; set; }
         public bool IsBootstrap4 { get; set; }
+        public bool InlineFilterUseFilterClass { get; set; }
 
         public static GriddlyCss Bootstrap3Defaults = new GriddlyCss()
         {
