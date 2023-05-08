@@ -664,7 +664,7 @@
                             hidePopover(filter, self.isBootstrap4);
 
                             if (!self.options.autoRefreshOnFilter && self.pendingInlineFilterRefresh) {
-                                self.refresh();
+                                self.refresh(true);
                             }
                         }
                     }
@@ -1247,7 +1247,7 @@
                     $input.blur();
 
                     if (!this.options.autoRefreshOnFilter && this.pendingInlineFilterRefresh) {
-                        this.refresh();
+                        this.refresh(true);
                     }
 
                     var filter = $input.data("griddly-filter");
@@ -1309,7 +1309,7 @@
                 else {
                     $(".griddly-inline-filter-update", content).click($.proxy(function (e) {
                         if (this.pendingInlineFilterRefresh) {
-                            this.refresh();
+                            this.refresh(true);
                         }
                         hidePopover(filterTrigger, this.isBootstrap4);
                     }, this));
@@ -1593,7 +1593,7 @@
             this.triggerOrQueue(this.$element, "resetfilters.griddly");
 
             if (refresh != false)
-                this.refresh();
+                this.refresh(true);
         },
 
         clearFilterValues: function (refresh)
@@ -1603,7 +1603,7 @@
             this.triggerOrQueue(this.$element, "resetfilters.griddly");
 
             if (refresh != false)
-                this.refresh();
+                this.refresh(true);
         },
 
         updateFilterDisplay: function ()
