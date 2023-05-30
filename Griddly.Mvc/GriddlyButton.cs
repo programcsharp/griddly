@@ -26,6 +26,7 @@ namespace Griddly.Mvc
         public bool Enabled { get; set; }
         public bool EnableOnSelection { get; set; }
         public bool IsSeparator { get; set; }
+        public bool IsHeader { get; set; }
         public GriddlyDropdownCaret DropdownCaret { get; set; }
 
         /// <summary>

@@ -88,6 +88,16 @@ Func<List<GriddlyButton>, IHtmlContent> RenderList = @<text>@{
                 {
                     <div class="dropdown-divider"></div>
                 }
+                else if (button.IsHeader)
+                {
+                    <h6 class="dropdown-header">
+                        @if(button.TextTemplate != null)
+                        {
+                        @button.TextTemplate(button)
+                        }
+                        @button.Text
+                    </h6>
+                }
                 else if (button is GriddlyHtmlButton)
                 {@(((GriddlyHtmlButton)button).HtmlTemplate(button))}
                 else
@@ -98,6 +108,16 @@ Func<List<GriddlyButton>, IHtmlContent> RenderList = @<text>@{
             if (button.IsSeparator)
             {
                 <li class="divider"></li>
+            }
+            else if (button.IsHeader)
+            {
+                <li class="dropdown-header">
+                    @if (button.TextTemplate != null)
+                    {
+                        @button.TextTemplate(button)
+                    }
+                    @button.Text
+                </li>
             }
             else
             {

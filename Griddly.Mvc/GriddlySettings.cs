@@ -401,6 +401,16 @@ namespace Griddly.Mvc
             });
         }
 
+        public GriddlySettings ButtonHeader(string text, bool alignRight = false)
+        {
+            return Add(new GriddlyButton()
+            {
+                IsHeader = true,
+                Text = text,
+                AlignRight = alignRight
+            });
+        }
+
         public GriddlySettings SelectColumn(Expression<Func<object, object>> id, object summaryValue = null)
         {
             RowId(id, "id");
