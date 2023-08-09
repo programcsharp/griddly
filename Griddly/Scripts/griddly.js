@@ -56,6 +56,19 @@
         }
     };
 
+    var resetFormElement = function () {
+        if (typeof (this.defaultChecked) !== "undefined") {
+            this.checked = this.defaultChecked;
+        } else if (typeof (this.defaultValue) !== "undefined") {
+            this.value = this.defaultValue;
+        }
+        else if (this.tagName.toLowerCase() == "select") {
+            $(this).find("option").each(function () {
+                this.selected = this.defaultSelected;
+            });
+        }
+    };
+
     var getFormattedValue = function (val, dataType, currencySymbol)
     {
         val = getCleanedValue(val, dataType);
@@ -1583,9 +1596,7 @@
         resetFilterValues: function (refresh)
         {
             var form = this.$element.find("form");
-            $(this.options.filtersSelector, form).each(function () {
-                this.value = this.defaultValue;
-            });
+            $(this.options.filtersSelector, form).each(resetFormElement);
 
             this.setSortFields(this.options.defaultSort);
             this.setFilterValues(this.options.filterDefaults, null, true, true);
@@ -2188,9 +2199,7 @@
         {
             var form = this.$element.find("form");
 
-            $(this.options.filtersSelector, form).each(function () {
-                this.value = this.defaultValue;
-            });
+            $(this.options.filtersSelector, form).each(resetFormElement);
 
             this.setFilterValues(this.options.filterDefaults);
 
