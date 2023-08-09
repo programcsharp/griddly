@@ -156,7 +156,7 @@ namespace Griddly.Mvc
 #if NETFRAMEWORK
                         foreach (var param in filterContext.ActionDescriptor.GetParameters())
                         {
-                            if (param.ParameterType.IsClass && param.ParameterType != typeof(string))
+                            if (param.ParameterType.IsClass && !param.ParameterType.IsArray && param.ParameterType != typeof(string))
                             {
                                 foreach (var pi in param.ParameterType.GetProperties().Where(x => x.CanRead && x.GetIndexParameters().Length == 0))
                                     AddParameter(filterContext, data, pi.Name);
@@ -172,7 +172,7 @@ namespace Griddly.Mvc
                         {
                             var name = param.Name;
 
-                            if (param.ParameterType.IsClass && param.ParameterType != typeof(string))
+                            if (param.ParameterType.IsClass && !param.ParameterType.IsArray && param.ParameterType != typeof(string))
                             {
                                 foreach (var pi in param.ParameterType.GetProperties().Where(x => x.CanRead && x.GetIndexParameters().Length == 0))
                                     AddParameter(valueProvider, data, pi.Name);
