@@ -230,6 +230,7 @@ namespace Griddly.Mvc
                 if (context.SortFields?.Length > 0)
                     data.SortFields = context.SortFields;
 
+                cookie.Name = context.CookieName; // cookie name could be different than the default
                 cookie.Value = JsonConvert.SerializeObject(data);
 
 #if NETFRAMEWORK

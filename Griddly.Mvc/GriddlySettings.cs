@@ -53,6 +53,7 @@ namespace Griddly.Mvc
         public static bool ExportCurrencySymbol = true;
         public static bool DisableHistoryParameters = false;
 
+        public static Func<string, string> DecorateCookieName = null;
         public static Func<GriddlyButton, object> IconTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultHeaderTemplate = null;
