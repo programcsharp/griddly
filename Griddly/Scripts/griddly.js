@@ -56,6 +56,19 @@
         }
     };
 
+    var resetFormElement = function () {
+        if (typeof (this.defaultChecked) !== "undefined") {
+            this.checked = this.defaultChecked;
+        } else if (typeof (this.defaultValue) !== "undefined") {
+            this.value = this.defaultValue;
+        }
+        else if (this.tagName.toLowerCase() == "select") {
+            $(this).find("option").each(function () {
+                this.selected = this.defaultSelected;
+            });
+        }
+    };
+
     var getFormattedValue = function (val, dataType, currencySymbol)
     {
         val = getCleanedValue(val, dataType);
@@ -1488,7 +1501,7 @@
             {
                 allFilters = this.$inlineFilters;
                 if (this.$filterModal) {
-                    var modalFiltersNotOnInlineFilter = $("input[name], select[name]", this.$filterModal)
+                    var modalFiltersNotOnInlineFilter = $(this.options.filtersSelector, this.$filterModal)
                         .filter(function () {
                             return $(this).val() && allFilters.filter("[name='" + $(this).attr("name") + "']").length == 0;
                         });
@@ -1497,8 +1510,8 @@
             }
             else
             {
-                allFilters = $(".griddly-filters-form input[name], .griddly-filters-form select[name]", this.$element)
-                    .add($("input[name], select[name]", this.$filterModal));
+                allFilters = $(this.options.filtersSelector, this.$element.find(".griddly-filters-form"))
+                    .add($(this.options.filtersSelector, this.$filterModal));
             }
 
             return allFilters;
@@ -1582,10 +1595,8 @@
 
         resetFilterValues: function (refresh)
         {
-            if (this.$element.find("form").length)
-            {
-                this.$element.find("form")[0].reset();
-            }
+            var form = this.$element.find("form");
+            $(this.options.filtersSelector, form).each(resetFormElement);
 
             this.setSortFields(this.options.defaultSort);
             this.setFilterValues(this.options.filterDefaults, null, true, true);
@@ -2032,7 +2043,8 @@
         currencySymbol: "$",
         confirmPromptFunction: null,
         renderFilterDisplay: renderFilterDisplayImpl,
-        serializeSkipEmpty: true
+        serializeSkipEmpty: true,
+        filtersSelector: "input[name], select[name]"
     }, $.fn.griddlyGlobalDefaults);
 
     var GriddlyFilterBar = function (element, options)
@@ -2137,7 +2149,7 @@
 
         getAllFilterElements: function ()
         {
-            var allFilters = $("input[name], select[name]", this.$filterModal);
+            var allFilters = $(this.options.filtersSelector, this.$filterModal);
 
             return allFilters;
         },
@@ -2185,7 +2197,9 @@
 
         resetFilterValues: function (refresh)
         {
-            this.$element.find("form")[0].reset();
+            var form = this.$element.find("form");
+
+            $(this.options.filtersSelector, form).each(resetFormElement);
 
             this.setFilterValues(this.options.filterDefaults);
 
