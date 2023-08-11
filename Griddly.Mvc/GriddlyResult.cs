@@ -127,6 +127,7 @@ namespace Griddly.Mvc
 #endif
 
                 GriddlySettings.OnGriddlyResultExecuting?.Invoke(settings, context);
+                GriddlySettings.GlobalGriddlyResultExecuting?.Invoke(new GriddlyResultExecutingArgs(this, settings, context));
 
                 // TODO: should we always pull sort fields?
                 if (griddlyContext.SortFields?.Any() != true)
@@ -144,6 +145,7 @@ namespace Griddly.Mvc
             if (griddlyContext.ExportFormat == null)
             {
                 GriddlySettings.OnGriddlyPageExecuting?.Invoke(settings, griddlyContext, context);
+                GriddlySettings.GlobalGriddlyPageExecuting?.Invoke(new GriddlyPageExecutingArgs(this, settings, griddlyContext, context));
 
                 IList<T> page = GetPage(griddlyContext.PageNumber, griddlyContext.PageSize, griddlyContext.SortFields);
 
@@ -156,7 +158,8 @@ namespace Griddly.Mvc
                     PageSize = griddlyContext.PageSize,
                     SortFields = griddlyContext.SortFields,
                     Settings = settings,
-                    PopulateSummaryValues = PopulateSummaryValues
+                    PopulateSummaryValues = PopulateSummaryValues,
+                    Result = this
                 };
 
                 httpContext.Response.Headers["X-Griddly-Count"] = result.Total.ToString();
@@ -223,7 +226,10 @@ namespace Griddly.Mvc
 
                 if (griddlyContext.ExportFormat == GriddlyExportFormat.Custom)
                 {
-                    result = GriddlySettings.HandleCustomExport(this, items, context);
+                    if (GriddlySettings.GlobalHandleCustomExport != null)
+                        result = GriddlySettings.GlobalHandleCustomExport(new HandleCustomExportArgs(this, items, context));
+                    else
+                        result = GriddlySettings.HandleCustomExport(this, items, context);
                 }
                 else
                 {

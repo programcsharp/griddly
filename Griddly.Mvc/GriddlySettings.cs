@@ -66,9 +66,13 @@ namespace Griddly.Mvc
         /// 
         /// First argument is the record set. Second argument is the posted form values.
         /// </summary>
+        [Obsolete("Use GlobalHandleCustomExport")]
         public static Func<GriddlyResult, NameValueCollection, ControllerContext, ActionResult> HandleCustomExport = null;
+        [Obsolete("Use GlobalBeforeRender")]
         public static Action<GriddlySettings, GriddlyResultPage, HtmlHelper, bool> OnBeforeRender = null;
+        [Obsolete("Use GlobalGriddlyResultExecuting")]
         public static Action<GriddlySettings, ControllerContext> OnGriddlyResultExecuting = null;
+        [Obsolete("Use GlobalGriddlyPageExecuting")]
         public static Action<GriddlySettings, GriddlyContext, ControllerContext> OnGriddlyPageExecuting = null;
 #else
         /// <summary>
@@ -76,11 +80,19 @@ namespace Griddly.Mvc
         /// 
         /// First argument is the record set. Second argument is the posted form values.
         /// </summary>
+        [Obsolete("Use GlobalHandleCustomExport")]
         public static Func<GriddlyResult, NameValueCollection, ActionContext, ActionResult> HandleCustomExport = null;
+        [Obsolete("Use GlobalBeforeRender")]
         public static Action<GriddlySettings, GriddlyResultPage, IHtmlHelper, bool> OnBeforeRender = null;
+        [Obsolete("Use GlobalGriddlyResultExecuting")]
         public static Action<GriddlySettings, ActionContext> OnGriddlyResultExecuting = null;
+        [Obsolete("Use GlobalGriddlyPageExecuting")]
         public static Action<GriddlySettings, GriddlyContext, ActionContext> OnGriddlyPageExecuting = null;
 #endif
+        public static Func<HandleCustomExportArgs, ActionResult> GlobalHandleCustomExport = null;
+        public static Action<BeforeRenderArgs> GlobalBeforeRender = null;
+        public static Action<GriddlyResultExecutingArgs> GlobalGriddlyResultExecuting = null;
+        public static Action<GriddlyPageExecutingArgs> GlobalGriddlyPageExecuting = null;
 
 #if NETFRAMEWORK
         public GriddlySettings()

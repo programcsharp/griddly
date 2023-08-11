@@ -19,6 +19,8 @@ namespace Griddly.Mvc
         public GriddlySettings Settings { get; set; }
 
         public Action<GriddlySettings> PopulateSummaryValues { get; set; }
+
+        public GriddlyResult Result { get; set; }
     }
 
     public class GriddlyResultPage<T> : GriddlyResultPage
