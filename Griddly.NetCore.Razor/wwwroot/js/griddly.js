@@ -1101,7 +1101,7 @@
 
             $("a.export-custom", this.$element).on("click", $.proxy(function (e)
             {
-                this.exportFile("custom", null, { exportName: $(e.target).data("export-name") });
+                this.exportFile("custom", this.options.exportCustomFunction, { exportName: $(e.target).data("export-name") });
                 e.preventDefault();
             }, this));
             $("a.export-xlsx", this.$element).on("click", $.proxy(function (e)
