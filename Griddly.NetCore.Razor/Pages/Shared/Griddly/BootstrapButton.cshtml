@@ -99,7 +99,7 @@ Func<List<GriddlyButton>, IHtmlContent> RenderList = @<text>@{
                     </h6>
                 }
                 else if (button is GriddlyHtmlButton)
-                {@(((GriddlyHtmlButton)button).HtmlTemplate(button))}
+                {@await ((GriddlyHtmlButton)button).ContentTask(button)}
                 else
                 {@RenderLink((button, false, true))}
         }
@@ -123,7 +123,7 @@ Func<List<GriddlyButton>, IHtmlContent> RenderList = @<text>@{
             {
                 <li class="@(!button.Enabled || button.EnableOnSelection == true ? "disabled" : null)" @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())>
                     @if (button is GriddlyHtmlButton)
-                    {@(((GriddlyHtmlButton)button).HtmlTemplate(button))}
+                    {@await ((GriddlyHtmlButton)button).ContentTask(button)}
                     else
                     {@RenderLink((button, false, true))}
                 </li>
@@ -135,7 +135,7 @@ Func<List<GriddlyButton>, IHtmlContent> RenderList = @<text>@{
 
 @if (Model is GriddlyHtmlButton)
 {
-    @(((GriddlyHtmlButton)Model).HtmlTemplate(Model))
+    @await ((GriddlyHtmlButton)Model).ContentTask(Model)
 }
 else if (!Model.Buttons.Any())
 {
