@@ -25,13 +25,13 @@ namespace Griddly.Mvc
         public static GriddlyCss DefaultCss = GriddlyCss.Bootstrap3Defaults;
 
         #region Obsolete shims retained only for backward compatibility
-        [Obsolete("Use GriddlySettings.Css.GriddlyDefault")]
+        [Obsolete("Use DefaultCss.GriddlyDefault")]
         public static string DefaultClassName { get => DefaultCss.GriddlyDefault; set => DefaultCss.GriddlyDefault = value; }
-        [Obsolete("Use GriddlySettings.Css.TableDefault")]
+        [Obsolete("Use DefaultCss.TableDefault")]
         public static string DefaultTableClassName { get => DefaultCss.TableDefault; set => DefaultCss.TableDefault = value; }
-        [Obsolete("Use GriddlySettings.Css.ButtonDefault")]
+        [Obsolete("Use DefaultCss.ButtonDefault")]
         public static string DefaultButtonClassName { get => DefaultCss.ButtonDefault; set => DefaultCss.ButtonDefault = value; }
-        [Obsolete("Use Css.IsBootstrap4")]
+        [Obsolete("Use DefaultCss.IsBootstrap4")]
         public static bool IsBootstrap4 => DefaultCss.IsBootstrap4;
         #endregion
 
