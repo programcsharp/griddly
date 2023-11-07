@@ -594,7 +594,7 @@ namespace Griddly.Mvc
             return this;
         }
 
-        public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> expression, string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, ColumnRenderMode renderMode = ColumnRenderMode.Both, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0, Expression<Func<TRow, object>> value = null, double? exportWidth = null, Func<TRow, string> linkUrl = null, bool visible = true, string columnId = null)
+        public GriddlySettings<TRow> Column<TProperty>(Expression<Func<TRow, TProperty>> expression, string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, ColumnRenderMode renderMode = ColumnRenderMode.Both, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, object> headerTemplate = null, Func<GriddlyColumn, GriddlyFilter> filter = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0, Expression<Func<TRow, object>> value = null, double? exportWidth = null, Func<TRow, string> linkUrl = null, bool visible = true, string columnId = null)
         {
             if (expression != null)
             {
@@ -652,6 +652,7 @@ namespace Griddly.Mvc
             Add(new GriddlyColumn<TRow>(expression, caption, columnId)
             {
                 Visible = visible,
+                HeaderTemplate = headerTemplate,
                 Template = template,
                 Format = format,
                 ExpressionString = expressionString,
@@ -672,9 +673,9 @@ namespace Griddly.Mvc
             return this;
         }
 
-        public GriddlySettings<TRow> Column(string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, ColumnRenderMode renderMode = ColumnRenderMode.Both, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, GriddlyFilter> filter = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0, Expression<Func<TRow, object>> value = null, double? exportWidth = null, Func<TRow, string> linkUrl = null)
+        public GriddlySettings<TRow> Column(string caption = null, string format = null, string expressionString = null, SortDirection? defaultSort = null, string className = null, ColumnRenderMode renderMode = ColumnRenderMode.Both, string width = null, SummaryAggregateFunction? summaryFunction = null, object summaryValue = null, Func<TRow, object> template = null, Func<GriddlyColumn, object> headerTemplate = null, Func<GriddlyColumn, GriddlyFilter> filter = null, Func<TRow, object> htmlAttributes = null, object headerHtmlAttributes = null, int defaultSortOrder = 0, Expression<Func<TRow, object>> value = null, double? exportWidth = null, Func<TRow, string> linkUrl = null)
         {
-            return Column<object>(null, caption, format, expressionString, defaultSort, className, renderMode, width, summaryFunction, summaryValue, template, filter, htmlAttributes, headerHtmlAttributes, defaultSortOrder, value, exportWidth, linkUrl: linkUrl);
+            return Column<object>(null, caption, format, expressionString, defaultSort, className, renderMode, width, summaryFunction, summaryValue, template, headerTemplate, filter, htmlAttributes, headerHtmlAttributes, defaultSortOrder, value, exportWidth, linkUrl: linkUrl);
         }
 
         public GriddlySettings<TRow> SelectColumn(Expression<Func<TRow, object>> id, object summaryValue = null, Func<TRow, object> inputHtmlAttributesTemplate = null, string className = null)
