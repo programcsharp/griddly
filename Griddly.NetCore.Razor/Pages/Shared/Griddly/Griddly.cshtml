@@ -266,7 +266,11 @@
 
                             bool isSortable = !simple && !string.IsNullOrWhiteSpace(column.ExpressionString);
                             <th class="@column.ClassName @(isSortable ? "sortable" : null) @(!column.Visible ? "column-hidden" : null) @(column is GriddlySelectColumn ? "select" : null) @(sort != null ? (sort.Direction == SortDirection.Descending ? "sorted_d" : "sorted_a") : null)" @Html.AttributeNullable("data-griddly-sortfield", simple ? null : column.ExpressionString) @column.HeaderHtmlAttributes.ToHtmlAttributes()>
-                                @if (!string.IsNullOrWhiteSpace(column.ExpressionString))
+                                @if (column.HeaderTemplate != null)
+                                {
+                                    @column.HeaderTemplate(column)
+                                }
+                                else if (!string.IsNullOrWhiteSpace(column.ExpressionString))
                                 {
                                     <text>@Html.Raw(column.Caption)<span class="icon">&nbsp;</span></text>
                                 }

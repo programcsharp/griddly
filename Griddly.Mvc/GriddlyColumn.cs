@@ -48,6 +48,7 @@ namespace Griddly.Mvc
                 return expressionString;
         }
 
+        public Func<GriddlyColumn, object> HeaderTemplate { get; set; }
         public LambdaExpression Expression { get; protected set; }
         public string Caption { get; set; }
         public string ExpressionString { get; set; }
