@@ -57,6 +57,14 @@ namespace Griddly.Mvc
         public static Func<GriddlyButton, object> IconTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
         public static Func<GriddlyResultPage, object> DefaultHeaderTemplate = null;
+#if NETFRAMEWORK
+        public static Func<IGriddlyFilterSettings, object> DefaultFilterModalHeaderTemplate = null;
+        public static Func<IGriddlyFilterSettings, object> DefaultFilterModalFooterTemplate = null;
+#else
+        public static Func<IGriddlyFilterSettings, IHtmlContent> DefaultFilterModalHeaderTemplate = null;
+        public static Func<IGriddlyFilterSettings, IHtmlContent> DefaultFilterModalFooterTemplate = null;
+
+#endif
         public static Func<IEnumerable, GriddlySettings, IEnumerable> OnGriddlyExportExecuting = null;
         public static IGriddlyColumnValueFilter ColumnValueFilter = null;
 
@@ -117,6 +125,8 @@ namespace Griddly.Mvc
             TableClassName = DefaultCss.TableDefault;
             FooterTemplate = DefaultFooterTemplate;
             HeaderTemplate = DefaultHeaderTemplate;
+            FilterModalHeaderTemplate = DefaultFilterModalHeaderTemplate;
+            FilterModalFooterTemplate = DefaultFilterModalFooterTemplate;
             EmptyGridMessageTemplate = DefaultEmptyGridMessageTemplate;
             EmptyGridMessage = DefaultEmptyGridMessage;
             PageSize = DefaultPageSize;
