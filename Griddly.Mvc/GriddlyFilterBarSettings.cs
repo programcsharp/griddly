@@ -21,8 +21,12 @@ namespace Griddly.Mvc
 
 #if NETFRAMEWORK
         public Func<object, object> FilterButtonTemplate { get; set; }
+        public Func<IGriddlyFilterSettings, object> FilterModalHeaderTemplate { get; set; }
+        public Func<IGriddlyFilterSettings, object> FilterModalFooterTemplate { get; set; }
 #else
         public Func<object, IHtmlContent> FilterButtonTemplate { get; set; }
+        public Func<IGriddlyFilterSettings, IHtmlContent> FilterModalHeaderTemplate { get; set; }
+        public Func<IGriddlyFilterSettings, IHtmlContent> FilterModalFooterTemplate { get; set; }
 #endif
 
 

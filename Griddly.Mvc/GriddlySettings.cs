@@ -172,6 +172,8 @@ namespace Griddly.Mvc
         public Func<object, object> AfterTemplate { get; set; }
         public Func<GriddlySettings, object> FilterTemplate { get; set; }
         public Func<GriddlySettings, object> InlineFilterTemplate { get; set; }
+        public Func<IGriddlyFilterSettings, object> FilterModalHeaderTemplate { get; set; }
+        public Func<IGriddlyFilterSettings, object> FilterModalFooterTemplate { get; set; }
         public Func<object, object> FilterButtonTemplate { get; set; }
         public Func<object, object> BeforeColumnHeadersTemplate { get; set; }
 #else
@@ -181,6 +183,8 @@ namespace Griddly.Mvc
         public Func<object, IHtmlContent> AfterTemplate { get; set; }
         public Func<GriddlySettings, IHtmlContent> FilterTemplate { get; set; }
         public Func<GriddlySettings, IHtmlContent> InlineFilterTemplate { get; set; }
+        public Func<IGriddlyFilterSettings, IHtmlContent> FilterModalHeaderTemplate { get; set; }
+        public Func<IGriddlyFilterSettings, IHtmlContent> FilterModalFooterTemplate { get; set; }
         public Func<object, IHtmlContent> FilterButtonTemplate { get; set; }
         public Func<object, IHtmlContent> BeforeColumnHeadersTemplate { get; set; }
 #endif
