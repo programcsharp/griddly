@@ -49,11 +49,11 @@ namespace Griddly.Mvc
             {
 #if NETFRAMEWORK
                 if (filterContext.ActionDescriptor.ActionName.EndsWith("grid", StringComparison.OrdinalIgnoreCase)
-                    || (filterContext.ActionDescriptor as ReflectedActionDescriptor)?.MethodInfo.ReturnType == typeof(GriddlyResult)
-                    || (filterContext.ActionDescriptor as TaskAsyncActionDescriptor)?.TaskMethodInfo.ReturnType == typeof(GriddlyResult))
+                    || typeof(GriddlyResult).IsAssignableFrom((filterContext.ActionDescriptor as ReflectedActionDescriptor)?.MethodInfo.ReturnType)
+                    || typeof(GriddlyResult).IsAssignableFrom((filterContext.ActionDescriptor as TaskAsyncActionDescriptor)?.TaskMethodInfo.ReturnType))
 #else
                 if (filterContext.RouteData.Values["action"].ToString().EndsWith("grid", StringComparison.OrdinalIgnoreCase)
-                    || (filterContext.ActionDescriptor as ControllerActionDescriptor)?.MethodInfo.ReturnType == typeof(GriddlyResult))
+                    || typeof(GriddlyResult).IsAssignableFrom((filterContext.ActionDescriptor as ControllerActionDescriptor)?.MethodInfo.ReturnType))
 #endif
                 {
                     var request = filterContext.HttpContext.Request;
