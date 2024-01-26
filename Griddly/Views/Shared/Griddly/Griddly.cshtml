@@ -120,7 +120,7 @@
 
             if (param != null)
             {
-                return Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(x.Value)?.SequenceEqual(Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(param)) ?? false;
+                return Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(x.Value)?.OrderBy(y => y).SequenceEqual(Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(param).OrderBy(y => y)) ?? false;
             }
 
             return false;

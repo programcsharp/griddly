@@ -256,6 +256,12 @@
                     return false;
                 }
 
+                if (Array.isArray(x[p]))
+                {
+                    x[p].sort();
+                    y[p].sort();
+                }
+
                 switch (typeof (x[p]))
                 {
                     case 'object':
