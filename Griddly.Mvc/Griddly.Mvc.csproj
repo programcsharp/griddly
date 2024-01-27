@@ -4,6 +4,7 @@
     <TargetFrameworks>netcoreapp3.1;net461</TargetFrameworks>
     <RootNamespace>Griddly.Mvc</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+	<LangVersion>10</LangVersion>
   </PropertyGroup>
 
   <ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">

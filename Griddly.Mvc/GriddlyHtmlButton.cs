@@ -1,19 +1,12 @@
-﻿using System;
+﻿namespace Griddly.Mvc;
 
-#if NETCOREAPP
-using Microsoft.AspNetCore.Html;
-#endif
-
-namespace Griddly.Mvc
+public class GriddlyHtmlButton : GriddlyButton
 {
-    public class GriddlyHtmlButton : GriddlyButton
-    {
-        public Func<object,
+    public Func<object,
 #if NETCOREAPP
-            IHtmlContent
+        IHtmlContent
 #else
-            object
+        object
 #endif
-            > HtmlTemplate { get; set; }
-    }
+        > HtmlTemplate { get; set; }
 }

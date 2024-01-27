@@ -1,10 +1,9 @@
-﻿namespace Griddly.Mvc
+﻿namespace Griddly.Mvc;
+
+public enum GriddlyExportFormat
 {
-    public enum GriddlyExportFormat
-    {
-        Xlsx,
-        Csv,
-        Tsv,
-        Custom
-    }
+    Xlsx,
+    Csv,
+    Tsv,
+    Custom
 }

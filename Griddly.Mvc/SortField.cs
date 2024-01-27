@@ -1,12 +1,7 @@
-﻿#if NETFRAMEWORK
-using System.Web.Helpers;
-#endif
+﻿namespace Griddly.Mvc;
 
-namespace Griddly.Mvc
+public class SortField
 {
-    public class SortField
-    {
-        public string Field { get; set; }
-        public SortDirection Direction { get; set; }
-    }
+    public string Field { get; set; }
+    public SortDirection Direction { get; set; }
 }
