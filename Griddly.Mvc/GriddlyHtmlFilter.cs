@@ -1,25 +1,22 @@
-﻿using System;
+﻿namespace Griddly.Mvc;
 
-namespace Griddly.Mvc
+public class GriddlyHtmlFilter : GriddlyFilter
 {
-    public class GriddlyHtmlFilter : GriddlyFilter
+    /// <summary>
+    /// An Html Template function accepting a GriddlyHtmlFilterModel, and returning an object. 
+    /// </summary>
+    public Func<GriddlyHtmlFilterModel, object> HtmlTemplate { get; set; }
+}
+
+public class GriddlyHtmlFilterModel
+{
+    public GriddlyHtmlFilterModel(GriddlyHtmlFilter filter, object defaultValue)
     {
-        /// <summary>
-        /// An Html Template function accepting a GriddlyHtmlFilterModel, and returning an object. 
-        /// </summary>
-        public Func<GriddlyHtmlFilterModel, object> HtmlTemplate { get; set; }
+        this.Filter = filter;
+        this.DefaultValue = defaultValue;
     }
 
-    public class GriddlyHtmlFilterModel
-    {
-        public GriddlyHtmlFilterModel(GriddlyHtmlFilter filter, object defaultValue)
-        {
-            this.Filter = filter;
-            this.DefaultValue = defaultValue;
-        }
+    public GriddlyHtmlFilter Filter { get; protected set; }
 
-        public GriddlyHtmlFilter Filter { get; protected set; }
-
-        public object DefaultValue { get; protected set; }
-    }
+    public object DefaultValue { get; protected set; }
 }

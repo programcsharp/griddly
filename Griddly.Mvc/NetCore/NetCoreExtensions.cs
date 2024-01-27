@@ -1,20 +1,9 @@
 ﻿#if NETCOREAPP
 
-using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Primitives;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.Collections.Specialized;
+using Microsoft.Extensions.DependencyInjection;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.Encodings.Web;
-using System.Linq.Expressions;
-using System;
 
 namespace Griddly.Mvc
 {
