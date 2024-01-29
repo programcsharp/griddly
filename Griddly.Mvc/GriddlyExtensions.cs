@@ -270,23 +270,26 @@ public static class GriddlyExtensions
 
         var context = controller.GetOrCreateGriddlyContext();
 
-        context.Defaults[field] = value;
+        if (!context.IsDefaultReplaced)
+        {
+            context.Defaults[field] = value;
 
 #if NETFRAMEWORK
-        if (controller.ControllerContext.IsChildAction
+            if (controller.ControllerContext.IsChildAction
 #else
-        if (controller.HttpContext.IsChildAction()
+            if (controller.HttpContext.IsChildAction()
 #endif
-            && (!context.IsDefaultSkipped || ignoreSkipped.Value)
-            && (EqualityComparer<T>.Default.Equals(parameter, default(T))
+                && (!context.IsDefaultSkipped || ignoreSkipped.Value)
+                && (EqualityComparer<T>.Default.Equals(parameter, default(T))
 #if NETCOREAPP
-            || typeof(T).IsArray && (parameter as Array)?.Length == 0 //In .NET core, the default value for array is null, but MVC binds the parameter as zero length array
+                || typeof(T).IsArray && (parameter as Array)?.Length == 0 //In .NET core, the default value for array is null, but MVC binds the parameter as zero length array
 #endif
-            ))
-        {
-            parameter = value;
+                ))
+            {
+                parameter = value;
 
-            context.Parameters[field] = parameter;
+                context.Parameters[field] = parameter;
+            }
         }
     }
 
@@ -301,19 +304,22 @@ public static class GriddlyExtensions
 
         var context = controller.GetOrCreateGriddlyContext();
 
-        context.Defaults[field] = value;
+        if (!context.IsDefaultReplaced)
+        {
+            context.Defaults[field] = value;
 
 #if NETFRAMEWORK
-        if (controller.ControllerContext.IsChildAction
+            if (controller.ControllerContext.IsChildAction
 #else
-        if (controller.HttpContext.IsChildAction()
+            if (controller.HttpContext.IsChildAction()
 #endif
-            && (!context.IsDefaultSkipped || ignoreSkipped.Value)
-            && parameter == null)
-        {
-            parameter = value.ToArray();
+                && (!context.IsDefaultSkipped || ignoreSkipped.Value)
+                && parameter == null)
+            {
+                parameter = value.ToArray();
 
-            context.Parameters[field] = parameter;
+                context.Parameters[field] = parameter;
+            }
         }
     }
 
@@ -329,19 +335,22 @@ public static class GriddlyExtensions
 
         var context = controller.GetOrCreateGriddlyContext();
 
-        context.Defaults[field] = value;
+        if (!context.IsDefaultReplaced)
+        {
+            context.Defaults[field] = value;
 
 #if NETFRAMEWORK
-        if (controller.ControllerContext.IsChildAction
+            if (controller.ControllerContext.IsChildAction
 #else
-        if (controller.HttpContext.IsChildAction()
+            if (controller.HttpContext.IsChildAction()
 #endif
-            && (!context.IsDefaultSkipped || ignoreSkipped.Value)
-            && parameter == null)
-        {
-            parameter = value.Cast<T?>().ToArray();
+                && (!context.IsDefaultSkipped || ignoreSkipped.Value)
+                && parameter == null)
+            {
+                parameter = value.Cast<T?>().ToArray();
 
-            context.Parameters[field] = parameter;
+                context.Parameters[field] = parameter;
+            }
         }
     }
 
@@ -354,36 +363,39 @@ public static class GriddlyExtensions
 
         var context = controller.GetOrCreateGriddlyContext();
 
-#if NETFRAMEWORK
-        var field = ExpressionHelper.GetExpressionText(expression);
-#else
-        var field = ExpressionHelper.GetExpressionText(expression, controller.HttpContext);
-#endif
-        context.Defaults[field] = defaultValue;
-
-        var compiledExpression = expression.Compile();
-        TProp parameter = compiledExpression(model);
-
-#if NETFRAMEWORK
-        if (controller.ControllerContext.IsChildAction
-#else
-        if (controller.HttpContext.IsChildAction()
-#endif
-            && (!context.IsDefaultSkipped || ignoreSkipped.Value)
-            && EqualityComparer<TProp>.Default.Equals(parameter, default(TProp)))
+        if (!context.IsDefaultReplaced)
         {
-            parameter = defaultValue;
+#if NETFRAMEWORK
+            var field = ExpressionHelper.GetExpressionText(expression);
+#else
+            var field = ExpressionHelper.GetExpressionText(expression, controller.HttpContext);
+#endif
+            context.Defaults[field] = defaultValue;
 
-            context.Parameters[field] = defaultValue;
+            var compiledExpression = expression.Compile();
+            TProp parameter = compiledExpression(model);
 
-            if (expression.Body is MemberExpression me && me.Member.MemberType == MemberTypes.Property)
+#if NETFRAMEWORK
+            if (controller.ControllerContext.IsChildAction
+#else
+            if (controller.HttpContext.IsChildAction()
+#endif
+                && (!context.IsDefaultSkipped || ignoreSkipped.Value)
+                && EqualityComparer<TProp>.Default.Equals(parameter, default(TProp)))
             {
-                var pi = me.Member as PropertyInfo;
-                pi.SetValue(model, defaultValue);
-            }
-            else
-            {
-                throw new ArgumentException("expression must be a MemberExpression to a Property");
+                parameter = defaultValue;
+
+                context.Parameters[field] = defaultValue;
+
+                if (expression.Body is MemberExpression me && me.Member.MemberType == MemberTypes.Property)
+                {
+                    var pi = me.Member as PropertyInfo;
+                    pi.SetValue(model, defaultValue);
+                }
+                else
+                {
+                    throw new ArgumentException("expression must be a MemberExpression to a Property");
+                }
             }
         }
     }

@@ -22,7 +22,19 @@ public class GriddlyContext
         }
     }
 
+    /// <summary>
+    /// Indicates that the <see cref="Defaults"/> have been initialized from a different source than SetGriddlyDefault
+    /// </summary>
+    public bool IsDefaultReplaced { get; set; }
+
+    /// <summary>
+    /// Indicates that the <see cref="Defaults"/> should not be used for filtering since <see cref="Parameters"/> have been initialized from another source
+    /// </summary>
     public bool IsDefaultSkipped { get; set; }
+
+    /// <summary>
+    /// Indicates that the <see cref="Parameters"/> have been set by a querystring values
+    /// </summary>
     public bool IsDeepLink { get; set; }
 
     public GriddlyFilterCookieData CookieData { get; set; }
