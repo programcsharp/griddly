@@ -1990,6 +1990,11 @@
         destroy: function ()
         {
 
+        },
+
+        option: function (options)
+        {
+            this.options = { ...this.options, ...options };
         }
     };
 
@@ -2022,6 +2027,10 @@
             if (typeof option == 'string')
             {
                 value = data[option].apply(data, Array.prototype.slice.call(args, 1));
+            }
+            else if (typeof option == "object")
+            {
+                data["option"].apply(data, args);
             }
         });
 
