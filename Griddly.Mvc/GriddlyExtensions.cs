@@ -16,6 +16,11 @@ namespace Griddly.Mvc;
 
 public static class GriddlyExtensions
 {
+    /// <summary>
+    /// The value to use for "ignoreSkipped" parameters on all SetGriddlyDefault methods (default: false)
+    /// </summary>
+    public static bool DefaultIgnoreSkipped { get; set; } = false;
+
     public static string CurrencySymbol
     {
         get
@@ -261,7 +266,7 @@ public static class GriddlyExtensions
 #endif
     {
         if (ignoreSkipped == null)
-            ignoreSkipped = GriddlyParameterAttribute.DefaultIgnoreSkipped;
+            ignoreSkipped = DefaultIgnoreSkipped;
 
         var context = controller.GetOrCreateGriddlyContext();
 
@@ -292,7 +297,7 @@ public static class GriddlyExtensions
 #endif
     {
         if (ignoreSkipped == null)
-            ignoreSkipped = GriddlyParameterAttribute.DefaultIgnoreSkipped;
+            ignoreSkipped = DefaultIgnoreSkipped;
 
         var context = controller.GetOrCreateGriddlyContext();
 
@@ -320,7 +325,7 @@ public static class GriddlyExtensions
         where T : struct
     {
         if (ignoreSkipped == null)
-            ignoreSkipped = GriddlyParameterAttribute.DefaultIgnoreSkipped;
+            ignoreSkipped = DefaultIgnoreSkipped;
 
         var context = controller.GetOrCreateGriddlyContext();
 
@@ -345,7 +350,7 @@ public static class GriddlyExtensions
         where TController : Controller
     {
         if (ignoreSkipped == null)
-            ignoreSkipped = GriddlyParameterAttribute.DefaultIgnoreSkipped;
+            ignoreSkipped = DefaultIgnoreSkipped;
 
         var context = controller.GetOrCreateGriddlyContext();
 

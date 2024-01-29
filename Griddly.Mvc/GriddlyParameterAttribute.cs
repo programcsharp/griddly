@@ -1,12 +1,10 @@
 ﻿using Newtonsoft.Json;
-using System.Threading.Tasks;
 #if NETFRAMEWORK
-using System.Web.Mvc;
 using System.Web.Mvc.Async;
 using COOKIE = System.Web.HttpCookie;
 #else
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -19,9 +17,6 @@ namespace Griddly.Mvc;
 
 public class GriddlyParameterAttribute : ActionFilterAttribute
 {
-    public static bool DefaultIgnoreSkipped { get; set; } = true;
-
-
 #if NETCOREAPP
     public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
@@ -51,60 +46,55 @@ public class GriddlyParameterAttribute : ActionFilterAttribute
             {
                 var request = filterContext.HttpContext.Request;
                 var context = controller.GetOrCreateGriddlyContext();
+
 #if NETFRAMEWORK
-                var args = new Dictionary<string, object>(filterContext.ActionParameters);
+                var actionArguments = new Dictionary<string, object>(filterContext.ActionParameters);
 #else
-                var args = new Dictionary<string, object>(filterContext.ActionArguments);
+                var actionArguments = new Dictionary<string, object>(filterContext.ActionArguments);
+
                 //Add in the default parameter values
                 foreach (var pd in filterContext.ActionDescriptor.Parameters.OfType<ControllerParameterDescriptor>())
                 {
-                    if (pd.ParameterInfo.HasDefaultValue && !args.ContainsKey(pd.Name))
-                        args.Add(pd.Name, pd.ParameterInfo.DefaultValue);
+                    if (pd.ParameterInfo.HasDefaultValue && !actionArguments.ContainsKey(pd.Name))
+                        actionArguments.Add(pd.Name, pd.ParameterInfo.DefaultValue);
                 }
 #endif
 
                 //add any properties of model classes
-                foreach (var ap in args.ToList().Where(x => x.Value?.GetType().IsClass == true && x.Value.GetType() != typeof(string))) 
+                foreach (var ap in actionArguments.ToList().Where(x => x.Value?.GetType().IsClass == true && x.Value.GetType() != typeof(string))) 
                 {
                     foreach (var pi in ap.Value.GetType().GetProperties().Where(x => x.CanRead && x.GetIndexParameters().Length == 0)) 
                     {
-                        if (!args.ContainsKey(pi.Name))
-                            args[pi.Name] = pi.GetValue(ap.Value);
+                        if (!actionArguments.ContainsKey(pi.Name))
+                            actionArguments[pi.Name] = pi.GetValue(ap.Value);
                     } 
                 }
 
                 if (IsChildAction(filterContext))
                 {
-                    string[] parentKeys = GetQueryStringKeys(request);
+                    string[] querystringKeys = GetQueryStringKeys(request);
 
                     // if a param came in on querystring, skip the defaults. cookie already does its own skip.
-                    if (!context.IsDefaultSkipped && args.Any(x => x.Value != null && parentKeys.Contains(x.Key)))
+                    if (!context.IsDefaultSkipped && actionArguments.Any(x => x.Value != null && querystringKeys.Contains(x.Key)))
                     {
                         context.IsDefaultSkipped = true;
                         context.IsDeepLink = true;
                     }
 
-                    foreach (var param in args.ToList())
+                    foreach (var param in actionArguments.ToList())
                     {
                         if (param.Value != null && (param.Value.GetType().IsValueType || typeof(IEnumerable).IsAssignableFrom(param.Value.GetType())))
                         {
-                            bool isParamSet = context.CookieData?.Values?.ContainsKey(param.Key) == true || parentKeys.Contains(param.Key) || filterContext.RouteData.Values.ContainsKey(param.Key);
+                            bool isParamSet = context.CookieData?.Values?.ContainsKey(param.Key) == true || querystringKeys.Contains(param.Key) || filterContext.RouteData.Values.ContainsKey(param.Key);
 
-                            // if we're skipping defaults but this didn't come from cookie or querystring, it must've come from a
-                            // parameter default in code... nuke it.
-                            if ((context.IsDefaultSkipped && !DefaultIgnoreSkipped) && !isParamSet)
-                                args[param.Key] = null;
-                            else
+                            if (isParamSet)
                             {
-                                if (!(context.IsDefaultSkipped && !DefaultIgnoreSkipped) || !isParamSet)
-                                    context.Defaults[param.Key] = param.Value;
-
                                 context.Parameters[param.Key] = param.Value;
                             }
                         }
                     }
                 }
-                else if (args.TryGetValue("_isDeepLink", out object value))
+                else if (actionArguments.TryGetValue("_isDeepLink", out object value))
                 {
                     if (Convert.ToBoolean(value) == true)
                         context.IsDeepLink = true;
