@@ -1994,7 +1994,7 @@
 
         option: function (options)
         {
-            this.options = { ...this.options, ...options };
+            this.options = Object.assign(this.options, options);
         }
     };
 
