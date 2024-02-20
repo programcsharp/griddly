@@ -256,6 +256,12 @@
                     return false;
                 }
 
+                if (Array.isArray(x[p]))
+                {
+                    x[p].sort();
+                    y[p].sort();
+                }
+
                 switch (typeof (x[p]))
                 {
                     case 'object':
@@ -1984,6 +1990,11 @@
         destroy: function ()
         {
 
+        },
+
+        option: function (options)
+        {
+            this.options = Object.assign(this.options, options);
         }
     };
 
@@ -2016,6 +2027,10 @@
             if (typeof option == 'string')
             {
                 value = data[option].apply(data, Array.prototype.slice.call(args, 1));
+            }
+            else if (typeof option == "object")
+            {
+                data["option"].apply(data, args);
             }
         });
 

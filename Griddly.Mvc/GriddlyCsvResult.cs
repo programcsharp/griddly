@@ -1,86 +1,78 @@
 ﻿using CsvHelper;
 using CsvHelper.Configuration;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Globalization;
-#if NETFRAMEWORK
-using System.Web.Mvc;
-#else
-using Microsoft.AspNetCore.Mvc;
-#endif
+using System.IO;
+using System.Threading.Tasks;
 
-namespace Griddly.Mvc
+namespace Griddly.Mvc;
+
+public class GriddlyCsvResult<T> : ActionResult
 {
-    public class GriddlyCsvResult<T> : ActionResult
+    IEnumerable<T> _data;
+    GriddlySettings _settings;
+    string _name;
+    GriddlyExportFormat _format;
+    string _exportName;
+
+    public GriddlyCsvResult(IEnumerable<T> data, GriddlySettings settings, string name, GriddlyExportFormat format = GriddlyExportFormat.Csv, string exportName = null)
     {
-        IEnumerable<T> _data;
-        GriddlySettings _settings;
-        string _name;
-        GriddlyExportFormat _format;
-        string _exportName;
-
-        public GriddlyCsvResult(IEnumerable<T> data, GriddlySettings settings, string name, GriddlyExportFormat format = GriddlyExportFormat.Csv, string exportName = null)
-        {
-            _data = data;
-            _settings = settings;
-            _name = name;
-            _format = format;
-            _exportName = exportName;
-        }
+        _data = data;
+        _settings = settings;
+        _name = name;
+        _format = format;
+        _exportName = exportName;
+    }
 
 #if NETFRAMEWORK
-        public override void ExecuteResult(ControllerContext context)
+    public override void ExecuteResult(ControllerContext context)
 #else
-        public override async Task ExecuteResultAsync(ActionContext context)
+    public override async Task ExecuteResultAsync(ActionContext context)
 #endif
-        {
-            string format = _format == GriddlyExportFormat.Tsv ? "tsv" : "csv";
+    {
+        string format = _format == GriddlyExportFormat.Tsv ? "tsv" : "csv";
 
-            context.HttpContext.Response.ContentType = "text/" + format;
+        context.HttpContext.Response.ContentType = "text/" + format;
 
-            context.HttpContext.Response.Headers.Add("content-disposition", "attachment;  filename=" + _name + "." + format);
+        context.HttpContext.Response.Headers.Add("content-disposition", "attachment;  filename=" + _name + "." + format);
 
 #if NETFRAMEWORK
-            var tw = context.HttpContext.Response.Output;
+        var tw = context.HttpContext.Response.Output;
 #else
-            using (var tw = new StreamWriter(context.HttpContext.Response.Body))
+        using (var tw = new StreamWriter(context.HttpContext.Response.Body))
 #endif
-            using (CsvWriter w = new CsvWriter(tw, new CsvConfiguration(CultureInfo.CurrentCulture) { HasHeaderRecord = true, Delimiter = _format == GriddlyExportFormat.Tsv ? "\t" : "," }))
+        using (CsvWriter w = new CsvWriter(tw, new CsvConfiguration(CultureInfo.CurrentCulture) { HasHeaderRecord = true, Delimiter = _format == GriddlyExportFormat.Tsv ? "\t" : "," }))
+        {
+            var export = _settings.Exports.FirstOrDefault(x => x.Name == _exportName);
+            var columns = export == null ? _settings.Columns : export.Columns;
+
+            if (export != null && export.UseGridColumns)
+                columns.InsertRange(0, _settings.Columns);
+
+            columns.RemoveAll(x => !x.Visible || !x.RenderMode.HasFlag(ColumnRenderMode.Export));
+
+            for (int i = 0; i < columns.Count; i++)
+                w.WriteField(columns[i].Caption);
+
+            w.NextRecord();
+
+            int y = 0;
+
+            foreach (T row in _data)
             {
-                var export = _settings.Exports.FirstOrDefault(x => x.Name == _exportName);
-                var columns = export == null ? _settings.Columns : export.Columns;
-
-                if (export != null && export.UseGridColumns)
-                    columns.InsertRange(0, _settings.Columns);
-
-                columns.RemoveAll(x => !x.Visible || !x.RenderMode.HasFlag(ColumnRenderMode.Export));
-
-                for (int i = 0; i < columns.Count; i++)
-                    w.WriteField(columns[i].Caption);
-
-                w.NextRecord();
-
-                int y = 0;
-
-                foreach (T row in _data)
+                for (int x = 0; x < columns.Count; x++)
                 {
-                    for (int x = 0; x < columns.Count; x++)
-                    {
-                        object renderedValue = columns[x].RenderCellValue(row, context.HttpContext, true);
+                    object renderedValue = columns[x].RenderCellValue(row, context.HttpContext, true);
 
-                        w.WriteField(renderedValue);
-                    }
-#if NETFRAMEWORK
-                    w.NextRecord();
-#else
-                    await w.NextRecordAsync(); //Fix: Synchronous operations are disallowed. Call WriteAsync or set AllowSynchronousIO to true instead.
-#endif
-                    y++;
+                    w.WriteField(renderedValue);
                 }
-
+#if NETFRAMEWORK
+                w.NextRecord();
+#else
+                await w.NextRecordAsync(); //Fix: Synchronous operations are disallowed. Call WriteAsync or set AllowSynchronousIO to true instead.
+#endif
+                y++;
             }
+
         }
     }
 }
