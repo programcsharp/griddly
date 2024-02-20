@@ -120,10 +120,20 @@
 
             if (param != null)
             {
-                // TODO: perhaps use hashset for performance or a scrambled equals algo? 
-                // https://stackoverflow.com/a/3670008/65611
-                // https://stackoverflow.com/a/3670089/65611
-                return Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(x.Value)?.OrderBy(y => y).SequenceEqual(Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(param).OrderBy(y => y)) ?? false;
+                // se hashset for performance https://stackoverflow.com/a/3670008/65611
+                // if duplicate values are desirable (I can't think of why) we can switch to a a scrambled equals: https://stackoverflow.com/a/3670089/65611
+                //return Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(x.Value)?.OrderBy(y => y).SequenceEqual(Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(param).OrderBy(y => y)) ?? false;
+
+                var vals = Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(x.Value);
+
+                if (vals == null)
+                {
+                    return false;
+                }
+
+                var parms = Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(param);
+
+                return new HashSet<string>(vals).SetEquals(new HashSet<string>(parms));
             }
 
             return false;
