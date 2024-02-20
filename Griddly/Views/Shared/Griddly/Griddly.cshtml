@@ -120,6 +120,9 @@
 
             if (param != null)
             {
+                // TODO: perhaps use hashset for performance or a scrambled equals algo? 
+                // https://stackoverflow.com/a/3670008/65611
+                // https://stackoverflow.com/a/3670089/65611
                 return Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(x.Value)?.OrderBy(y => y).SequenceEqual(Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(param).OrderBy(y => y)) ?? false;
             }
 
