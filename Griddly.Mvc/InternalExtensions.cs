@@ -149,9 +149,16 @@ internal static class Extensions
     internal static string GetFormattedValue(object value, FilterDataType dataType)
     {
         if (value == null)
+        {
             return null;
+        }
         else if (dataType == FilterDataType.String)
+        {
+            if (value is IEnumerable enumerable && value.GetType() != typeof(string))
+                return string.Join(", ", enumerable.Cast<object>().Select(x => x?.ToString()));
+
             return value.ToString();
+        }
 
         string format;
 
