@@ -1065,10 +1065,7 @@
                     }
                 }
 
-                setRowSelect($checkbox);
-
-                if (event.shiftKey && this.options.lastSelectedRow)
-                {
+                if (event.shiftKey && this.options.lastSelectedRow) {
                     var last = $("tbody tr", this.$element).index(this.options.lastSelectedRow);
                     var first = $("tbody tr", this.$element).index($target.parents("tr"));
                     var newstate = this.options.lastSelectedRow.find("input[name=_rowselect]").prop("checked");
@@ -1077,8 +1074,12 @@
                     var end = Math.max(first, last);
 
                     $("tbody tr", this.$element).slice(start, end).find("input[name=_rowselect]").each(function () { $(this).prop("checked", newstate); setRowSelect($(this), true) });
+                    setRowSelect($checkbox);
 
                     onRowChange();
+                }
+                else {
+                    setRowSelect($checkbox);
                 }
 
                 this.options.lastSelectedRow = $target.parents("tr");
