@@ -1107,17 +1107,17 @@
             }, this));
             $("a.export-xlsx", this.$element).on("click", $.proxy(function (e)
             {
-                this.exportFile("xlsx", null, { exportName: $(e.target).data("export-name") });
+                this.exportFile("xlsx", this.options.exportFunction, { exportName: $(e.target).data("export-name") });
                 e.preventDefault();
             }, this));
             $("a.export-csv", this.$element).on("click", $.proxy(function (e)
             {
-                this.exportFile("csv", null, { exportName: $(e.target).data("export-name") });
+                this.exportFile("csv", this.options.exportFunction, { exportName: $(e.target).data("export-name") });
                 e.preventDefault();
             }, this));
             $("a.export-tsv", this.$element).on("click", $.proxy(function (e)
             {
-                this.exportFile("tsv", null, { exportName: $(e.target).data("export-name") });
+                this.exportFile("tsv", this.options.exportFunction, { exportName: $(e.target).data("export-name") });
                 e.preventDefault();
             }, this));
 
@@ -2045,7 +2045,9 @@
         confirmPromptFunction: null,
         renderFilterDisplay: renderFilterDisplayImpl,
         serializeSkipEmpty: true,
-        filtersSelector: "input[name], select[name]"
+        filtersSelector: "input[name], select[name]",
+        exportCustomFunction: null,
+        exportFunction: null
     }, $.fn.griddlyGlobalDefaults);
 
     var GriddlyFilterBar = function (element, options)
