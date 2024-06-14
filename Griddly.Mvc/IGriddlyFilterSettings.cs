@@ -1,27 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Griddly.Mvc;
 
-#if NETCOREAPP
-using Microsoft.AspNetCore.Html;
-#endif
-
-namespace Griddly.Mvc
+public interface IGriddlyFilterSettings
 {
-    public interface IGriddlyFilterSettings
-    {
-        List<GriddlyFilter> Filters { get; set; }
+    List<GriddlyFilter> Filters { get; set; }
 
 #if NETFRAMEWORK
-        Func<object, object> FilterButtonTemplate { get; set; }
+    Func<object, object> FilterButtonTemplate { get; set; }
         Func<IGriddlyFilterSettings, object> FilterModalHeaderTemplate { get; set; }
         Func<IGriddlyFilterSettings, object> FilterModalFooterTemplate { get; set; }
 #else
-        Func<object, IHtmlContent> FilterButtonTemplate { get; set; }
+    Func<object, IHtmlContent> FilterButtonTemplate { get; set; }
         Func<IGriddlyFilterSettings, IHtmlContent> FilterModalHeaderTemplate { get; set; }
         Func<IGriddlyFilterSettings, IHtmlContent> FilterModalFooterTemplate { get; set; }
 #endif
-    }
 }
