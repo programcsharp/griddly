@@ -530,12 +530,23 @@ namespace Griddly.Mvc
 
                 sortFields = GriddlyResult.GetSortFields(items);
 
+#if NETFRAMEWORK
+                string cookieSuffix = (controller.ControllerContext.RouteData.Values["GridIdentifier"] as string);
+#else
+                string cookieSuffix = (routeData.Values["GridIdentifier"] as string);
+#endif
+
+                if (string.IsNullOrEmpty(cookieSuffix))
+                    cookieSuffix = items["GridIdentifier"];
+
+                cookieSuffix = !string.IsNullOrEmpty(cookieSuffix) ? "_" + cookieSuffix.ToLower() : string.Empty;
+
                 context = new GriddlyContext()
                 {
 #if NETFRAMEWORK
-                    Name = (controller.GetType().Name + "_" + controller.ControllerContext.RouteData.Values["action"] as string).ToLower(),
+                    Name = (controller.GetType().Name + "_" + controller.ControllerContext.RouteData.Values["action"] as string).ToLower() + cookieSuffix,
 #else
-                    Name = (routeData.Values["controller"] as string).ToLower() + "_" + (routeData.Values["action"] as string).ToLower(),
+                    Name = (routeData.Values["controller"] as string).ToLower() + "_" + (routeData.Values["action"] as string).ToLower() + cookieSuffix,
 #endif
                     PageNumber = pageNumber,
                     PageSize = pageSize,
@@ -622,7 +633,7 @@ namespace Griddly.Mvc
                     {
                         if (arrayVals.Length > 0)
                             arrayVals.Append("&");
-                        arrayVals.Append(string.Join("&", ((IEnumerable)value.Value).Cast<object>().Select(x=> value.Key + "=" + x?.ToString())));
+                        arrayVals.Append(string.Join("&", ((IEnumerable)value.Value).Cast<object>().Select(x => value.Key + "=" + x?.ToString())));
                     }
                 }
             }
@@ -656,7 +667,7 @@ namespace Griddly.Mvc
             }
 
             var route = helper.RouteUrl(values);
-            if(arrayVals.Length>0)
+            if (arrayVals.Length > 0)
             {
                 route += (route.Contains("?") ? "&" : "?") + arrayVals.ToString();
             }
