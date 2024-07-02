@@ -1087,10 +1087,10 @@
 
             $(this.$element).on("click", "thead tr.columnHeaders th.select", $.proxy(function (event)
             {
-                if (this.$element.find("input[name=_rowselect]:not(:checked)").length == 0)
-                    this.$element.find("input[name=_rowselect]").prop("checked", false).each(function () { setRowSelect($(this), true); });
+                if (this.$element.find("input[name=_rowselect]:not(:checked):not(:disabled)").length == 0)
+                    this.$element.find("input[name=_rowselect]:not(:disabled)").prop("checked", false).each(function () { setRowSelect($(this), true); });
                 else
-                    this.$element.find("input[name=_rowselect]").prop("checked", true).each(function () { setRowSelect($(this), true); });
+                    this.$element.find("input[name=_rowselect]:not(:disabled)").prop("checked", true).each(function () { setRowSelect($(this), true); });
 
                 onRowChange();
             }, this));
