@@ -1,7 +1,7 @@
 ﻿/*
  * Griddly script
  * http://griddly.com
- * Copyright 2013-2023 Chris Hynes and Data Research Group, Inc.
+ * Copyright 2013-2024 Chris Hynes and Data Research Group, Inc.
  * Licensed under MIT (https://github.com/programcsharp/griddly/blob/master/LICENSE)
  *
  * WARNING: Don't edit this file -- it'll be overwitten when you upgrade.
@@ -1071,10 +1071,7 @@
                     }
                 }
 
-                setRowSelect($checkbox);
-
-                if (event.shiftKey && this.options.lastSelectedRow)
-                {
+                if (event.shiftKey && this.options.lastSelectedRow) {
                     var last = $("tbody tr", this.$element).index(this.options.lastSelectedRow);
                     var first = $("tbody tr", this.$element).index($target.parents("tr"));
                     var newstate = this.options.lastSelectedRow.find("input[name=_rowselect]").prop("checked");
@@ -1083,8 +1080,12 @@
                     var end = Math.max(first, last);
 
                     $("tbody tr", this.$element).slice(start, end).find("input[name=_rowselect]").each(function () { $(this).prop("checked", newstate); setRowSelect($(this), true) });
+                    setRowSelect($checkbox);
 
                     onRowChange();
+                }
+                else {
+                    setRowSelect($checkbox);
                 }
 
                 this.options.lastSelectedRow = $target.parents("tr");
@@ -1092,10 +1093,10 @@
 
             $(this.$element).on("click", "thead tr.columnHeaders th.select", $.proxy(function (event)
             {
-                if (this.$element.find("input[name=_rowselect]:not(:checked)").length == 0)
-                    this.$element.find("input[name=_rowselect]").prop("checked", false).each(function () { setRowSelect($(this), true); });
+                if (this.$element.find("input[name=_rowselect]:not(:checked):not(:disabled)").length == 0)
+                    this.$element.find("input[name=_rowselect]:not(:disabled)").prop("checked", false).each(function () { setRowSelect($(this), true); });
                 else
-                    this.$element.find("input[name=_rowselect]").prop("checked", true).each(function () { setRowSelect($(this), true); });
+                    this.$element.find("input[name=_rowselect]:not(:disabled)").prop("checked", true).each(function () { setRowSelect($(this), true); });
 
                 onRowChange();
             }, this));
@@ -1112,17 +1113,17 @@
             }, this));
             $("a.export-xlsx", this.$element).on("click", $.proxy(function (e)
             {
-                this.exportFile("xlsx", null, { exportName: $(e.target).data("export-name") });
+                this.exportFile("xlsx", this.options.exportFunction, { exportName: $(e.target).data("export-name") });
                 e.preventDefault();
             }, this));
             $("a.export-csv", this.$element).on("click", $.proxy(function (e)
             {
-                this.exportFile("csv", null, { exportName: $(e.target).data("export-name") });
+                this.exportFile("csv", this.options.exportFunction, { exportName: $(e.target).data("export-name") });
                 e.preventDefault();
             }, this));
             $("a.export-tsv", this.$element).on("click", $.proxy(function (e)
             {
-                this.exportFile("tsv", null, { exportName: $(e.target).data("export-name") });
+                this.exportFile("tsv", this.options.exportFunction, { exportName: $(e.target).data("export-name") });
                 e.preventDefault();
             }, this));
 
@@ -2059,7 +2060,9 @@
         confirmPromptFunction: null,
         renderFilterDisplay: renderFilterDisplayImpl,
         serializeSkipEmpty: true,
-        filtersSelector: "input[name], select[name]"
+        filtersSelector: "input[name], select[name]",
+        exportCustomFunction: null,
+        exportFunction: null
     }, $.fn.griddlyGlobalDefaults);
 
     var GriddlyFilterBar = function (element, options)
