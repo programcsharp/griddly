@@ -6,8 +6,12 @@
     <div class="col-md-12">
         <h2>Multiple Default Test</h2>
         <h3>Grid 1</h3>
-        @Html.Griddly("Test1Grid")
-        <h3>Grid 2</h3>
-        @Html.Griddly("Test2Grid")
+        @Html.Griddly("Test1Grid", new { gid = "Original" })
+        <h3>Copy Grid 1</h3>
+        @Html.Griddly("Test1Grid", new { gid = "Copy" })
+        <h3>Original Grid 2</h3>
+        @Html.Griddly("Test2Grid", new { gid = "Original" })
+        <h3>Copy Grid 2</h3>
+        @Html.Griddly("Test2Grid", new { gid = "Copy" })
     </div>
 </div>
