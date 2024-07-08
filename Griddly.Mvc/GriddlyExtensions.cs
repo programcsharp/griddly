@@ -531,13 +531,13 @@ namespace Griddly.Mvc
                 sortFields = GriddlyResult.GetSortFields(items);
 
 #if NETFRAMEWORK
-                string cookieSuffix = (controller.ControllerContext.RouteData.Values["GridIdentifier"] as string);
+                string cookieSuffix = (controller.ControllerContext.RouteData.Values["gid"] as string);
 #else
-                string cookieSuffix = (routeData.Values["GridIdentifier"] as string);
+                string cookieSuffix = (routeData.Values["gid"] as string);
 #endif
 
                 if (string.IsNullOrEmpty(cookieSuffix))
-                    cookieSuffix = items["GridIdentifier"];
+                    cookieSuffix = items["gid"];
 
                 cookieSuffix = !string.IsNullOrEmpty(cookieSuffix) ? "_" + cookieSuffix.ToLower() : string.Empty;
 
