@@ -59,7 +59,10 @@ namespace Griddly.Mvc.Results
             if (_massage != null)
                 sortedQuery = _massage(sortedQuery);
 
-            return sortedQuery.Skip(pageNumber * pageSize).Take(pageSize).ToList();
+            if (pageNumber != 0)
+                sortedQuery = sortedQuery.Skip(pageNumber * pageSize);
+
+            return sortedQuery.Take(pageSize).ToList();
         }
 
         public override void PopulateSummaryValues(GriddlySettings<T> settings)
