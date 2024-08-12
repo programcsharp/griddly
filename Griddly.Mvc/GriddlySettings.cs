@@ -33,6 +33,7 @@ public abstract class GriddlySettings : IGriddlyFilterSettings
     public static bool ExportCurrencySymbol = true;
     public static bool DisableHistoryParameters = false;
 
+    public static Func<bool> IsCookiesDisabled = () => false;
     public static Func<string, string> DecorateCookieName = null;
     public static Func<GriddlyButton, object> IconTemplate = null;
     public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;

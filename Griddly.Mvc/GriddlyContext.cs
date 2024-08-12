@@ -15,10 +15,13 @@ public class GriddlyContext
         {
             _name = value;
 
-            _cookieName = "gf_" + Name;
+            if (!GriddlySettings.IsCookiesDisabled())
+            {
+                _cookieName = "gf_" + Name;
 
-            if (GriddlySettings.DecorateCookieName != null)
-                _cookieName = GriddlySettings.DecorateCookieName(_cookieName);
+                if (GriddlySettings.DecorateCookieName != null)
+                    _cookieName = GriddlySettings.DecorateCookieName(_cookieName);
+            }
         }
     }
 
