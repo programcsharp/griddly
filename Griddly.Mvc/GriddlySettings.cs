@@ -32,8 +32,10 @@ public abstract class GriddlySettings : IGriddlyFilterSettings
     public static bool DefaultShowRowSelectCount = true;
     public static bool ExportCurrencySymbol = true;
     public static bool DisableHistoryParameters = false;
+    
+    public static bool IsCookiesDisabledDefault = false;
+    public static Func<HttpContextBase, bool> IsCookiesDisabled = (context) => IsCookiesDisabledDefault;
 
-    public static Func<bool> IsCookiesDisabled = () => false;
     public static Func<string, string> DecorateCookieName = null;
     public static Func<GriddlyButton, object> IconTemplate = null;
     public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
