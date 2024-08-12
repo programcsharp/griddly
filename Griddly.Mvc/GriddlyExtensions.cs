@@ -422,7 +422,9 @@ public static class GriddlyExtensions
     {
         object value = null;
 
-        if ((page.ViewContext.ViewData[_contextKey] as GriddlyContext)?.Parameters.TryGetValue(field, out value) != true)
+        var hasParameter = (page.ViewContext.ViewData[_contextKey] as GriddlyContext)?.Parameters.TryGetValue(field, out value);
+
+        if (hasParameter != true || (value is Array a && a.Length == 0))
             value = null;
 
         return value;
