@@ -106,7 +106,16 @@
 
             if (param != null)
             {
-                return Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(x.Value).SequenceEqual(Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(param));
+                var vals = Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(x.Value);
+
+                if (vals == null)
+                {
+                    return false;
+                }
+
+                var parms = Griddly.Mvc.GriddlyExtensions.GetFormattedValueByType(param);
+
+                return new HashSet<string>(vals).SetEquals(new HashSet<string>(parms));
             }
 
             return false;
