@@ -200,23 +200,26 @@ public class GriddlyParameterAttribute : ActionFilterAttribute
 
     public static void AddCookieDataIfNeeded(GriddlyContext context, HttpContextBase httpContext)
     {
-        var cookie = (COOKIE)httpContext.Items["_griddlyCookie"];
-        var data = (GriddlyFilterCookieData)httpContext.Items["_griddlyCookieData"];
-
-        if (cookie != null && data != null)
+        if (!GriddlySettings.IsCookiesDisabled(httpContext))
         {
-            // we have to use the whitelisted hunk
-            if (context.SortFields?.Length > 0)
-                data.SortFields = context.SortFields;
+            var cookie = (COOKIE)httpContext.Items["_griddlyCookie"];
+            var data = (GriddlyFilterCookieData)httpContext.Items["_griddlyCookieData"];
 
-            cookie.Name = context.CookieName; // cookie name could be different than the default
-            cookie.Value = JsonConvert.SerializeObject(data);
+            if (cookie != null && data != null)
+            {
+                // we have to use the whitelisted hunk
+                if (context.SortFields?.Length > 0)
+                    data.SortFields = context.SortFields;
+
+                cookie.Name = context.CookieName; // cookie name could be different than the default
+                cookie.Value = JsonConvert.SerializeObject(data);
 
 #if NETFRAMEWORK
             httpContext.Response.Cookies.Add(cookie);
 #else
-            httpContext.Response.Cookies.Append(cookie.Name, cookie.Value, new CookieOptions() { Path = cookie.Path });
+                httpContext.Response.Cookies.Append(cookie.Name, cookie.Value, new CookieOptions() { Path = cookie.Path });
 #endif
+            }
         }
     }
 
