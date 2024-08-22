@@ -20,7 +20,11 @@ public abstract class GriddlyColumn
     {
         Expression = expression;
         Caption = caption;
-        ColumnId = columnId != null ? columnId : expression != null ? GetIdFromExpression(expression) : Caption;
+
+        ColumnId = columnId != null ? columnId
+         : expression != null ? GetIdFromExpression(expression)
+         : !string.IsNullOrEmpty(ExpressionString) ? ExpressionString
+         : Caption;
     }
 
     string GetIdFromExpression(LambdaExpression expression)
