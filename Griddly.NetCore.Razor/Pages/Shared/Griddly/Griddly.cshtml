@@ -217,7 +217,7 @@
                 <colgroup>
                     @foreach (GriddlyColumn column in settings.Columns)
                     {
-                        <col @Html.AttributeIf("style", column.Width != null, "width:" + column.Width) data-field="@Griddly.Mvc.GriddlyFilterExtensions.GetField(column)" @Html.AttributeNullable("data-columnid", column.ColumnId) @Html.AttributeIf("class", !column.Visible, "column-hidden") />
+                        <col @Html.AttributeIf("style", column.Width != null, "width:" + column.Width) data-field="@Griddly.Mvc.GriddlyFilterExtensions.GetField(column)" @Html.AttributeNullable("data-columnid", column.GetColumnId()) @Html.AttributeIf("class", !column.Visible, "column-hidden") />
                     }
                 </colgroup>
                 <thead>

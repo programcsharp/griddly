@@ -20,11 +20,7 @@ public abstract class GriddlyColumn
     {
         Expression = expression;
         Caption = caption;
-
-        ColumnId = columnId != null ? columnId
-         : expression != null ? GetIdFromExpression(expression)
-         : !string.IsNullOrEmpty(ExpressionString) ? ExpressionString
-         : Caption;
+        ColumnId = columnId;
     }
 
     string GetIdFromExpression(LambdaExpression expression)
@@ -51,7 +47,15 @@ public abstract class GriddlyColumn
     public double? ExportWidth { get; set; }
     public ColumnRenderMode RenderMode { get; set; }
     public bool Visible { get; set; } = true;
-    public string ColumnId { get; set; }
+    protected string ColumnId;
+
+    public string GetColumnId()
+    {
+        return ColumnId != null ? ColumnId
+            : !string.IsNullOrEmpty(ExpressionString) ? ExpressionString
+            : Caption;
+    }
+
     public SummaryAggregateFunction? SummaryFunction { get; set; }
     public object SummaryValue { get; set; }
     public IDictionary<string, object> HeaderHtmlAttributes { get; set; }
