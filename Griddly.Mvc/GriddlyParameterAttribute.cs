@@ -200,7 +200,11 @@ public class GriddlyParameterAttribute : ActionFilterAttribute
 
     public static void AddCookieDataIfNeeded(GriddlyContext context, HttpContextBase httpContext)
     {
+#if NETFRAMEWORK
         if (!GriddlySettings.IsCookiesDisabled(httpContext))
+#else
+        if (!httpContext.GetGriddlyConfig().IsCookiesDisabled())
+#endif
         {
             var cookie = (COOKIE)httpContext.Items["_griddlyCookie"];
             var data = (GriddlyFilterCookieData)httpContext.Items["_griddlyCookieData"];
