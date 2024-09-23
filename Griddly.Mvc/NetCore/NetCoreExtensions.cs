@@ -1,6 +1,4 @@
-﻿#if NETCOREAPP
-
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 using System.Text.Encodings.Web;
@@ -59,6 +57,23 @@ namespace Griddly.Mvc
             metadata = modelExpression.Metadata;
             return modelExpression.Name;
         }
+
+        public static IGriddlyConfig GetGriddlyConfig(this HttpContext ctx)
+        {
+            return ctx.RequestServices.GetRequiredService<IGriddlyConfig>();
+        }
+        public static IGriddlyConfig GetGriddlyConfig(this IHtmlHelper html)
+        {
+            return html.ViewContext.GetGriddlyConfig();
+        }
+        public static IGriddlyConfig GetGriddlyConfig(this ViewContext ctx)
+        {
+            return ctx.HttpContext.GetGriddlyConfig();
+        }
+        public static IGriddlyConfig GetGriddlyConfig(this ActionContext ctx)
+        {
+            return ctx.HttpContext.GetGriddlyConfig();
+        }
     }
 }
 
@@ -84,5 +99,3 @@ namespace Griddly.Mvc.InternalExtensions
         }
     }
 }
-
-#endif

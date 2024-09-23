@@ -109,7 +109,7 @@ public class GriddlyCookieFilterValueProviderFactory : IValueProviderFactory
     {
         return Task.Factory.StartNew(() =>
         {
-            if (vpfc.ActionContext.HttpContext.IsChildAction() && _canProvide.Invoke(vpfc.ActionContext) && !GriddlySettings.IsCookiesDisabled(vpfc.ActionContext.HttpContext))
+            if (vpfc.ActionContext.HttpContext.IsChildAction() && _canProvide.Invoke(vpfc.ActionContext) && !vpfc.ActionContext.GetGriddlyConfig().IsCookiesDisabled())
             {
                 var context = vpfc.ActionContext.GetOrCreateGriddlyContext();
                 var cookie = vpfc.ActionContext.HttpContext.Request.Cookies[context.CookieName];

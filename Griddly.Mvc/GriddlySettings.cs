@@ -1,19 +1,18 @@
-﻿namespace Griddly.Mvc;
+﻿#if NETCOREAPP
+using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Tasks;
+#endif
+
+namespace Griddly.Mvc;
 
 public abstract class GriddlySettings : IGriddlyFilterSettings
 {
     public static GriddlyCss DefaultCss = GriddlyCss.Bootstrap3Defaults;
 
-    #region Obsolete shims retained only for backward compatibility
-    [Obsolete("Use DefaultCss.GriddlyDefault")]
-    public static string DefaultClassName { get => DefaultCss.GriddlyDefault; set => DefaultCss.GriddlyDefault = value; }
-    [Obsolete("Use DefaultCss.TableDefault")]
-    public static string DefaultTableClassName { get => DefaultCss.TableDefault; set => DefaultCss.TableDefault = value; }
-    [Obsolete("Use DefaultCss.ButtonDefault")]
-    public static string DefaultButtonClassName { get => DefaultCss.ButtonDefault; set => DefaultCss.ButtonDefault = value; }
-    [Obsolete("Use DefaultCss.Is(CssFramework.Bootstrap4)")]
-    public static bool IsBootstrap4 => DefaultCss.Is(CssFramework.Bootstrap4);
-    #endregion
+    public static void ConfigureBootstrap4Defaults()
+    {
+        DefaultCss = GriddlyCss.Bootstrap4Defaults;
+    }
 
 #if NETFRAMEWORK
     public static string ButtonTemplate = "~/Views/Shared/Griddly/BootstrapButton.cshtml";
@@ -28,30 +27,23 @@ public abstract class GriddlySettings : IGriddlyFilterSettings
     public static string ColumnLinkTemplate { get; set; } = "<a href=\"{0}\">{1}</a>";
     public static int? DefaultPageSize = null;
     public static FilterMode? DefaultInitialFilterMode = FilterMode.Form;
-    //public static FilterMode? DefaultAllowedFilterModes = FilterMode.Inline;
     public static bool DefaultShowRowSelectCount = true;
     public static bool ExportCurrencySymbol = true;
     public static bool DisableHistoryParameters = false;
     
     public static bool IsCookiesDisabledDefault = false;
-    public static Func<HttpContextBase, bool> IsCookiesDisabled = (context) => IsCookiesDisabledDefault;
 
     public static Func<string, string> DecorateCookieName = null;
+#if NETFRAMEWORK
+    public static Func<HttpContextBase, bool> IsCookiesDisabled = (context) => IsCookiesDisabledDefault;
     public static Func<GriddlyButton, object> IconTemplate = null;
     public static Func<GriddlyResultPage, object> DefaultFooterTemplate = null;
     public static Func<GriddlyResultPage, object> DefaultHeaderTemplate = null;
-#if NETFRAMEWORK
-        public static Func<IGriddlyFilterSettings, object> DefaultFilterModalHeaderTemplate = null;
-        public static Func<IGriddlyFilterSettings, object> DefaultFilterModalFooterTemplate = null;
-#else
-        public static Func<IGriddlyFilterSettings, IHtmlContent> DefaultFilterModalHeaderTemplate = null;
-        public static Func<IGriddlyFilterSettings, IHtmlContent> DefaultFilterModalFooterTemplate = null;
-
-#endif
+    public static Func<IGriddlyFilterSettings, object> DefaultFilterModalHeaderTemplate = null;
+    public static Func<IGriddlyFilterSettings, object> DefaultFilterModalFooterTemplate = null;
     public static Func<IEnumerable, GriddlySettings, IEnumerable> OnGriddlyExportExecuting = null;
     public static IGriddlyColumnValueFilter ColumnValueFilter = null;
 
-#if NETFRAMEWORK
     /// <summary>
     /// Defines an event handler for custom export requests.
     /// 
@@ -65,25 +57,14 @@ public abstract class GriddlySettings : IGriddlyFilterSettings
     public static Action<GriddlySettings, ControllerContext> OnGriddlyResultExecuting = null;
     [Obsolete("Use GlobalGriddlyPageExecuting")]
     public static Action<GriddlySettings, GriddlyContext, ControllerContext> OnGriddlyPageExecuting = null;
-#else
-    /// <summary>
-    /// Defines an event handler for custom export requests.
-    /// 
-    /// First argument is the record set. Second argument is the posted form values.
-    /// </summary>
-    [Obsolete("Use GlobalHandleCustomExport")]
-    public static Func<GriddlyResult, NameValueCollection, ActionContext, ActionResult> HandleCustomExport = null;
-    [Obsolete("Use GlobalBeforeRender")]
-    public static Action<GriddlySettings, GriddlyResultPage, IHtmlHelper, bool> OnBeforeRender = null;
-    [Obsolete("Use GlobalGriddlyResultExecuting")]
-    public static Action<GriddlySettings, ActionContext> OnGriddlyResultExecuting = null;
-    [Obsolete("Use GlobalGriddlyPageExecuting")]
-    public static Action<GriddlySettings, GriddlyContext, ActionContext> OnGriddlyPageExecuting = null;
-#endif
+
     public static Func<HandleCustomExportArgs, ActionResult> GlobalHandleCustomExport = null;
     public static Action<BeforeRenderArgs> GlobalBeforeRender = null;
     public static Action<GriddlyResultExecutingArgs> GlobalGriddlyResultExecuting = null;
     public static Action<GriddlyPageExecutingArgs> GlobalGriddlyPageExecuting = null;
+    
+    public static Func<EmptyGridMessageTemplateParams, object> DefaultEmptyGridMessageTemplate { get; set; }
+#endif
 
 #if NETFRAMEWORK
     public GriddlySettings()
@@ -107,25 +88,28 @@ public abstract class GriddlySettings : IGriddlyFilterSettings
         ClassName = DefaultCss.GriddlyDefault;
         TableClassName = DefaultCss.TableDefault;
         FooterClassName = DefaultCss.FooterDefault;
+#if NETFRAMEWORK
         FooterTemplate = DefaultFooterTemplate;
         HeaderTemplate = DefaultHeaderTemplate;
-            FilterModalHeaderTemplate = DefaultFilterModalHeaderTemplate;
-            FilterModalFooterTemplate = DefaultFilterModalFooterTemplate;
+        FilterModalHeaderTemplate = DefaultFilterModalHeaderTemplate;
+        FilterModalFooterTemplate = DefaultFilterModalFooterTemplate;
         EmptyGridMessageTemplate = DefaultEmptyGridMessageTemplate;
+#else
+        var config = html.GetGriddlyConfig();
+        FooterTemplate = config.FooterTemplate;
+        HeaderTemplate = config.HeaderTemplate;
+        FilterModalHeaderTemplate = config.FilterModalHeaderTemplate;
+        FilterModalFooterTemplate = config.FilterModalFooterTemplate;
+        EmptyGridMessageTemplate = config.EmptyGridMessageTemplate;
+#endif
         EmptyGridMessage = DefaultEmptyGridMessage;
         PageSize = DefaultPageSize;
         InitialFilterMode = DefaultInitialFilterMode;
-        //AllowedFilterModes = DefaultAllowedFilterModes;
         ShowRowSelectCount = DefaultShowRowSelectCount;
 
 #if NETCOREAPP
         Html = html;
 #endif
-    }
-
-    public static void ConfigureBootstrap4Defaults()
-    {
-        DefaultCss = GriddlyCss.Bootstrap4Defaults;
     }
 
     public GriddlyCss Css = DefaultCss;
@@ -167,21 +151,29 @@ public abstract class GriddlySettings : IGriddlyFilterSettings
     public Func<object, object> AfterTemplate { get; set; }
     public Func<GriddlySettings, object> FilterTemplate { get; set; }
     public Func<GriddlySettings, object> InlineFilterTemplate { get; set; }
-        public Func<IGriddlyFilterSettings, object> FilterModalHeaderTemplate { get; set; }
-        public Func<IGriddlyFilterSettings, object> FilterModalFooterTemplate { get; set; }
+    public Func<IGriddlyFilterSettings, object> FilterModalHeaderTemplate { get; set; }
+    public Func<IGriddlyFilterSettings, object> FilterModalFooterTemplate { get; set; }
     public Func<object, object> FilterButtonTemplate { get; set; }
     public Func<object, object> BeforeColumnHeadersTemplate { get; set; }
+    public Func<GriddlyResultPage, object> FooterTemplate { get; set; }
+    public Func<GriddlyResultPage, object> HeaderTemplate { get; set; }
+    public Func<GriddlyResultPage, object> TitleAppend { get; set; }
+    public Func<EmptyGridMessageTemplateParams, object> EmptyGridMessageTemplate { get; set; }
 #else
     public Action<GriddlySettings, GriddlyResultPage, IHtmlHelper, bool> BeforeRender = null;
-    public Func<object, IHtmlContent> BeforeTemplate { get; set; }
-    public Func<object, IHtmlContent> AfterButtonsTemplate { get; set; }
-    public Func<object, IHtmlContent> AfterTemplate { get; set; }
-    public Func<GriddlySettings, IHtmlContent> FilterTemplate { get; set; }
-    public Func<GriddlySettings, IHtmlContent> InlineFilterTemplate { get; set; }
-        public Func<IGriddlyFilterSettings, IHtmlContent> FilterModalHeaderTemplate { get; set; }
-        public Func<IGriddlyFilterSettings, IHtmlContent> FilterModalFooterTemplate { get; set; }
-    public Func<object, IHtmlContent> FilterButtonTemplate { get; set; }
-    public Func<object, IHtmlContent> BeforeColumnHeadersTemplate { get; set; }
+    public Func<IHtmlHelper, Task<IHtmlContent>> BeforeTemplate { get; set; }
+    public Func<IHtmlHelper, Task<IHtmlContent>> AfterButtonsTemplate { get; set; }
+    public Func<IHtmlHelper, Task<IHtmlContent>> AfterTemplate { get; set; }
+    public Func<GriddlySettings, IHtmlHelper, Task<IHtmlContent>> FilterTemplate { get; set; }
+    public Func<GriddlySettings, IHtmlHelper, Task<IHtmlContent>> InlineFilterTemplate { get; set; }
+    public Func<IGriddlyFilterSettings, IHtmlHelper, Task<IHtmlContent>> FilterModalHeaderTemplate { get; set; }
+    public Func<IGriddlyFilterSettings, IHtmlHelper, Task<IHtmlContent>> FilterModalFooterTemplate { get; set; }
+    public Func<IHtmlHelper, Task<IHtmlContent>> FilterButtonTemplate { get; set; }
+    public Func<IHtmlHelper, Task<IHtmlContent>> BeforeColumnHeadersTemplate { get; set; }
+    public Func<GriddlyResultPage, IHtmlHelper, Task<IHtmlContent>> FooterTemplate {get; set; }
+    public Func<GriddlyResultPage, IHtmlHelper, Task<IHtmlContent>> HeaderTemplate { get; set; }
+    public Func<GriddlyResultPage, IHtmlHelper, Task<IHtmlContent>> TitleAppend { get; set; }
+    public Func<EmptyGridMessageTemplateParams, Task<IHtmlContent>> EmptyGridMessageTemplate { get; set; }
 #endif
 
     public Func<object, object> RowClickUrl { get; set; }
@@ -194,12 +186,6 @@ public abstract class GriddlySettings : IGriddlyFilterSettings
     public Func<object, object> RowClass { get; set; }
     public Func<object, object> RowHtmlAttributes { get; set; }
 
-    public Func<GriddlyResultPage, object> FooterTemplate { get; set; }
-    public Func<GriddlyResultPage, object> HeaderTemplate { get; set; }
-    public Func<GriddlyResultPage, object> TitleAppend { get; set; }
-
-    public static Func<EmptyGridMessageTemplateParams, object> DefaultEmptyGridMessageTemplate { get; set; }
-    public Func<EmptyGridMessageTemplateParams, object> EmptyGridMessageTemplate { get; set; }
     public static string DefaultEmptyGridMessage { get; set; }
     public string EmptyGridMessage { get; set; }
 
@@ -345,16 +331,6 @@ public abstract class GriddlySettings : IGriddlyFilterSettings
 
         return this;
     }
-
-    /*public GriddlySettings Button(string url, string caption, string icon = null)
-    {
-        return Add(new GriddlyButton()
-            {
-                HRef = url,
-                Text = caption,
-                Icon = icon
-            });
-    }*/
 
     public GriddlySettings Button(Func<object, object> argumentTemplate, string caption, string icon = null, GriddlyButtonAction action = GriddlyButtonAction.Navigate, bool? enableOnSelection = null, string className = null, string target = null, string[] rowIds = null, object htmlAttributes = null, bool appendRowIdsToUrl = false, string confirmMessage = null)
     {
@@ -515,33 +491,69 @@ public class GriddlySettings<TRow> : GriddlySettings
 
 #if NETFRAMEWORK
     public new Func<GriddlySettings<TRow>, object> FilterTemplate
-#else
-    public new Func<GriddlySettings<TRow>, IHtmlContent> FilterTemplate
-#endif
     {
-        set
-        {
-            if (value != null)
-                base.FilterTemplate = (x) => value((GriddlySettings<TRow>)x);
-            else
-                base.FilterTemplate = null;
-        }
+        set { base.FilterTemplate = value == null ? null : (x) => value((GriddlySettings<TRow>)x); }
     }
 
-#if NETFRAMEWORK
     public new Func<GriddlySettings<TRow>, object> InlineFilterTemplate
-#else
-    public new Func<GriddlySettings<TRow>, IHtmlContent> InlineFilterTemplate
-#endif
     {
-        set
-        {
-            if (value != null)
-                base.InlineFilterTemplate = (x) => value((GriddlySettings<TRow>)x);
-            else
-                base.InlineFilterTemplate = null;
-        }
+        set { base.InlineFilterTemplate = value == null ? null : (x) => value((GriddlySettings<TRow>)x); }
     }
+#else
+    //Allow the asyncronous templates to be set by the view to a HelperResult
+    public new Func<GriddlySettings<TRow>, IHtmlContent> FilterTemplate
+    {
+        set { base.FilterTemplate = value == null ? null : (x, h) => Task.FromResult(value((GriddlySettings<TRow>)x)); }
+    }
+    public new Func<GriddlySettings<TRow>, IHtmlContent> InlineFilterTemplate
+    {
+        set { base.InlineFilterTemplate = value == null ? null : (x, h) => Task.FromResult(value((GriddlySettings<TRow>)x)); }
+    }
+    public new Func<object, IHtmlContent> BeforeTemplate
+    {
+        set { base.BeforeTemplate = value == null ? null : (h) => Task.FromResult(value(null)); }
+    }
+    public new Func<object, IHtmlContent> AfterButtonsTemplate
+    {
+        set { base.AfterButtonsTemplate = value == null ? null : (h) => Task.FromResult(value(null)); }
+    }
+    public new Func<object, IHtmlContent> AfterTemplate
+    {
+        set { base.AfterTemplate = value == null ? null : (h) => Task.FromResult(value(null)); }
+    }
+    public new Func<IGriddlyFilterSettings, IHtmlContent> FilterModalHeaderTemplate
+    {
+        set { base.FilterModalHeaderTemplate = value == null ? null : (x, h) => Task.FromResult(value(x)); }
+    }
+    public new Func<IGriddlyFilterSettings, IHtmlContent> FilterModalFooterTemplate
+    {
+        set { base.FilterModalFooterTemplate = value == null ? null : (x, h) => Task.FromResult(value(x)); }
+    }
+    public new Func<object, IHtmlContent> FilterButtonTemplate
+    {
+        set { base.FilterButtonTemplate = value == null ? null : (h) => Task.FromResult(value(null)); }
+    }
+    public new Func<object, IHtmlContent> BeforeColumnHeadersTemplate
+    {
+        set { base.BeforeColumnHeadersTemplate = value == null ? null : (h) => Task.FromResult(value(null)); }
+    }
+    public new Func<GriddlyResultPage, IHtmlContent> FooterTemplate
+    {
+        set { base.FooterTemplate = value == null ? null : (x, h) => Task.FromResult(value(x)); }
+    }
+    public new Func<GriddlyResultPage, IHtmlContent> HeaderTemplate
+    {
+        set { base.HeaderTemplate = value == null ? null : (x, h) => Task.FromResult(value(x)); }
+    }
+    public new Func<GriddlyResultPage, IHtmlContent> TitleAppend
+    {
+        set { base.TitleAppend = value == null ? null : (x, h) => Task.FromResult(value(x)); }
+    }
+    public new Func<EmptyGridMessageTemplateParams, IHtmlContent> EmptyGridMessageTemplate
+    {
+        set { base.EmptyGridMessageTemplate = value == null ? null : (x) => Task.FromResult(value(x)); }
+    }
+#endif
 
     public new Func<TRow, object> RowClickUrl
     {

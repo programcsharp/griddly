@@ -17,7 +17,7 @@
 
 @if (Model.FilterButtonTemplate != null)
 {
-    @Model.FilterButtonTemplate(null)
+    @await Model.FilterButtonTemplate(Html)
 }
 else
 {
@@ -33,41 +33,55 @@ else
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                @if (css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5))
-                {<h4 class="modal-title">Filter</h4>}
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                @if (css.Is(CssFramework.Bootstrap3))
-                {<h4 class="modal-title">Filter</h4>}
+                @if (Model.FilterModalHeaderTemplate != null)
+                {
+                    @await Model.FilterModalHeaderTemplate(Model, Html)
+                }
+                else
+                {
+                    @if (css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5))
+                    {<h4 class="modal-title">Filter</h4>}
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    @if (css.Is(CssFramework.Bootstrap3))
+                    {<h4 class="modal-title">Filter</h4>}
+                }
             </div>
             <form class="@(css.Is(CssFramework.Bootstrap3) ? "form-horizontal" : "")">
                 <div class="modal-body">
                     @await Html.PartialAsync("Griddly/GriddlyFilterForm", Model.Filters)
                 </div>
                 <div class="modal-footer" style="@(css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5) ? "justify-content:flex-start" : null@*fix for IE flex bug*@)">
-
-                    <div class="btn-group @(css.Is(CssFramework.Bootstrap5) ? "me-auto" : css.Is(CssFramework.Bootstrap4) ? "mr-auto" : "pull-left")">
+                    @if (Model.FilterModalFooterTemplate != null)
+                    {
+                        @await Model.FilterModalFooterTemplate(Model, Html)
+                    }
+                    else
+                    {
+                        <div class="btn-group @(css.Is(CssFramework.Bootstrap5) ? "me-auto" : css.Is(CssFramework.Bootstrap4) ? "mr-auto" : "pull-left")">
                         <button type="button" class="@css.ButtonDefault dropdown-toggle" data-toggle="@(css.Is(CssFramework.Bootstrap3, CssFramework.Bootstrap4) ? "dropdown" : null)" data-bs-toggle="@(css.Is(CssFramework.Bootstrap5) ? "dropdown" : null)" aria-haspopup="true" aria-expanded="false">
                             Reset @if (css.Is(CssFramework.Bootstrap3)) {<span class="@css.Icons.CaretDown"></span>}
-                        </button>
-                        @if (css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5))
-                        {
-                            <div class="dropdown-menu">
-                                <a class="griddly-search-reset dropdown-item" href="javascript:;">System Default</a>
-                                <a class="griddly-search-clear dropdown-item" href="javascript:;">Clear (Show All)</a>
-                            </div>
-                        }
-                        else
-                        {
-                            <ul class="dropdown-menu">
-                                <li><a class="griddly-search-reset" href="javascript:;">System Default</a></li>
-                                <li><a class="griddly-search-clear" href="javascript:;">Clear (Show All)</a></li>
-                            </ul>
-                        }
-                    </div>
+                                {<span class="@css.Icons.CaretDown"></span>}
+                            </button>
+                            @if (css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5))
+                            {
+                                <div class="dropdown-menu">
+                                    <a class="griddly-search-reset dropdown-item" href="javascript:;">System Default</a>
+                                    <a class="griddly-search-clear dropdown-item" href="javascript:;">Clear (Show All)</a>
+                                </div>
+                            }
+                            else
+                            {
+                                <ul class="dropdown-menu">
+                                    <li><a class="griddly-search-reset" href="javascript:;">System Default</a></li>
+                                    <li><a class="griddly-search-clear" href="javascript:;">Clear (Show All)</a></li>
+                                </ul>
+                            }
+                        </div>
 
                     <button type="button" class="@(css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5) ? "btn btn-link" : css.ButtonDefault) griddly-filter-cancel" data-dismiss="modal">Cancel</button>
 
-                    <button type="submit" class="@css.ButtonDefault">Search</button>
+                        <button type="submit" class="@css.ButtonDefault">Search</button>
+                    }
                 </div>
             </form>
         </div>
