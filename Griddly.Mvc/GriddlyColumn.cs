@@ -4,6 +4,7 @@
 using System.Web.WebPages;
 #else
 using Griddly.Mvc.InternalExtensions;
+using Microsoft.Extensions.DependencyInjection;
 #endif
 
 namespace Griddly.Mvc;
@@ -83,8 +84,12 @@ public abstract class GriddlyColumn
         if (value == null)
             return null;
 
+#if NETCOREAPP
+        value = html.GetGriddlyConfig().Filter(this, value, html.ViewContext.HttpContext);
+#else
         if (GriddlySettings.ColumnValueFilter != null)
             value = GriddlySettings.ColumnValueFilter.Filter(this, value, html.ViewContext.HttpContext);
+#endif
 
         if (Format == null)
         {
@@ -237,8 +242,12 @@ public class GriddlyColumn<TRow> : GriddlyColumn
             throw new InvalidOperationException("Error rendering underlying value or column \"" + Caption + "\"", ex);
         }
 
+#if NETFRAMEWORK
         if (GriddlySettings.ColumnValueFilter != null)
             value = GriddlySettings.ColumnValueFilter.Filter(this, value, html.ViewContext.HttpContext);
+#else
+        value = html.GetGriddlyConfig().Filter(this, value, html.ViewContext.HttpContext);
+#endif
 
         if (value == null)
             return null;
@@ -265,8 +274,12 @@ public class GriddlyColumn<TRow> : GriddlyColumn
             throw new InvalidOperationException("Error rendering column \"" + Caption + "\"", ex);
         }
 
+#if NETFRAMEWORK
         if (GriddlySettings.ColumnValueFilter != null)
             value = GriddlySettings.ColumnValueFilter.Filter(this, value, httpContext);
+#else
+        value = httpContext.GetGriddlyConfig().Filter(this, value, httpContext);
+#endif
 
         // TODO: test if we need to match separately -- maybe we get a real string here and could strip?
 #if NETCOREAPP

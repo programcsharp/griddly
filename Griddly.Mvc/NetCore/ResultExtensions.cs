@@ -1,6 +1,4 @@
-﻿#if NETCOREAPP
-
-using Griddly.Mvc.Results;
+﻿using Griddly.Mvc.Results;
 using System.Data;
 
 namespace Griddly.Mvc;
@@ -20,5 +18,3 @@ public static class ResultExtensions
         return new DapperSql2012Result<T>(getConnection, sql, param, _this.ViewData, map, massage, fixedSort, getTransaction, outerSqlTemplate, commandTimout);
     }
 }
-
-#endif

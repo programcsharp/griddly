@@ -356,7 +356,7 @@
             <td colspan="@settings.Columns.Where(x => x.Visible).Count()">
                 @if (settings.EmptyGridMessageTemplate != null)
                 {
-                    @settings.EmptyGridMessageTemplate(new EmptyGridMessageTemplateParams() { ResultPage = Model, Settings = settings })
+                    @settings.EmptyGridMessageTemplate(new EmptyGridMessageTemplateParams(Model, settings, Html))
                 }
                 else
                 {

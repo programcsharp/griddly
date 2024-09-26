@@ -1,5 +1,4 @@
-﻿#if NETCOREAPP
-using PluralizationService;
+﻿using PluralizationService;
 using PluralizationService.English;
 using System.Globalization;
 
@@ -30,4 +29,3 @@ internal class PluralizationServiceInstance
         return Api.Singularize(name, CultureInfo) ?? name;
     }
 }
-#endif

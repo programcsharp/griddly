@@ -14,6 +14,8 @@
 
 @model GriddlyResultPage
 
+@inject IGriddlyConfig Globals;
+
 @{
     GriddlySettings settings = (GriddlySettings)ViewBag.settings;
     var context = ViewContext.GetOrCreateGriddlyContext();
@@ -23,15 +25,7 @@
     bool simple = ViewBag.isSimpleGriddly == true;
     bool isFirstRender = simple || ViewContext.HttpContext.IsChildAction();
 
-    if (GriddlySettings.OnBeforeRender != null)
-    {
-        GriddlySettings.OnBeforeRender(settings, Model, Html, isFirstRender);
-    }
-
-    if (GriddlySettings.GlobalBeforeRender != null)
-    {
-        GriddlySettings.GlobalBeforeRender(new BeforeRenderArgs(settings, Model, Html, isFirstRender));
-    }
+    await Globals.OnBeforeRender(new BeforeRenderArgs(settings, Model, Html, isFirstRender));
 
     if (settings.BeforeRender != null)
     {
@@ -175,7 +169,7 @@
             @if (Model.SortFields != null && Model.SortFields.Any()) { <text> data-griddly-currentsort="@Newtonsoft.Json.JsonConvert.SerializeObject(Model.SortFields.Select(x => new { field = x.Field, direction = x.Direction.ToString() }))" </text> }   @if (defaultSort != null && defaultSort.Any()) { <text> data-griddly-defaultsort="@Newtonsoft.Json.JsonConvert.SerializeObject(defaultSort.Select(x => new { field = x.Field, direction = x.Direction.ToString() }))" </text> }   @: @settings.HtmlAttributes.ToHtmlAttributes()>
         if (settings.BeforeTemplate != null)
         {
-            @settings.BeforeTemplate(null)
+            @await settings.BeforeTemplate(Html)
         }
         if (settings.Buttons.Any())
         {
@@ -189,14 +183,14 @@
         }
         if (settings.AfterButtonsTemplate != null)
         {
-            @settings.AfterButtonsTemplate(null)
+            @await settings.AfterButtonsTemplate(Html)
         }
         if (settings.AllowedFilterModes != FilterMode.None && settings.AllowedFilterModes.Value.HasFlag(FilterMode.Form) && !settings.IsFilterFormInline)
         {
             <div class="griddly-filters griddly-filters-form" style="@(settings.InitialFilterMode?.HasFlag(FilterMode.Form) == true ? null : "display:none")">
                 @if (settings.FilterTemplate != null)
                 {
-                    @settings.FilterTemplate(settings)
+                    @await settings.FilterTemplate(settings, Html)
                 }
                 else if (settings.AllowedFilterModes.Value.HasFlag(FilterMode.Form) && settings.Filters.Any())
                 {
@@ -237,7 +231,7 @@
 
                             @if (settings.TitleAppend != null)
                             {
-                                @settings.TitleAppend(Model)
+                                @await settings.TitleAppend(Model, Html)
                             }
                         </td>
                     </tr>
@@ -248,7 +242,7 @@
                             <td colspan="@settings.Columns.Where(x => x.Visible).Count()">
                                 @if (settings.FilterTemplate != null)
                                 {
-                                    @settings.FilterTemplate(settings)
+                                    @await settings.FilterTemplate(settings, Html)
                                 }
                                 else if (settings.AllowedFilterModes.Value.HasFlag(FilterMode.Form) && settings.Filters.Any())
                                 {
@@ -266,7 +260,7 @@
                     }
                     @if (settings.BeforeColumnHeadersTemplate != null)
                     {
-                        @settings.BeforeColumnHeadersTemplate(null);
+                        @await settings.BeforeColumnHeadersTemplate(Html);
                     }
                     <tr class="columnHeaders">
                         @foreach (GriddlyColumn column in settings.Columns)
@@ -300,7 +294,7 @@
 
                             @if (settings.InlineFilterTemplate != null)
                             {
-                                @settings.InlineFilterTemplate(settings)
+                                @await settings.InlineFilterTemplate(settings, Html)
                             }
                             else if (settings.Columns.Any(x => x.Filter != null))
                             {
@@ -310,13 +304,13 @@
                     }
                     @if (settings.HeaderTemplate != null)
                     {
-                        var template = settings.HeaderTemplate(Model);
+                        var html = await settings.HeaderTemplate(Model, Html);
 
-                        if (template != null)
+                        if (html != null)
                         {
                             <tr class="griddly-header">
                                 <td colspan="@settings.Columns.Where(x => x.Visible).Count()">
-                                    @template
+                                    @html
                                 </td>
                             </tr>
                         }
@@ -370,7 +364,7 @@
             <td colspan="@settings.Columns.Where(x => x.Visible).Count()">
                 @if (settings.EmptyGridMessageTemplate != null)
                 {
-                    @settings.EmptyGridMessageTemplate(new EmptyGridMessageTemplateParams() { ResultPage = Model, Settings = settings })
+                    @await settings.EmptyGridMessageTemplate(new EmptyGridMessageTemplateParams(Model, settings, Html))
                 }
                 else
                 {
@@ -405,13 +399,13 @@
     }
     else
     {
-        @settings.FooterTemplate(Model)
+        @await settings.FooterTemplate(Model, Html)
     }
 </div>
 
 if (settings.AfterTemplate != null)
 {
-    @settings.AfterTemplate(null)
+    @await settings.AfterTemplate(Html)
 }
 @:</div>
 }

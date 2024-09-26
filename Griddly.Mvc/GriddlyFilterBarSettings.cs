@@ -1,4 +1,6 @@
-﻿namespace Griddly.Mvc;
+﻿using System.Threading.Tasks;
+
+namespace Griddly.Mvc;
 
 public class GriddlyFilterBarSettings : IGriddlyFilterSettings
 {
@@ -6,12 +8,12 @@ public class GriddlyFilterBarSettings : IGriddlyFilterSettings
 
 #if NETFRAMEWORK
     public Func<object, object> FilterButtonTemplate { get; set; }
-        public Func<IGriddlyFilterSettings, object> FilterModalHeaderTemplate { get; set; }
-        public Func<IGriddlyFilterSettings, object> FilterModalFooterTemplate { get; set; }
+    public Func<IGriddlyFilterSettings, object> FilterModalHeaderTemplate { get; set; }
+    public Func<IGriddlyFilterSettings, object> FilterModalFooterTemplate { get; set; }
 #else
-    public Func<object, IHtmlContent> FilterButtonTemplate { get; set; }
-        public Func<IGriddlyFilterSettings, IHtmlContent> FilterModalHeaderTemplate { get; set; }
-        public Func<IGriddlyFilterSettings, IHtmlContent> FilterModalFooterTemplate { get; set; }
+    public Func<IHtmlHelper, Task<IHtmlContent>> FilterButtonTemplate { get; set; }
+    public Func<IGriddlyFilterSettings, IHtmlHelper, Task<IHtmlContent>> FilterModalHeaderTemplate { get; set; }
+    public Func<IGriddlyFilterSettings, IHtmlHelper, Task<IHtmlContent>> FilterModalFooterTemplate { get; set; }
 #endif
 
 
