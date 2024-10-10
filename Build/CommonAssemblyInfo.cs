@@ -17,4 +17,4 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 [assembly: AssemblyVersion("3.8.0")]
 [assembly: AssemblyFileVersion("3.8.0")]
-[assembly: AssemblyInformationalVersion("3.8.0-rc1")]
+[assembly: AssemblyInformationalVersion("3.8.0-rc2")]
