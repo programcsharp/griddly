@@ -106,15 +106,13 @@ public abstract class GriddlyResult<T> : GriddlyResult
 #if NETFRAMEWORK
         if (context.IsChildAction)
         {
-            //settings = GriddlySettingsResult.GetSettings(context, ViewName); - this looks redundant to me.
+            GriddlySettings.OnGriddlyResultExecuting?.Invoke(settings, context);
+            GriddlySettings.GlobalGriddlyResultExecuting?.Invoke(new GriddlyResultExecutingArgs(this, settings, context));
 #else
         if (context.HttpContext.IsChildAction())
         {
-            //settings = await GriddlySettingsResult.GetSettings(context, ViewName);
+            await context.GetGriddlyConfig().OnGriddlyResultExecuting(new GriddlyResultExecutingArgs(this, settings, context));
 #endif
-
-            GriddlySettings.OnGriddlyResultExecuting?.Invoke(settings, context);
-            GriddlySettings.GlobalGriddlyResultExecuting?.Invoke(new GriddlyResultExecutingArgs(this, settings, context));
 
             // TODO: should we always pull sort fields?
             if (griddlyContext.SortFields?.Any() != true)
@@ -131,8 +129,12 @@ public abstract class GriddlyResult<T> : GriddlyResult
 
         if (griddlyContext.ExportFormat == null)
         {
+#if NETFRAMEWORK
             GriddlySettings.OnGriddlyPageExecuting?.Invoke(settings, griddlyContext, context);
             GriddlySettings.GlobalGriddlyPageExecuting?.Invoke(new GriddlyPageExecutingArgs(this, settings, griddlyContext, context));
+#else
+            await context.GetGriddlyConfig().OnGriddlyPageExecuting(new GriddlyPageExecutingArgs(this, settings, griddlyContext, context));
+#endif
 
             IList<T> page = GetPage(griddlyContext.PageNumber, griddlyContext.PageSize, griddlyContext.SortFields);
 
@@ -213,17 +215,25 @@ public abstract class GriddlyResult<T> : GriddlyResult
 
             if (griddlyContext.ExportFormat == GriddlyExportFormat.Custom)
             {
+#if NETFRAMEWORK
                 if (GriddlySettings.GlobalHandleCustomExport != null)
                     result = GriddlySettings.GlobalHandleCustomExport(new HandleCustomExportArgs(this, items, context));
                 else
                     result = GriddlySettings.HandleCustomExport(this, items, context);
+#else
+                result = await context.GetGriddlyConfig().HandleCustomExport(new HandleCustomExportArgs(this, items, context));
+#endif
             }
             else
             {
                 IEnumerable<T> records = GetAll(griddlyContext.SortFields);
 
+#if NETFRAMEWORK
                 if (GriddlySettings.OnGriddlyExportExecuting != null)
                     records = GriddlySettings.OnGriddlyExportExecuting(records, settings).Cast<T>();
+#else
+                records = (await context.GetGriddlyConfig().OnGriddlyExportExecuting(records, settings)).Cast<T>();
+#endif
 
                 if (griddlyContext.ExportFormat == GriddlyExportFormat.Xlsx)
                 {

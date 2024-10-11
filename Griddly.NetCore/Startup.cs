@@ -1,32 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Griddly.Mvc;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Griddly.NetCore
 {
-    public class GriddlyHttpContextAccessor : IHttpContextAccessor
-    {
-        private static AsyncLocal<HttpContext> _httpContextCurrent = new AsyncLocal<HttpContext>();
-        HttpContext IHttpContextAccessor.HttpContext { get => _httpContextCurrent.Value; set => _httpContextCurrent.Value = value; }
-    }
-
     public class Startup
     {
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
 
-            GriddlySettings.HandleCustomExport = Griddly.Controllers.HomeController.HandleCustomExport;
             GriddlySettings.DisableHistoryParameters = true;
         }
 
@@ -37,10 +23,8 @@ namespace Griddly.NetCore
         {
             services.AddControllersWithViews();
 
-            //These are necessary for griddly's RenderAction() to work
-            services.AddSingleton<IHttpContextAccessor, GriddlyHttpContextAccessor>();
-            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
-
+            services.AddGriddly<GriddlyConfig>();
+            
             services.AddMvc(options => {
                 options.Filters.Add(new GriddlyParameterAttribute());
                 options.ValueProviderFactories.Add(new GriddlyCookieFilterValueProviderFactory());

@@ -33,5 +33,15 @@
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
   </ItemGroup>
-  
+
+	<ItemGroup Condition="$(TargetFramework.StartsWith('net4'))">
+		<Compile Remove="NetCore\**"/>
+		<None Include="NetCore\**"/>
+	</ItemGroup>
+
+	<ItemGroup Condition="$(TargetFramework.StartsWith('netcoreapp'))">
+		<Compile Remove="NetFramework\**"/>
+		<None Include="NetFramework\**"/>
+	</ItemGroup>
+
 </Project>

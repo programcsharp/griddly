@@ -1,5 +1,4 @@
-﻿#if NETFRAMEWORK
-using System.IO;
+﻿using System.IO;
 using System.Security.Authentication.ExtendedProtection;
 using System.Security.Principal;
 using System.Threading;
@@ -204,4 +203,3 @@ public class GriddlySettingsResult : PartialViewResult
         }
     }
 }
-#endif

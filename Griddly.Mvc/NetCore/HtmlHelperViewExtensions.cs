@@ -1,5 +1,4 @@
-﻿#if NETCOREAPP
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -198,4 +197,3 @@ internal static class HtmlHelperViewExtensions
     //    return new HtmlString(content);
     //}
 }
-#endif
