@@ -45,7 +45,7 @@
                         @Html.AttributeIf("data-griddly-filter-isnullable", filterList != null, x => filterList.IsNullable.ToString().ToLower())
                         @Html.AttributeIf("data-griddly-filter-displayitemcount", filterList != null, x => filterList.DisplayItemCount)
                         @Html.AttributeIf("data-griddly-filter-displayincludecaption", filterList != null, x => filterList.DisplayIncludeCaption.ToString().ToLower())>
-            <label for="griddly-filter-@filter.Field" class="col-sm-3 @(css.IsBootstrap4 ? "col-form-label" : "control-label")">@filter.Caption</label>
+            <label for="griddly-filter-@filter.Field" class="col-sm-3 @(css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5) ? "col-form-label" : "control-label")">@filter.Caption</label>
             <div class="col-sm-9">
                 @if (filterBox != null)
                 {
@@ -167,7 +167,7 @@
 
 @helper InputGroupAddon(Func<MvcHtmlString, HelperResult> htmlContent, bool prepend = false) { 
     var css = (GriddlyCss?)ViewBag.GriddlyCss ?? GriddlySettings.DefaultCss;
-    if (css.IsBootstrap4)
+    if (css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5))
     {
         <div class="input-group-@(prepend?"prepend":"append")"><span class="input-group-text">@htmlContent(new MvcHtmlString(""))</span></div>
     }

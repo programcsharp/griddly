@@ -566,14 +566,14 @@
         this.setFilterValues(values, true, null, true);
     };
 
-    var hidePopover = function (selector, isBootstrap4) {
+    var hidePopover = function (selector, isBootstrap4or5) {
         selector.each(function () {
             var filter = $(this);
             if (filter.attr("aria-describedby")) { //This attribute will be present only when the popover is currently shown
                 filter.popover("hide");
 
                 //Workaround for bug introduced in Bootstrap 3.3.5, where hide() doesn't clear out the click state, so toggle() after hide() does not show.
-                if (!isBootstrap4 && filter.data("bs.popover").inState) {
+                if (!isBootstrap4or5 && filter.data("bs.popover").inState) {
                     filter.data("bs.popover").inState.click = false;
                 }
             }
@@ -585,7 +585,8 @@
         this.$element = $(element);
         this.$filterModal = $(".griddly-filter-modal", this.$element);
         this.options = options;
-        this.isBootstrap4 = $.fn.tooltip.Constructor.VERSION.substr(0, 1) == "4";
+        this.bootstrapVersion = $.fn.tooltip.Constructor.VERSION.substr(0, 1);
+        this.isBootstrap4or5 = this.bootstrapVersion == "4" || this.bootstrapVersion == "5";
         this.create();
         this.isConstructed = false;
         this.eventQueue = [];
@@ -680,7 +681,7 @@
                             tip = filter.data('bs.popover').tip; /*BS4*/
 
                         if ($(tip).hasClass('in') || $(tip).hasClass('show')/*BS4*/) {
-                            hidePopover(filter, self.isBootstrap4);
+                            hidePopover(filter, self.isBootstrap4or5);
 
                             if (!self.options.autoRefreshOnFilter && self.pendingInlineFilterRefresh) {
                                 self.refresh(true);
@@ -1154,7 +1155,7 @@
                 if (filter.hasClass("griddly-filter-box"))
                 {
                     if (!dontHide && this.options.autoRefreshOnFilter)
-                        hidePopover(filter.find(".filter-trigger"), self.isBootstrap4);
+                        hidePopover(filter.find(".filter-trigger"), self.isBootstrap4or5);
 
                     var val = trimToNull(getCleanedValue(content.find("input").first().val(), dataType));
 
@@ -1200,7 +1201,7 @@
                 else if (filter.hasClass("griddly-filter-list"))
                 {
                     if (!filter.data("griddly-filter-ismultiple") && !dontHide && this.options.autoRefreshOnFilter)
-                        hidePopover(filter.find(".filter-trigger"), self.isBootstrap4);
+                        hidePopover(filter.find(".filter-trigger"), self.isBootstrap4or5);
 
                     var allItems = content.find("li:not(.griddly-list-group-header), .dropdown-item");
                     var selectedItems = allItems.filter(":has(:checked)");
@@ -1217,7 +1218,7 @@
                         display = selectedItems.length + " " + filter.data("filter-name-plural");
                     else if (selectedItems.length > 0 && selectedItems.length <= displayItemCount)
                     {
-                        var itemTexts = self.isBootstrap4 ? selectedItems : selectedItems.find("a");
+                        var itemTexts = self.isBootstrap4or5 ? selectedItems : selectedItems.find("a");
                         var display = $.trim($(itemTexts[0]).text());
 
                         for (var i = 1; i < selectedItems.length && i < displayItemCount; i++)
@@ -1271,7 +1272,7 @@
                     }
 
                     var filter = $input.data("griddly-filter");
-                    hidePopover(filter.find(".filter-trigger"), this.isBootstrap4);
+                    hidePopover(filter.find(".filter-trigger"), this.isBootstrap4or5);
                 }
             }, this));
 
@@ -1292,7 +1293,7 @@
                     placement: "bottom",
                     container: $(".griddly-filters-inline", this.$element),
                     template:
-                        self.isBootstrap4 ? '<div class="popover griddly-filter-popover" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>'
+                        self.isBootstrap4or5 ? '<div class="popover griddly-filter-popover" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>'
                         : '<div class="popover griddly-filter-popover"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>',
                     content: function ()
                     {
@@ -1300,7 +1301,7 @@
                     }
                 }).on("show.bs.popover", function ()
                 {
-                    hidePopover(self.$element.find(".griddly-filters-inline .filter-trigger").not(this), self.isBootstrap4);
+                    hidePopover(self.$element.find(".griddly-filters-inline .filter-trigger").not(this), self.isBootstrap4or5);
 
                     content.find("input:first").select();
 
@@ -1331,7 +1332,7 @@
                         if (this.pendingInlineFilterRefresh) {
                             this.refresh(true);
                         }
-                        hidePopover(filterTrigger, this.isBootstrap4);
+                        hidePopover(filterTrigger, this.isBootstrap4or5);
                     }, this));
                 }
 
@@ -1366,7 +1367,7 @@
                     }
                     else
                     {
-                        var item = self.isBootstrap4 ? $(this) : $(this).parents("li");
+                        var item = self.isBootstrap4or5 ? $(this) : $(this).parents("li");
 
                         var checkbox = $(this).find("input");
 
