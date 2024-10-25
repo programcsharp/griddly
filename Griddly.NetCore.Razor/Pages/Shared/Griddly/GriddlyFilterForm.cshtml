@@ -144,7 +144,7 @@ Func<(Func<dynamic, IHtmlContent> content, bool prepend), IHtmlContent> InputGro
                 {
                     filterList.SetSelectedItems(defaultValue);
 
-                    <select class="form-control" id="griddly-filter-@filter.Field" name="@filter.Field" @(filterList.IsMultiple ? "multiple" : null) @if (filter.InputHtmlAttributes != null) { foreach (var attr in filter.InputHtmlAttributes) { <text> @attr.Key="@attr.Value" </text> } }>
+                    <select class="form-control @(css.Is(CssFramework.Bootstrap5) ? "form-select" : null)" id="griddly-filter-@filter.Field" name="@filter.Field" @(filterList.IsMultiple ? "multiple" : null) @if (filter.InputHtmlAttributes != null) { foreach (var attr in filter.InputHtmlAttributes) { <text> @attr.Key="@attr.Value" </text> } }>
                         @foreach (SelectListItem item in filterList.Items)
                         {
                             SelectListItemGroup group = item as SelectListItemGroup;
