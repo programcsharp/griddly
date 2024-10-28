@@ -80,8 +80,6 @@ public struct GriddlyCss
         }
     };
 
-
-
     public static GriddlyCss Bootstrap5Defaults = new GriddlyCss()
     {
         Framework = CssFramework.Bootstrap5,

@@ -46,7 +46,7 @@ else
                 <div class="modal-footer" style="@(css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5) ? "justify-content:flex-start" : null@*fix for IE flex bug*@)">
 
                     <div class="btn-group @(css.Is(CssFramework.Bootstrap5) ? "me-auto" : css.Is(CssFramework.Bootstrap4) ? "mr-auto" : "pull-left")">
-                        <button type="button" class="@css.ButtonDefault dropdown-toggle" data-toggle="dropdown" data-bs-toggle="@(css.Is(CssFramework.Bootstrap5) ? "dropdown" : null)" aria-haspopup="true" aria-expanded="false">
+                        <button type="button" class="@css.ButtonDefault dropdown-toggle" data-toggle="@(css.Is(CssFramework.Bootstrap3, CssFramework.Bootstrap4) ? "dropdown" : null)" data-bs-toggle="@(css.Is(CssFramework.Bootstrap5) ? "dropdown" : null)" aria-haspopup="true" aria-expanded="false">
                             Reset @if (css.Is(CssFramework.Bootstrap3)) {<span class="@css.Icons.CaretDown"></span>}
                         </button>
                         @if (css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5))

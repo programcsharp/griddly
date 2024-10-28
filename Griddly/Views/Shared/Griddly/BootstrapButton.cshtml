@@ -30,7 +30,7 @@ else
             @RenderLink(Model, true, false)
             @if (Model.DropdownCaret == GriddlyDropdownCaret.Split)
             {
-                <button type="button" class="dropdown-toggle dropdown-toggle-split @css.ButtonDefault" data-toggle="dropdown" data-bs-toggle="@(css.Is(CssFramework.Bootstrap5) ? "dropdown" : null)">
+                <button type="button" class="dropdown-toggle dropdown-toggle-split @css.ButtonDefault" data-toggle="@(css.Is(CssFramework.Bootstrap3, CssFramework.Bootstrap4) ? "dropdown" : null)" data-bs-toggle="@(css.Is(CssFramework.Bootstrap5) ? "dropdown" : null)">
                     @if (css.Is(CssFramework.Bootstrap3))
                     {
                     <span class="@css.Icons.CaretDown"></span>
@@ -94,7 +94,7 @@ else
         @Html.AttributeIf("target", button.Action == GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
         href="@(href ?? "javscript:void()")"
         @Html.AttributeIf("data-toggle", button.Action != GriddlyButtonAction.Navigate && button.Action != GriddlyButtonAction.Javascript, button.Action.ToString().ToLower())
-        @Html.AttributeIf("data-toggle", isDropdown && button.DropdownCaret != GriddlyDropdownCaret.Split, "dropdown")
+        @Html.AttributeIf(css.Is(CssFramework.Bootstrap3, CssFramework.Bootstrap4) ? "data-toggle" : "data-bs-toggle", isDropdown && button.DropdownCaret != GriddlyDropdownCaret.Split, "dropdown")
         @Html.AttributeIf("data-onclick", button.Action == GriddlyButtonAction.Javascript && !string.IsNullOrWhiteSpace(button.Argument), button.Argument)
         @Html.AttributeIf("data-url", button.Action == GriddlyButtonAction.Ajax || button.Action == GriddlyButtonAction.AjaxBulk || button.Action == GriddlyButtonAction.Post || button.Action == GriddlyButtonAction.PostCriteria, button.Argument)
         @Html.AttributeIf("data-target", button.Action != GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)

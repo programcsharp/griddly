@@ -903,7 +903,7 @@
                 var url = $.trim(clickTarget.parents("tr").data("griddly-url"));
                 var target = $.trim(clickTarget.parents("tr").data("griddly-urltarget"));
 
-                if (url && clickTarget.closest("a").length == 0 && clickTarget.closest("td").find("[data-toggle=dropdown]").length == 0)
+                if (url && clickTarget.closest("a").length == 0 && clickTarget.closest("td").find("[data-toggle=dropdown],[data-bs-toggle=dropdown]").length == 0)
                 {
                     e.preventDefault();
 
