@@ -58,11 +58,11 @@
       <Output TaskParameter="Assemblies" ItemName="AsmInfo" />
     </GetAssemblyIdentity>
     <GetAssemblyInformationalVersion AssemblyFile="$(PackageDir)\Griddly.Core\lib\net461\Griddly.Mvc.dll">
-      <Output TaskParameter="Value" ItemName="AssemblyInformationalVersion" />
+      <Output TaskParameter="Value" ItemName="AssemblyVersion" />
     </GetAssemblyInformationalVersion>
     <PropertyGroup>
-      <AssemblyInformationalVersion Condition="@(AssemblyInformationalVersion) != ''">@(AssemblyInformationalVersion)</AssemblyInformationalVersion>
-        <AssemblyInformationalVersion Condition="$(AssemblyInformationalVersion) == ''">%(AsmInfo.InfoVersion)</AssemblyInformationalVersion>
+      <AssemblyVersion Condition="@(AssemblyVersion) != ''">@(AssemblyVersion)</AssemblyVersion>
+      <AssemblyVersion Condition="$(AssemblyVersion) == ''">%(AsmInfo.Version)</AssemblyVersion>
     </PropertyGroup>
 
     <!-- insert the version number into the nuspec files -->
@@ -70,18 +70,18 @@
       Namespace="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"
       XmlFileName="$(PackageDir)\Griddly\Griddly.nuspec"
       XPath="/package/metadata/version"
-      Value="$(AssemblyInformationalVersion)" />
+      Value="$(AssemblyVersion)" />
     <XmlUpdate
       Namespace="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"
       XmlFileName="$(PackageDir)\Griddly.Core\Griddly.Core.nuspec"
       XPath="/package/metadata/version"
-      Value="$(AssemblyInformationalVersion)" />
+      Value="$(AssemblyVersion)" />
 
     <XmlUpdate
       Namespace="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd"
       XmlFileName="$(PackageDir)\Griddly\Griddly.nuspec"
       XPath="/package/metadata/dependencies/group/dependency[@id='Griddly.Core']/@version"
-      Value="$(AssemblyInformationalVersion)" />
+      Value="$(AssemblyVersion)" />
 
     <Exec WorkingDirectory="$(PackageDir)" 
           Command="$(BaseDir)\.nuget\nuget.exe pack $(PackageDir)\Griddly\Griddly.nuspec" />
