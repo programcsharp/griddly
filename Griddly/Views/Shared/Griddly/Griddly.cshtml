@@ -372,12 +372,12 @@
 @:</table>
 @:</div>
 
-    <div class="griddly-footer">
+    <div class="griddly-footer @settings.FooterClassName">
         @if (settings.FooterTemplate == null || simple)
         {
-            <span class="griddly-summary"><span class="@(settings.Css.IsBootstrap4 ? "d-none d-sm-inline" : "hidden-xs")">Records</span>
+            <span class="griddly-summary"><span class="@(settings.Css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5) ? "d-none d-sm-inline" : "hidden-xs")">Records</span>
                 <span class="griddly-recordstart">@(Model.PageNumber * Model.PageSize + (Model.Total > 0 ? 1 : 0))</span>
-                <span class="@(settings.Css.IsBootstrap4 ? "d-none d-sm-inline" : "hidden-xs")">through</span><span class="@(settings.Css.IsBootstrap4 ? "d-inline d-sm-none" : "visible-xs-inline")">-</span>
+                <span class="@(settings.Css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5) ? "d-none d-sm-inline" : "hidden-xs")">through</span><span class="@(settings.Css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5) ? "d-inline d-sm-none" : "visible-xs-inline")">-</span>
                 <span class="griddly-recordend">@(Model.PageNumber * Model.PageSize + Model.Count)</span>
                 of <span class="griddly-recordtotal">@Model.Total</span>
             </span>

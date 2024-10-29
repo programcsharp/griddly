@@ -19,7 +19,7 @@
     Func<SelectListItem, IHtmlContent> RenderListItem = @<option value="@item.Value" selected="@item.Selected">@item.Text</option>;
 
 Func<(Func<dynamic, IHtmlContent> content, bool prepend), IHtmlContent> InputGroupAddon = @<text>@{
-        if (css.IsBootstrap4)
+        if (css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5))
         {
             <div class="input-group-@(item.prepend ? "prepend" : "append")"><span class="input-group-text">@item.content(null)</span></div>
         }
@@ -59,7 +59,7 @@ Func<(Func<dynamic, IHtmlContent> content, bool prepend), IHtmlContent> InputGro
              @Html.AttributeIf("data-griddly-filter-isnullable", filterList != null, x => filterList.IsNullable.ToString().ToLower())
              @Html.AttributeIf("data-griddly-filter-displayitemcount", filterList != null, x => filterList.DisplayItemCount)
              @Html.AttributeIf("data-griddly-filter-displayincludecaption", filterList != null, x => filterList.DisplayIncludeCaption.ToString().ToLower())>
-            <label for="griddly-filter-@filter.Field" class="col-sm-3 @(css.IsBootstrap4 ? "col-form-label" : "control-label")">@filter.Caption</label>
+            <label for="griddly-filter-@filter.Field" class="col-sm-3 @(css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5) ? "col-form-label" : "control-label")">@filter.Caption</label>
             <div class="col-sm-9">
                 @if (filterBox != null)
                 {
@@ -144,7 +144,7 @@ Func<(Func<dynamic, IHtmlContent> content, bool prepend), IHtmlContent> InputGro
                 {
                     filterList.SetSelectedItems(defaultValue);
 
-                    <select class="form-control" id="griddly-filter-@filter.Field" name="@filter.Field" @(filterList.IsMultiple ? "multiple" : null) @if (filter.InputHtmlAttributes != null) { foreach (var attr in filter.InputHtmlAttributes) { <text> @attr.Key="@attr.Value" </text> } }>
+                    <select class="form-control @(css.Is(CssFramework.Bootstrap5) ? "form-select" : null)" id="griddly-filter-@filter.Field" name="@filter.Field" @(filterList.IsMultiple ? "multiple" : null) @if (filter.InputHtmlAttributes != null) { foreach (var attr in filter.InputHtmlAttributes) { <text> @attr.Key="@attr.Value" </text> } }>
                         @foreach (SelectListItem item in filterList.Items)
                         {
                             SelectListItemGroup group = item as SelectListItemGroup;

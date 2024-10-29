@@ -11,8 +11,8 @@ public abstract class GriddlySettings : IGriddlyFilterSettings
     public static string DefaultTableClassName { get => DefaultCss.TableDefault; set => DefaultCss.TableDefault = value; }
     [Obsolete("Use DefaultCss.ButtonDefault")]
     public static string DefaultButtonClassName { get => DefaultCss.ButtonDefault; set => DefaultCss.ButtonDefault = value; }
-    [Obsolete("Use DefaultCss.IsBootstrap4")]
-    public static bool IsBootstrap4 => DefaultCss.IsBootstrap4;
+    [Obsolete("Use DefaultCss.Is(CssFramework.Bootstrap4)")]
+    public static bool IsBootstrap4 => DefaultCss.Is(CssFramework.Bootstrap4);
     #endregion
 
 #if NETFRAMEWORK
@@ -106,6 +106,7 @@ public abstract class GriddlySettings : IGriddlyFilterSettings
 
         ClassName = DefaultCss.GriddlyDefault;
         TableClassName = DefaultCss.TableDefault;
+        FooterClassName = DefaultCss.FooterDefault;
         FooterTemplate = DefaultFooterTemplate;
         HeaderTemplate = DefaultHeaderTemplate;
             FilterModalHeaderTemplate = DefaultFilterModalHeaderTemplate;
@@ -143,6 +144,7 @@ public abstract class GriddlySettings : IGriddlyFilterSettings
     public string Title { get; set; }
     public string ClassName { get; set; }
     public string TableClassName { get; set; }
+    public string FooterClassName { get; set; }
     public FilterMode? AllowedFilterModes { get; set; }
     public FilterMode? InitialFilterMode { get; set; }
     public bool IsFilterFormInline { get; set; }

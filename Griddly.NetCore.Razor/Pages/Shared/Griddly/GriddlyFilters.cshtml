@@ -21,7 +21,7 @@
 }
 else
 {
-    <a class="@css.ButtonDefault griddly-filter-invoke" href="javascript:;"><i class="@(css.Icons.Filter)"></i><span class="@(!css.IsBootstrap4 ? "hidden-xs hidden-sm" : "d-none d-md-inline")"> Filter</span></a>
+    <a class="@css.ButtonDefault griddly-filter-invoke" href="javascript:;"><i class="@(css.Icons.Filter)"></i><span class="@(css.Is(CssFramework.Bootstrap3) ? "hidden-xs hidden-sm" : "d-none d-md-inline")"> Filter</span></a>
 }
 @await Html.PartialAsync("Griddly/GriddlyFilterValues", Model.Filters)
 <span class="griddly-filter-statusall-show">Showing all</span>
@@ -33,24 +33,23 @@ else
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                @if (css.IsBootstrap4)
+                @if (css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5))
                 {<h4 class="modal-title">Filter</h4>}
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                @if (!css.IsBootstrap4)
+                @if (css.Is(CssFramework.Bootstrap3))
                 {<h4 class="modal-title">Filter</h4>}
             </div>
-            <form class="@(css.IsBootstrap4?"":"form-horizontal")">
+            <form class="@(css.Is(CssFramework.Bootstrap3) ? "form-horizontal" : "")">
                 <div class="modal-body">
                     @await Html.PartialAsync("Griddly/GriddlyFilterForm", Model.Filters)
                 </div>
-                <div class="modal-footer" style="@(css.IsBootstrap4 ? "justify-content:flex-start" : null@*fix for IE flex bug*@)">
+                <div class="modal-footer" style="@(css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5) ? "justify-content:flex-start" : null@*fix for IE flex bug*@)">
 
-                    <div class="btn-group @(css.IsBootstrap4 ? "mr-auto" : "pull-left")">
-                        <button type="button" class="@css.ButtonDefault dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Reset @if (!css.IsBootstrap4)
-                            {<span class="@css.Icons.CaretDown"></span>}
+                    <div class="btn-group @(css.Is(CssFramework.Bootstrap5) ? "me-auto" : css.Is(CssFramework.Bootstrap4) ? "mr-auto" : "pull-left")">
+                        <button type="button" class="@css.ButtonDefault dropdown-toggle" data-toggle="@(css.Is(CssFramework.Bootstrap3, CssFramework.Bootstrap4) ? "dropdown" : null)" data-bs-toggle="@(css.Is(CssFramework.Bootstrap5) ? "dropdown" : null)" aria-haspopup="true" aria-expanded="false">
+                            Reset @if (css.Is(CssFramework.Bootstrap3)) {<span class="@css.Icons.CaretDown"></span>}
                         </button>
-                        @if (css.IsBootstrap4)
+                        @if (css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5))
                         {
                             <div class="dropdown-menu">
                                 <a class="griddly-search-reset dropdown-item" href="javascript:;">System Default</a>
@@ -66,7 +65,7 @@ else
                         }
                     </div>
 
-                    <button type="button" class="@(css.IsBootstrap4 ? "btn btn-link" : css.ButtonDefault) griddly-filter-cancel" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="@(css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5) ? "btn btn-link" : css.ButtonDefault) griddly-filter-cancel" data-dismiss="modal">Cancel</button>
 
                     <button type="submit" class="@css.ButtonDefault">Search</button>
                 </div>
