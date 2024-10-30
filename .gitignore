@@ -50,3 +50,6 @@ _ReSharper*/
 packages/
 .vs
 #/.nuget/NuGet.exe
+
+# JetBrains Rider exclusion
+/.idea
