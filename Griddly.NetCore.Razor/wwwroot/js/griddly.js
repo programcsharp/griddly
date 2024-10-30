@@ -50,7 +50,7 @@
 
                 return val;
             case "Date":
-                return String(val).replace(/[^0-9a-zA-Z-\/]/g, "");
+                return $.fn.griddly.defaults.getCleanedDate(val);
             default:
                 return val;
         }
@@ -122,12 +122,7 @@
 
                 return val;
             case "Date":
-                val = parseForValidDate(val);
-
-                if (val == null || !isFinite(val))
-                    return null;
-                else
-                    return (val.getMonth() + 1) + "/" + val.getDate() + "/" + val.getFullYear();
+                return $.fn.griddly.defaults.getFormattedDate(val);
             default:
                 return val;
         }
@@ -347,26 +342,7 @@
             switch (datatype)
             {
                 case "Date":
-                    var date;
-                    var pos;
-
-                    if (typeof (value) === "string" && (pos = value.indexOf("T")) != -1)
-                    {
-                        value = value.substr(0, pos);
-
-                        // Strip time, we only want date
-                        var parts = value.split('-');
-
-                        // new Date(year, month [, day [, hours[, minutes[, seconds[, ms]]]]])
-                        date = new Date(parts[0], parts[1] - 1, parts[2]); // Note: months are 0-based
-                    }
-                    else
-                        date = new Date(value);
-
-                    date.setHours(0, 0, 0, 0);
-
-                    value = date.toLocaleDateString();
-
+                    value = $.fn.griddly.defaults.getFilterDate(value);
                     break;
                 case "Currency":
                     value = parseFloat(value).toFixed(2);
@@ -2044,6 +2020,35 @@
             return this;
     };
 
+    const defaultCleanedDate = str => String(str).replace(/[^0-9a-zA-Z-\/]/g, "");
+    const defaultFormatedDate = str => {
+        var val = parseForValidDate(str);
+        return (val == null || !isFinite(val))
+            ? null
+            : (val.getMonth() + 1) + "/" + val.getDate() + "/" + val.getFullYear();
+    };
+    const defaultFilterDate = strOrDate => {
+        var date;
+        var pos;
+
+        if (typeof (strOrDate) === "string" && (pos = strOrDate.indexOf("T")) != -1)
+        {
+            strOrDate = strOrDate.substr(0, pos);
+
+            // Strip time, we only want date
+            var parts = strOrDate.split('-');
+
+            // new Date(year, month [, day [, hours[, minutes[, seconds[, ms]]]]])
+            date = new Date(parts[0], parts[1] - 1, parts[2]); // Note: months are 0-based
+        }
+        else
+            date = new Date(strOrDate);
+
+        date.setHours(0, 0, 0, 0);
+
+        return date.toLocaleDateString();
+    };
+
     $.fn.griddly.defaults = $.extend({},
     {
         pageNumber: 0,
@@ -2065,7 +2070,10 @@
         serializeSkipEmpty: true,
         filtersSelector: "input[name], select[name]",
         exportCustomFunction: null,
-        exportFunction: null
+        exportFunction: null,
+        getCleanedDate: defaultCleanedDate,
+        getFormattedDate: defaultFormatedDate,
+        getFilterDate: defaultFilterDate
     }, $.fn.griddlyGlobalDefaults);
 
     var GriddlyFilterBar = function (element, options)
