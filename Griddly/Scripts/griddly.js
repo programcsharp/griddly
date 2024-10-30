@@ -310,7 +310,6 @@
     // http://stackoverflow.com/q/8098202
     var parseForValidDate = function (text)
     {
-
         var date = Date.parse(text);
 
         if (isNaN(date))
@@ -2020,14 +2019,14 @@
             return this;
     };
 
-    const defaultCleanedDate = str => String(str).replace(/[^0-9a-zA-Z-\/]/g, "");
-    const defaultFormatedDate = str => {
+    var defaultCleanedDate = function(str) {return String(str).replace(/[^0-9a-zA-Z-\/]/g, "");};
+    var defaultFormatedDate = function(str) {
         var val = parseForValidDate(str);
         return (val == null || !isFinite(val))
             ? null
             : (val.getMonth() + 1) + "/" + val.getDate() + "/" + val.getFullYear();
     };
-    const defaultFilterDate = strOrDate => {
+    var defaultFilterDate = function(strOrDate) {
         var date;
         var pos;
 
