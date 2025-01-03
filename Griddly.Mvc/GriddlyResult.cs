@@ -43,7 +43,7 @@ public abstract class GriddlyResult : ActionResult
 
     public abstract long GetCount();
 
-    public abstract IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields);
+    public abstract IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields, P[] restriction = null);
 }
 
 public abstract class GriddlyResult<T> : GriddlyResult
@@ -259,7 +259,7 @@ public abstract class GriddlyResult<T> : GriddlyResult
     
     public abstract void PopulateSummaryValues(GriddlySettings<T> settings);
 
-    public override IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields)
+    public override IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields, P[] restriction = null)
     {
         throw new NotImplementedException();
     }

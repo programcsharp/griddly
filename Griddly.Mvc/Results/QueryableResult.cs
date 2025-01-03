@@ -127,10 +127,19 @@ public class QueryableResult<T> : GriddlyResult<T>
         }
     }
 
-    public override IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields)
+    public override IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields, P[] restriction = null)
     {
-        return ApplySortFields(GetQuery(), sortFields, _finalSortField)
-            .Select<P>(propertyName, null);
+        var query = GetQuery();
+
+        if (restriction != null)
+        {
+            query = System.Linq.Dynamic.Core.DynamicQueryableExtensions.Where(query, $"@0.Contains({propertyName})", restriction);
+//            query = query.Where($"@0.Contains({propertyName})", restriction);
+        }
+
+        query = ApplySortFields(query, sortFields, _finalSortField);
+
+        return query.Select<P>(propertyName, null);
     }
 
     public override long GetCount()
