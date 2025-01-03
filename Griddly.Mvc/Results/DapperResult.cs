@@ -84,19 +84,31 @@ public abstract class DapperResult<T> : GriddlyResult<T>
         }
     }
 
-    public override IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields)
+    public override IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields, P[] restriction = null)
     {
         if (propertyName.Contains("."))
             throw new ArgumentException($"Property name may not contain a period. \"{propertyName}\"", "propertyName");
 
-        string sql = $"SELECT {propertyName} as _val FROM ({_sql}) [_proj] {(_fixedSort ? "" : $"ORDER BY {BuildSortClause(sortFields) ?? "CURRENT_TIMESTAMP"}")}";
+        string sql = @$"SELECT {propertyName} as _val 
+FROM ({_sql}) [_proj]
+{(restriction != null ? $"WHERE {propertyName} in @GetAllForProperty_Ids" : null)}
+{(_fixedSort ? "" : $"ORDER BY {BuildSortClause(sortFields) ?? "CURRENT_TIMESTAMP"}")}";
 
         try
         {
             IDbConnection cn = _getConnection();
             IDbTransaction tx = _getTransaction != null ? _getTransaction() : null;
 
-            return cn.Query<P>(sql, _param, tx, commandTimeout: _commandTimeout);
+            object parameters = _param;
+
+            if (restriction != null)
+            {
+                var parameters2 = new DynamicParameters(parameters);
+                parameters2.Add("GetAllForProperty_Ids", restriction);
+                parameters = parameters2;
+            }
+
+            return cn.Query<P>(sql, parameters, tx, commandTimeout: _commandTimeout);
         }
         catch (Exception ex)
         {

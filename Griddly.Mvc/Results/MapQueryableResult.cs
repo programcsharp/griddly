@@ -40,9 +40,9 @@ public class MapQueryableResult<TIn, TOut> : GriddlyResult<TOut>
             _result.PopulateSummaryValue(c);
     }
 
-    public override IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields)
+    public override IEnumerable<P> GetAllForProperty<P>(string propertyName, SortField[] sortFields, P[] restriction = null)
     {
-        return _result.GetAllForProperty<P>(propertyName, sortFields);
+        return _result.GetAllForProperty<P>(propertyName, sortFields, restriction);
     }
 
     public override long GetCount()
