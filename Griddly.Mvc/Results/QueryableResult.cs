@@ -1,8 +1,4 @@
-﻿#if NETFRAMEWORK
-using Griddly.Mvc.Linq.Dynamic;
-#else
-using System.Linq.Dynamic.Core;
-#endif
+﻿using System.Linq.Dynamic.Core;
 
 namespace Griddly.Mvc.Results;
 
