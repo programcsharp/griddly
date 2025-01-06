@@ -15,4 +15,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("3.8.1")]
 [assembly: AssemblyFileVersion("3.8.1")]
 // Uncomment the informational version to create a pre-release package
-//[assembly: AssemblyInformationalVersion("3.7.9-beta")]
+[assembly: AssemblyInformationalVersion("3.8.1-rc2")]

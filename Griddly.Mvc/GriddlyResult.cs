@@ -1,6 +1,4 @@
-﻿#if NETFRAMEWORK
-using Griddly.Mvc.Linq.Dynamic;
-#else
+﻿#if NETCOREAPP
 using Griddly.Mvc.InternalExtensions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Threading.Tasks;

@@ -1,13 +1,12 @@
 ﻿using System.Text;
 using System.Threading;
+using System.Linq.Dynamic.Core;
 #if NETFRAMEWORK
-using Griddly.Mvc.Linq.Dynamic;
 using System.Web.Mvc.Html;
 using System.Web.WebPages;
 using System.Web.WebPages.Instrumentation;
 #else
 using Microsoft.AspNetCore.Mvc.Razor;
-using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
 using Griddly.Mvc.InternalExtensions;
 #endif
