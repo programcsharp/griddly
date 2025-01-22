@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyProduct("Griddly")]
-[assembly: AssemblyCopyright("Copyright © 2013-2024 Chris Hynes, Joel Potter, and Data Research Group")]
+[assembly: AssemblyCopyright("Copyright © 2013-2025 Chris Hynes, Joel Potter, and Data Research Group")]
 
 [assembly: ComVisible(false)]
 
@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 //      Minor Version
 //      Build Number
 //      Revision
-[assembly: AssemblyVersion("3.8.1")]
-[assembly: AssemblyFileVersion("3.8.1")]
+[assembly: AssemblyVersion("3.8.2")]
+[assembly: AssemblyFileVersion("3.8.2")]
 // Uncomment the informational version to create a pre-release package
-[assembly: AssemblyInformationalVersion("3.8.1-rc2")]
+//[assembly: AssemblyInformationalVersion("3.8.1-rc2")]
