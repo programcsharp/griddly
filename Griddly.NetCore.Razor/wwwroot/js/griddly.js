@@ -2489,10 +2489,10 @@
             if (value.constructor === Array)
             {
                 for (var i = 0; i < value.length; i++)
-                    inputs += '<input name="' + key + '" value="' + value[i] + '" />';
+                    inputs += '<input name="' + key + '" value="' + ("" + value[i]).replaceAll("\"", "&quot;") + '" />';
             }
             else
-                inputs += '<input name="' + key + '" value="' + value + '" />';
+                inputs += '<input name="' + key + '" value="' + ("" + value).replaceAll("\"", "&quot;") + '" />';
         }
 
         $("<form action=\"" + url + "\" method=\"post\">" + inputs + "</form>")
