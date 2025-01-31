@@ -129,8 +129,7 @@ public class QueryableResult<T> : GriddlyResult<T>
 
         if (restriction != null)
         {
-            query = System.Linq.Dynamic.Core.DynamicQueryableExtensions.Where(query, $"@0.Contains({propertyName})", restriction);
-//            query = query.Where($"@0.Contains({propertyName})", restriction);
+            query = query.Where($"@0.Contains({propertyName})", restriction);
         }
 
         query = ApplySortFields(query, sortFields, _finalSortField);

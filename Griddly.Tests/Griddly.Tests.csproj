@@ -12,6 +12,7 @@
     <PackageReference Include="MSTest" Version="3.6.1" />
     <PackageReference Include="SQLite" Version="3.13.0" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.119" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.0.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Faker.Net" Version="1.3.77" />
     <PackageReference Include="SyntaxHighlighter" Version="3.0.83" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.6.0.1" />
   </ItemGroup>
 
   <ItemGroup>
