@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 //      Minor Version
 //      Build Number
 //      Revision
-[assembly: AssemblyVersion("3.8.3")]
-[assembly: AssemblyFileVersion("3.8.3")]
+[assembly: AssemblyVersion("3.8.4")]
+[assembly: AssemblyFileVersion("3.8.4")]
 // Uncomment the informational version to create a pre-release package
-//[assembly: AssemblyInformationalVersion("3.8.1-rc2")]
+//[assembly: AssemblyInformationalVersion("3.8.4-rc2")]
