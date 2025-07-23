@@ -94,6 +94,8 @@ FROM ({_sql}) [_proj]
 {(restriction != null ? $"WHERE {propertyName} in @GetAllForProperty_Ids" : null)}
 {(_fixedSort ? "" : $"ORDER BY {BuildSortClause(sortFields) ?? "CURRENT_TIMESTAMP"}")}";
 
+        sql = string.Format(_outerSqlTemplate, sql);
+
         try
         {
             IDbConnection cn = _getConnection();
