@@ -1,6 +1,7 @@
 ﻿using Griddly.Mvc.Results;
 using System.Data.SQLite;
 using Dapper;
+using Griddly.Mvc.Exceptions;
 
 namespace Griddly.Tests
 {
@@ -55,6 +56,37 @@ namespace Griddly.Tests
             Assert.AreEqual(2, results.Count);
             Assert.IsTrue(results.Contains(1));
             Assert.IsTrue(results.Contains(3));
+        }
+
+        [TestMethod]
+        public void DapperResult_GetAllForProperty_CteWithoutOuterTemplate_Throws()
+        {
+            using (var conn = CreateTestDatabase("DapperResult_GetAllForProperty_CteWithoutOuterTemplate_Throws"))
+            {
+                //Arrange
+                var dapperResult = new DapperSql2012Result<object>(() => conn, ";with proj as (select * from TestTable) select * from proj where id=@id", new { id = 2 }, null);
+
+                //Act/Assert
+                Assert.ThrowsException<DapperGriddlyException>(() => dapperResult.GetAllForProperty<int>("Id", []));
+            }
+        }
+
+
+        [TestMethod]
+        public void DapperResult_GetAllForProperty_UsesOuterTemplate()
+        {
+            using (var conn = CreateTestDatabase("DapperResult_GetAllForProperty_UsesOuterTemplate"))
+            {
+                //Arrange
+                var dapperResult = new DapperSql2012Result<object>(() => conn, "select * from proj where id=@id", new { id = 2 }, null, outerSqlTemplate: ";with proj as (select * from TestTable) {0}");
+
+                //Act
+                var results = dapperResult.GetAllForProperty<int>("Id", []);
+
+                //Assert
+                Assert.AreEqual(1, results.Count());
+                Assert.AreEqual(2, results.First());
+            }
         }
 
         private class Model
