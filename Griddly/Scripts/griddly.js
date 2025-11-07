@@ -1819,14 +1819,26 @@
                     else
                         this.$element.find(".griddly-pager").show();
 
-                    //iterate through table and check rows that are in the selected list and have a checkbox
+                    // iterate through table and check rows that are in the selected list and have a checkbox
                     var _this = this;
+                    var remainingRows = { };
+
                     $("tbody tr", this.$element).find("input[name=_rowselect]").each(function (index, e) {
                         var rowkey = $(e).data("rowkey");
-                        if (_this.options.selectedRows[rowkey])
+                        var row = _this.options.selectedRows[rowkey];
+
+                        if (row)
+                        {
                             $(e).prop("checked", true);
+
+                            remainingRows[rowkey] = row;
+                        }
                     });
 
+                    // update selected rows to only those that are still present, in case an update filtered them away
+                    _this.options.selectedRows = remainingRows;
+                    this.setSelectedCount();
+                    
                     this.triggerOrQueue(this.$element, "refresh.griddly",
                         {
                             start: startRecord,
