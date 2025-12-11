@@ -2454,6 +2454,11 @@
             type: "POST"
         }).done($.proxy(function (data, status, xhr)
         {
+            if (data && data.success === false) {
+                bootbox.alert(data.errors && data.errors.length ? data.errors[0] : "An error occurred in your request.");
+                return;
+            }
+            
             // TODO: handle errors
             // TODO: go back to first page?
             griddly.griddly("refresh");
