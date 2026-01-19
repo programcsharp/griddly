@@ -4,6 +4,23 @@ namespace Griddly.Mvc;
 
 public class GriddlyFilterBarSettings : IGriddlyFilterSettings
 {
+#if NETFRAMEWORK
+    public GriddlyFilterBarSettings()
+    {
+        FilterModalHeaderTemplate = GriddlySettings.DefaultFilterModalHeaderTemplate;
+        FilterModalFooterTemplate = GriddlySettings.DefaultFilterModalFooterTemplate;
+    }
+#else
+    public GriddlyFilterBarSettings() { }
+
+    public GriddlyFilterBarSettings(IHtmlHelper html)
+    {
+        var config = html.GetGriddlyConfig();
+        FilterModalHeaderTemplate = config.FilterModalHeaderTemplate;
+        FilterModalFooterTemplate = config.FilterModalFooterTemplate;
+    }
+#endif
+
     public List<GriddlyFilter> Filters { get; set; } = new List<GriddlyFilter>();
 
 #if NETFRAMEWORK
