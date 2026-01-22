@@ -180,7 +180,7 @@ Func<(Func<dynamic, IHtmlContent> content, bool prepend), IHtmlContent> InputGro
                     <div class="filter-content">
                         @if (filterBox != null)
                         {
-                            <div class="input-group input-group-sm">
+                            <div class="input-group input-group-sm @(css.Is(CssFramework.Bootstrap5) ? "flex-nowrap" : "")">
 
                                 @if (filter.DataType == FilterDataType.Currency)
                                 {
@@ -204,7 +204,7 @@ Func<(Func<dynamic, IHtmlContent> content, bool prepend), IHtmlContent> InputGro
                         }
                         else if (filterRange != null)
                         {
-                            <div class="input-group input-group-sm">
+                            <div class="input-group input-group-sm @(css.Is(CssFramework.Bootstrap5) ? "flex-nowrap" : "")">
                                 @if (filter.DataType == FilterDataType.Currency)
                                 {
                                     @InputGroupAddon((@<text>@Griddly.Mvc.GriddlyExtensions.CurrencySymbol</text>, true))
@@ -224,7 +224,7 @@ Func<(Func<dynamic, IHtmlContent> content, bool prepend), IHtmlContent> InputGro
                                 </span>
                             </div>
                             <div style="text-align:center" class="filter-range-to-text">to</div>
-                            <div class="input-group input-group-sm">
+                            <div class="input-group input-group-sm @(css.Is(CssFramework.Bootstrap5) ? "flex-nowrap" : "")">
                                 @if (filter.DataType == FilterDataType.Currency)
                                 {
                                     @InputGroupAddon((@<text>@Griddly.Mvc.GriddlyExtensions.CurrencySymbol</text>, true))
@@ -249,10 +249,10 @@ Func<(Func<dynamic, IHtmlContent> content, bool prepend), IHtmlContent> InputGro
                             if (filterList.IsMultiple)
                             {
                                 <div class="input-group griddly-filter-buttons">
-                                    <span class="input-group-btn @(css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5) ? "w-50" : null)">
+                                    <span class="input-group-btn @(css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5) ? "w-40" : null)">
                                         <a class="@css.ButtonDefault griddly-select-all" href="javascript:;"><i class="@(css.Icons.Check)"></i> Select All</a>
                                     </span>
-                                    <span class="input-group-btn @(css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5) ? "w-50" : null)">
+                                    <span class="input-group-btn @(css.Is(CssFramework.Bootstrap4, CssFramework.Bootstrap5) ? "w-40" : null)">
                                         <a class="@css.ButtonDefault griddly-clear" href="javascript:;"><i class="@(css.Icons.Clear)"></i> Clear</a>
                                     </span>
                                 </div>
