@@ -950,7 +950,7 @@
                             {
                                 var oldSortDisplay = $(event.currentTarget).parents("tr").find("th[data-griddly-sortfield='" + thisSortField + "']");
 
-                                if (inlineFilters.length)
+                                if (inlineFilters.length && oldSortDisplay.length)
                                     oldSortDisplay = [oldSortDisplay[0], inlineFilters[0].cells[oldSortDisplay[0].cellIndex]];
 
                                 $(oldSortDisplay).removeClass("sorted_a").removeClass("sorted_d");
