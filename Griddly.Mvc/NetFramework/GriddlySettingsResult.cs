@@ -123,7 +123,7 @@ public class GriddlySettingsResult : PartialViewResult
 
     class EmptyHttpRequest : HttpRequestBase
     {
-        public EmptyHttpRequest (HttpRequestBase originalRequest)
+        public EmptyHttpRequest(HttpRequestBase originalRequest)
         {
             _originalRequest = originalRequest;
         }
@@ -172,6 +172,7 @@ public class GriddlySettingsResult : PartialViewResult
         public override string ContentType { get { return _originalRequest.ContentType; } set { } }
         public override System.Text.Encoding ContentEncoding { get { return _originalRequest.ContentEncoding; } set { } }
         public override RequestContext RequestContext { get; set; }
+        public override string this[string key] => QueryString[key] ?? Form[key] ?? Cookies[key]?.Value ?? ServerVariables[key];
     }
 
     class EmptyHttpResponse : HttpResponseBase
