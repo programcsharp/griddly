@@ -49,11 +49,11 @@
             title="@button.Title"
             @Html.AttributeIf("target", button.Action == GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
             href="@(href ?? "javscript:void()")"
-            @Html.AttributeIf("data-toggle", button.Action != GriddlyButtonAction.Navigate && button.Action != GriddlyButtonAction.Javascript, button.Action.ToString().ToLower())
+               @Html.AttributeIf(css.Is(CssFramework.Bootstrap3, CssFramework.Bootstrap4) ? "data-toggle" : "data-bs-toggle", button.Action != GriddlyButtonAction.Navigate && button.Action != GriddlyButtonAction.Javascript, button.Action.ToString().ToLower())
             @Html.AttributeIf(css.Is(CssFramework.Bootstrap3, CssFramework.Bootstrap4) ? "data-toggle" : "data-bs-toggle", item.isDropdown && button.DropdownCaret != GriddlyDropdownCaret.Split, "dropdown")
             @Html.AttributeIf("data-onclick", button.Action == GriddlyButtonAction.Javascript && !string.IsNullOrWhiteSpace(button.Argument), button.Argument)
             @Html.AttributeIf("data-url", button.Action == GriddlyButtonAction.Ajax || button.Action == GriddlyButtonAction.AjaxBulk || button.Action == GriddlyButtonAction.Post || button.Action == GriddlyButtonAction.PostCriteria, button.Argument)
-            @Html.AttributeIf("data-target", button.Action != GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
+               @Html.AttributeIf(css.Is(CssFramework.Bootstrap3, CssFramework.Bootstrap4) ? "data-target" : "data-bs-target", button.Action != GriddlyButtonAction.Navigate && !string.IsNullOrWhiteSpace(button.Target), button.Target)
             @Html.AttributeIf("data-enable-on-selection", button.EnableOnSelection, button.EnableOnSelection.ToString().ToLower())
             @Html.AttributeIf("data-clear-selection-on-action", clearSelectionOnAction, clearSelectionOnAction.ToString().ToLower())
             @Html.AttributeIf("data-confirm-message", button.ConfirmMessage != null, button.ConfirmMessage)
